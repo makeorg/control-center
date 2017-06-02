@@ -17,8 +17,6 @@ val log4jsVersion = "1.4.9"
 
 val scalaJsReactVersion = "0.13.1"
 
-
-
 enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
 
 libraryDependencies ++= Seq(
@@ -45,5 +43,3 @@ npmResolutions in Compile := {
 
 version in webpack := WebpackVersion
 // (webpack in(Compile, fastOptJS)) := Seq()
-
-        
