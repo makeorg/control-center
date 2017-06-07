@@ -15,7 +15,7 @@ val ReduxDevToolsVersion = "2.13.0"
 val WebpackVersion = "2.3.2"
 val log4jsVersion = "1.4.9"
 
-val scalaJsReactVersion = "0.13.1"
+val scalaJsReactVersion = "0.14.0"
 
 enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
 
@@ -32,9 +32,13 @@ npmDependencies in Compile ++= Seq(
   "create-react-class" -> CreateReactClassVersion,
   "react" -> ReactVersion,
   "react-dom" -> ReactVersion,
-  "react-router" -> ReactVersion,
-  "redux-devtools" -> ReactVersion,
-  "redux" -> ReduxVersion
+  "react-router" -> ReactRouterVersion,
+  "react-router-dom" -> ReactRouterVersion,
+  "react-router-redux" -> ReactRouterReduxVersion,
+  "redux-devtools-extension" -> ReduxDevToolsVersion,
+  "react-redux" -> ReactReduxVersion,
+  "redux" -> ReduxVersion,
+  "history" -> HistoryVersion
 )
 
 npmResolutions in Compile := {
