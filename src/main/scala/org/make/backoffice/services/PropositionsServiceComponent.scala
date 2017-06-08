@@ -23,7 +23,7 @@ trait PropositionsServiceComponent {
         propositionsList.find(_.propositionId == propositionId)
       )
 
-    def listPropositions: Future[Option[Seq[Proposition]]] =
-      Future.successful(Some(propositionsList))
+    def listPropositions: Future[Seq[Proposition]] =
+      Future.successful(propositionsList)
   }
 }

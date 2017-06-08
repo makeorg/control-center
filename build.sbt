@@ -46,4 +46,4 @@ npmResolutions in Compile := {
 }
 
 version in webpack := WebpackVersion
-// (webpack in(Compile, fastOptJS)) := Seq()
+webpackResources := baseDirectory.value / "src" / "main" / "webpack" ** "*.js"

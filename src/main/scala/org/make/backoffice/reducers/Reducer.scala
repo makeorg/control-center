@@ -17,9 +17,10 @@ object Reducer extends PropositionsServiceComponent {
     )
 
   def reduceUser(maybeState: Option[User], action: Any): User = {
-    val user = User(UUID.randomUUID, false, "token")
+    val user = maybeState.getOrElse(User(UUID.randomUUID, false, "token"))
     action match {
-      case action: Connect => ???
+      case Connect => user.copy(isAuthenticated = true)
+      case Disconnect => user.copy(isAuthenticated = false)
       case _ => user
     }
   }
@@ -27,7 +28,7 @@ object Reducer extends PropositionsServiceComponent {
   def reduceListPropositions(maybeState: Option[Seq[Proposition]], action: Any): Seq[Proposition] = {
     val list = Seq[Proposition](Proposition(UUID.randomUUID, "content"))
     action match {
-      case action: GetListProposition => propositionsList
+      case GetListProposition => propositionsList
       case _ => list
     }
   }

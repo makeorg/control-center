@@ -47,7 +47,8 @@ object HomepagePresentational {
         <.div(^.className := "row")(
           <.div(^.className := "main")(
             <.h1()("Make.org - Backoffice. "),
-            <(GoogleSignIn())()(),
+            <.div(^.id := "g-signin")(),
+            <(GoogleSignInController())()(),
             //  ROUTES
             <.button(^.id := "push-route-proposition", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("List Propositions"),
 
