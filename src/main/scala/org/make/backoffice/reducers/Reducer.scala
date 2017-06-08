@@ -5,8 +5,9 @@ import java.util.UUID
 import io.github.shogowada.scalajs.reactjs.router.redux.ReactRouterRedux
 import org.make.backoffice.actions._
 import org.make.backoffice.models.{GlobalState, Proposition, User}
+import org.make.backoffice.services.PropositionsServiceComponent
 
-object Reducer {
+object Reducer extends PropositionsServiceComponent {
   def reduce(maybeState: Option[GlobalState], action: Any): GlobalState =
     GlobalState(
       user = reduceUser(maybeState.map(_.user), action),
@@ -23,10 +24,10 @@ object Reducer {
     }
   }
 
-  def reduceListPropositions(maybeState: Option[List[Proposition]], action: Any): List[Proposition] = {
-    val list = List[Proposition](Proposition(UUID.randomUUID, "content"))
+  def reduceListPropositions(maybeState: Option[Seq[Proposition]], action: Any): Seq[Proposition] = {
+    val list = Seq[Proposition](Proposition(UUID.randomUUID, "content"))
     action match {
-      case action: GetListProposition => ???
+      case action: GetListProposition => propositionsList
       case _ => list
     }
   }
@@ -34,7 +35,7 @@ object Reducer {
   def reduceDisplayedProposition(maybeState: Option[Proposition], action: Any): Proposition = {
     val proposition = Proposition(UUID.randomUUID, "content")
     action match {
-      case action: SearchProposition => ???
+      case action: SearchProposition => propositionsList.find(p => p.propositionId == action.propositionId).getOrElse(proposition)
       case _ => proposition
     }
   }

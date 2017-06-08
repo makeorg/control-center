@@ -8,7 +8,7 @@ import scala.concurrent.Future
 
 trait PropositionsServiceComponent {
 
-  def propositionService: PropositionService
+  //def propositionService: PropositionService
 
   val propositionsList: Seq[Proposition] = Seq[Proposition](
     Proposition(UUID.fromString("123e4567-e89b-12d3-a456-111111111111"), "Il faut faire une proposition"),
