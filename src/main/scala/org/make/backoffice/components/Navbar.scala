@@ -69,7 +69,7 @@ object NavbarPresentational {
             <.div(^.id := "navbar", ^.className := "navbar-collapse collapse")(
               <.ul(^.className := "nav navbar-nav navbar-left")(
                 <.li()(
-                  <.a(^.id := "push-route-proposition", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("List Propositions")
+                  <.a(^.id := "push-route-proposition", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("[UNACTIONNABLE] List Propositions")
                 )
               ),
               <.ul(^.className := "nav navbar-nav navbar-right")(

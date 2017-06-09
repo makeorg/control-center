@@ -39,7 +39,7 @@ object RoutePresentational {
     (self) =>
       <.div()(
         <.h1()(self.props.wrapped.path),
-        <.button(^.id := "push-route-proposition", ^.className := "btn", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("List Propositions"),
+        <.button(^.id := "push-route-proposition", ^.className := "btn", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("[UNACTIONNABLE] List Propositions"),
         <.button(^.id := "push-route-homepage", ^.className := "btn", ^.onClick := self.props.wrapped.onPushRouteHomepageList)("Homepage"),
         <.Switch()(
           <.Route(^.path := "/propositions", ^.component := ListPropositionsController())(),
