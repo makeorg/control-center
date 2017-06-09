@@ -9,7 +9,8 @@ import io.github.shogowada.scalajs.reactjs.redux.ReactRedux
 import io.github.shogowada.scalajs.reactjs.redux.Redux.Dispatch
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import io.github.shogowada.scalajs.reactjs.router.redux.ReactRouterReduxAction.Push
-import org.make.backoffice.libs.gapi
+import org.make.backoffice.actions.Disconnect
+import org.make.backoffice.libs.GApi.gapi
 import org.make.backoffice.models.GlobalState
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -21,12 +22,14 @@ object NavbarController extends RouterProps {
   private lazy val reactClass = ReactRedux.connectAdvanced { dispatch: Dispatch =>
     val routeProposition = () => dispatch(Push("/propositions"))
     val routeHomepage = () => dispatch(Push("/"))
+    val onDisconnect = () => dispatch(Disconnect)
     (state: GlobalState, ownProps: Props[Unit]) => {
       NavbarPresentational.Props(
         path = ownProps.location.pathname,
         isAuthenticated = state.user.isAuthenticated,
         onPushRouteListPropositionClick = routeProposition,
-        onPushRouteHomepageList = routeHomepage
+        onPushRouteHomepageList = routeHomepage,
+        onDisconnect = onDisconnect
       )
     }
   }(NavbarPresentational())
@@ -40,7 +43,8 @@ object NavbarPresentational {
                     path: String,
                     isAuthenticated: Boolean = false,
                     onPushRouteListPropositionClick: () => _,
-                    onPushRouteHomepageList: () => _
+                    onPushRouteHomepageList: () => _,
+                    onDisconnect: () => _
                   )
 
   case class State(isAuthenticated: Boolean = false)
@@ -48,7 +52,6 @@ object NavbarPresentational {
   def apply(): ReactClass = React.createClass[Props, State](
     getInitialState = (self) => State(self.props.wrapped.isAuthenticated),
     render = (self) => {
-      val breadcrumbsPath = ("Home/" + self.props.wrapped.path).split("/")
       <.div()(
         <.nav(^.className := "navbar navbar-inverse navbar-fixed-top")(
           <.div(^.className := "container-fluid")(
@@ -66,12 +69,12 @@ object NavbarPresentational {
             <.div(^.id := "navbar", ^.className := "navbar-collapse collapse")(
               <.ul(^.className := "nav navbar-nav navbar-left")(
                 <.li()(
-                  <.a(^.id := "push-route-proposition", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("List Propositions")
+                  <.a(^.id := "push-route-proposition", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("[UNACTIONNABLE] List Propositions")
                 )
               ),
               <.ul(^.className := "nav navbar-nav navbar-right")(
                 <.li()(
-                  if (self.state.isAuthenticated)
+                  if (self.props.wrapped.isAuthenticated)
                     <.a(^.onClick := this.signOut(self))("Sign out")
                   else
                     <.a(^.id := "push-route-homepage", ^.onClick := self.props.wrapped.onPushRouteHomepageList)("Login")
@@ -88,7 +91,7 @@ object NavbarPresentational {
     val auth2 = gapi.auth2.getAuthInstance()
     auth2.signOut().toFuture.map { _ =>
       g.console.log("Signing Out !")
-      self.setState(State())
+      self.props.wrapped.onDisconnect()
     }
   }
 

@@ -8,7 +8,7 @@ import scala.scalajs.js.annotation.JSExport
 
 case class GlobalState(
                         user: User,
-                        listPropositions: List[Proposition],
+                        listPropositions: Seq[Proposition],
                         displayedProposition: Proposition,
                         @(JSExport@field) router: js.Object
                       )

@@ -38,7 +38,8 @@ npmDependencies in Compile ++= Seq(
   "redux-devtools-extension" -> ReduxDevToolsVersion,
   "react-redux" -> ReactReduxVersion,
   "redux" -> ReduxVersion,
-  "history" -> HistoryVersion
+  "history" -> HistoryVersion,
+  "gapi-google" -> "1.0.3"
 )
 
 npmResolutions in Compile := {
@@ -46,4 +47,10 @@ npmResolutions in Compile := {
 }
 
 version in webpack := WebpackVersion
-// (webpack in(Compile, fastOptJS)) := Seq()
+webpackResources := {
+  baseDirectory.value / "src" / "main" / "webpack" ** "*.js" +++
+    baseDirectory.value / "src" / "main" / "universal" ** "*.css" +++
+    baseDirectory.value / "src" / "main" / "universal" / "index.html"
+}
+
+webpackDevServerPort := 4242

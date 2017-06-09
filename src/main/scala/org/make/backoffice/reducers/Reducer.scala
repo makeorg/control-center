@@ -16,17 +16,22 @@ object Reducer {
     )
 
   def reduceUser(maybeState: Option[User], action: Any): User = {
-    val user = User(UUID.randomUUID, false, "token")
+    val user = maybeState.getOrElse(User(
+      id = UUID.randomUUID,
+      isAuthenticated = false,
+      token = "token"
+    ))
     action match {
-      case action: Connect => ???
+      case Connect => user.copy(isAuthenticated = true)
+      case Disconnect => user.copy(isAuthenticated = false)
       case _ => user
     }
   }
 
-  def reduceListPropositions(maybeState: Option[List[Proposition]], action: Any): List[Proposition] = {
-    val list = List[Proposition](Proposition(UUID.randomUUID, "content"))
+  def reduceListPropositions(maybeState: Option[Seq[Proposition]], action: Any): Seq[Proposition] = {
+    val list = maybeState.getOrElse(Seq[Proposition]())
     action match {
-      case action: GetListProposition => ???
+      case DisplayListPropositions(propositions) => propositions
       case _ => list
     }
   }
@@ -34,7 +39,7 @@ object Reducer {
   def reduceDisplayedProposition(maybeState: Option[Proposition], action: Any): Proposition = {
     val proposition = Proposition(UUID.randomUUID, "content")
     action match {
-      case action: SearchProposition => ???
+      case action: SearchProposition => proposition/*propositionsList.find(p => p.propositionId == action.propositionId).getOrElse(proposition)*/
       case _ => proposition
     }
   }
