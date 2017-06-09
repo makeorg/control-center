@@ -64,12 +64,12 @@ object HomepagePresentational {
             <.div(^.id := "g-signin")(),
             <(GoogleSignInController())()(),
             //  ROUTES
-            <.button(^.id := "push-route-proposition", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("List Propositions Clickable"),
+            <.button(^.id := "push-route-proposition", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("List Propositions Clickable")
 
-            <.form(^.onSubmit := this.onSubmit(self))(
-              <.input(^.`type` := "search", ^.placeholder := "Proposition id")(),
-              <.button(^.`type` := "submit")("Proposition")
-            )
+//            <.form(^.onSubmit := this.onSubmit(self))(
+//              <.input(^.`type` := "search", ^.placeholder := "Proposition id")(),
+//              <.button(^.`type` := "submit")("Proposition")
+//            )
           )
         )
       )

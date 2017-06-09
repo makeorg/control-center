@@ -9,19 +9,35 @@ import io.github.shogowada.scalajs.reactjs.redux.Redux.Dispatch
 import io.github.shogowada.scalajs.reactjs.router.Router._
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import io.github.shogowada.scalajs.reactjs.router.redux.ReactRouterReduxAction.Push
+import org.make.backoffice.actions.DisplayListPropositions
 import org.make.backoffice.models.GlobalState
+import org.make.backoffice.services.PropositionsServiceComponent
 
-object RouteController extends RouterProps {
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js.Dynamic.{global => g}
+import scala.util.{Failure, Success}
+
+object RouteController extends RouterProps with PropositionsServiceComponent {
+
+  override def propositionService: RouteController.PropositionService = new PropositionService()
 
   private lazy val reactClass = ReactRedux.connectAdvanced(
     (dispatch: Dispatch) => {
-      val routeProposition = () => dispatch(Push("/propositions"))
-      val routeHomepage = () => dispatch(Push("/"))
+      val pushRouteProposition = () => {
+        dispatch(Push("/propositions"))
+        propositionService.listPropositions.map{ propositions =>
+          DisplayListPropositions(propositions)
+        }.onComplete{
+          case Success(action) => dispatch(action)
+          case Failure(e) => g.console.log(e.getStackTrace.map(_.toString).mkString("\n"))
+        }
+      }
+      val pushRouteHomepage = () => dispatch(Push("/"))
       (_: GlobalState, ownProps: Props[Unit]) => {
         RoutePresentational.WrappedProps(
           path = ownProps.location.pathname,
-          onPushRouteListPropositionClick = routeProposition,
-          onPushRouteHomepageList = routeHomepage
+          onPushRouteListPropositionClick = pushRouteProposition,
+          onPushRouteHomepageList = pushRouteHomepage
         )
       }
     }
@@ -39,7 +55,7 @@ object RoutePresentational {
     (self) =>
       <.div()(
         <.h1()(self.props.wrapped.path),
-        <.button(^.id := "push-route-proposition", ^.className := "btn", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("[UNACTIONNABLE] List Propositions"),
+        <.button(^.id := "push-route-proposition", ^.className := "btn", ^.onClick := self.props.wrapped.onPushRouteListPropositionClick)("List Propositions"),
         <.button(^.id := "push-route-homepage", ^.className := "btn", ^.onClick := self.props.wrapped.onPushRouteHomepageList)("Homepage"),
         <.Switch()(
           <.Route(^.path := "/propositions", ^.component := ListPropositionsController())(),

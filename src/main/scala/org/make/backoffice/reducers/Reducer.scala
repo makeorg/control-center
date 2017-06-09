@@ -32,15 +32,15 @@ object Reducer {
     val list = maybeState.getOrElse(Seq[Proposition]())
     action match {
       case DisplayListPropositions(propositions) => propositions
+      case DisplayProposition(Some(proposition)) => Seq[Proposition](proposition)
       case _ => list
     }
   }
 
   def reduceDisplayedProposition(maybeState: Option[Proposition], action: Any): Proposition = {
-    val proposition = Proposition(UUID.randomUUID, "content")
+    val defaultProposition = Proposition(UUID.randomUUID, "default content")
     action match {
-      case action: SearchProposition => proposition/*propositionsList.find(p => p.propositionId == action.propositionId).getOrElse(proposition)*/
-      case _ => proposition
+      case _ => defaultProposition
     }
   }
 }
