@@ -15,7 +15,6 @@ import org.make.backoffice.models.GlobalState
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js.Dynamic.{global => g}
-import scala.scalajs.js.JSON
 
 object GoogleSignInController {
   private lazy val reactClass = ReactRedux.connectAdvanced(
@@ -47,8 +46,6 @@ object GoogleSignInPresentational {
     getInitialState = (_) => State(),
     componentDidMount = (self) => {
       if (!self.state.isAuthenticated) {
-        g.console.log("GApi: " + JSON.stringify(gapi))
-        g.console.log("Signin2: " + JSON.stringify(gapi.signin2))
         gapi.signin2.render("g-signin", RenderParameters(
           scope = "profile email",
           width = 700,

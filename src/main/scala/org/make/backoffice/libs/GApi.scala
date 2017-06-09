@@ -5,7 +5,7 @@ import scala.scalajs.js.Promise
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("./gapi-wrapper", JSImport.Namespace)
+@JSImport("gapi-google", JSImport.Namespace)
 object GApi extends js.Object {
   val gapi: GApi = js.native
 }

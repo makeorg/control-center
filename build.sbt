@@ -38,7 +38,8 @@ npmDependencies in Compile ++= Seq(
   "redux-devtools-extension" -> ReduxDevToolsVersion,
   "react-redux" -> ReactReduxVersion,
   "redux" -> ReduxVersion,
-  "history" -> HistoryVersion
+  "history" -> HistoryVersion,
+  "gapi-google" -> "1.0.3"
 )
 
 npmResolutions in Compile := {

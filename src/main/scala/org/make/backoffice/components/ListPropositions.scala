@@ -11,18 +11,18 @@ import io.github.shogowada.scalajs.reactjs.redux.ReactRedux
 import io.github.shogowada.scalajs.reactjs.redux.Redux.Dispatch
 import org.make.backoffice.actions.SearchProposition
 import org.make.backoffice.models.{GlobalState, Proposition}
-import org.make.backoffice.services.PropositionsServiceComponent
 
-object ListPropositionsController extends PropositionsServiceComponent {
+object ListPropositionsController {
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass = ReactRedux.connectAdvanced(
     (dispatch: Dispatch) => {
+
       val searchProposition = (pId: UUID) => dispatch(SearchProposition(pId))
-      (_: GlobalState, _: Props[Unit]) => {
+      (state: GlobalState, _: Props[Unit]) => {
         ListPropositions.WrappedProps(
-          propositions = propositionsList,
+          propositions = state.listPropositions,
           searchProposition = searchProposition
         )
       }
