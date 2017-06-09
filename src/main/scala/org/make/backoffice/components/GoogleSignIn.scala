@@ -58,9 +58,8 @@ object GoogleSignInPresentational {
     },
     render = (self) =>
       <.div()(
-        <.p()(self.props.wrapped.isAuthenticated.toString),
-        <.p()(self.state.isAuthenticated.toString),
-//        if (self.state.isAuthenticated)
+        <.p()(s"Is Authenticated: ${self.props.wrapped.isAuthenticated.toString}"),
+        if (self.props.wrapped.isAuthenticated)
           <.a(^.onClick := this.signOut(self))("Sign out")
       )
   )
