@@ -29,8 +29,16 @@ Launch process
 - `~fastOptJS::webpack`
 
 In your browser access URL
-[http://localhost:4242/webpack-dev-server](http://localhost:4242/webpack-dev-server).
+[http://localhost:4242/webpack-dev-server/](http://localhost:4242/webpack-dev-server/)
 
 Stop the server with:
 
 - `fastOptJS::stopWebpackDevServer`
+
+Known Issues
+------------
+**Module WebpackDevServer not found**
+
+*Fix*: 
+- remove `~/node_modules`
+- restart launch process
