@@ -49,14 +49,12 @@ object RenderParameters {
              width: Int,
              height: Int,
              longtitle: Boolean,
-             theme: String,
-             onsuccess: () => _
+             theme: String
            ): RenderParameters = js.Dynamic.literal(
     scope = scope,
     width = width,
     height = height,
     longtitle = longtitle,
-    theme = theme,
-    onsuccess = onsuccess
+    theme = theme
   ).asInstanceOf[RenderParameters]
 }
