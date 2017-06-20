@@ -14,6 +14,7 @@ val ReduxVersion = "3.6.0"
 val ReduxDevToolsVersion = "2.13.0"
 val WebpackVersion = "2.3.2"
 val log4jsVersion = "1.4.9"
+val circeVersion = "0.8.0"
 
 val scalaJsReactVersion = "0.14.0"
 
@@ -25,7 +26,11 @@ libraryDependencies ++= Seq(
   "io.github.shogowada" %%% "scalajs-reactjs-router-redux" % scalaJsReactVersion, // Optional. For react-router-dom facade
   "io.github.shogowada" %%% "scalajs-reactjs-router-dom" % scalaJsReactVersion, // Optional. For react-router-dom facade
   "io.github.shogowada" %%% "scalajs-reactjs-redux" % scalaJsReactVersion, // Optional. For react-redux facade
-  "io.github.shogowada" %%% "scalajs-reactjs-redux-devtools" % scalaJsReactVersion // Optional. For redux-devtools facade
+  "io.github.shogowada" %%% "scalajs-reactjs-redux-devtools" % scalaJsReactVersion, // Optional. For redux-devtools facade
+  "io.circe" %% "circe-core" % circeVersion,
+  "io.circe" %% "circe-generic" % circeVersion,
+  "io.circe" %% "circe-parser" % circeVersion,
+  "io.circe" %%% "circe-scalajs" % circeVersion
 )
 
 npmDependencies in Compile ++= Seq(
@@ -46,11 +51,13 @@ npmResolutions in Compile := {
   (npmDependencies in Compile).value.toMap
 }
 
+
 version in webpack := WebpackVersion
 webpackResources := {
   baseDirectory.value / "src" / "main" / "webpack" ** "*.js" +++
     baseDirectory.value / "src" / "main" / "universal" ** "*.css" +++
-    baseDirectory.value / "src" / "main" / "universal" / "index.html"
+    baseDirectory.value / "src" / "main" / "universal" / "index.html" +++
+    baseDirectory.value / "src" / "main" / "universal" / "logo.svg"
 }
 
 webpackDevServerPort := 4242
