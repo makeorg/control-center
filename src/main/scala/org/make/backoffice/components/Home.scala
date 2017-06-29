@@ -10,7 +10,7 @@ object Home {
 
   private lazy val reactClass = React.createClass[Unit, Unit](
     render = (_) => <.div()(
-      <.h1()("Bienvenue, Administrateur, bientôt il y aura un jolie backoffice")
+      <(GoogleComponent()).empty
     )
   )
 }
