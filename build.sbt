@@ -44,7 +44,8 @@ npmDependencies in Compile ++= Seq(
   "react-redux" -> ReactReduxVersion,
   "redux" -> ReduxVersion,
   "history" -> HistoryVersion,
-  "react-google-login" -> "2.9.2"
+  "react-google-login" -> "2.9.2",
+  "react-facebook-login" -> "3.6.2"
 )
 
 npmResolutions in Compile := {
