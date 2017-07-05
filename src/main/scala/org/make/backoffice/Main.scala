@@ -10,15 +10,6 @@ import scala.scalajs.js.JSApp
 
 object Main extends JSApp {
   override def main(): Unit = {
-//    val history: History = History.createHashHistory()
-//    val store = Redux.createStore(
-//      Reducer.reduce,
-//      ReduxDevTools.composeWithDevTools(
-//        Redux.applyMiddleware(
-//          ReactRouterRedux.routerMiddleware(history)
-//        )
-//      )
-//    )
     val wrapperNode = dom.document.getElementById("wrapper")
 
     ReactDOM.render(

@@ -14,7 +14,7 @@ object Main {
     render = (_) => <.main()(
       <.Switch()(
         <.Route(^.exact := true, ^.path := "/", ^.component := Home())(),
-        <.Route(^.exact := true, ^.path := "/propositions", ^.component := ListPropositions())(),
+        <.Route(^.exact := true, ^.path := "/propositions", ^.component := ProposalList())(),
         <.Route(^.path := s"/propositions/:id", ^.component := ShowProposition())()
       )
     )

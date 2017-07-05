@@ -10,7 +10,7 @@ import org.scalajs.dom.ext.Ajax
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 
-object ListPropositions {
+object ProposalList {
 
   case class PropositionState(maybePropositions: Seq[Proposition])
 
