@@ -1,24 +1,17 @@
 package org.make.backoffice.components
 
-import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
-import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.scalajs.reactjs.router.WithRouter
+import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.dom.RouterDOM._
+import scala.scalajs.js
 
-object Main {
+object CustomRoutes {
 
-  def apply(): ReactClass = WithRouter(reactClass)
-
-  private lazy val reactClass = React.createClass[Unit, Unit](
-    render = (_) => <.main()(
-      <.Switch()(
+  def customRoutes: js.Array[ReactElement] =
+    js.Array(
         <.Route(^.exact := true, ^.path := "/", ^.component := Home())(),
-        <.Route(^.exact := true, ^.path := "/propositions", ^.component := ProposalList())(),
-        <.Route(^.path := s"/propositions/:id", ^.component := ShowProposition())()
+        <.Route(^.exact := true, ^.path := "/propositions", ^.component := ProposalList())()
       )
-    )
-  )
 
 }
 

@@ -3,45 +3,32 @@ package org.make.backoffice.components
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.scalajs.reactjs.elements.ReactElement
-import org.make.backoffice.libs.Proposition
-import org.scalajs.dom.ext.Ajax
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.scalajs.js
+import io.github.shogowada.scalajs.reactjs.router.RouterProps
+import org.make.backoffice.libs.Datagrid._
+import org.make.backoffice.libs.List._
+import org.make.backoffice.libs.Field._
+import org.make.backoffice.libs.Field.TextField._
 
 object ProposalList {
 
-  case class PropositionState(maybePropositions: Seq[Proposition])
+  case class ListProps() extends RouterProps
 
   def apply(): ReactClass = reactClass
 
-  private lazy val reactClass = React.createClass[Unit, PropositionState](
-    getInitialState = (_) => PropositionState(Seq.empty),
-    componentDidMount = (self) => {
-      Ajax.get("http://localhost:3000/propositions").map{ xhr =>
-        val json = js.JSON.parse(xhr.responseText).asInstanceOf[js.Array[Proposition]]
-        self.setState(PropositionState(maybePropositions = json))
-      }
-    },
-    render = (self) => <.div()(
-      <.table(^.className := "table table-striped")(
-        <.thead()(
-          <.tr()(
-            <.th()("#"),
-            <.th()("Contenu"),
-            <.th()("Auteur"),
-            <.th()("Status")
-          )
-        ),
-        <.tbody()(
-          self.state.maybePropositions map(p => displayProposition(p))
+  private lazy val reactClass = React.createClass[ListProps, Unit](
+    render = (self) =>
+      <.List(
+        ^.title := "Propositions",
+        ^.location := self.props.location,
+        ^.resource := "propositions",
+        ^.hasCreate := false
+      )(
+        <.Datagrid()(
+          <.TextField(^.source := "id")(),
+          <.TextField(^.source := "content")(),
+          <.TextField(^.source := "author")(),
+          <.TextField(^.source := "status")()
         )
       )
-    )
   )
-
-  def displayProposition(p: Proposition): ReactElement = {
-    PropositionLink(p.id, p)
-  }
 }
