@@ -33,7 +33,7 @@ object Admin {
 
   implicit class AdminVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val title = StringAttributeSpec("title")
-    lazy val menu = ElementAttributeSpec("menu")
+    lazy val menu = ReactClassAttributeSpec("menu")
     lazy val loginPage = StringAttributeSpec("loginPage")
     lazy val customRoutes = CustomRoutesAttributesSpec("customRoutes")
     lazy val restClient = RestClientAttributeSpec("restClient")
@@ -59,7 +59,8 @@ object Resource {
 
   implicit class ResourceVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val name = StringAttributeSpec("name")
-    lazy val showList = ElementAttributeSpec("list")
+    lazy val showList = ReactClassAttributeSpec("list")
+    lazy val create = ReactClassAttributeSpec("create")
   }
 
 }
@@ -85,6 +86,23 @@ object List {
     lazy val location = LocationAttributeSpec("location")
     lazy val resource = StringAttributeSpec("resource")
     lazy val hasCreate = BooleanAttributeSpec("hasCreate")
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "Filters")
+object NativeFilters extends ReactClass
+
+object Filters {
+
+  implicit class FiltersVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val Filters: ReactClassElementSpec = elements(NativeFilters)
+  }
+
+  implicit class FiltersVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val label = StringAttributeSpec("label")
+    lazy val source = StringAttributeSpec("source")
+    lazy val alwaysOn = TrueOrFalseAttributeSpec("alwaysOn")
   }
 }
 
@@ -160,6 +178,22 @@ object NativeRichTextField extends ReactClass
 @js.native
 @JSImport("admin-on-rest", "UrlField")
 object NativeUrlField extends ReactClass
+
+@js.native
+@JSImport("admin-on-rest", "TextInput")
+object NativeTextInput extends ReactClass
+
+@js.native
+@JSImport("admin-on-rest", "AutocompleteInput")
+object NativeAutocompleteInput extends ReactClass
+
+@js.native
+@JSImport("admin-on-rest", "ReferenceInput")
+object NativeReferenceInput extends ReactClass
+
+@js.native
+@JSImport("admin-on-rest", "SelectInput")
+object NativeSelectInput extends ReactClass
 
 object Field {
 
@@ -259,6 +293,34 @@ object Field {
     }
   }
 
+  object TextInput {
+    implicit class TextInputVirtualDOMElements(elements: VirtualDOMElements) {
+      lazy val TextInput: ReactClassElementSpec = elements(NativeTextInput)
+    }
+  }
+
+  object AutocompleteInput {
+    implicit class AutocompleteInputVirtualDOMElements(elements: VirtualDOMElements) {
+      lazy val AutocompleteInput: ReactClassElementSpec = elements(NativeAutocompleteInput)
+    }
+  }
+
+  object ReferenceInput {
+    implicit class ReferenceInputVirtualDOMElements(elements: VirtualDOMElements) {
+      lazy val ReferenceInput: ReactClassElementSpec = elements(NativeReferenceInput)
+    }
+
+    implicit class ReferenceInputVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+      lazy val reference = StringAttributeSpec("reference")
+    }
+  }
+
+  object SelectInput {
+    implicit class SelectInputVirtualDOMElements(elements: VirtualDOMElements) {
+      lazy val SelectInput: ReactClassElementSpec = elements(NativeSelectInput)
+    }
+  }
+
   implicit class FieldVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val source = StringAttributeSpec("source")
     lazy val label = StringAttributeSpec("label")
@@ -266,9 +328,11 @@ object Field {
     lazy val sortable = BooleanAttributeSpec("sortable")
     lazy val style = CssAttributeSpec("style")
     lazy val elStyle = CssAttributeSpec("elStyle")
+    lazy val alwaysOn = BooleanAttributeSpec("alwaysOn")
   }
 
 }
+
 @js.native
 @JSImport("admin-on-rest", "MenuItemLink")
 object NativeMenu extends ReactClass
@@ -284,12 +348,56 @@ object Menu {
   }
 }
 
-case class ElementAttributeSpec(name: String) extends AttributeSpec {
+@js.native
+@JSImport("admin-on-rest", "Filter")
+object NativeFilter extends ReactClass
+
+object Filter {
+  implicit class FilterVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val Filter: ReactClassElementSpec = elements(NativeFilter)
+  }
+
+  implicit class FilterVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val context = StringAttributeSpec("context")
+  }
+}
+
+case class ReactClassAttributeSpec(name: String) extends AttributeSpec {
   def :=(element: ReactClass): Attribute[ReactClass] =
+    Attribute(name = name, value = element, AS_IS)
+}
+
+case class ElementAttributeSpec(name: String) extends AttributeSpec {
+  def :=(element: ReactElement): Attribute[ReactElement] =
     Attribute(name = name, value = element, AS_IS)
 }
 
 case class MapAttributeSpec(name: String) extends AttributeSpec {
   def :=(sort: Map[String, _]): Attribute[Map[String, _]] =
     Attribute(name = name, value = sort, AS_IS)
+}
+
+@js.native
+@JSImport("admin-on-rest", "Create")
+object NativeCreate extends ReactClass
+
+object Create {
+  implicit class CreateVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val Create: ReactClassElementSpec = elements(NativeMenu)
+  }
+
+  implicit class CreateVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val title = StringAttributeSpec("title")
+    lazy val actions = ElementAttributeSpec("actions")
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "SimpleForm")
+object NativeSimpleForm extends ReactClass
+
+object SimpleForm {
+  implicit class SimpleFormVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val SimpleForm: ReactClassElementSpec = elements(NativeSimpleForm)
+  }
 }
