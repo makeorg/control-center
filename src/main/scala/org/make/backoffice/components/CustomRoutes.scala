@@ -9,29 +9,7 @@ object CustomRoutes {
 
   def customRoutes: js.Array[ReactElement] =
     js.Array(
-        <.Route(^.exact := true, ^.path := "/", ^.component := Home())(),
-        <.Route(^.exact := true, ^.path := "/propositions", ^.component := ProposalList())()
+        <.Route(^.exact := true, ^.path := "/", ^.component := Home())()
       )
 
 }
-
-//import React, { Component } from 'react';
-//import { Switch, Route } from 'react-router-dom';
-//import ListingPropositionsContainer from '../containers/Proposition/ListingPropositionsContainer';
-//import ShowPropositionContainer from '../containers/Proposition/ShowPropositionContainer';
-//
-//import Home from './Home';
-//
-//class Main extends Component {
-//  render() {
-//    return (
-//      <main>
-//        <Switch>
-//          <Route exact path='/propositions' component={ListingPropositionsContainer}/>
-//          <Route path='/propositions/:id' component={ShowPropositionContainer}/>
-//          <Route path='/' component={Home}/>
-//        </Switch>
-//      </main>
-//      );
-//  }
-//}

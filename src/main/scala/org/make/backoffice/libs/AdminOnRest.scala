@@ -334,21 +334,6 @@ object Field {
 }
 
 @js.native
-@JSImport("admin-on-rest", "MenuItemLink")
-object NativeMenu extends ReactClass
-
-object Menu {
-
-  implicit class MenuVirtualDOMElements(elements: VirtualDOMElements) {
-    lazy val MenuItemLink: ReactClassElementSpec = elements(NativeMenu)
-  }
-
-  implicit class MenuVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
-   lazy val title = StringAttributeSpec("title")
-  }
-}
-
-@js.native
 @JSImport("admin-on-rest", "Filter")
 object NativeFilter extends ReactClass
 
@@ -383,12 +368,14 @@ object NativeCreate extends ReactClass
 
 object Create {
   implicit class CreateVirtualDOMElements(elements: VirtualDOMElements) {
-    lazy val Create: ReactClassElementSpec = elements(NativeMenu)
+    lazy val Create: ReactClassElementSpec = elements(NativeCreate)
   }
 
   implicit class CreateVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val title = StringAttributeSpec("title")
     lazy val actions = ElementAttributeSpec("actions")
+    lazy val resource = StringAttributeSpec("resource")
+    lazy val location = LocationAttributeSpec("location")
   }
 }
 

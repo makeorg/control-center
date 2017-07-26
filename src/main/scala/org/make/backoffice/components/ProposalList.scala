@@ -12,6 +12,7 @@ import org.make.backoffice.libs.Field._
 import org.make.backoffice.libs.Field.TextField._
 import org.make.backoffice.libs.Field.EmailField._
 import org.make.backoffice.libs.Field.TextInput._
+
 object ProposalList {
 
   case class ListProps() extends RouterProps
