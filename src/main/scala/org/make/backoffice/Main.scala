@@ -2,7 +2,7 @@ package org.make.backoffice
 
 import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
-import org.make.backoffice.components.{Create, CustomRoutes, Menu, ProposalList}
+import org.make.backoffice.components.{Create, CustomRoutes, Menu, ProposalList, Edit}
 import org.make.backoffice.libs.Admin._
 import org.make.backoffice.libs.JsonServerRestClient._
 import org.make.backoffice.libs.Resource._
@@ -26,7 +26,8 @@ object Main extends JSApp {
         <.Resource(
           ^.name := "propositions",
           ^.showList := ProposalList(),
-          ^.create := Create()
+          ^.create := Create(),
+          ^.edit := Edit()
         )()
       ),
       wrapperNode
