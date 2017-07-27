@@ -5,7 +5,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactCl
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
-import io.github.shogowada.scalajs.reactjs.router.Router.RouterVirtualDOMAttributes.LocationAttributeSpec
+import io.github.shogowada.scalajs.reactjs.router.Router.RouterVirtualDOMAttributes.{HistoryAttributeSpec, LocationAttributeSpec}
 import io.github.shogowada.statictags._
 
 import scala.scalajs.js
@@ -180,6 +180,7 @@ object Edit {
     lazy val actions = ElementAttributeSpec("actions")
     lazy val resource = StringAttributeSpec("resource")
     lazy val location = LocationAttributeSpec("location")
+    lazy val `match` = MatchAttributeSpec("match")
   }
 }
 
@@ -198,6 +199,7 @@ object SimpleForm {
 object NativeShow extends ReactClass
 
 object Show {
+
   implicit class ShowVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val Show: ReactClassElementSpec = elements(NativeShow)
   }
@@ -205,6 +207,7 @@ object Show {
   implicit class ShowVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val resource = StringAttributeSpec("resource")
     lazy val location = LocationAttributeSpec("location")
+    lazy val `match` = MatchAttributeSpec("match")
   }
 }
 
@@ -235,6 +238,13 @@ object NativeDelete extends ReactClass
 object Delete {
   implicit class DeleteVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val Delete: ReactClassElementSpec = elements(NativeDelete)
+  }
+
+  implicit class DeleteVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val resource = StringAttributeSpec("resource")
+    lazy val location = LocationAttributeSpec("location")
+    lazy val history = HistoryAttributeSpec("history")
+    lazy val `match` = MatchAttributeSpec("match")
   }
 }
 
@@ -473,4 +483,32 @@ case class ElementAttributeSpec(name: String) extends AttributeSpec {
 case class MapAttributeSpec(name: String) extends AttributeSpec {
   def :=(sort: Map[String, _]): Attribute[Map[String, _]] =
     Attribute(name = name, value = sort, AS_IS)
+}
+
+case class MatchAttributeSpec(name: String) extends AttributeSpec {
+  def :=(value: Match): Attribute[Match] =
+    Attribute(name = name, value = value, AS_IS)
+}
+
+@js.native
+trait Params extends js.Object {
+  val id: String
+}
+
+object Params {
+  def apply(id: String): Params =
+    js.Dynamic.literal(id = id).asInstanceOf[Params]
+}
+
+@js.native
+trait Match extends js.Object {
+  val params: Params
+}
+
+object Match {
+  def apply(
+            params: Params
+           ): Match = js.Dynamic.literal(
+    params = params
+  ).asInstanceOf[Match]
 }

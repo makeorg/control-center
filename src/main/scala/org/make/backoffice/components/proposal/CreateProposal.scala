@@ -1,4 +1,4 @@
-package org.make.backoffice.components
+package org.make.backoffice.components.proposal
 
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
@@ -9,7 +9,7 @@ import org.make.backoffice.libs.Field.TextInput._
 import org.make.backoffice.libs.Field._
 import org.make.backoffice.libs.SimpleForm._
 
-object Create {
+object CreateProposal {
 
   case class CreateProps() extends RouterProps
 

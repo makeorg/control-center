@@ -1,4 +1,4 @@
-package org.make.backoffice.components
+package org.make.backoffice.components.proposal
 
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
@@ -6,15 +6,15 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.libs.Datagrid._
-import org.make.backoffice.libs.List._
-import org.make.backoffice.libs.Filter._
-import org.make.backoffice.libs.Field._
-import org.make.backoffice.libs.Field.TextField._
-import org.make.backoffice.libs.Field.EmailField._
-import org.make.backoffice.libs.Field.TextInput._
-import org.make.backoffice.libs.EditButton._
-import org.make.backoffice.libs.ShowButton._
 import org.make.backoffice.libs.DeleteButton._
+import org.make.backoffice.libs.EditButton._
+import org.make.backoffice.libs.Field.EmailField._
+import org.make.backoffice.libs.Field.TextField._
+import org.make.backoffice.libs.Field.TextInput._
+import org.make.backoffice.libs.Field._
+import org.make.backoffice.libs.Filter._
+import org.make.backoffice.libs.List._
+import org.make.backoffice.libs.ShowButton._
 
 object ProposalList {
 

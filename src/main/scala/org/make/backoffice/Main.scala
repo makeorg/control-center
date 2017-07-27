@@ -1,21 +1,19 @@
 package org.make.backoffice
 
-import io.github.shogowada.scalajs.reactjs.{React, ReactDOM}
+import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
-import org.make.backoffice.components.{Create, CustomRoutes, Edit, Menu, ProposalList, Show}
+import org.make.backoffice.components.proposal.{CreateProposal, ProposalList, EditProposal, ShowProposal, DeleteProposal}
+import org.make.backoffice.components.{CustomRoutes, Menu}
 import org.make.backoffice.libs.Admin._
 import org.make.backoffice.libs.JsonServerRestClient._
 import org.make.backoffice.libs.Resource._
-import org.make.backoffice.libs.Delete._
 import org.scalajs.dom
 
-import scala.scalajs.js.Dynamic.{global => g}
 import scala.scalajs.js.JSApp
 
 object Main extends JSApp {
   override def main(): Unit = {
     val wrapperNode = dom.document.getElementById("wrapper")
-    g.console.log(ProposalList.toString)
 
     ReactDOM.render(
       <.Admin(
@@ -27,10 +25,10 @@ object Main extends JSApp {
         <.Resource(
           ^.name := "propositions",
           ^.showList := ProposalList(),
-          ^.create := Create(),
-          ^.edit := Edit(),
-          ^.show := Show(),
-          ^.remove := React.createClass[Unit, Unit](render = (_) => <.Delete()())
+          ^.create := CreateProposal(),
+          ^.edit := EditProposal(),
+          ^.show := ShowProposal(),
+          ^.remove := DeleteProposal()
         )()
       ),
       wrapperNode
