@@ -63,6 +63,7 @@ object Resource {
     lazy val create = ReactClassAttributeSpec("create")
     lazy val edit = ReactClassAttributeSpec("edit")
     lazy val show = ReactClassAttributeSpec("show")
+    lazy val remove = ReactClassAttributeSpec("remove")
   }
 
 }
@@ -224,6 +225,26 @@ object NativeShowButton extends ReactClass
 object ShowButton {
   implicit class ShowButtonVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val ShowButton: ReactClassElementSpec = elements(NativeShowButton)
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "Delete")
+object NativeDelete extends ReactClass
+
+object Delete {
+  implicit class DeleteVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val Delete: ReactClassElementSpec = elements(NativeDelete)
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "DeleteButton")
+object NativeDeleteButton extends ReactClass
+
+object DeleteButton {
+  implicit class DeleteButtonVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val DeleteButton: ReactClassElementSpec = elements(NativeDeleteButton)
   }
 }
 

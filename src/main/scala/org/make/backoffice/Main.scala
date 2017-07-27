@@ -1,11 +1,12 @@
 package org.make.backoffice
 
-import io.github.shogowada.scalajs.reactjs.ReactDOM
+import io.github.shogowada.scalajs.reactjs.{React, ReactDOM}
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import org.make.backoffice.components.{Create, CustomRoutes, Edit, Menu, ProposalList, Show}
 import org.make.backoffice.libs.Admin._
 import org.make.backoffice.libs.JsonServerRestClient._
 import org.make.backoffice.libs.Resource._
+import org.make.backoffice.libs.Delete._
 import org.scalajs.dom
 
 import scala.scalajs.js.Dynamic.{global => g}
@@ -28,7 +29,8 @@ object Main extends JSApp {
           ^.showList := ProposalList(),
           ^.create := Create(),
           ^.edit := Edit(),
-          ^.show := Show()
+          ^.show := Show(),
+          ^.remove := React.createClass[Unit, Unit](render = (_) => <.Delete()())
         )()
       ),
       wrapperNode
