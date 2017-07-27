@@ -13,6 +13,7 @@ import org.make.backoffice.libs.Field.TextField._
 import org.make.backoffice.libs.Field.EmailField._
 import org.make.backoffice.libs.Field.TextInput._
 import org.make.backoffice.libs.EditButton._
+import org.make.backoffice.libs.ShowButton._
 
 object ProposalList {
 
@@ -35,7 +36,8 @@ object ProposalList {
           <.TextField(^.source := "author")(),
           <.EmailField(^.source := "email")(),
           <.TextField(^.source := "status")(),
-          <.EditButton()()
+          <.EditButton()(),
+          <.ShowButton()()
         )
       )
   )

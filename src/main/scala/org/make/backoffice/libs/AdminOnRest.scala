@@ -62,6 +62,7 @@ object Resource {
     lazy val showList = ReactClassAttributeSpec("list")
     lazy val create = ReactClassAttributeSpec("create")
     lazy val edit = ReactClassAttributeSpec("edit")
+    lazy val show = ReactClassAttributeSpec("show")
   }
 
 }
@@ -89,6 +90,7 @@ object List {
     lazy val hasCreate = BooleanAttributeSpec("hasCreate")
   }
 }
+
 
 @js.native
 @JSImport("admin-on-rest", "Filters")
@@ -133,6 +135,95 @@ object NativeSingleFieldList extends ReactClass
 object SingleFieldList {
   implicit class SingleFieldListVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val SingleFieldList: ReactClassElementSpec = elements(NativeSingleFieldList)
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "Create")
+object NativeCreate extends ReactClass
+
+object Create {
+  implicit class CreateVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val Create: ReactClassElementSpec = elements(NativeCreate)
+  }
+
+  implicit class CreateVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val title = StringAttributeSpec("title")
+    lazy val actions = ElementAttributeSpec("actions")
+    lazy val resource = StringAttributeSpec("resource")
+    lazy val location = LocationAttributeSpec("location")
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "EditButton")
+object NativeEditButton extends ReactClass
+
+object EditButton{
+  implicit class EditButtonVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val EditButton: ReactClassElementSpec = elements(NativeEditButton)
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "Edit")
+object NativeEdit extends ReactClass
+
+object Edit {
+  implicit class EditVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val Edit: ReactClassElementSpec = elements(NativeEdit)
+  }
+
+  implicit class EditVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val title = StringAttributeSpec("title")
+    lazy val actions = ElementAttributeSpec("actions")
+    lazy val resource = StringAttributeSpec("resource")
+    lazy val location = LocationAttributeSpec("location")
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "SimpleForm")
+object NativeSimpleForm extends ReactClass
+
+object SimpleForm {
+  implicit class SimpleFormVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val SimpleForm: ReactClassElementSpec = elements(NativeSimpleForm)
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "Show")
+object NativeShow extends ReactClass
+
+object Show {
+  implicit class ShowVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val Show: ReactClassElementSpec = elements(NativeShow)
+  }
+
+  implicit class ShowVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val resource = StringAttributeSpec("resource")
+    lazy val location = LocationAttributeSpec("location")
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "SimpleShowLayout")
+object NativeSimpleShowLayout extends ReactClass
+
+object SimpleShowLayout {
+  implicit class SimpleShowLayoutVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val SimpleShowLayout: ReactClassElementSpec = elements(NativeSimpleShowLayout)
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "ShowButton")
+object NativeShowButton extends ReactClass
+
+object ShowButton {
+  implicit class ShowButtonVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val ShowButton: ReactClassElementSpec = elements(NativeShowButton)
   }
 }
 
@@ -361,58 +452,4 @@ case class ElementAttributeSpec(name: String) extends AttributeSpec {
 case class MapAttributeSpec(name: String) extends AttributeSpec {
   def :=(sort: Map[String, _]): Attribute[Map[String, _]] =
     Attribute(name = name, value = sort, AS_IS)
-}
-
-@js.native
-@JSImport("admin-on-rest", "Create")
-object NativeCreate extends ReactClass
-
-object Create {
-  implicit class CreateVirtualDOMElements(elements: VirtualDOMElements) {
-    lazy val Create: ReactClassElementSpec = elements(NativeCreate)
-  }
-
-  implicit class CreateVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
-    lazy val title = StringAttributeSpec("title")
-    lazy val actions = ElementAttributeSpec("actions")
-    lazy val resource = StringAttributeSpec("resource")
-    lazy val location = LocationAttributeSpec("location")
-  }
-}
-
-@js.native
-@JSImport("admin-on-rest", "EditButton")
-object NativeEditButton extends ReactClass
-
-object EditButton{
-  implicit class EditButtonVirtualDOMElements(elements: VirtualDOMElements) {
-    lazy val EditButton: ReactClassElementSpec = elements(NativeEditButton)
-  }
-}
-
-@js.native
-@JSImport("admin-on-rest", "Edit")
-object NativeEdit extends ReactClass
-
-object Edit {
-  implicit class EditVirtualDOMElements(elements: VirtualDOMElements) {
-    lazy val Edit: ReactClassElementSpec = elements(NativeEdit)
-  }
-
-  implicit class EditVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
-    lazy val title = StringAttributeSpec("title")
-    lazy val actions = ElementAttributeSpec("actions")
-    lazy val resource = StringAttributeSpec("resource")
-    lazy val location = LocationAttributeSpec("location")
-  }
-}
-
-@js.native
-@JSImport("admin-on-rest", "SimpleForm")
-object NativeSimpleForm extends ReactClass
-
-object SimpleForm {
-  implicit class SimpleFormVirtualDOMElements(elements: VirtualDOMElements) {
-    lazy val SimpleForm: ReactClassElementSpec = elements(NativeSimpleForm)
-  }
 }
