@@ -45,7 +45,8 @@ npmDependencies in Compile ++= Seq(
   "redux" -> ReduxVersion,
   "history" -> HistoryVersion,
   "react-google-login" -> "2.9.2",
-  "admin-on-rest" -> "1.2.0"
+  "admin-on-rest" -> "1.2.0",
+  "material-ui" -> "0.18.7"
 )
 
 npmResolutions in Compile := {

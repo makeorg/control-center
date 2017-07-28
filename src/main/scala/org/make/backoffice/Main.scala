@@ -2,8 +2,8 @@ package org.make.backoffice
 
 import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
-import org.make.backoffice.components.proposal.{CreateProposal, ProposalList, EditProposal, ShowProposal, DeleteProposal}
-import org.make.backoffice.components.{CustomRoutes, Menu}
+import org.make.backoffice.components.proposal._
+import org.make.backoffice.components.{CustomRoutes, Dashboard}
 import org.make.backoffice.libs.Admin._
 import org.make.backoffice.libs.JsonServerRestClient._
 import org.make.backoffice.libs.Resource._
@@ -18,7 +18,7 @@ object Main extends JSApp {
     ReactDOM.render(
       <.Admin(
         ^.title := "Backoffice",
-        ^.menu := Menu(),
+        ^.dashboard := Dashboard(),
         ^.customRoutes := CustomRoutes.customRoutes,
         ^.restClient := jsonServerRestClient("http://localhost:3000")
       )(

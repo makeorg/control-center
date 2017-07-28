@@ -37,6 +37,7 @@ object Admin {
     lazy val loginPage = StringAttributeSpec("loginPage")
     lazy val customRoutes = CustomRoutesAttributesSpec("customRoutes")
     lazy val restClient = RestClientAttributeSpec("restClient")
+    lazy val dashboard = ReactClassAttributeSpec("dashboard")
   }
 
 }
@@ -467,6 +468,20 @@ object Filter {
 
   implicit class FilterVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val context = StringAttributeSpec("context")
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "ViewTitle")
+object NativeViewTitle extends ReactClass
+
+object ViewTitle {
+  implicit class ViewTitleVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val ViewTitle: ReactClassElementSpec = elements(NativeViewTitle)
+  }
+
+  implicit class ViewTitleVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val title = StringAttributeSpec("title")
   }
 }
 
