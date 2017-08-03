@@ -3,20 +3,17 @@ package org.make.backoffice.components
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
-import io.github.shogowada.scalajs.reactjs.router.dom.RouterDOM._
+import org.make.backoffice.libs.Card._
+import org.make.backoffice.libs.ViewTitle._
 
-object Menu {
+object Dashboard {
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass = React.createClass[Unit, Unit](
-    render = (_) => <.ul(^.className := "nav nav-sidebar")(
-      <.li()(
-        <.Link(^.to := "/")("Home")
-      ),
-      <.li()(
-        <.Link(^.to := "/propositions")("Proposition")
+    render = (_) =>
+      <.Card()(
+        <.ViewTitle(^.title := "Home")()
       )
-    )
   )
 }

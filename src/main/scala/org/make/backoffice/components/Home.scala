@@ -10,8 +10,7 @@ object Home {
 
   private lazy val reactClass = React.createClass[Unit, Unit](
     render = (_) => <.div()(
-      <(GoogleComponent()).empty,
-      <(FacebookComponent()).empty
+      <(GoogleComponent()).empty
     )
   )
 }

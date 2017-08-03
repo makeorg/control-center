@@ -45,7 +45,8 @@ npmDependencies in Compile ++= Seq(
   "redux" -> ReduxVersion,
   "history" -> HistoryVersion,
   "react-google-login" -> "2.9.2",
-  "react-facebook-login" -> "3.6.2"
+  "admin-on-rest" -> "1.2.0",
+  "material-ui" -> "0.18.7"
 )
 
 npmResolutions in Compile := {
@@ -56,9 +57,7 @@ npmResolutions in Compile := {
 version in webpack := WebpackVersion
 webpackResources := {
   baseDirectory.value / "src" / "main" / "webpack" ** "*.js" +++
-    baseDirectory.value / "src" / "main" / "universal" ** "*.css" +++
-    baseDirectory.value / "src" / "main" / "universal" / "index.html" +++
-    baseDirectory.value / "src" / "main" / "universal" / "logo.svg"
+    baseDirectory.value / "src" / "main" / "universal" / "index.html"
 }
 
 webpackDevServerPort := 4242
