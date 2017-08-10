@@ -13,7 +13,7 @@ import scala.scalajs.js.JSApp
 
 object Main extends JSApp {
   override def main(): Unit = {
-    val wrapperNode = dom.document.getElementById("wrapper")
+    val wrapperNode = dom.document.getElementById("make-backoffice")
 
     ReactDOM.render(
       <.Admin(
