@@ -35,5 +35,5 @@ deploy:
       -H "Accept: application/json"
       -H "Content-Type: application/x-www-form-urlencoded"
       -H "X-Rundeck-Auth-Token: $RUNDECK_TOKEN"
-      --data-urlencode "argString=-tag 0.0.1-SNAPSHOT"
+      --data-urlencode "argString=-tag 1.0.0-SNAPSHOT"
       http://rundeck.prod.makeorg.tech:4440/api/bf93c510-99af-4de4-ab21-d4fa50baf1cd/run
