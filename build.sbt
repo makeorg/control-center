@@ -1,9 +1,9 @@
-organization := "org.make.front"
+organization := "org.make.backoffice"
 name := "make-backoffice"
 version := "1.0.0-SNAPSHOT"
 scalaVersion := "2.12.1"
 
-val CreateReactClassVersion = "15.5.1"
+val CreateReactClassVersion = "15.5.3"
 val HistoryVersion = "4.6.1"
 val ReactVersion = "15.5.4"
 val ReactReduxVersion = "5.0.3"
@@ -28,10 +28,11 @@ val npmReactI18nifyVersion = "1.8.7"
 val npmCleanWebpackPluginVersion = "0.1.16"
 val npmHtmlWebpackPluginVersion = "2.29.0"
 val npmWebpackMd5HashVersion = "0.0.5"
-val npmFrontAwesomeVersion = "4.7.0"
+val npmFontAwesomeVersion = "4.7.0"
 val npmFileLoaderVersion = "0.11.2"
 val npmNormalizeVersion = "7.0.0"
 val npmBootstrapVersion = "3.3.7"
+val npmAdminOnRestVersion = "1.2.3"
 
 enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
 
@@ -42,9 +43,10 @@ libraryDependencies ++= Seq(
   "io.github.shogowada" %%% "scalajs-reactjs-router-dom"     % scalaJsReactVersion, // Optional. For react-router-dom facade
   "io.github.shogowada" %%% "scalajs-reactjs-redux"          % scalaJsReactVersion, // Optional. For react-redux facade
   "io.github.shogowada" %%% "scalajs-reactjs-redux-devtools" % scalaJsReactVersion, // Optional. For redux-devtools facade
-  "io.circe"            %% "circe-core"                      % circeVersion,
-  "io.circe"            %% "circe-generic"                   % circeVersion,
-  "io.circe"            %% "circe-parser"                    % circeVersion,
+  "io.circe"            %%% "circe-core"                     % circeVersion,
+  "io.circe"            %%% "circe-java8"                    % circeVersion,
+  "io.circe"            %%% "circe-generic"                  % circeVersion,
+  "io.circe"            %%% "circe-parser"                   % circeVersion,
   "io.circe"            %%% "circe-scalajs"                  % circeVersion
 )
 
@@ -60,7 +62,7 @@ npmDependencies in Compile ++= Seq(
   "redux" -> ReduxVersion,
   "history" -> HistoryVersion,
   "react-google-login" -> "2.9.2",
-  "admin-on-rest" -> "1.2.0",
+  "admin-on-rest" -> npmAdminOnRestVersion,
   "material-ui" -> "0.18.7",
   "bulma" -> npmBulmaVersion,
   "sass-loader" -> npmSassLoaderVersion,
@@ -72,7 +74,7 @@ npmDependencies in Compile ++= Seq(
   "html-webpack-plugin" -> npmHtmlWebpackPluginVersion,
   "webpack-md5-hash" -> npmWebpackMd5HashVersion,
   "file-loader" -> npmFileLoaderVersion,
-  "font-awesome" -> npmFrontAwesomeVersion,
+  "font-awesome" -> npmFontAwesomeVersion,
   "normalize-scss" -> npmNormalizeVersion,
   "bootstrap" -> npmBootstrapVersion
 )

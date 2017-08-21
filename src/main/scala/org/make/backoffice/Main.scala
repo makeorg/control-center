@@ -4,9 +4,9 @@ import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import org.make.backoffice.components.proposal._
 import org.make.backoffice.components.{CustomRoutes, Dashboard}
-import org.make.backoffice.libs.Admin._
-import org.make.backoffice.libs.JsonServerRestClient._
-import org.make.backoffice.libs.Resource._
+import org.make.backoffice.facades.Admin._
+import org.make.backoffice.facades.Resource._
+import org.make.client.RestClient
 import org.scalajs.dom
 
 import scala.scalajs.js.JSApp
@@ -20,10 +20,10 @@ object Main extends JSApp {
         ^.title := "Backoffice",
         ^.dashboard := Dashboard(),
         ^.customRoutes := CustomRoutes.customRoutes,
-        ^.restClient := jsonServerRestClient("http://localhost:3000")
+        ^.restClient := RestClient.makeClient
       )(
         <.Resource(
-          ^.name := "propositions",
+          ^.name := "proposals",
           ^.showList := ProposalList(),
           ^.create := CreateProposal(),
           ^.edit := EditProposal(),

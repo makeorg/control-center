@@ -1,14 +1,19 @@
-package org.make.backoffice.libs
+package org.make.backoffice.facades
 
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMAttributes.Type.AS_IS
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
-import io.github.shogowada.scalajs.reactjs.router.Router.RouterVirtualDOMAttributes.{HistoryAttributeSpec, LocationAttributeSpec}
+import io.github.shogowada.scalajs.reactjs.router.Router.RouterVirtualDOMAttributes.{
+  HistoryAttributeSpec,
+  LocationAttributeSpec
+}
 import io.github.shogowada.statictags._
+import org.make.client.Response
 
 import scala.scalajs.js
+import scala.scalajs.js.Promise
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
@@ -18,12 +23,14 @@ object NativeAdmin extends ReactClass
 object Admin {
 
   case class RestClientAttributeSpec(name: String) extends AttributeSpec {
-    def :=(restClient: js.Dynamic): Attribute[js.Dynamic] =
+    def :=(
+      restClient: js.Function3[String, String, js.Object, Promise[Response]]
+    ): Attribute[js.Function3[String, String, js.Object, Promise[Response]]] =
       Attribute(name = name, value = restClient, AS_IS)
   }
 
-  case class CustomRoutesAttributesSpec(name : String) extends AttributeSpec {
-    def := (customRoutes: js.Array[ReactElement]): Attribute[js.Array[ReactElement]] =
+  case class CustomRoutesAttributesSpec(name: String) extends AttributeSpec {
+    def :=(customRoutes: js.Array[ReactElement]): Attribute[js.Array[ReactElement]] =
       Attribute(name = name, value = customRoutes, AS_IS)
   }
 
@@ -92,8 +99,6 @@ object List {
     lazy val hasCreate = BooleanAttributeSpec("hasCreate")
   }
 }
-
-
 @js.native
 @JSImport("admin-on-rest", "Filters")
 object NativeFilters extends ReactClass
@@ -161,7 +166,7 @@ object Create {
 @JSImport("admin-on-rest", "EditButton")
 object NativeEditButton extends ReactClass
 
-object EditButton{
+object EditButton {
   implicit class EditButtonVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val EditButton: ReactClassElementSpec = elements(NativeEditButton)
   }
@@ -443,6 +448,10 @@ object Field {
     implicit class SelectInputVirtualDOMElements(elements: VirtualDOMElements) {
       lazy val SelectInput: ReactClassElementSpec = elements(NativeSelectInput)
     }
+
+    implicit class SelectInputVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+      lazy val choices = ChoicesAttributeSpec("choices")
+    }
   }
 
   implicit class FieldVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
@@ -505,6 +514,11 @@ case class MatchAttributeSpec(name: String) extends AttributeSpec {
     Attribute(name = name, value = value, AS_IS)
 }
 
+case class ChoicesAttributeSpec(name: String) extends AttributeSpec {
+  def :=(value: js.Array[Choice]): Attribute[js.Array[Choice]] =
+    Attribute(name = name, value = value, AS_IS)
+}
+
 @js.native
 trait Params extends js.Object {
   val id: String
@@ -521,9 +535,16 @@ trait Match extends js.Object {
 }
 
 object Match {
-  def apply(
-            params: Params
-           ): Match = js.Dynamic.literal(
-    params = params
-  ).asInstanceOf[Match]
+  def apply(params: Params): Match = js.Dynamic.literal(params = params).asInstanceOf[Match]
+}
+
+@js.native
+trait Choice extends js.Object {
+  val id: String
+  val name: String
+}
+
+object Choice {
+  def apply(id: String, name: String): Choice =
+    js.Dynamic.literal(id = id, name = name).asInstanceOf[Choice]
 }

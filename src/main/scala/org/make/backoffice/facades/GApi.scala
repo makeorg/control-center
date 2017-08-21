@@ -1,4 +1,4 @@
-package org.make.backoffice.libs
+package org.make.backoffice.facades
 
 import scala.scalajs.js
 import scala.scalajs.js.Promise
