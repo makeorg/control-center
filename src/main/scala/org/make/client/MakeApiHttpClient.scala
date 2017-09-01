@@ -42,13 +42,15 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
     //TODO: load these from configuration file
     override def baseUrl: String = "http://localhost:9000"
 
-    private def XHRResponseTo[ENTITY](responseTry: Try[XMLHttpRequest],
-                                      promise: Promise[ENTITY])(implicit decoder: Decoder[ENTITY]): Promise[ENTITY] = {
+    private def XHRResponseTo[ENTITY](responseTry: Try[XMLHttpRequest], promise: Promise[Option[ENTITY]])(
+      implicit decoder: Decoder[ENTITY]
+    ): Promise[Option[ENTITY]] = {
       responseTry match {
+        case Success(response) if response.status == 204 => promise.success(None)
         case Success(response) =>
           parse(response.responseText).flatMap(_.as[ENTITY]) match {
             case Left(error)           => promise.failure(error)
-            case Right(parsedResponse) => promise.success(parsedResponse)
+            case Right(parsedResponse) => promise.success(Some(parsedResponse))
           }
         case Failure(error) => promise.failure(error)
       }
@@ -61,8 +63,8 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
       apiEndpoint: String,
       urlParams: Seq[(String, Any)] = Seq.empty,
       headers: Map[String, String] = Map.empty
-    )(implicit decoder: Decoder[ENTITY]): Future[ENTITY] = {
-      val promiseReturn = Promise[ENTITY]()
+    )(implicit decoder: Decoder[ENTITY]): Future[Option[ENTITY]] = {
+      val promiseReturn = Promise[Option[ENTITY]]()
       Ajax
         .get(
           url = urlFrom(apiEndpoint, urlParams),
@@ -79,8 +81,8 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
       urlParams: Seq[(String, Any)] = Seq.empty,
       data: InputData = "",
       headers: Map[String, String] = Map.empty
-    )(implicit decoder: Decoder[ENTITY]): Future[ENTITY] = {
-      val promiseReturn = Promise[ENTITY]()
+    )(implicit decoder: Decoder[ENTITY]): Future[Option[ENTITY]] = {
+      val promiseReturn = Promise[Option[ENTITY]]()
       Ajax
         .post(
           url = urlFrom(apiEndpoint, urlParams),
@@ -93,11 +95,13 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
       promiseReturn.future
     }
 
-    override def put[ENTITY](apiEndpoint: String,
-                             urlParams: Seq[(String, Any)],
-                             data: InputData,
-                             headers: Map[String, String])(implicit decoder: Decoder[ENTITY]): Future[ENTITY] = {
-      val promiseReturn = Promise[ENTITY]()
+    override def put[ENTITY](
+      apiEndpoint: String,
+      urlParams: Seq[(String, Any)],
+      data: InputData,
+      headers: Map[String, String]
+    )(implicit decoder: Decoder[ENTITY]): Future[Option[ENTITY]] = {
+      val promiseReturn = Promise[Option[ENTITY]]()
       Ajax
         .put(
           url = urlFrom(apiEndpoint, urlParams),
@@ -110,11 +114,13 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
       promiseReturn.future
     }
 
-    override def patch[ENTITY](apiEndpoint: String,
-                               urlParams: Seq[(String, Any)],
-                               data: InputData,
-                               headers: Map[String, String])(implicit decoder: Decoder[ENTITY]): Future[ENTITY] = {
-      val promiseReturn = Promise[ENTITY]()
+    override def patch[ENTITY](
+      apiEndpoint: String,
+      urlParams: Seq[(String, Any)],
+      data: InputData,
+      headers: Map[String, String]
+    )(implicit decoder: Decoder[ENTITY]): Future[Option[ENTITY]] = {
+      val promiseReturn = Promise[Option[ENTITY]]()
       Ajax
         .apply(
           method = "PATCH",
@@ -129,11 +135,13 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
       promiseReturn.future
     }
 
-    override def delete[ENTITY](apiEndpoint: String,
-                                urlParams: Seq[(String, Any)],
-                                data: InputData,
-                                headers: Map[String, String])(implicit decoder: Decoder[ENTITY]): Future[ENTITY] = {
-      val promiseReturn = Promise[ENTITY]()
+    override def delete[ENTITY](
+      apiEndpoint: String,
+      urlParams: Seq[(String, Any)],
+      data: InputData,
+      headers: Map[String, String]
+    )(implicit decoder: Decoder[ENTITY]): Future[Option[ENTITY]] = {
+      val promiseReturn = Promise[Option[ENTITY]]()
       Ajax
         .delete(
           url = urlFrom(apiEndpoint, urlParams),
@@ -160,22 +168,16 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
         "user" / "login" / "social",
         data = Map("provider" -> provider, "token" -> token).asJson.pretty(MakeApiClientHttp.printer)
       ).map { newToken =>
-        MakeApiClientHttp.setToken(newToken)
+        MakeApiClientHttp.setToken(newToken.get)
         MakeApiClientHttp.isAuthenticated
       }
     }
 
     def logout(): Future[Unit] = {
-      Ajax
-        .post(
-          url = urlFrom("logout"),
-          timeout = maxTimeout,
-          headers = defaultHeaders,
-          withCredentials = withCredentials
-        )
-        .map { _ =>
-          MakeApiClientHttp.removeToken()
-        }
+      post[Unit]("logout").map {
+        case Some(_) => MakeApiClientHttp.removeToken()
+        case _       =>
+      }
     }
 
   }

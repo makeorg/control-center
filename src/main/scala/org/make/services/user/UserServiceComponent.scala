@@ -19,11 +19,11 @@ trait UserServiceComponent {
     override val resourceName: String = "user"
 
     def getUserById(id: String): Future[Option[User]] =
-      client.get[User](resourceName / id).map(Some(_)).recover { case _: Exception => None }
+      client.get[User](resourceName / id).recover { case _: Exception => None }
 
     def loginGoogle(token: String): Future[SingleResponse[User]] = {
       client.authenticateSocial("google", token).flatMap {
-        case true  => client.get[User](resourceName / "me").map(SingleResponse.apply)
+        case true  => client.get[User](resourceName / "me").map(_.get).map(SingleResponse.apply)
         case false => throw NoTokenException()
       }
     }

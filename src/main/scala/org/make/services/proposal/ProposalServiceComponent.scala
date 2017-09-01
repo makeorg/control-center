@@ -19,7 +19,7 @@ trait ProposalServiceComponent extends CirceClassFormatters {
     override val resourceName: String = "proposal"
 
     def getProposalById(id: String): Future[SingleResponse[Proposal]] =
-      client.get[Proposal](resourceName / id).map(SingleResponse.apply)
+      client.get[Proposal](resourceName / id).map(_.get).map(SingleResponse.apply)
 
     def proposals(pagination: Option[Pagination],
                   sort: Option[Sort],
@@ -28,6 +28,7 @@ trait ProposalServiceComponent extends CirceClassFormatters {
         ExhaustiveSearchRequest.buildExhaustiveSearchRequest(pagination, sort, filters)
       client
         .post[Seq[Proposal]](resourceName / "search" / "all", data = request.asJson.pretty(ApiService.printer))
+        .map(_.get)
         .map(ListTotalResponse.apply)
         .recover {
           case e =>
