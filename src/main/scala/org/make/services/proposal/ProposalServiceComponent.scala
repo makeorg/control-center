@@ -13,9 +13,13 @@ import scala.concurrent.Future
 import scala.scalajs.js
 
 trait ProposalServiceComponent extends CirceClassFormatters {
-  def proposalService: ProposalService = new ProposalService()
+  def apiBaseUrl: String
+  def proposalService: ProposalService = new ProposalService(apiBaseUrl)
 
-  class ProposalService extends ApiService with CirceClassFormatters with DefaultMakeApiHttpClientComponent {
+  class ProposalService(override val apiBaseUrl: String)
+      extends ApiService
+      with CirceClassFormatters
+      with DefaultMakeApiHttpClientComponent {
     override val resourceName: String = "proposal"
 
     def getProposalById(id: String): Future[SingleResponse[Proposal]] =
@@ -39,5 +43,3 @@ trait ProposalServiceComponent extends CirceClassFormatters {
 
   }
 }
-
-object ProposalService extends ProposalServiceComponent

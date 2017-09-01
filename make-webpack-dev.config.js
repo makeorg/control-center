@@ -10,7 +10,9 @@ module.exports = require('./scalajs.webpack.config');
 module.exports.plugins = [
     new HtmlWebpackPlugin({
         "title": "Make.org - Backoffice",
-        "template": path.join(__dirname, "index.template.ejs")
+        "template": path.join(__dirname, "index.template.ejs"),
+        "apiUrl": "http://localhost:9000",
+        "googleAppId": "810331964280-qtdupbrjusihad3b5da51i5p66qpmhmr.apps.googleusercontent.com"
     }),
     new WebpackMd5Hash(),
     new ExtractTextPlugin({ // define where to save the file

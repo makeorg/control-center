@@ -1,7 +1,5 @@
 package org.make.client
 
-import org.make.services.proposal.ProposalService
-
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
@@ -76,7 +74,7 @@ trait GetListRequest extends js.Object with Request {
   val sort: js.UndefOr[Sort]
   val filter: js.UndefOr[js.Dictionary[js.Any]]
 }
-object GetListRequest {
+object GetListRequest extends MakeServices {
   def apply(pagination: Option[Pagination] = None,
             sort: Option[Sort] = None,
             filter: Option[Seq[Filter]] = None): GetListRequest =
@@ -87,8 +85,8 @@ object GetListRequest {
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
       case "proposals" =>
-        val request: GetListRequest = params.asInstanceOf[GetListRequest]
-        ProposalService.proposalService.proposals(
+        val request = params.asInstanceOf[GetListRequest]
+        proposalService.proposals(
           request.pagination.toOption,
           request.sort.toOption,
           request.filter.toOption.map(_.toJSArray.map(fieldValue => Filter(fieldValue._1, fieldValue._2)))
@@ -104,7 +102,7 @@ object GetListRequest {
 trait GetOneRequest extends js.Object with Request {
   val id: String
 }
-object GetOneRequest {
+object GetOneRequest extends MakeServices {
   def apply(id: String): GetOneRequest =
     js.Dynamic.literal(id = id).asInstanceOf[GetOneRequest]
 
@@ -112,7 +110,7 @@ object GetOneRequest {
     resource match {
       case "proposals" =>
         val request = params.asInstanceOf[GetOneRequest]
-        ProposalService.proposalService.getProposalById(request.id)
+        proposalService.getProposalById(request.id)
       case "users" =>
         throw ResourceNotImplementedException("Resource users not implemented for request GetOneRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource")
@@ -124,7 +122,7 @@ object GetOneRequest {
 trait CreateRequest[ENTITY <: js.Object] extends js.Object with Request {
   val data: ENTITY
 }
-object CreateRequest {
+object CreateRequest extends MakeServices {
   def apply[ENTITY <: js.Object](data: ENTITY): CreateRequest[ENTITY] =
     js.Dynamic.literal(data = data).asInstanceOf[CreateRequest[ENTITY]]
 
@@ -144,7 +142,7 @@ trait UpdateRequest[ENTITY <: js.Object] extends js.Object with Request {
   val id: String
   val data: ENTITY
 }
-object UpdateRequest {
+object UpdateRequest extends MakeServices {
   def apply[ENTITY <: js.Object](id: String, data: ENTITY): UpdateRequest[ENTITY] =
     js.Dynamic.literal(id = id, data = data).asInstanceOf[UpdateRequest[ENTITY]]
 
@@ -163,7 +161,7 @@ object UpdateRequest {
 trait DeleteRequest extends js.Object with Request {
   val id: String
 }
-object DeleteRequest {
+object DeleteRequest extends MakeServices {
   def apply(id: String): DeleteRequest =
     js.Dynamic.literal(id = id).asInstanceOf[DeleteRequest]
 
@@ -182,7 +180,7 @@ object DeleteRequest {
 trait GetManyRequest extends js.Object with Request {
   val id: Seq[String]
 }
-object GetManyRequest {
+object GetManyRequest extends MakeServices {
   def apply(id: Seq[String]): GetManyRequest =
     js.Dynamic.literal(id = id).asInstanceOf[GetManyRequest]
 
@@ -205,7 +203,7 @@ trait GetManyReferenceRequest extends js.Object with Request {
   val sorts: js.UndefOr[Seq[Sort]]
   val filter: js.UndefOr[Seq[Filter]]
 }
-object GetManyReferenceRequest {
+object GetManyReferenceRequest extends MakeServices {
   def apply(target: String,
             id: String,
             pagination: Option[Pagination] = None,

@@ -12,9 +12,13 @@ import scala.concurrent.Future
 case class NoTokenException(message: String = "No token provided") extends Exception(message)
 
 trait UserServiceComponent {
-  def userService: UserService = new UserService()
+  def apiBaseUrl: String
+  def userService: UserService = new UserService(apiBaseUrl)
 
-  class UserService extends ApiService with CirceClassFormatters with DefaultMakeApiHttpClientComponent {
+  class UserService(override val apiBaseUrl: String)
+      extends ApiService
+      with CirceClassFormatters
+      with DefaultMakeApiHttpClientComponent {
 
     override val resourceName: String = "user"
 
@@ -29,5 +33,3 @@ trait UserServiceComponent {
     }
   }
 }
-
-object UserService extends UserServiceComponent
