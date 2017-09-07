@@ -4,6 +4,7 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.React.Self
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
+import org.make.backoffice.facades.Configuration
 import org.make.backoffice.facades.ReactGoogleLogin._
 import org.make.backoffice.models.User
 import org.make.client.SingleResponse
@@ -15,6 +16,9 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object GoogleComponent extends UserServiceComponent {
+
+  val googleAppId: String = Configuration.googleAppId
+  override val apiBaseUrl: String = Configuration.apiUrl
 
   case class GoogleState(isSignIn: Boolean, user: Option[User], error: Option[String] = None)
 
@@ -43,7 +47,7 @@ object GoogleComponent extends UserServiceComponent {
       if (!self.state.isSignIn) {
         <.div(^.className := "GoogleAuth")(
           <.ReactGoogleLogin(
-            ^.clientID := "810331964280-qtdupbrjusihad3b5da51i5p66qpmhmr.apps.googleusercontent.com",
+            ^.clientID := googleAppId,
             ^.scope := "profile email",
             ^.onSuccess := signInGoogle(self),
             ^.onFailure := onFailureResponse,

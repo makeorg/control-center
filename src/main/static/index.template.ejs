@@ -5,6 +5,12 @@
     <title><%= htmlWebpackPlugin.options.title %></title>
     <meta content="<%= htmlWebpackPlugin.options.title %>" property="og:title">
     <meta content="width=device-width, initial-scale=1" name="viewport">
+    <script language="javascript">
+        var configuration = {
+            "apiUrl": "<%= htmlWebpackPlugin.options.apiUrl %>",
+            "googleAppId": "<%= htmlWebpackPlugin.options.googleAppId %>"
+        }
+    </script>
 </head>
 <body>
 <div id="make-backoffice"></div>

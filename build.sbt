@@ -95,7 +95,7 @@ gitCommitMessageHook := Some(baseDirectory.value / "bin" / "commit-msg.hook")
 
 enablePlugins(GitHooks)
 
-webpackConfigFile in fastOptJS := Some(baseDirectory.value / "make-webpack.config.js")
+webpackConfigFile in fastOptJS := Some(baseDirectory.value / "make-webpack-dev.config.js")
 webpackConfigFile in fullOptJS := Some(baseDirectory.value / "make-webpack-prod.config.js")
 
 // Custome task to manage assets
