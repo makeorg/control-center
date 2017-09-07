@@ -4,11 +4,11 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
-import org.make.backoffice.libs.Edit._
-import org.make.backoffice.libs.Field.TextInput._
-import org.make.backoffice.libs.Field._
-import org.make.backoffice.libs.SimpleForm._
-import org.make.backoffice.libs.{Match, Params}
+import org.make.backoffice.facades.Edit._
+import org.make.backoffice.facades.Field.TextInput._
+import org.make.backoffice.facades.Field._
+import org.make.backoffice.facades.SimpleForm._
+import org.make.backoffice.facades.{Match, Params}
 
 object EditProposal {
 
@@ -19,11 +19,9 @@ object EditProposal {
   private lazy val reactClass = React.createClass[EditProps, Unit](
     render = (self) =>
       <.Edit(
-        ^.resource := "propositions",
+        ^.resource := "proposals",
         ^.location := self.props.location,
-        ^.`match` := Match(
-          params = Params(id = self.props.location.pathname.split('/')(2))
-        )
+        ^.`match` := Match(params = Params(id = self.props.location.pathname.split('/')(2)))
       )(
         <.SimpleForm()(
           <.TextInput(^.source := "content")(),
@@ -31,7 +29,6 @@ object EditProposal {
           <.TextInput(^.source := "status")(),
           <.TextInput(^.source := "email")()
         )
-      )
-
+    )
   )
 }
