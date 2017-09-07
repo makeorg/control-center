@@ -1,7 +1,8 @@
 package org.make.core
 
+import scala.language.implicitConversions
+
 package object URI {
-  import scala.language.implicitConversions
 
   implicit def stringToUriDsl(s: String): UriDsl = new UriDsl(s)
 }
