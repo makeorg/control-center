@@ -3,6 +3,7 @@ var path = require('path');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var WebpackMd5Hash = require('webpack-md5-hash');
+
 var pathBuild = path.join(__dirname, 'dist');
 
 module.exports = require('./scalajs.webpack.config');

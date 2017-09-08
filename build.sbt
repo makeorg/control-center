@@ -75,8 +75,7 @@ npmResolutions in Compile := {
 
 version in webpack := npmWebpackVersion
 webpackResources := {
-  baseDirectory.value / "src" / "main" / "static" / "sass" ** "*.sass" +++
-    baseDirectory.value / "src" / "main" / "static" / "sass" ** "*.css"
+  baseDirectory.value / "src" / "main" / "static" / "sass" ** "*.sass"
 }
 
 webpackDevServerPort := 4242
