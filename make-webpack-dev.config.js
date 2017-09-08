@@ -7,6 +7,8 @@ var pathBuild = path.join(__dirname, 'dist');
 
 module.exports = require('./scalajs.webpack.config');
 
+module.exports.module = module.exports.module || {};
+
 module.exports.plugins = [
     new HtmlWebpackPlugin({
         "title": "Make.org - Backoffice",
