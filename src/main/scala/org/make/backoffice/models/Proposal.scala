@@ -150,4 +150,8 @@ object Proposal {
         tags = tags
       )
       .asInstanceOf[Proposal]
+
+  def totalVotes(proposal: Proposal): Int = {
+    proposal.votesAgree.count + proposal.votesNeutral.count + proposal.votesDisagree.count
+  }
 }

@@ -9,6 +9,7 @@ import org.make.backoffice.facades.Field.TextInput._
 import org.make.backoffice.facades.Field._
 import org.make.backoffice.facades.SimpleForm._
 import org.make.backoffice.facades.{Match, Params}
+import org.make.client.Resource
 
 object EditProposal {
 
@@ -19,7 +20,7 @@ object EditProposal {
   private lazy val reactClass = React.createClass[EditProps, Unit](
     render = (self) =>
       <.Edit(
-        ^.resource := "proposals",
+        ^.resource := Resource.proposals,
         ^.location := self.props.location,
         ^.`match` := Match(params = Params(id = self.props.location.pathname.split('/')(2)))
       )(

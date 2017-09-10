@@ -1,7 +1,7 @@
 package org.make.services.proposal
 
 import io.circe.{Decoder, Encoder, Json}
-import org.make.client.{Filter, Pagination, Sort}
+import org.make.client.request.{Filter, Pagination, Sort}
 
 import scala.scalajs.js.Dynamic.{global => g}
 case class SearchFilter(theme: Option[Unit] = None, tag: Option[Unit] = None, content: Option[Unit] = None)

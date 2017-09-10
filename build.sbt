@@ -10,7 +10,7 @@ val scalajsDomVersion = "0.9.1"
 val scalaCssCoreVersion = "0.5.3"
 
 /* Npm versions */
-val npmReactVersion = "15.6.1"
+val npmReactVersion = "15.5.4"
 val npmReactRouterVersion = "4.1.2"
 val npmWebpackVersion = "2.6.1"
 val npmBulmaVersion = "0.4.4"

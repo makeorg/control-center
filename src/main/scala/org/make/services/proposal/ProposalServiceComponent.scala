@@ -3,7 +3,8 @@ package org.make.services.proposal
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.make.backoffice.models.Proposal
-import org.make.client.{Filter, _}
+import org.make.client.{DefaultMakeApiHttpClientComponent, ListTotalResponse, SingleResponse}
+import org.make.client.request.{Filter, Pagination, Sort}
 import org.make.core.CirceClassFormatters
 import org.make.core.URI._
 import org.make.services.ApiService

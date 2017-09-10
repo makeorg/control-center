@@ -1,28 +1,28 @@
-package org.make.backoffice.components.proposal
+package org.make.backoffice.components.validated_proposals
 
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
-import org.make.backoffice.facades.Choice
 import org.make.backoffice.facades.Datagrid._
 import org.make.backoffice.facades.DeleteButton._
 import org.make.backoffice.facades.EditButton._
 import org.make.backoffice.facades.Field.DateField._
-import org.make.backoffice.facades.Field.SelectInput._
+import org.make.backoffice.facades.Field.FunctionField._
 import org.make.backoffice.facades.Field.TextField._
 import org.make.backoffice.facades.Field.TextInput._
 import org.make.backoffice.facades.Field._
 import org.make.backoffice.facades.Filter._
 import org.make.backoffice.facades.List._
 import org.make.backoffice.facades.ShowButton._
+import org.make.backoffice.models.Proposal
 import org.make.client.Resource
-import org.make.services.proposal.{Archived, Pending, Refused}
+import org.make.services.proposal.Accepted
 
-import scala.scalajs.js.JSConverters._
+import scala.scalajs.js
 
-object ProposalList {
+object ValidatedProposalList {
 
   case class ListProps() extends RouterProps
 
@@ -31,23 +31,33 @@ object ProposalList {
   private lazy val reactClass: ReactClass = React.createClass[ListProps, Unit](
     render = (self) =>
       <.List(
-        ^.title := "Proposals",
+        ^.title := "Validated proposals",
         ^.location := self.props.location,
-        ^.resource := Resource.proposals,
+        ^.resource := Resource.validatedProposals,
         ^.hasCreate := false,
         ^.filters := filterList(),
+        ^.filter := Map("status" -> Accepted.shortName),
         ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
       )(
         <.Datagrid()(
           <.TextField(^.source := "id")(),
           <.TextField(^.source := "content")(),
-          <.TextField(^.source := "status")(),
           <.TextField(^.source := "themeId", ^.label := "Theme")(),
           <.TextField(^.source := "proposalContext.operation", ^.label := "support", ^("sortable") := false)(),
           <.TextField(^.source := "proposalContext.source", ^.label := "context", ^("sortable") := false)(),
           <.TextField(^.source := "proposalContext.question", ^.label := "question", ^("sortable") := false)(),
           <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
+          <.TextField(^.source := "status")(),
+          <.TextField(^.source := "tags")(),
+          <.TextField(^.source := "labels")(),
           <.TextField(^.source := "userId", ^.label := "User id")(),
+          <.FunctionField(^.label := "Votes", ^.render := { record =>
+            Proposal.totalVotes(record.asInstanceOf[Proposal])
+          })(),
+          <.TextField(^.source := "votesAgree.count", ^.label := "Agreement rate")(),
+          <.FunctionField(^.label := "Emergence rate", ^.render := { record =>
+            Proposal.totalVotes(record.asInstanceOf[Proposal])
+          })(),
           <.EditButton()(),
           <.ShowButton()(),
           <.DeleteButton()()
@@ -56,16 +66,10 @@ object ProposalList {
   )
 
   def filterList(): ReactElement = {
-    val choices = Seq(
-      Choice(Pending.shortName, "Pending"),
-      Choice(Refused.shortName, "Refused"),
-      Choice(Archived.shortName, "Archived")
-    )
-    <.Filter(^.resource := Resource.proposals)(
+    <.Filter(^.resource := Resource.validatedProposals)(
       Seq(
         //TODO: add the possibility to search by userId or proposalId
         <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
-        <.SelectInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := choices.toJSArray)(),
         <.TextInput(^.label := "Theme", ^.source := "theme", ^.alwaysOn := false)(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
         <.TextInput(^.label := "Support", ^.source := "support", ^.alwaysOn := false)()
