@@ -107,3 +107,5 @@ fullOptJS in Compile := {
 gitCommitMessageHook := Some(baseDirectory.value / "bin" / "commit-msg.hook")
 
 enablePlugins(GitHooks)
+
+useYarn := true

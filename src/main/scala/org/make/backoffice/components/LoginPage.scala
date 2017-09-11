@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-object GoogleComponent extends UserServiceComponent {
+object LoginPage extends UserServiceComponent {
 
   val googleAppId: String = Configuration.googleAppId
   override val apiBaseUrl: String = Configuration.apiUrl
@@ -55,7 +55,7 @@ object GoogleComponent extends UserServiceComponent {
           )()
         )
       } else {
-        <.p()("Hello " + self.state.user.get.firstName)
+          <.p()("Hello " + self.state.user.get.firstName)
     }
   )
 }

@@ -2,11 +2,11 @@ package org.make.backoffice
 
 import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
-import org.make.backoffice.components.validated_proposals.ValidatedProposalList
 import org.make.backoffice.components.proposal._
-import org.make.backoffice.components.{CustomRoutes, Dashboard}
-import org.make.backoffice.facades.Admin._
-import org.make.backoffice.facades.Resource._
+import org.make.backoffice.components.validated_proposals.ValidatedProposalList
+import org.make.backoffice.components.{Dashboard, LoginPage}
+import org.make.backoffice.facades.AdminOnRest.Admin._
+import org.make.backoffice.facades.AdminOnRest.Resource._
 import org.make.client.{Resource, RestClient}
 import org.scalajs.dom
 
@@ -19,8 +19,8 @@ object Main extends JSApp {
     ReactDOM.render(
       <.Admin(
         ^.title := "Backoffice",
+        ^.loginPage := LoginPage(),
         ^.dashboard := Dashboard(),
-        ^.customRoutes := CustomRoutes.customRoutes,
         ^.restClient := RestClient.makeClient
       )(
         <.Resource(
