@@ -1,15 +1,16 @@
 package org.make.client
 
-import io.circe.{Decoder, Printer}
+import io.circe.generic.auto._
 import io.circe.java8.time.TimeInstances
 import io.circe.parser._
 import io.circe.syntax._
+import io.circe.{Decoder, Printer}
 import io.github.shogowada.statictags.MediaTypes
-import org.make.core.URI._
 import org.make.backoffice.models.Token
+import org.make.core.URI._
 import org.scalajs.dom.XMLHttpRequest
-import org.scalajs.dom.ext.Ajax
 import org.scalajs.dom.ext.Ajax.InputData
+import org.scalajs.dom.ext.{Ajax, AjaxException}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
@@ -53,7 +54,21 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
             case Left(error)           => promise.failure(error)
             case Right(parsedResponse) => promise.success(Some(parsedResponse))
           }
-        case Failure(error) => promise.failure(error)
+        case Failure(AjaxException(response: XMLHttpRequest)) =>
+          response.status match {
+            case 400 =>
+              parse(response.responseText).flatMap(_.as[Seq[ValidationError]]) match {
+                case Left(error)     => promise.failure(error)
+                case Right(messages) => promise.failure(BadRequestHttpException(messages))
+              }
+            case 401 => promise.failure(UnauthorizedHttpException)
+            case 403 => promise.failure(ForbiddenHttpException)
+            case 404 => promise.failure(NotFoundHttpException)
+            case 500 => promise.failure(InternalServerHttpException)
+            case 502 => promise.failure(BadGatewayHttpException)
+            case _   => promise.failure(NotImplementedHttpException)
+          }
+
       }
     }
 

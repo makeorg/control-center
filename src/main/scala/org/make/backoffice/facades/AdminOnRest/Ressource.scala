@@ -21,7 +21,7 @@ object Resource {
 
   implicit class ResourceVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val name = StringAttributeSpec("name")
-    lazy val showList = ReactClassAttributeSpec("list")
+    lazy val listing = ReactClassAttributeSpec("list")
     lazy val create = ReactClassAttributeSpec("create")
     lazy val edit = ReactClassAttributeSpec("edit")
     lazy val show = ReactClassAttributeSpec("show")
