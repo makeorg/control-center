@@ -8,11 +8,8 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.facades.AdminOnRest.Datagrid._
 import org.make.backoffice.facades.AdminOnRest.DeleteButton._
 import org.make.backoffice.facades.AdminOnRest.EditButton._
-import org.make.backoffice.facades.AdminOnRest.Field.DateField._
-import org.make.backoffice.facades.AdminOnRest.Field.SelectInput._
-import org.make.backoffice.facades.AdminOnRest.Field.TextField._
-import org.make.backoffice.facades.AdminOnRest.Field.TextInput._
-import org.make.backoffice.facades.AdminOnRest.Field._
+import org.make.backoffice.facades.AdminOnRest.Fields._
+import org.make.backoffice.facades.AdminOnRest.Inputs._
 import org.make.backoffice.facades.AdminOnRest.Filter._
 import org.make.backoffice.facades.AdminOnRest.List._
 import org.make.backoffice.facades.AdminOnRest.ShowButton._

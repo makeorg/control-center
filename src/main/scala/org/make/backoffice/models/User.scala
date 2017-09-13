@@ -46,7 +46,7 @@ trait User extends js.Object {
   val enabled: Boolean
   val verified: Boolean
   val lastConnection: Date
-  val roles: Seq[Role]
+  val roles: js.Array[Role]
   val profile: js.UndefOr[Profile]
 }
 object User {
@@ -68,7 +68,7 @@ object User {
         enabled = enabled,
         verified = verified,
         lastConnection = lastConnection.toJSDate, // Date.parse(lastConnection.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)),
-        roles = roles,
+        roles = roles.toJSArray,
         profile = profile.orUndefined
       )
       .asInstanceOf[User]

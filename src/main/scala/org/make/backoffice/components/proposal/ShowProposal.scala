@@ -4,8 +4,7 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
-import org.make.backoffice.facades.AdminOnRest.Field.TextField._
-import org.make.backoffice.facades.AdminOnRest.Field._
+import org.make.backoffice.facades.AdminOnRest.Fields._
 import org.make.backoffice.facades.AdminOnRest.Show._
 import org.make.backoffice.facades.AdminOnRest.SimpleShowLayout._
 import org.make.backoffice.facades.{Match, Params}
@@ -37,5 +36,4 @@ object ShowProposal {
         )
     )
   )
-
 }

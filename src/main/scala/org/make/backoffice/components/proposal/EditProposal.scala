@@ -5,8 +5,8 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.facades.AdminOnRest.Edit._
-import org.make.backoffice.facades.AdminOnRest.Field.TextInput._
-import org.make.backoffice.facades.AdminOnRest.Field._
+import org.make.backoffice.facades.AdminOnRest.Fields._
+import org.make.backoffice.facades.AdminOnRest.Inputs._
 import org.make.backoffice.facades.AdminOnRest.SimpleForm._
 import org.make.backoffice.facades.{Match, Params}
 import org.make.client.Resource
