@@ -3,8 +3,8 @@ package org.make.backoffice
 import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.redux.{Action, Redux}
-import org.make.backoffice.components.proposal._
-import org.make.backoffice.components.validated_proposals.ValidatedProposalList
+import org.make.backoffice.components.aor_proposal.{CreateProposal, DeleteProposal, ProposalList, ShowProposal}
+import org.make.backoffice.components.aor_validated_proposals.ValidatedProposalList
 import org.make.backoffice.components.{Dashboard, LoginPage}
 import org.make.backoffice.facades.AdminOnRest.Admin._
 import org.make.backoffice.facades.AdminOnRest.Resource._
@@ -19,7 +19,7 @@ object Reducer {
   def apply(maybeState: Option[State], action: Any): State =
     action match {
       case action: SetText => State(text = action.text)
-      case _ => State(text = "")
+      case _               => State(text = "")
     }
 }
 
@@ -40,14 +40,10 @@ object Main extends JSApp {
           ^.name := Resource.proposals,
           ^.listing := ProposalList(),
           ^.create := CreateProposal(),
-          ^.edit := EditProposal(),
           ^.show := ShowProposal(),
           ^.remove := DeleteProposal()
         )(),
-        <.Resource(
-          ^.name := Resource.validatedProposals,
-          ^.listing := ValidatedProposalList()
-        )()
+        <.Resource(^.name := Resource.validatedProposals, ^.listing := ValidatedProposalList())()
       ),
       dom.document.getElementById("make-backoffice")
     )

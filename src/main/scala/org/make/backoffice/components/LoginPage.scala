@@ -9,6 +9,7 @@ import org.make.backoffice.facades.Configuration
 import org.make.backoffice.facades.ReactGoogleLogin._
 import org.make.backoffice.models.{Role, User}
 import org.make.client.{AuthClient, SingleResponse}
+import org.make.services.user.UserServiceComponent.UserService
 import org.make.services.user.UserServiceComponent
 import org.scalajs.dom.experimental.Response
 
@@ -20,10 +21,11 @@ import scalacss.DevDefaults._
 import scalacss.internal.StyleA
 import scalacss.internal.mutable.StyleSheet
 
-object LoginPage extends UserServiceComponent {
+object LoginPage {
 
   val googleAppId: String = Configuration.googleAppId
-  override val apiBaseUrl: String = Configuration.apiUrl
+
+  val userService: UserService = UserServiceComponent.userService
 
   type Self = React.Self[Unit, LoginPageState]
 
@@ -46,18 +48,22 @@ object LoginPage extends UserServiceComponent {
             case Success(singleResponseUser) =>
               val user = singleResponseUser.data
               if (user.roles.contains(Role.roleAdmin) || user.roles.contains(Role.roleModerator)) {
-                AuthClient.futureAuth(AuthClient.AUTH_LOGIN, js.Dictionary("user" -> Some(singleResponseUser.data))).onComplete {
-                  case Success(loginResponse) =>
-                    self.props.history.push("/")
-                  case Failure(e) =>
-                    self.setState(
-                      self.state.copy(isSignIn = false, error = Some(s"failed to connect: $e"))
-                    )
-                    self.props.history.push("/login")
-                }
+                AuthClient
+                  .futureAuth(AuthClient.AUTH_LOGIN, js.Dictionary("user" -> Some(singleResponseUser.data)))
+                  .onComplete {
+                    case Success(loginResponse) =>
+                      self.props.history.push("/")
+                    case Failure(e) =>
+                      self.setState(self.state.copy(isSignIn = false, error = Some(s"failed to connect: $e")))
+                      self.props.history.push("/login")
+                  }
               } else {
                 self.setState(
-                  self.state.copy(isSignIn = false, user = None, error = Some(s"failed to connect: You dont have the right role"))
+                  self.state.copy(
+                    isSignIn = false,
+                    user = None,
+                    error = Some(s"failed to connect: You dont have the right role")
+                  )
                 )
               }
 
@@ -101,13 +107,7 @@ object LoginPageStyles extends StyleSheet.Inline {
     backgroundColor(rgb(0, 188, 212))
   )
 
-  val signInButton: StyleA = style(
-    addClassNames("btn", "btn-danger")
-  )
-  val signInButtonText: StyleA = style(
-    marginLeft(10.px)
-  )
-  val googlePlus: StyleA = style(
-    addClassNames("fa", "fa-google-plus")
-  )
+  val signInButton: StyleA = style(addClassNames("btn", "btn-danger"))
+  val signInButtonText: StyleA = style(marginLeft(10.px))
+  val googlePlus: StyleA = style(addClassNames("fa", "fa-google-plus"))
 }

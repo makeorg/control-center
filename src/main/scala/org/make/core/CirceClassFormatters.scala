@@ -59,7 +59,7 @@ trait CirceClassFormatters extends TimeInstances {
     )
 
   implicit lazy val proposalDecoder: Decoder[Proposal] =
-    Decoder.forProduct18(
+    Decoder.forProduct16(
       "id",
       "userId",
       "content",
@@ -67,9 +67,7 @@ trait CirceClassFormatters extends TimeInstances {
       "status",
       "createdAt",
       "updatedAt",
-      "votesAgree",
-      "votesDisagree",
-      "votesNeutral",
+      "votes",
       "proposalContext",
       "trending",
       "labels",
@@ -81,15 +79,50 @@ trait CirceClassFormatters extends TimeInstances {
     )(Proposal.apply)
 
   implicit lazy val voteDecoder: Decoder[Vote] =
-    Decoder.forProduct4("key", "selected", "count", "qualifications")(Vote.apply)
+    Decoder.forProduct3("key", "count", "qualifications")(Vote.apply)
 
   implicit lazy val qualificationDecoder: Decoder[Qualification] =
-    Decoder.forProduct3("key", "count", "selected")(Qualification.apply)
+    Decoder.forProduct2("key", "count")(Qualification.apply)
 
-  implicit lazy val contextDecoder: Decoder[ProposalContext] =
-    Decoder.forProduct4("operation", "source", "location", "question")(ProposalContext.apply)
+  implicit lazy val contextDecoder: Decoder[Context] =
+    Decoder.forProduct4("operation", "source", "location", "question")(Context.apply)
 
   implicit lazy val authorDecoder: Decoder[Author] = Decoder.forProduct3("firstName", "postalCode", "age")(Author.apply)
 
   implicit lazy val tagDecoder: Decoder[Tag] = Decoder.forProduct2("tagId", "label")(Tag.apply)
+
+  implicit lazy val singleProposal: Decoder[SingleProposal] =
+    Decoder.forProduct14(
+      "proposalId",
+      "slug",
+      "content",
+      "author",
+      "labels",
+      "theme",
+      "status",
+      "refusalReason",
+      "tags",
+      "votes",
+      "creationContext",
+      "createdAt",
+      "updatedAt",
+      "events"
+    )(SingleProposal.apply)
+
+  implicit lazy val proposalActionDecoder: Decoder[ProposalAction] =
+    Decoder.forProduct4("date", "user", "actionType", "arguments")(ProposalAction.apply)
+
+  implicit lazy val requestContextDecoder: Decoder[RequestContext] =
+    Decoder.forProduct10(
+      "currentTheme",
+      "requestId",
+      "sessionId",
+      "externalId",
+      "country",
+      "language",
+      "operation",
+      "source",
+      "location",
+      "question"
+    )(RequestContext.apply)
 }

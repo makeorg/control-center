@@ -1,5 +1,6 @@
 package org.make.services.user
 
+import org.make.backoffice.facades.Configuration
 import org.make.backoffice.models.User
 import org.make.client.{DefaultMakeApiHttpClientComponent, SingleResponse}
 import org.make.core.CirceClassFormatters
@@ -12,13 +13,9 @@ import scala.concurrent.Future
 case class NoTokenException(message: String = "No token provided") extends Exception(message)
 
 trait UserServiceComponent {
-  def apiBaseUrl: String
-  def userService: UserService = new UserService(apiBaseUrl)
+  def userService: UserService = new UserService
 
-  class UserService(override val apiBaseUrl: String)
-      extends ApiService
-      with CirceClassFormatters
-      with DefaultMakeApiHttpClientComponent {
+  class UserService extends ApiService with CirceClassFormatters {
 
     override val resourceName: String = "user"
 
@@ -33,3 +30,5 @@ trait UserServiceComponent {
     }
   }
 }
+
+object UserServiceComponent extends UserServiceComponent

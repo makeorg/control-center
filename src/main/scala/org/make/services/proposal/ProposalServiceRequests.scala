@@ -1,6 +1,7 @@
 package org.make.services.proposal
 
 import io.circe.{Decoder, Encoder, Json}
+import org.make.backoffice.models.{ProposalId, TagId, ThemeId}
 import org.make.client.request.{Filter, Pagination, Sort}
 
 import scala.scalajs.js.Dynamic.{global => g}
@@ -22,6 +23,7 @@ object Order {
   def matchOrder(order: String): Option[Order] =
     orders.get(order.toUpperCase)
 }
+
 sealed trait ProposalStatus {
   def shortName: String
 }
@@ -54,15 +56,22 @@ object ProposalStatus {
 
 }
 
-final case class SortOptionRequest(field: String, mode: Option[Order])
+final case class ContextFilterRequest(operation: Option[String] = None,
+                                      source: Option[String] = None,
+                                      location: Option[String] = None,
+                                      question: Option[String] = None)
 
-final case class SearchOptionsRequest(sort: Seq[SortOptionRequest], limit: Option[Int], skip: Option[Int])
+final case class SortRequest(field: Option[String], mode: Option[Order])
 
 final case class ExhaustiveSearchRequest(themesIds: Option[Seq[String]] = None,
                                          tagsIds: Option[Seq[String]] = None,
+                                         labelsIds: Option[Seq[String]] = None,
                                          content: Option[String] = None,
+                                         context: Option[ContextFilterRequest] = None,
                                          status: Option[ProposalStatus] = None,
-                                         options: Option[SearchOptionsRequest] = None)
+                                         sorts: Option[Seq[SortRequest]] = None,
+                                         limit: Option[Int] = None,
+                                         skip: Option[Int] = None)
 
 object ExhaustiveSearchRequest {
 
@@ -70,33 +79,23 @@ object ExhaustiveSearchRequest {
                                    sort: Option[Sort],
                                    filters: Option[Seq[Filter]]): ExhaustiveSearchRequest =
     ExhaustiveSearchRequest(
-      themesIds = getThemesIdsFromFilters(filters),
-      tagsIds = getTagsIdsFromFilters(filters),
+      themesIds = getIdsFromFilters("theme", filters),
+      tagsIds = getIdsFromFilters("tag", filters),
+      labelsIds = getIdsFromFilters("label", filters),
       content = getContentFromFilters(filters),
+      context = getContextFromFilters(filters),
       status = getStatusFromFilters(filters),
-      options = getOptionsFromPaginationAndSorts(pagination, sort)
+      sorts = getSortFromOptionalSort(sort),
+      limit = pagination.map(_.perPage),
+      skip = pagination.map(page => page.page * page.perPage - page.perPage)
     )
 
-  private def getThemesIdsFromFilters(maybeFilters: Option[Seq[Filter]]): Option[Seq[String]] = {
+  private def getIdsFromFilters(field: String, maybeFilters: Option[Seq[Filter]]): Option[Seq[String]] = {
     maybeFilters.flatMap {
-      _.find(_.field == "theme").map {
+      _.find(_.field == field).map {
         _.value match {
-          case filterListTheme: Seq[_] => Some(filterListTheme.asInstanceOf[Seq[String]])
-          case filterTheme: String     => Some(Seq(filterTheme))
-          case unknownFilterType =>
-            g.console.warn(s"Unknown filter type: ${unknownFilterType.getClass.getName} with value $unknownFilterType")
-            None
-        }
-      }.getOrElse(None)
-    }
-  }
-
-  private def getTagsIdsFromFilters(maybeFilters: Option[Seq[Filter]]): Option[Seq[String]] = {
-    maybeFilters.flatMap {
-      _.find(_.field == "tag").map {
-        _.value match {
-          case filterListTag: Seq[_] => Some(filterListTag.asInstanceOf[Seq[String]])
-          case filterTag: String     => Some(Seq(filterTag))
+          case filterListField: Seq[_] => Some(filterListField.asInstanceOf[Seq[String]])
+          case filterField: String     => Some(Seq(filterField))
           case unknownFilterType =>
             g.console.warn(s"Unknown filter type: ${unknownFilterType.getClass.getName} with value $unknownFilterType")
             None
@@ -106,7 +105,17 @@ object ExhaustiveSearchRequest {
   }
 
   private def getContentFromFilters(maybeFilters: Option[Seq[Filter]]): Option[String] =
-    maybeFilters.map(_.find(_.field == "content").map(_.value.asInstanceOf[String])).getOrElse(None)
+    maybeFilters.flatMap(_.find(_.field == "content").map(_.value.asInstanceOf[String]))
+
+  private def getContextFromFilters(maybeFilters: Option[Seq[Filter]]): Option[ContextFilterRequest] =
+    Some(
+      ContextFilterRequest(
+        operation = maybeFilters.flatMap(_.find(_.field == "operation").map(_.value.asInstanceOf[String])),
+        source = maybeFilters.flatMap(_.find(_.field == "source").map(_.value.asInstanceOf[String])),
+        location = maybeFilters.flatMap(_.find(_.field == "location").map(_.value.asInstanceOf[String])),
+        question = maybeFilters.flatMap(_.find(_.field == "content").map(_.value.asInstanceOf[String]))
+      )
+    )
 
   private def getStatusFromFilters(maybeFilters: Option[Seq[Filter]]): Option[ProposalStatus] =
     maybeFilters
@@ -116,20 +125,19 @@ object ExhaustiveSearchRequest {
       })
       .getOrElse(Some(Pending))
 
-  def getOptionsFromPaginationAndSorts(maybePagination: Option[Pagination],
-                                       maybeSort: Option[Sort]): Option[SearchOptionsRequest] =
-    if (maybePagination.isDefined || maybeSort.isDefined) {
-      val sortOptionRequest: Seq[SortOptionRequest] =
-        maybeSort.flatMap { sort =>
-          val order: Option[Order] = sort.order.toOption.flatMap(Order.matchOrder)
-          sort.field.toOption.map(field => Seq(SortOptionRequest(field, order)))
-        }.getOrElse(Seq.empty)
-      Some(
-        SearchOptionsRequest(
-          sort = sortOptionRequest,
-          limit = maybePagination.map(_.perPage),
-          skip = maybePagination.map(pagination => pagination.page * pagination.perPage - pagination.perPage)
-        )
-      )
-    } else { None }
+  def getSortFromOptionalSort(maybeSort: Option[Sort]): Option[Seq[SortRequest]] =
+    maybeSort.flatMap { sort =>
+      for {
+        _     <- sort.field.toOption
+        order <- sort.order.toOption.flatMap(Order.matchOrder)
+      } yield Seq(SortRequest(sort.field.toOption, Some(order)))
+    }
 }
+
+final case class RefuseProposalRequest(sendNotificationEmail: Boolean, refusalReason: Option[String])
+final case class ValidateProposalRequest(newContent: Option[String],
+                                         sendNotificationEmail: Boolean,
+                                         theme: Option[ThemeId],
+                                         labels: Seq[String],
+                                         tags: Seq[TagId],
+                                         similarProposals: Seq[ProposalId])

@@ -2,9 +2,9 @@ package org.make.services.proposal
 
 import io.circe.generic.auto._
 import io.circe.syntax._
-import org.make.backoffice.models.Proposal
-import org.make.client.{DefaultMakeApiHttpClientComponent, ListTotalResponse, SingleResponse}
+import org.make.backoffice.models._
 import org.make.client.request.{Filter, Pagination, Sort}
+import org.make.client.{ListTotalResponse, SingleResponse}
 import org.make.core.CirceClassFormatters
 import org.make.core.URI._
 import org.make.services.ApiService
@@ -13,18 +13,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
 
-trait ProposalServiceComponent extends CirceClassFormatters {
-  def apiBaseUrl: String
-  def proposalService: ProposalService = new ProposalService(apiBaseUrl)
+trait ProposalServiceComponent {
+  def proposalService: ProposalService = new ProposalService
 
-  class ProposalService(override val apiBaseUrl: String)
-      extends ApiService
-      with CirceClassFormatters
-      with DefaultMakeApiHttpClientComponent {
-    override val resourceName: String = "proposal"
+  class ProposalService extends ApiService with CirceClassFormatters {
 
-    def getProposalById(id: String): Future[SingleResponse[Proposal]] =
-      client.get[Proposal](resourceName / id).map(_.get).map(SingleResponse.apply)
+    override val resourceName: String = "proposals"
+
+    def getProposalById(id: String): Future[SingleResponse[SingleProposal]] =
+      client.get[SingleProposal](resourceName / "moderation" / id).map(_.get).map(SingleResponse.apply).recover {
+        case e =>
+          js.Dynamic.global.console.log(s"instead of converting to SingleResponse: failed cursor $e")
+          throw e
+      }
 
     def proposals(pagination: Option[Pagination],
                   sort: Option[Sort],
@@ -34,6 +35,10 @@ trait ProposalServiceComponent extends CirceClassFormatters {
       client
         .post[Seq[Proposal]](resourceName / "search" / "all", data = request.asJson.pretty(ApiService.printer))
         .map(_.get)
+        .map { proposals =>
+          scalajs.js.Dynamic.global.console.log(proposals.map(_.tags.mkString("-")).mkString("\n"))
+          proposals
+        }
         .map(ListTotalResponse.apply)
         .recover {
           case e =>
@@ -42,5 +47,46 @@ trait ProposalServiceComponent extends CirceClassFormatters {
         }
     }
 
+    def validateProposal(proposalId: String,
+                         newContent: Option[String],
+                         sendNotificationEmail: Boolean,
+                         theme: Option[ThemeId] = None,
+                         labels: Seq[String] = Seq.empty,
+                         tags: Seq[TagId] = Seq(TagId("default-tag")),
+                         similarProposals: Seq[ProposalId] = Seq.empty): Future[SingleProposal] = {
+      val request: ValidateProposalRequest = ValidateProposalRequest(
+        newContent = newContent,
+        sendNotificationEmail = sendNotificationEmail,
+        theme = theme,
+        labels = labels,
+        tags = tags,
+        similarProposals = similarProposals
+      )
+      client
+        .post[SingleProposal](resourceName / proposalId / "accept", data = request.asJson.pretty(ApiService.printer))
+        .map(_.get)
+        .recover {
+          case e =>
+            js.Dynamic.global.console.log(s"instead of getting Proposal: $e")
+            throw e
+        }
+    }
+
+    def refuseProposal(proposalId: String, refusalReason: Option[String], notifyUser: Boolean): Future[Boolean] = {
+      val request: RefuseProposalRequest =
+        RefuseProposalRequest(sendNotificationEmail = notifyUser, refusalReason = refusalReason)
+      client
+        .post[SingleProposal](resourceName / proposalId / "refuse", data = request.asJson.pretty(ApiService.printer))
+        .map(_ => true)
+        .recover {
+          case e =>
+            js.Dynamic.global.console.log(s"instead of getting Proposal: $e")
+            throw e
+            false
+        }
+    }
+
   }
 }
+
+object ProposalServiceComponent extends ProposalServiceComponent

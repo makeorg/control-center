@@ -6,6 +6,7 @@ import io.circe.parser._
 import io.circe.syntax._
 import io.circe.{Decoder, Printer}
 import io.github.shogowada.statictags.MediaTypes
+import org.make.backoffice.facades.Configuration
 import org.make.backoffice.models.Token
 import org.make.core.URI._
 import org.scalajs.dom.XMLHttpRequest
@@ -41,7 +42,6 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
 
   final class DefaultMakeApiHttpClient extends HttpClient {
 
-    //TODO: load these from configuration file
     override def baseUrl: String = apiBaseUrl
 
     private def XHRResponseTo[ENTITY](responseTry: Try[XMLHttpRequest], promise: Promise[Option[ENTITY]])(
@@ -207,4 +207,8 @@ object MakeApiClientHttp {
   def setToken(newToken: Token): Unit = { token = Some(newToken) }
   def removeToken(): Unit = { token = None }
   def isAuthenticated: Boolean = { token.isDefined }
+}
+
+object DefaultMakeApiHttpClientComponent extends DefaultMakeApiHttpClientComponent {
+  override def apiBaseUrl: String = Configuration.apiUrl
 }
