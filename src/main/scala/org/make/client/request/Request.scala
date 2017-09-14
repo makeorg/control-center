@@ -1,4 +1,7 @@
-package org.make.client
+package org.make.client.request
+
+import org.make.client._
+import org.make.services.proposal.Accepted
 
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -84,16 +87,26 @@ object GetListRequest extends MakeServices {
 
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
-      case "proposals" =>
+      case Resource.proposals =>
         val request = params.asInstanceOf[GetListRequest]
         proposalService.proposals(
           request.pagination.toOption,
           request.sort.toOption,
           request.filter.toOption.map(_.toJSArray.map(fieldValue => Filter(fieldValue._1, fieldValue._2)))
         )
-      case "users" =>
-        throw ResourceNotImplementedException("Resource users not implemented for request GetListRequest")
-      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource")
+      case Resource.validatedProposals =>
+        val request = params.asInstanceOf[GetListRequest]
+        proposalService.proposals(
+          request.pagination.toOption,
+          request.sort.toOption,
+          request.filter.toOption.map(
+            _.toJSArray
+              .map(fieldValue => Filter(fieldValue._1, fieldValue._2)) ++ Seq(Filter("status", Accepted.shortName))
+          )
+        )
+      case Resource.users =>
+        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetListRequest")
+      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in GetListRequest")
     }
   }
 }
@@ -108,12 +121,12 @@ object GetOneRequest extends MakeServices {
 
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
-      case "proposals" =>
+      case Resource.proposals =>
         val request = params.asInstanceOf[GetOneRequest]
         proposalService.getProposalById(request.id)
-      case "users" =>
-        throw ResourceNotImplementedException("Resource users not implemented for request GetOneRequest")
-      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource")
+      case Resource.users =>
+        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetOneRequest")
+      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in GetOneRequest")
     }
   }
 }
@@ -128,11 +141,13 @@ object CreateRequest extends MakeServices {
 
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
-      case "proposals" =>
-        throw ResourceNotImplementedException("Resource proposals not implemented for request CreateRequest")
-      case "users" =>
-        throw ResourceNotImplementedException("Resource users not implemented for request CreateRequest")
-      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource")
+      case Resource.proposals =>
+        throw ResourceNotImplementedException(
+          s"Resource ${Resource.proposals} not implemented for request CreateRequest"
+        )
+      case Resource.users =>
+        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request CreateRequest")
+      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in CreateRequest")
     }
   }
 }
@@ -148,11 +163,13 @@ object UpdateRequest extends MakeServices {
 
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
-      case "proposals" =>
-        throw ResourceNotImplementedException("Resource proposals not implemented for request UpdateRequest")
-      case "users" =>
-        throw ResourceNotImplementedException("Resource users not implemented for request UpdateRequest")
-      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource")
+      case Resource.proposals =>
+        throw ResourceNotImplementedException(
+          s"Resource ${Resource.proposals} not implemented for request UpdateRequest"
+        )
+      case Resource.users =>
+        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request UpdateRequest")
+      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in UpdateRequest")
     }
   }
 }
@@ -167,11 +184,13 @@ object DeleteRequest extends MakeServices {
 
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
-      case "proposals" =>
-        throw ResourceNotImplementedException("Resource proposals not implemented for request DeleteRequest")
-      case "users" =>
-        throw ResourceNotImplementedException("Resource users not implemented for request DeleteRequest")
-      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource")
+      case Resource.proposals =>
+        throw ResourceNotImplementedException(
+          s"Resource ${Resource.proposals} not implemented for request DeleteRequest"
+        )
+      case Resource.users =>
+        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request DeleteRequest")
+      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in DeleteRequest")
     }
   }
 }
@@ -186,11 +205,13 @@ object GetManyRequest extends MakeServices {
 
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
-      case "proposals" =>
-        throw ResourceNotImplementedException("Resource proposals not implemented for request GetManyRequest")
-      case "users" =>
-        throw ResourceNotImplementedException("Resource users not implemented for request GetManyRequest")
-      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource")
+      case Resource.proposals =>
+        throw ResourceNotImplementedException(
+          s"Resource ${Resource.proposals} not implemented for request GetManyRequest"
+        )
+      case Resource.users =>
+        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetManyRequest")
+      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in GetManyRequest")
     }
   }
 }
@@ -221,11 +242,16 @@ object GetManyReferenceRequest extends MakeServices {
 
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
-      case "proposals" =>
-        throw ResourceNotImplementedException("Resource proposals not implemented for request GetManyReferenceRequest")
-      case "users" =>
-        throw ResourceNotImplementedException("Resource users not implemented for request GetManyReferenceRequest")
-      case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource")
+      case Resource.proposals =>
+        throw ResourceNotImplementedException(
+          s"Resource ${Resource.proposals} not implemented for request GetManyReferenceRequest"
+        )
+      case Resource.users =>
+        throw ResourceNotImplementedException(
+          s"Resource ${Resource.users} not implemented for request GetManyReferenceRequest"
+        )
+      case unknownResource =>
+        throw UnknownResourceException(s"Unknown resource: $unknownResource in GetManyReferenceRequest")
     }
   }
 }

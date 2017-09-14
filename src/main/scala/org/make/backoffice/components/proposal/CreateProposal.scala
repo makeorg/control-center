@@ -8,6 +8,7 @@ import org.make.backoffice.facades.Create._
 import org.make.backoffice.facades.Field.TextInput._
 import org.make.backoffice.facades.Field._
 import org.make.backoffice.facades.SimpleForm._
+import org.make.client.Resource
 
 object CreateProposal {
 
@@ -17,7 +18,7 @@ object CreateProposal {
 
   private lazy val reactClass = React.createClass[CreateProps, Unit](
     render = (self) =>
-      <.Create(^.resource := "proposals", ^.location := self.props.location)(
+      <.Create(^.resource := Resource.proposals, ^.location := self.props.location)(
         <.SimpleForm()(
           <.TextInput(^.source := "content")(),
           <.TextInput(^.source := "author")(),

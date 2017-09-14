@@ -9,6 +9,7 @@ import org.make.backoffice.facades.Field._
 import org.make.backoffice.facades.Show._
 import org.make.backoffice.facades.SimpleShowLayout._
 import org.make.backoffice.facades.{Match, Params}
+import org.make.client.Resource
 
 object ShowProposal {
 
@@ -20,7 +21,7 @@ object ShowProposal {
     render = (self) =>
       <.Show(
         ^.location := self.props.location,
-        ^.resource := "proposals",
+        ^.resource := Resource.proposals,
         ^.`match` := Match(params = Params(id = self.props.location.pathname.split('/')(2)))
       )(
         <.SimpleShowLayout()(

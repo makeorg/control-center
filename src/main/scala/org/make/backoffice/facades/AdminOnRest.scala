@@ -289,6 +289,10 @@ object NativeEmailField extends ReactClass
 object NativeImageField extends ReactClass
 
 @js.native
+@JSImport("admin-on-rest", "FunctionField")
+object NativeFunctionField extends ReactClass
+
+@js.native
 @JSImport("admin-on-rest", "NumberField")
 object NativeNumberField extends ReactClass
 
@@ -367,6 +371,21 @@ object Field {
 
     implicit class ImageFieldVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
       lazy val src = StringAttributeSpec("src")
+    }
+  }
+
+  object FunctionField {
+    case class RenderRecordAttributeSpec(name: String) extends AttributeSpec {
+      def :=(renderRecord: js.Function1[js.Object, js.Any]): Attribute[js.Function1[js.Object, js.Any]] =
+        Attribute(name = name, value = renderRecord, AS_IS)
+    }
+
+    implicit class FunctionFieldVirtualDOMElements(elements: VirtualDOMElements) {
+      lazy val FunctionField: ReactClassElementSpec = elements(NativeFunctionField)
+    }
+
+    implicit class FunctionFieldVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+      lazy val render = RenderRecordAttributeSpec("render")
     }
   }
 
