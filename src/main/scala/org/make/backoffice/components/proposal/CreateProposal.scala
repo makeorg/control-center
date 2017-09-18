@@ -4,10 +4,10 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
-import org.make.backoffice.facades.Create._
-import org.make.backoffice.facades.Field.TextInput._
-import org.make.backoffice.facades.Field._
-import org.make.backoffice.facades.SimpleForm._
+import org.make.backoffice.facades.AdminOnRest.Create._
+import org.make.backoffice.facades.AdminOnRest.Fields._
+import org.make.backoffice.facades.AdminOnRest.Inputs._
+import org.make.backoffice.facades.AdminOnRest.SimpleForm._
 import org.make.client.Resource
 
 object CreateProposal {

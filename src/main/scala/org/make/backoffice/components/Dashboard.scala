@@ -13,7 +13,7 @@ object Dashboard {
   private lazy val reactClass = React.createClass[Unit, Unit](
     render = (_) =>
       <.Card()(
-        <.ViewTitle(^.title := "Home")()
+        <.ViewTitle(^.title := "Dashboard")()
       )
   )
 }

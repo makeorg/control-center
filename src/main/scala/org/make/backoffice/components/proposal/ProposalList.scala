@@ -5,18 +5,15 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
+import org.make.backoffice.facades.AdminOnRest.Datagrid._
+import org.make.backoffice.facades.AdminOnRest.DeleteButton._
+import org.make.backoffice.facades.AdminOnRest.EditButton._
+import org.make.backoffice.facades.AdminOnRest.Fields._
+import org.make.backoffice.facades.AdminOnRest.Inputs._
+import org.make.backoffice.facades.AdminOnRest.Filter._
+import org.make.backoffice.facades.AdminOnRest.List._
+import org.make.backoffice.facades.AdminOnRest.ShowButton._
 import org.make.backoffice.facades.Choice
-import org.make.backoffice.facades.Datagrid._
-import org.make.backoffice.facades.DeleteButton._
-import org.make.backoffice.facades.EditButton._
-import org.make.backoffice.facades.Field.DateField._
-import org.make.backoffice.facades.Field.SelectInput._
-import org.make.backoffice.facades.Field.TextField._
-import org.make.backoffice.facades.Field.TextInput._
-import org.make.backoffice.facades.Field._
-import org.make.backoffice.facades.Filter._
-import org.make.backoffice.facades.List._
-import org.make.backoffice.facades.ShowButton._
 import org.make.client.Resource
 import org.make.services.proposal.{Archived, Pending, Refused}
 

@@ -33,17 +33,18 @@ val npmReactGoogleLogin = "2.9.2"
 enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
 
 libraryDependencies ++= Seq(
-  "org.scala-js"        %%% "scalajs-dom"                    % scalajsDomVersion,
-  "io.github.shogowada" %%% "scalajs-reactjs"                % scalaJsReactVersion, // For react facade
-  "io.github.shogowada" %%% "scalajs-reactjs-router-redux"   % scalaJsReactVersion, // Optional. For react-router-dom facade
-  "io.github.shogowada" %%% "scalajs-reactjs-router-dom"     % scalaJsReactVersion, // Optional. For react-router-dom facade
-  "io.github.shogowada" %%% "scalajs-reactjs-redux"          % scalaJsReactVersion, // Optional. For react-redux facade
-  "io.github.shogowada" %%% "scalajs-reactjs-redux-devtools" % scalaJsReactVersion, // Optional. For redux-devtools facade
-  "io.circe"            %%% "circe-core"                     % circeVersion,
-  "io.circe"            %%% "circe-java8"                    % circeVersion,
-  "io.circe"            %%% "circe-generic"                  % circeVersion,
-  "io.circe"            %%% "circe-parser"                   % circeVersion,
-  "io.circe"            %%% "circe-scalajs"                  % circeVersion
+  "org.scala-js"                 %%% "scalajs-dom"                    % scalajsDomVersion,
+  "io.github.shogowada"          %%% "scalajs-reactjs"                % scalaJsReactVersion, // For react facade
+  "io.github.shogowada"          %%% "scalajs-reactjs-router-redux"   % scalaJsReactVersion, // Optional. For react-router-dom facade
+  "io.github.shogowada"          %%% "scalajs-reactjs-router-dom"     % scalaJsReactVersion, // Optional. For react-router-dom facade
+  "io.github.shogowada"          %%% "scalajs-reactjs-redux"          % scalaJsReactVersion, // Optional. For react-redux facade
+  "io.github.shogowada"          %%% "scalajs-reactjs-redux-devtools" % scalaJsReactVersion, // Optional. For redux-devtools facade
+  "com.github.japgolly.scalacss" %%% "core"                           % scalaCssCoreVersion,
+  "io.circe"                     %%% "circe-core"                     % circeVersion,
+  "io.circe"                     %%% "circe-java8"                    % circeVersion,
+  "io.circe"                     %%% "circe-generic"                  % circeVersion,
+  "io.circe"                     %%% "circe-parser"                   % circeVersion,
+  "io.circe"                     %%% "circe-scalajs"                  % circeVersion
 )
 
 npmDependencies in Compile ++= Seq(
@@ -75,8 +76,7 @@ npmResolutions in Compile := {
 
 version in webpack := npmWebpackVersion
 webpackResources := {
-  baseDirectory.value / "src" / "main" / "static" / "sass" ** "*.sass" +++
-    baseDirectory.value / "src" / "main" / "static" / "sass" ** "*.css"
+  baseDirectory.value / "src" / "main" / "static" / "sass" ** "*.sass"
 }
 
 webpackDevServerPort := 4242
@@ -108,3 +108,5 @@ fullOptJS in Compile := {
 gitCommitMessageHook := Some(baseDirectory.value / "bin" / "commit-msg.hook")
 
 enablePlugins(GitHooks)
+
+useYarn := true
