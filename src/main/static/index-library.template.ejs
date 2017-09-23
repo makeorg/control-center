@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <meta content="<%= htmlWebpackPlugin.options.title %>" property="og:title">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400i" rel="stylesheet">
+    <link rel="stylesheet" href="main.bundle.css" type="text/css" media="all">
+    <script type="application/javascript" src="make-backoffice-fastopt-library.js"></script>
+    <script language="javascript">
+        var configuration = {
+            "apiUrl": "<%= htmlWebpackPlugin.options.apiUrl %>",
+            "googleAppId": "<%= htmlWebpackPlugin.options.googleAppId %>",
+            "facebookAppId": "<%= htmlWebpackPlugin.options.facebookAppId %>"
+        };
+        var exports = window;
+        exports.require = window["makeBackoffice"].require;
+    </script>
+</head>
+<body>
+<div id="make-backoffice"></div>
+<script type="application/javascript" src="make-backoffice-fastopt.js"></script>
+</body>
+</html>

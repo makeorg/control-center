@@ -16,4 +16,4 @@ release:
 reload-all: clean start
 
 start:
-	sbt ~fastOptJS::startWebpackDevServer
+	sbt fastOptJS::startWebpackDevServer ~fastOptJS

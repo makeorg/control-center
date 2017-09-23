@@ -2,6 +2,7 @@ image: makeorg/docker-sbt-coursier-nvm
 
 variables:
   CI_BUILD: "true"
+  SBT_OPTS: "-Xms2G -Xmx2G"
 
 stages:
   - build
@@ -20,10 +21,6 @@ build:
     - sbt clean publish
     # TODO: only publish on master ?
     # TODO: call rundeck
-  cache:
-    paths:
-      - /root/.coursier
-      - /root/.ivy2
 
 deploy:
   stage: deploy
