@@ -10,13 +10,13 @@ val scalajsDomVersion = "0.9.1"
 val scalaCssCoreVersion = "0.5.3"
 
 /* Npm versions */
-val npmReactVersion = "15.5.4"
+val npmReactVersion = "15.6.1"
+val npmWebpackVersion = "3.6.0"
 val npmReactRouterVersion = "4.1.2"
-val npmWebpackVersion = "2.6.1"
 val npmBulmaVersion = "0.4.4"
 val npmSassLoaderVersion = "6.0.6"
 val npmNodeSassVersion = "4.5.3"
-val npmExtractTextWebpackPluginVersion = "2.1.2"
+val npmExtractTextWebpackPluginVersion = "3.0.0"
 val npmCssLoaderVersion = "0.28.4"
 val npmStyleLoaderVersion = "0.18.2"
 val npmCleanWebpackPluginVersion = "0.1.16"
@@ -26,8 +26,8 @@ val npmFontAwesomeVersion = "4.7.0"
 val npmFileLoaderVersion = "0.11.2"
 val npmNormalizeVersion = "7.0.0"
 val npmBootstrapVersion = "3.3.7"
-val npmAdminOnRestVersion = "1.2.3"
-val npmMaterialUi = "0.18.7"
+val npmAdminOnRestVersion = "1.3.1"
+val npmMaterialUi = "0.19.2"
 val npmReactGoogleLogin = "2.9.2"
 
 enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
@@ -56,6 +56,7 @@ npmDependencies in Compile ++= Seq(
   "admin-on-rest" -> npmAdminOnRestVersion,
   "material-ui" -> npmMaterialUi,
   "bulma" -> npmBulmaVersion,
+  "ajv" -> "5.2.2",
   "sass-loader" -> npmSassLoaderVersion,
   "node-sass" -> npmNodeSassVersion,
   "extract-text-webpack-plugin" -> npmExtractTextWebpackPluginVersion,
@@ -67,7 +68,13 @@ npmDependencies in Compile ++= Seq(
   "file-loader" -> npmFileLoaderVersion,
   "font-awesome" -> npmFontAwesomeVersion,
   "normalize-scss" -> npmNormalizeVersion,
-  "bootstrap" -> npmBootstrapVersion
+  "bootstrap" -> npmBootstrapVersion,
+  "webpack" -> npmWebpackVersion
+)
+
+npmDevDependencies in Compile ++= Seq(
+  "webpack-dev-server" -> "2.8.2",
+  "webpack" -> npmWebpackVersion
 )
 
 npmResolutions in Compile := {
@@ -81,13 +88,29 @@ webpackResources := {
 
 webpackDevServerPort := 4242
 
-emitSourceMaps := false
-
-webpackConfigFile in fastOptJS := Some(baseDirectory.value / "make-webpack-dev.config.js")
+// webpackConfigFile in fastOptJS := Some(baseDirectory.value / "make-webpack-dev.config.js")
+webpackConfigFile in fastOptJS := Some(baseDirectory.value / "make-webpack-library.config.js")
 webpackConfigFile in fullOptJS := Some(baseDirectory.value / "make-webpack-prod.config.js")
 
-// Prod settings
-scalacOptions ++= Seq("-Xelide-below", "OFF")
+webpackDevServerExtraArgs := Seq("--lazy", "--inline")
+
+webpackBundlingMode := {
+  if (System.getenv("CI_BUILD") == "true") {
+    BundlingMode.Application
+  } else {
+    BundlingMode.LibraryOnly("makeBackoffice")
+  }
+}
+scalacOptions ++= {
+  if (System.getenv("CI_BUILD") == "true") {
+    Seq("-Xelide-below", "OFF")
+  } else {
+    Seq.empty
+  }
+}
+emitSourceMaps := System.getenv("CI_BUILD") != "true"
+
+scalaJSUseMainModuleInitializer := true
 
 // Custome task to manage assets
 val prepareAssets = taskKey[Unit]("prepareAssets")
