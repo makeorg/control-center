@@ -1,8 +1,7 @@
 package org.make.services.user
 
-import org.make.backoffice.facades.Configuration
 import org.make.backoffice.models.User
-import org.make.client.{DefaultMakeApiHttpClientComponent, SingleResponse}
+import org.make.client.SingleResponse
 import org.make.core.CirceClassFormatters
 import org.make.core.URI._
 import org.make.services.ApiService

@@ -89,6 +89,7 @@ trait CirceClassFormatters extends TimeInstances {
 
   implicit lazy val authorDecoder: Decoder[Author] = Decoder.forProduct3("firstName", "postalCode", "age")(Author.apply)
 
+  implicit lazy val tagEncoder: Encoder[Tag] = Encoder.forProduct2("tagId", "label")(tag => (tag.tagId, tag.label))
   implicit lazy val tagDecoder: Decoder[Tag] = Decoder.forProduct2("tagId", "label")(Tag.apply)
 
   implicit lazy val singleProposal: Decoder[SingleProposal] =
@@ -125,4 +126,90 @@ trait CirceClassFormatters extends TimeInstances {
       "location",
       "question"
     )(RequestContext.apply)
+
+  implicit lazy val gradientColorEncoder: Encoder[GradientColor] =
+    Encoder.forProduct2("from", "to")(gradientColor => (gradientColor.from, gradientColor.to))
+
+  implicit lazy val themeTranslationEncoder: Encoder[ThemeTranslation] =
+    Encoder.forProduct3("slug", "title", "language")(
+      themeTranslation => (themeTranslation.slug, themeTranslation.title, themeTranslation.language)
+    )
+
+  implicit lazy val themeEncoder: Encoder[Theme] =
+    Encoder.forProduct8(
+      "themeId",
+      "translations",
+      "actionsCount",
+      "proposalsCount",
+      "country",
+      "color",
+      "gradient",
+      "tags"
+    )(
+      theme =>
+        (
+          theme.themeId,
+          theme.translations,
+          theme.actionsCount,
+          theme.proposalsCount,
+          theme.country,
+          theme.color,
+          theme.gradient.toOption,
+          theme.tags
+      )
+    )
+
+  implicit lazy val businessConfigEncoder: Encoder[BusinessConfig] =
+    Encoder.forProduct8(
+      "proposalMinLength",
+      "proposalMaxLength",
+      "themes",
+      "nVotesTriggerConnexion",
+      "nPendingProposalsTriggerEmailModerator",
+      "minProposalsPerSequence",
+      "maxProposalsPerSequence",
+      "reasonsForRefusal"
+    )(
+      businessConfig =>
+        (
+          businessConfig.proposalMinLength,
+          businessConfig.proposalMaxLength,
+          businessConfig.themes,
+          businessConfig.nVotesTriggerConnexion,
+          businessConfig.nPendingProposalsTriggerEmailModerator,
+          businessConfig.minProposalsPerSequence,
+          businessConfig.maxProposalsPerSequence,
+          businessConfig.reasonsForRefusal
+      )
+    )
+
+  implicit lazy val gradientColorDecoder: Decoder[GradientColor] =
+    Decoder.forProduct2("from", "to")(GradientColor.apply)
+
+  implicit lazy val themeTranslationDecoder: Decoder[ThemeTranslation] =
+    Decoder.forProduct3("slug", "title", "language")(ThemeTranslation.apply)
+
+  implicit lazy val themeDecoder: Decoder[Theme] =
+    Decoder.forProduct8(
+      "themeId",
+      "translations",
+      "actionsCount",
+      "proposalsCount",
+      "country",
+      "color",
+      "gradient",
+      "tags"
+    )(Theme.apply)
+
+  implicit lazy val businessConfigDecoder: Decoder[BusinessConfig] =
+    Decoder.forProduct8(
+      "proposalMinLength",
+      "proposalMaxLength",
+      "themes",
+      "nVotesTriggerConnexion",
+      "nPendingProposalsTriggerEmailModerator",
+      "minProposalsPerSequence",
+      "maxProposalsPerSequence",
+      "reasonsForRefusal"
+    )(BusinessConfig.apply)
 }
