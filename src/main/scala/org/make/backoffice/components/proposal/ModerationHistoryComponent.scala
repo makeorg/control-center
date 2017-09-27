@@ -4,12 +4,7 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
-import org.make.backoffice.facades.Table._
-import org.make.backoffice.facades.TableBody._
-import org.make.backoffice.facades.TableHeader._
-import org.make.backoffice.facades.TableHeaderColumn.TableHeaderColumnVirtualDOMElements
-import org.make.backoffice.facades.TableRow.TableRowVirtualDOMElements
-import org.make.backoffice.facades.TableRowColumn.TableRowColumnVirtualDOMElements
+import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models.{ProposalAction, SingleProposal}
 
 import scala.scalajs.js
@@ -49,10 +44,10 @@ object ModerationHistoryComponent {
     )
 
   lazy val reactClass: ReactClass = React.createClass[HistoryProps, HistoryState](
-    getInitialState = self => {
+    getInitialState = { self =>
       HistoryState(contentActions = contentActions(self.props.wrapped.proposal.events))
     },
-    componentWillReceiveProps = (self, props) => {
+    componentWillReceiveProps = { (self, props) =>
       self.setState(HistoryState(contentActions = contentActions(props.wrapped.proposal.events)))
     },
     render = self =>

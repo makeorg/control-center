@@ -1,4 +1,4 @@
-package org.make.backoffice.components.aor_validated_proposals
+package org.make.backoffice.components.aor.validatedProposals
 
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
@@ -12,7 +12,8 @@ import org.make.backoffice.facades.AdminOnRest.Filter._
 import org.make.backoffice.facades.AdminOnRest.Inputs._
 import org.make.backoffice.facades.AdminOnRest.List._
 import org.make.backoffice.facades.AdminOnRest.ShowButton._
-import org.make.backoffice.models.Proposal
+import org.make.backoffice.helpers.Configuration
+import org.make.backoffice.models.{Proposal, ThemeId}
 import org.make.client.Resource
 import org.make.services.proposal.Accepted
 
@@ -36,10 +37,15 @@ object ValidatedProposalList {
         <.Datagrid()(
           <.TextField(^.source := "id")(),
           <.TextField(^.source := "content")(),
-          <.TextField(^.source := "themeId", ^.label := "Theme")(),
-          <.TextField(^.source := "proposalContext.operation", ^.label := "support", ^("sortable") := false)(),
-          <.TextField(^.source := "proposalContext.source", ^.label := "context", ^("sortable") := false)(),
-          <.TextField(^.source := "proposalContext.question", ^.label := "question", ^("sortable") := false)(),
+          <.FunctionField(^.label := "theme", ^.render := { record =>
+            val proposal = record.asInstanceOf[Proposal]
+            proposal.themeId.map { id =>
+              Configuration.getThemeFromThemeId(ThemeId(id))
+            }
+          })(),
+          <.TextField(^.source := "proposalContext.operation", ^.label := "support", ^.sortable := false)(),
+          <.TextField(^.source := "proposalContext.source", ^.label := "context", ^.sortable := false)(),
+          <.TextField(^.source := "proposalContext.question", ^.label := "question", ^.sortable := false)(),
           <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
           <.TextField(^.source := "status")(),
           <.FunctionField(^.label := "tags", ^.render := { record =>
@@ -58,8 +64,7 @@ object ValidatedProposalList {
           <.FunctionField(^.label := "Emergence rate", ^.render := { record =>
             Proposal.totalVotes(record.asInstanceOf[Proposal])
           })(),
-          <.ShowButton()(),
-          <.DeleteButton()()
+          <.ShowButton()()
         )
     )
   )
@@ -69,7 +74,12 @@ object ValidatedProposalList {
       Seq(
         //TODO: add the possibility to search by userId or proposalId
         <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
-        <.TextInput(^.label := "Theme", ^.source := "theme", ^.alwaysOn := false)(),
+        <.SelectInput(
+          ^.label := "Theme",
+          ^.source := "theme",
+          ^.alwaysOn := false,
+          ^.choices := Configuration.choicesThemeFilter
+        )(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
         <.TextInput(^.label := "Support", ^.source := "support", ^.alwaysOn := false)()
         //TODO: add filter on: "reason for refusal" and "moderator"

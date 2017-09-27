@@ -62,7 +62,7 @@ object LoginPage {
                   self.state.copy(
                     isSignIn = false,
                     user = None,
-                    error = Some(s"failed to connect: You dont have the right role")
+                    error = Some(s"failed to connect: You don't have the right role")
                   )
                 )
               }

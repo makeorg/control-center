@@ -3,8 +3,8 @@ package org.make.backoffice
 import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.redux.{Action, Redux}
-import org.make.backoffice.components.aor_proposal.{CreateProposal, DeleteProposal, ProposalList, ShowProposal}
-import org.make.backoffice.components.aor_validated_proposals.ValidatedProposalList
+import org.make.backoffice.components.aor.proposal.{CreateProposal, DeleteProposal, ProposalList, ShowProposal}
+import org.make.backoffice.components.aor.validatedProposals.ValidatedProposalList
 import org.make.backoffice.components.{Dashboard, LoginPage}
 import org.make.backoffice.facades.AdminOnRest.Admin._
 import org.make.backoffice.facades.AdminOnRest.Resource._

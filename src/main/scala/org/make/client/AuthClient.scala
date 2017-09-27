@@ -5,7 +5,7 @@ import org.make.core.CirceClassFormatters
 import org.scalajs.dom
 import io.circe.syntax._
 import org.make.backoffice.facades.Configuration
-import org.make.services.technical.BusinessConfigServiceComponent
+import org.make.services.technical.ConfigurationsServiceComponent
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -16,7 +16,7 @@ import scala.util.{Failure, Success}
 
 import scala.scalajs.js.Dynamic.{global => g}
 
-object AuthClient extends CirceClassFormatters with BusinessConfigServiceComponent {
+object AuthClient extends CirceClassFormatters with ConfigurationsServiceComponent {
   override def apiBaseUrl: String = Configuration.apiUrl
 
   val AUTH_LOGIN = "AUTH_LOGIN"
@@ -37,10 +37,12 @@ object AuthClient extends CirceClassFormatters with BusinessConfigServiceCompone
         loginParameters.user match {
           case Some(_) =>
             dom.window.localStorage.setItem(AUTHENTICATION_KEY, "true")
-            businessConfigService.getBusinessConfig.onComplete {
+            configurationService.getConfigurations.onComplete {
               case Success(businessConfig) =>
-                dom.window.localStorage.setItem("businessConfig", businessConfig.asJson.toString)
-              case Failure(e) => g.console.log(e.getMessage)
+                dom.window.localStorage.setItem("Configuration", businessConfig.asJson.toString)
+              case Failure(e) =>
+                //TODO: Notify user of the failure of the configuration loading
+                g.console.log(e.getMessage)
             }
             Future.successful("auth_login")
           case None =>

@@ -33,16 +33,16 @@ object ShowProposalComponents {
   case class ShowComponentsState(proposal: SingleProposal)
 
   lazy val reactClass: ReactClass = React.createClass[ShowComponentsProps, ShowComponentsState](
-    getInitialState = (self) => {
+    getInitialState = { self =>
       val native = self.native.asInstanceOf[Native]
       val proposal = native.props.record
       ShowComponentsState(proposal)
     },
-    componentWillUpdate = (self, props, state) => {
+    componentWillUpdate = { (self, props, state) =>
       val proposal = props.native.record.asInstanceOf[SingleProposal]
       self.setState(ShowComponentsState(proposal))
     },
-    render = (self) =>
+    render = self =>
       <.div()(
         if (self.state.proposal.status == Refused.shortName)
           <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(self.state.proposal))(),

@@ -1,4 +1,4 @@
-package org.make.backoffice.components.aor_proposal
+package org.make.backoffice.components.aor.proposal
 
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._

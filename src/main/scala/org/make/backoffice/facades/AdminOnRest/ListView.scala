@@ -57,7 +57,6 @@ object List {
     lazy val filters = ElementAttributeSpec("filters")
     lazy val perPage = IntegerAttributeSpec("perPage")
     lazy val sort = MapAttributeSpec("sort")
-    lazy val sortable = BooleanAttributeSpec("sortable")
     lazy val filter = MapAttributeSpec("filter")
     lazy val location = LocationAttributeSpec("location")
     lazy val resource = StringAttributeSpec("resource")
@@ -83,5 +82,3 @@ object Datagrid {
     lazy val rowOptions = MapAttributeSpec("rowOptions")
   }
 }
-
-

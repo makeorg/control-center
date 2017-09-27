@@ -1,10 +1,10 @@
 package org.make.backoffice.components.proposal
 
 import io.github.shogowada.scalajs.reactjs.React
-import io.github.shogowada.scalajs.reactjs.React.Self
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.FormSyntheticEvent
+import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models.SingleProposal
 import org.make.services.proposal.ProposalServiceComponent
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
@@ -19,34 +19,38 @@ object FormRefuseProposalComponent {
   case class FormProps(proposal: SingleProposal)
   case class FormState(reasons: Seq[String], refusalReason: String = "", notifyUser: Boolean = false)
 
-  val reasons: Seq[String] = Seq("Racist", "Not actionnable", "Misclick", "Garbage")
-
-  def handleReasonRefusalChange(self: Self[FormProps, FormState]): (FormSyntheticEvent[HTMLInputElement]) => Unit =
-    (event: FormSyntheticEvent[HTMLInputElement]) => {
-      val refusalReason = event.target.value
-      self.setState(_.copy(refusalReason = refusalReason))
-    }
-
-  def handleSubmitRefuse(self: Self[FormProps, FormState]): () => Unit =
-    () => {
-      proposalService
-        .refuseProposal(self.props.wrapped.proposal.id, Option(self.state.refusalReason), self.state.notifyUser)
-        .onComplete {
-          case Success(_) => scalajs.js.Dynamic.global.console.log("validation succeeded")
-          case Failure(e) => scalajs.js.Dynamic.global.console.log(s"call failed with error $e")
-        }
-    }
+  val reasons: Seq[String] = Configuration.getReasonsForRefusal
 
   lazy val reactClass: ReactClass =
     React.createClass[FormProps, FormState](
-      getInitialState = (self) => {
+      getInitialState = { _ =>
         FormState(reasons = reasons)
       },
-      render = (self) => {
+      render = { self =>
+        def handleReasonRefusalChange: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
+          val refusalReason = event.target.value
+          self.setState(_.copy(refusalReason = refusalReason))
+        }
+
+        def handleNotifyUserChange: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
+          val notifyUser = event.target.checked
+          self.setState(_.copy(notifyUser = notifyUser))
+        }
+
+        def handleSubmitRefuse: () => Unit =
+          () => {
+            proposalService
+              .refuseProposal(self.props.wrapped.proposal.id, Option(self.state.refusalReason), self.state.notifyUser)
+              .onComplete {
+                case Success(_) => scalajs.js.Dynamic.global.console.log("validation succeeded")
+                case Failure(e) => scalajs.js.Dynamic.global.console.log(s"call failed with error $e")
+              }
+          }
+
         val selectReasons = <.select(
           ^.id := "refusal-reason",
           ^.value := self.state.refusalReason,
-          ^.onChange := handleReasonRefusalChange(self)
+          ^.onChange := handleReasonRefusalChange
         )(<.option(^.disabled := true, ^.value := "")("-- select a reason for refusal --"), self.state.reasons.map {
           reason =>
             <.option(^.value := reason)(reason)
@@ -56,9 +60,14 @@ object FormRefuseProposalComponent {
           <.div()(
             selectReasons,
             <.label(^.`for` := "refusal-reason")("Refusal reason"),
-            <.input(^.`type`.checkbox, ^.id := "notify-user", ^.value := "notify-user")(),
-            <.label(^.`for` := "notify-user")("Notify user"),
-            <.button(^.onClick := handleSubmitRefuse(self))("Confirm validation")
+            <.input(
+              ^.`type`.checkbox,
+              ^.id := "notify-user-refuse",
+              ^.value := "notify-user-refuse",
+              ^.onChange := handleNotifyUserChange
+            )(),
+            <.label(^.`for` := "notify-user-refuse")("Notify user"),
+            <.button(^.onClick := handleSubmitRefuse)("Confirm validation")
           )
         )
       }

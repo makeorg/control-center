@@ -1,4 +1,4 @@
-package org.make.backoffice.components.aor_proposal
+package org.make.backoffice.components.aor.proposal
 
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
@@ -9,6 +9,8 @@ import org.make.backoffice.facades.AdminOnRest.Fields._
 import org.make.backoffice.facades.AdminOnRest.Show._
 import org.make.backoffice.facades.AdminOnRest.SimpleShowLayout._
 import org.make.backoffice.facades.{Match, Params}
+import org.make.backoffice.helpers.Configuration
+import org.make.backoffice.models.{Proposal, ThemeId}
 import org.make.client.Resource
 
 object ShowProposal {
@@ -28,7 +30,12 @@ object ShowProposal {
           <.TextField(^.source := "id")(),
           <.TextField(^.source := "content")(),
           <.TextField(^.source := "status")(),
-          <.TextField(^.source := "theme", ^.label := "Theme")(),
+          <.FunctionField(^.label := "theme", ^.render := { record =>
+            val proposal = record.asInstanceOf[Proposal]
+            proposal.themeId.map { id =>
+              Configuration.getThemeFromThemeId(ThemeId(id))
+            }
+          })(),
           <.TextField(^.source := "creationContext.operation", ^.label := "support")(),
           <.TextField(^.source := "creationContext.source", ^.label := "context")(),
           <.TextField(^.source := "creationContext.question", ^.label := "question")(),
