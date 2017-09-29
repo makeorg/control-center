@@ -5,7 +5,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import org.make.backoffice.components.RichVirtualDOMElements
 import org.make.backoffice.models.SingleProposal
-import org.make.services.proposal.{Accepted, Pending}
+import org.make.services.proposal.{Accepted, Pending, Refused}
 
 import scala.scalajs.js
 
@@ -44,10 +44,14 @@ object ShowProposalComponents {
     },
     render = (self) =>
       <.div()(
+        if (self.state.proposal.status == Refused.shortName)
+          <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(self.state.proposal))(),
         if (self.state.proposal.status == Pending.shortName)
           <.FormRefuseProposalComponent(^.wrapped := FormRefuseProposalComponent.FormProps(self.state.proposal))(),
         if (self.state.proposal.status != Accepted.shortName)
           <.FormValidateProposalComponent(^.wrapped := FormValidateProposalComponent.FormProps(self.state.proposal))(),
+        if (self.state.proposal.status == Accepted.shortName)
+          <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(self.state.proposal))()
     )
   )
 
