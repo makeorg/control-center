@@ -149,3 +149,14 @@ object Proposal {
     proposal.votes.map(_.count).sum
   }
 }
+
+@js.native
+trait ProposalsResult extends js.Object {
+  val total: Int
+  val results: js.Array[Proposal]
+}
+
+object ProposalsResult {
+  def apply(total: Int, results: js.Array[Proposal]): ProposalsResult =
+    js.Dynamic.literal(total = total, results = results).asInstanceOf[ProposalsResult]
+}

@@ -33,13 +33,9 @@ trait ProposalServiceComponent {
       val request: ExhaustiveSearchRequest =
         ExhaustiveSearchRequest.buildExhaustiveSearchRequest(pagination, sort, filters)
       client
-        .post[Seq[Proposal]](resourceName / "search" / "all", data = request.asJson.pretty(ApiService.printer))
+        .post[ProposalsResult](resourceName / "search" / "all", data = request.asJson.pretty(ApiService.printer))
         .map(_.get)
-        .map { proposals =>
-          scalajs.js.Dynamic.global.console.log(proposals.map(_.tags.mkString("-")).mkString("\n"))
-          proposals
-        }
-        .map(ListTotalResponse.apply)
+        .map(proposalsResult => ListTotalResponse.apply(proposalsResult.total, proposalsResult.results))
         .recover {
           case e =>
             js.Dynamic.global.console.log(s"instead of converting to ListTotalResponse: failed cursor $e")
