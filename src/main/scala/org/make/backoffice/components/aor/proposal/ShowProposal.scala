@@ -10,7 +10,7 @@ import org.make.backoffice.facades.AdminOnRest.Show._
 import org.make.backoffice.facades.AdminOnRest.SimpleShowLayout._
 import org.make.backoffice.facades.{Match, Params}
 import org.make.backoffice.helpers.Configuration
-import org.make.backoffice.models.{Proposal, ThemeId}
+import org.make.backoffice.models.SingleProposal
 import org.make.client.Resource
 
 object ShowProposal {
@@ -31,15 +31,15 @@ object ShowProposal {
           <.TextField(^.source := "content")(),
           <.TextField(^.source := "status")(),
           <.FunctionField(^.label := "theme", ^.render := { record =>
-            val proposal = record.asInstanceOf[Proposal]
-            proposal.themeId.map { id =>
-              Configuration.getThemeFromThemeId(ThemeId(id))
+            val proposal = record.asInstanceOf[SingleProposal]
+            proposal.theme.map { id =>
+              Configuration.getThemeFromThemeId(id)
             }
           })(),
           <.TextField(^.source := "creationContext.operation", ^.label := "support")(),
           <.TextField(^.source := "creationContext.source", ^.label := "context")(),
           <.TextField(^.source := "creationContext.question", ^.label := "question")(),
-          <.TextField(^.source := "creationContext.createdAt", ^.label := "date")(),
+          <.DateField(^.source := "createdAt", ^.label := "date")(),
           <.TextField(^.source := "author.userId.value", ^.label := "User id")(),
           <.ShowProposalComponents()()
         )

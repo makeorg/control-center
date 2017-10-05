@@ -46,7 +46,7 @@ object ShowProposalComponents {
       <.div()(
         if (self.state.proposal.status == Refused.shortName)
           <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(self.state.proposal))(),
-        if (self.state.proposal.status == Pending.shortName)
+        if (self.state.proposal.status != Refused.shortName)
           <.FormRefuseProposalComponent(^.wrapped := FormRefuseProposalComponent.FormProps(self.state.proposal))(),
         if (self.state.proposal.status != Accepted.shortName)
           <.FormValidateProposalComponent(^.wrapped := FormValidateProposalComponent.FormProps(self.state.proposal))(),

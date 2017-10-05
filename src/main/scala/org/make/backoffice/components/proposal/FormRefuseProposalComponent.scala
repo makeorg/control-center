@@ -42,7 +42,7 @@ object FormRefuseProposalComponent {
             proposalService
               .refuseProposal(self.props.wrapped.proposal.id, Option(self.state.refusalReason), self.state.notifyUser)
               .onComplete {
-                case Success(_) => scalajs.js.Dynamic.global.console.log("validation succeeded")
+                case Success(_) => scalajs.js.Dynamic.global.console.log("refusal succeeded")
                 case Failure(e) => scalajs.js.Dynamic.global.console.log(s"call failed with error $e")
               }
           }
@@ -67,7 +67,7 @@ object FormRefuseProposalComponent {
               ^.onChange := handleNotifyUserChange
             )(),
             <.label(^.`for` := "notify-user-refuse")("Notify user"),
-            <.button(^.onClick := handleSubmitRefuse)("Confirm validation")
+            <.button(^.onClick := handleSubmitRefuse)("Confirm refusal")
           )
         )
       }

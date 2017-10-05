@@ -29,7 +29,7 @@ object Configuration extends CirceClassFormatters {
 
   def getThemeFromThemeId(themeId: ThemeId): String = {
     businessConfig.flatMap { bc =>
-      bc.themes.toArray.find(_.themeId == themeId).flatMap { theme =>
+      bc.themes.toArray.find(_.themeId.value == themeId.value).flatMap { theme =>
         theme.translations.toArray.find(_.language == "fr").map(_.title)
       }
     }.getOrElse("")
