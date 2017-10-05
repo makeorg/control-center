@@ -8,4 +8,7 @@ trait RequestConfiguration {
   def apiBaseUrl: String = Configuration.apiUrl
 }
 
-trait MakeServices extends ProposalServiceComponent with UserServiceComponent with RequestConfiguration
+trait MakeServices extends RequestConfiguration {
+  lazy val proposalService = ProposalServiceComponent.proposalService
+  lazy val userService = UserServiceComponent.userService
+}

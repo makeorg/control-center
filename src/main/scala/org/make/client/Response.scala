@@ -8,12 +8,12 @@ sealed trait Response extends js.Object
 
 @js.native
 trait ListTotalResponse[ENTITY <: js.Object] extends js.Object with Response {
-  val data: js.Array[ENTITY]
   val total: Int
+  val data: js.Array[ENTITY]
 }
 object ListTotalResponse {
-  def apply[ENTITY <: js.Object](data: Seq[ENTITY]): ListTotalResponse[ENTITY] =
-    js.Dynamic.literal(data = data.toJSArray, total = data.size).asInstanceOf[ListTotalResponse[ENTITY]]
+  def apply[ENTITY <: js.Object](total: Int, data: js.Array[ENTITY]): ListTotalResponse[ENTITY] =
+    js.Dynamic.literal(total = total, data = data).asInstanceOf[ListTotalResponse[ENTITY]]
 }
 
 @js.native

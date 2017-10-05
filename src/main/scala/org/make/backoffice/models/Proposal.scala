@@ -8,6 +8,7 @@ import org.make.core.StringValue
 import scala.scalajs.js
 import js.JSConverters._
 import org.make.core.JSConverters._
+import org.make.services.proposal.ProposalStatus
 
 import scala.scalajs.js.Date
 
@@ -27,42 +28,40 @@ object ProposalId {
 trait Qualification extends js.Object {
   val key: String
   val count: Int = 0
-  val selected: Boolean = false
 }
 
 object Qualification {
-  def apply(key: String, count: Int = 0, selected: Boolean = false): Qualification =
-    js.Dynamic.literal(key = key, count = count, selected = selected).asInstanceOf[Qualification]
+  def apply(key: String, count: Int = 0): Qualification =
+    js.Dynamic.literal(key = key, count = count).asInstanceOf[Qualification]
 }
 
 @js.native
 trait Vote extends js.Object {
   val key: String
-  val selected: Boolean = false
   val count: Int = 0
-  val qualifications: Seq[Qualification]
+  val qualifications: js.Array[Qualification]
 }
 
 object Vote {
-  def apply(key: String, selected: Boolean = false, count: Int = 0, qualifications: Seq[Qualification]): Vote =
+  def apply(key: String, count: Int = 0, qualifications: js.Array[Qualification]): Vote =
     js.Dynamic
-      .literal(key = key, selected = selected, count = count, qualifications = qualifications)
+      .literal(key = key, count = count, qualifications = qualifications)
       .asInstanceOf[Vote]
 }
 
 @js.native
-trait ProposalContext extends js.Object {
+trait Context extends js.Object {
   val operation: js.UndefOr[String]
   val source: js.UndefOr[String]
   val location: js.UndefOr[String]
   val question: js.UndefOr[String]
 }
 
-object ProposalContext {
+object Context {
   def apply(operation: Option[String],
             source: Option[String],
             location: Option[String],
-            question: Option[String]): ProposalContext =
+            question: Option[String]): Context =
     js.Dynamic
       .literal(
         operation = operation.orUndefined,
@@ -70,7 +69,7 @@ object ProposalContext {
         location = location.orUndefined,
         question = question.orUndefined
       )
-      .asInstanceOf[ProposalContext]
+      .asInstanceOf[Context]
 }
 
 @js.native
@@ -96,17 +95,15 @@ trait Proposal extends js.Object {
   val status: String
   val createdAt: Date
   val updatedAt: js.UndefOr[Date]
-  val votesAgree: Vote
-  val votesDisagree: Vote
-  val votesNeutral: Vote
-  val proposalContext: ProposalContext
+  val votes: js.Array[Vote]
+  val context: Option[Context]
   val trending: js.UndefOr[String]
-  val labels: Seq[String]
+  val labels: js.Array[String]
   val author: Author
   val country: String
   val language: String
   val themeId: js.UndefOr[String]
-  val tags: Seq[Tag]
+  val tags: js.Array[Tag]
 }
 
 object Proposal {
@@ -114,35 +111,31 @@ object Proposal {
             userId: UserId,
             content: String,
             slug: String,
-            status: String,
+            status: ProposalStatus,
             createdAt: ZonedDateTime,
             updatedAt: Option[ZonedDateTime],
-            votesAgree: Vote,
-            votesDisagree: Vote,
-            votesNeutral: Vote,
-            proposalContext: ProposalContext,
+            votes: js.Array[Vote],
+            context: Option[Context],
             trending: Option[String],
-            labels: Seq[String],
+            labels: js.Array[String],
             author: Author,
             country: String,
             language: String,
             themeId: Option[ThemeId],
-            tags: Seq[Tag]): Proposal =
+            tags: js.Array[Tag]): Proposal = {
     js.Dynamic
       .literal(
         id = id.value,
         userId = userId.value,
         content = content,
         slug = slug,
-        status = status,
+        status = status.shortName,
         createdAt = createdAt.toJSDate,
         updatedAt = updatedAt.map(_.toJSDate).orUndefined,
-        votesAgree = votesAgree,
-        votesDisagree = votesDisagree,
-        votesNeutral = votesNeutral,
-        proposalContext = proposalContext,
+        votes = votes,
+        context = context.orUndefined,
         trending = trending.orUndefined,
-        labels = labels,
+        labels = labels.toJSArray,
         author = author,
         country = country,
         language = language,
@@ -150,8 +143,20 @@ object Proposal {
         tags = tags
       )
       .asInstanceOf[Proposal]
+  }
 
   def totalVotes(proposal: Proposal): Int = {
-    proposal.votesAgree.count + proposal.votesNeutral.count + proposal.votesDisagree.count
+    proposal.votes.map(_.count).sum
   }
+}
+
+@js.native
+trait ProposalsResult extends js.Object {
+  val total: Int
+  val results: js.Array[Proposal]
+}
+
+object ProposalsResult {
+  def apply(total: Int, results: js.Array[Proposal]): ProposalsResult =
+    js.Dynamic.literal(total = total, results = results).asInstanceOf[ProposalsResult]
 }

@@ -17,7 +17,7 @@ object Tag {
 
 @js.native
 trait TagId extends js.Object with StringValue {
-  value: String
+  override val value: String
 }
 
 object TagId {
