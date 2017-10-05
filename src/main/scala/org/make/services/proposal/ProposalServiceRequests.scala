@@ -113,7 +113,7 @@ object ExhaustiveSearchRequest {
         operation = maybeFilters.flatMap(_.find(_.field == "operation").map(_.value.asInstanceOf[String])),
         source = maybeFilters.flatMap(_.find(_.field == "source").map(_.value.asInstanceOf[String])),
         location = maybeFilters.flatMap(_.find(_.field == "location").map(_.value.asInstanceOf[String])),
-        question = maybeFilters.flatMap(_.find(_.field == "content").map(_.value.asInstanceOf[String]))
+        question = maybeFilters.flatMap(_.find(_.field == "question").map(_.value.asInstanceOf[String]))
       )
     )
 
