@@ -29,7 +29,11 @@ object FormValidateProposalComponent {
   lazy val reactClass: ReactClass =
     WithRouter(
       React.createClass[FormProps, FormState](getInitialState = { self =>
-        FormState(content = self.props.wrapped.proposal.content, labels = self.props.wrapped.proposal.labels)
+        FormState(
+          content = self.props.wrapped.proposal.content,
+          labels = self.props.wrapped.proposal.labels,
+          theme = self.props.wrapped.proposal.theme.toOption
+        )
       }, render = {
         self =>
           def handleContentEdition: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
@@ -59,26 +63,27 @@ object FormValidateProposalComponent {
             self.setState(_.copy(labels = newLabels))
           }
 
-          def handleSubmitValidate: () => Unit = { () =>
-            val mayBeNewContent =
-              if (self.state.content != self.props.wrapped.proposal.content) {
-                Some(self.state.content)
-              } else { None }
-            proposalService
-              .validateProposal(
-                proposalId = self.props.wrapped.proposal.id,
-                newContent = mayBeNewContent,
-                sendNotificationEmail = self.state.notifyUser,
-                labels = self.state.labels,
-                theme = self.state.theme
-              )
-              .onComplete {
-                case Success(_) =>
-                  self.props.history.goBack()
-                  self.setState(_.copy(errorMessage = None))
-                case Failure(e) =>
-                  self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
-              }
+          def handleSubmitValidate: () => Unit = {
+            () =>
+              val mayBeNewContent =
+                if (self.state.content != self.props.wrapped.proposal.content) {
+                  Some(self.state.content)
+                } else { None }
+              proposalService
+                .validateProposal(
+                  proposalId = self.props.wrapped.proposal.id,
+                  newContent = mayBeNewContent,
+                  sendNotificationEmail = self.state.notifyUser,
+                  labels = self.state.labels,
+                  theme = self.state.theme
+                )
+                .onComplete {
+                  case Success(_) =>
+                    self.props.history.goBack()
+                    self.setState(_.copy(errorMessage = None))
+                  case Failure(e) =>
+                    self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
+                }
           }
 
           val choicesTheme: Seq[Element] = Configuration.choicesThemeFilter.map { themeChoice =>
