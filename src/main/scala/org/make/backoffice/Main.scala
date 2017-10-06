@@ -43,7 +43,11 @@ object Main extends JSApp {
           ^.show := ShowProposal(),
           ^.remove := DeleteProposal()
         )(),
-        <.Resource(^.name := Resource.validatedProposals, ^.listing := ValidatedProposalList())()
+        <.Resource(
+          ^.name := Resource.validatedProposals,
+          ^.listing := ValidatedProposalList(),
+          ^.show := ShowProposal()
+        )()
       ),
       dom.document.getElementById("make-backoffice")
     )

@@ -22,7 +22,7 @@ object FormValidateProposalComponent {
   case class FormProps(proposal: SingleProposal)
   case class FormState(content: String,
                        labels: Seq[String] = Seq.empty,
-                       notifyUser: Boolean = false,
+                       notifyUser: Boolean = true,
                        theme: Option[ThemeId] = None,
                        errorMessage: Option[String] = None)
 
@@ -34,6 +34,8 @@ object FormValidateProposalComponent {
           labels = self.props.wrapped.proposal.labels,
           theme = self.props.wrapped.proposal.theme.toOption
         )
+      }, componentWillReceiveProps = { (self, props) =>
+        self.setState(_.copy(theme = props.wrapped.proposal.theme.toOption))
       }, render = {
         self =>
           def handleContentEdition: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
@@ -113,6 +115,7 @@ object FormValidateProposalComponent {
                 ^.`type`.checkbox,
                 ^.id := "notify-user-validate",
                 ^.value := "notify-user-validate",
+                ^.checked := self.state.notifyUser,
                 ^.onChange := handleNotifyUserChange
               )(),
               <.label(^.`for` := "notify-user-validate")("Notify user"),
