@@ -22,7 +22,7 @@ object FormRefuseProposalComponent {
   case class FormProps(proposal: SingleProposal)
   case class FormState(reasons: Seq[String],
                        refusalReason: String = "Other",
-                       notifyUser: Boolean = false,
+                       notifyUser: Boolean = true,
                        errorMessage: Option[String] = None)
 
   val reasons: Seq[String] = Configuration.getReasonsForRefusal
@@ -78,6 +78,7 @@ object FormRefuseProposalComponent {
                 ^.`type`.checkbox,
                 ^.id := "notify-user-refuse",
                 ^.value := "notify-user-refuse",
+                ^.checked := self.state.notifyUser,
                 ^.onChange := handleNotifyUserChange
               )(),
               <.label(^.`for` := "notify-user-refuse")("Notify user"),
