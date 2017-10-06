@@ -21,7 +21,7 @@ object FormRefuseProposalComponent {
 
   case class FormProps(proposal: SingleProposal)
   case class FormState(reasons: Seq[String],
-                       refusalReason: String = "",
+                       refusalReason: String = "Other",
                        notifyUser: Boolean = false,
                        errorMessage: Option[String] = None)
 
