@@ -6,7 +6,6 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.facades.AdminOnRest.Datagrid._
-import org.make.backoffice.facades.AdminOnRest.DeleteButton._
 import org.make.backoffice.facades.AdminOnRest.Fields._
 import org.make.backoffice.facades.AdminOnRest.Filter._
 import org.make.backoffice.facades.AdminOnRest.Inputs._
@@ -46,8 +45,8 @@ object ProposalList {
               Configuration.getThemeFromThemeId(ThemeId(id))
             }
           })(),
-          <.TextField(^.source := "proposalContext.operation", ^.label := "support", ^.sortable := false)(),
-          <.TextField(^.source := "proposalContext.source", ^.label := "context", ^.sortable := false)(),
+          <.TextField(^.source := "proposalContext.operation", ^.label := "operation", ^.sortable := false)(),
+          <.TextField(^.source := "proposalContext.source", ^.label := "source", ^.sortable := false)(),
           <.TextField(^.source := "proposalContext.question", ^.label := "question", ^.sortable := false)(),
           <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)()
         )

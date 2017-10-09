@@ -6,7 +6,6 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.facades.AdminOnRest.Datagrid._
-import org.make.backoffice.facades.AdminOnRest.DeleteButton._
 import org.make.backoffice.facades.AdminOnRest.Fields._
 import org.make.backoffice.facades.AdminOnRest.Filter._
 import org.make.backoffice.facades.AdminOnRest.Inputs._
@@ -35,7 +34,7 @@ object ValidatedProposalList {
         ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
       )(
         <.Datagrid()(
-          <.TextField(^.source := "id")(),
+          <.ShowButton()(),
           <.TextField(^.source := "content")(),
           <.FunctionField(^.label := "theme", ^.render := { record =>
             val proposal = record.asInstanceOf[Proposal]
@@ -43,28 +42,26 @@ object ValidatedProposalList {
               Configuration.getThemeFromThemeId(ThemeId(id))
             }
           })(),
-          <.TextField(^.source := "proposalContext.operation", ^.label := "support", ^.sortable := false)(),
-          <.TextField(^.source := "proposalContext.source", ^.label := "context", ^.sortable := false)(),
+          <.TextField(^.source := "proposalContext.operation", ^.label := "operation", ^.sortable := false)(),
+          <.TextField(^.source := "proposalContext.source", ^.label := "source", ^.sortable := false)(),
           <.TextField(^.source := "proposalContext.question", ^.label := "question", ^.sortable := false)(),
           <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
-          <.TextField(^.source := "status")(),
-          <.FunctionField(^.label := "tags", ^.render := { record =>
+          <.TextField(^.source := "status", ^.sortable := false)(),
+          <.FunctionField(^.label := "tags", ^.sortable := false, ^.render := { record =>
             val proposal = record.asInstanceOf[Proposal]
             proposal.tags.map(_.tagId.value).mkString(", ")
           })(<.ChipField(^.source := "tags.label")()),
-          <.FunctionField(^.label := "labels", ^.render := { record =>
+          <.FunctionField(^.label := "labels", ^.sortable := false, ^.render := { record =>
             val proposal = record.asInstanceOf[Proposal]
             proposal.labels.mkString(", ")
           })(<.ChipField(^.source := "labels.labelId.value")()),
-          <.TextField(^.source := "userId", ^.label := "User id")(),
-          <.FunctionField(^.label := "Votes", ^.render := { record =>
+          <.FunctionField(^.label := "Votes", ^.sortable := false, ^.render := { record =>
             Proposal.totalVotes(record.asInstanceOf[Proposal])
           })(),
-          <.TextField(^.source := "votesAgree.count", ^.label := "Agreement rate")(),
-          <.FunctionField(^.label := "Emergence rate", ^.render := { record =>
+          <.TextField(^.source := "votesAgree.count", ^.label := "Agreement rate", ^.sortable := false)(),
+          <.FunctionField(^.label := "Emergence rate", ^.sortable := false, ^.render := { record =>
             Proposal.totalVotes(record.asInstanceOf[Proposal])
-          })(),
-          <.ShowButton()()
+          })()
         )
     )
   )
