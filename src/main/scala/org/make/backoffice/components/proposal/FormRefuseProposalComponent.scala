@@ -60,7 +60,8 @@ object FormRefuseProposalComponent {
           val selectReasons = <.select(
             ^.id := "refusal-reason",
             ^.value := self.state.refusalReason,
-            ^.onChange := handleReasonRefusalChange
+            ^.onChange := handleReasonRefusalChange,
+            ^.required := true
           )(<.option(^.disabled := true, ^.value := "")("-- select a reason for refusal --"), self.state.reasons.map {
             reason =>
               <.option(^.value := reason)(reason)

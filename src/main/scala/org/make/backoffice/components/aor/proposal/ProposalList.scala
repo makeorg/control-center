@@ -37,9 +37,9 @@ object ProposalList {
         ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
       )(
         <.Datagrid()(
-          <.TextField(^.source := "id")(),
+          <.ShowButton()(),
           <.TextField(^.source := "content")(),
-          <.TextField(^.source := "status")(),
+          <.TextField(^.source := "status", ^.sortable := false)(),
           <.FunctionField(^.label := "theme", ^.render := { record =>
             val proposal = record.asInstanceOf[Proposal]
             proposal.themeId.map { id =>
@@ -49,9 +49,7 @@ object ProposalList {
           <.TextField(^.source := "proposalContext.operation", ^.label := "support", ^.sortable := false)(),
           <.TextField(^.source := "proposalContext.source", ^.label := "context", ^.sortable := false)(),
           <.TextField(^.source := "proposalContext.question", ^.label := "question", ^.sortable := false)(),
-          <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
-          <.TextField(^.source := "userId", ^.label := "User id")(),
-          <.ShowButton()()
+          <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)()
         )
     )
   )

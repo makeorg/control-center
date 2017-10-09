@@ -24,7 +24,8 @@ object ShowProposal {
       <.Show(
         ^.location := self.props.location,
         ^.resource := Resource.proposals,
-        ^.`match` := Match(params = Params(id = self.props.location.pathname.split('/')(2)))
+        ^.`match` := Match(params = Params(id = self.props.location.pathname.split('/')(2))),
+        ^.showTitle := <.ShowProposalTitle()()
       )(
         <.SimpleShowLayout()(
           <.TextField(^.source := "id")(),
