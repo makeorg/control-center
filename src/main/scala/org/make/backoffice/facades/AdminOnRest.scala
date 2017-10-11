@@ -9,6 +9,7 @@ import io.github.shogowada.statictags._
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
+import scala.scalajs.js.JSConverters._
 
 @js.native
 @JSImport("admin-on-rest", "default")
@@ -41,8 +42,8 @@ case class ElementAttributeSpec(name: String) extends AttributeSpec {
 }
 
 case class MapAttributeSpec(name: String) extends AttributeSpec {
-  def :=(sort: Map[String, _]): Attribute[Map[String, _]] =
-    Attribute(name = name, value = sort, AS_IS)
+  def :=(sort: Map[String, String]): Attribute[js.Dictionary[String]] =
+    Attribute(name = name, value = sort.toJSDictionary, AS_IS)
 }
 
 case class MatchAttributeSpec(name: String) extends AttributeSpec {
@@ -51,6 +52,9 @@ case class MatchAttributeSpec(name: String) extends AttributeSpec {
 }
 
 case class ChoicesAttributeSpec(name: String) extends AttributeSpec {
+  def :=(value: Seq[Choice]): Attribute[js.Array[Choice]] =
+    Attribute(name = name, value = value.toJSArray, AS_IS)
+
   def :=(value: js.Array[Choice]): Attribute[js.Array[Choice]] =
     Attribute(name = name, value = value, AS_IS)
 }
