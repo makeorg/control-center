@@ -61,7 +61,7 @@ final case class ContextFilterRequest(operation: Option[String] = None,
                                       location: Option[String] = None,
                                       question: Option[String] = None)
 
-final case class SortRequest(field: Option[String], mode: Option[Order])
+final case class SortRequest(field: Option[String], direction: Option[Order])
 
 final case class ExhaustiveSearchRequest(themesIds: Option[Seq[String]] = None,
                                          tagsIds: Option[Seq[String]] = None,

@@ -40,8 +40,12 @@ object ShowProposal {
           <.TextField(^.source := "creationContext.operation", ^.label := "support")(),
           <.TextField(^.source := "creationContext.source", ^.label := "context")(),
           <.TextField(^.source := "creationContext.question", ^.label := "question")(),
-          <.DateField(^.source := "createdAt", ^.label := "date")(),
-          <.TextField(^.source := "author.userId.value", ^.label := "User id")(),
+          <.DateField(
+            ^.source := "createdAt",
+            ^.label := "date",
+            ^.options := Map("weekday" -> "long", "year" -> "numeric", "month" -> "long", "day" -> "numeric")
+          )(),
+          <.TextField(^.source := "author.firstName", ^.label := "User name")(),
           <.ShowProposalComponents()()
         )
     )

@@ -17,8 +17,6 @@ import org.make.backoffice.models.{Proposal, ThemeId}
 import org.make.client.Resource
 import org.make.services.proposal.{Archived, Pending, Refused}
 
-import scala.scalajs.js.JSConverters._
-
 object ProposalList {
 
   case class ListProps() extends RouterProps
@@ -37,7 +35,7 @@ object ProposalList {
       )(
         <.Datagrid()(
           <.ShowButton()(),
-          <.TextField(^.source := "content")(),
+          <.TextField(^.source := "content", ^.sortable := false)(),
           <.TextField(^.source := "status", ^.sortable := false)(),
           <.FunctionField(^.label := "theme", ^.render := { record =>
             val proposal = record.asInstanceOf[Proposal]
@@ -63,7 +61,7 @@ object ProposalList {
       Seq(
         //TODO: add the possibility to search by userId or proposalId
         <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
-        <.SelectInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := choices.toJSArray)(),
+        <.SelectInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := choices)(),
         <.SelectInput(
           ^.label := "Theme",
           ^.source := "theme",
