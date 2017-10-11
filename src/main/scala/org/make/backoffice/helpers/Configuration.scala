@@ -12,6 +12,8 @@ import scala.scalajs.js.JSConverters._
 
 object Configuration extends CirceClassFormatters {
 
+  val defaultProposalMaxLength: Int = 256
+
   val businessConfig: Option[BusinessConfig] =
     parse(dom.window.localStorage.getItem("Configuration")).flatMap(_.as[BusinessConfig]) match {
       case Right(bc) =>
