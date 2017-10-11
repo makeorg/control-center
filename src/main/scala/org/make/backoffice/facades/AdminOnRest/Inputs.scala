@@ -25,12 +25,17 @@ object NativeReferenceInput extends ReactClass
 @JSImport("admin-on-rest", "SelectInput")
 object NativeSelectInput extends ReactClass
 
+@js.native
+@JSImport("admin-on-rest", "SelectArrayInput")
+object NativeSelectArrayInput extends ReactClass
+
 object Inputs {
   implicit class InputsVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val TextInput: ReactClassElementSpec = elements(NativeTextInput)
     lazy val AutocompleteInput: ReactClassElementSpec = elements(NativeAutocompleteInput)
     lazy val ReferenceInput: ReactClassElementSpec = elements(NativeReferenceInput)
     lazy val SelectInput: ReactClassElementSpec = elements(NativeSelectInput)
+    lazy val SelectArrayInput: ReactClassElementSpec = elements(NativeSelectArrayInput)
   }
 
   implicit class InputsVirtualDOMAttributes(attributes: VirtualDOMAttributes) {

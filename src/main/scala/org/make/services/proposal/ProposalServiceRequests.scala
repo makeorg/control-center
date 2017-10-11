@@ -4,7 +4,9 @@ import io.circe.{Decoder, Encoder, Json}
 import org.make.backoffice.models.{ProposalId, TagId, ThemeId}
 import org.make.client.request.{Filter, Pagination, Sort}
 
+import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{global => g}
+
 case class SearchFilter(theme: Option[Unit] = None, tag: Option[Unit] = None, content: Option[Unit] = None)
 
 sealed trait Order { val shortName: String }
@@ -94,10 +96,11 @@ object ExhaustiveSearchRequest {
     maybeFilters.flatMap {
       _.find(_.field == field).map {
         _.value match {
-          case filterListField: Seq[_] => Some(filterListField.asInstanceOf[Seq[String]])
-          case filterField: String     => Some(Seq(filterField))
+          case filterListField: js.Array[_] =>
+            Some(filterListField.asInstanceOf[js.Array[String]].toSeq)
+          case filterField: String => Some(Seq(filterField))
           case unknownFilterType =>
-            g.console.warn(s"Unknown filter type: ${unknownFilterType.getClass.getName} with value $unknownFilterType")
+            g.console.warn(s"Unknown filter with value $unknownFilterType")
             None
         }
       }.getOrElse(None)
