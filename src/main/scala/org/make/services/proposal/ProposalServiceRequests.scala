@@ -82,7 +82,7 @@ object ExhaustiveSearchRequest {
                                    filters: Option[Seq[Filter]]): ExhaustiveSearchRequest =
     ExhaustiveSearchRequest(
       themesIds = getIdsFromFilters("theme", filters),
-      tagsIds = getIdsFromFilters("tag", filters),
+      tagsIds = getIdsFromFilters("tags", filters),
       labelsIds = getIdsFromFilters("label", filters),
       content = getContentFromFilters(filters),
       context = getContextFromFilters(filters),

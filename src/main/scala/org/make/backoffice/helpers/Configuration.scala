@@ -2,7 +2,7 @@ package org.make.backoffice.helpers
 
 import io.circe.parser.parse
 import org.make.backoffice.facades.Choice
-import org.make.backoffice.models.{BusinessConfig, ThemeId}
+import org.make.backoffice.models.{BusinessConfig, Tag, ThemeId}
 import org.make.core.CirceClassFormatters
 import org.scalajs.dom
 
@@ -13,6 +13,8 @@ import scala.scalajs.js.JSConverters._
 object Configuration extends CirceClassFormatters {
 
   val defaultProposalMaxLength: Int = 256
+
+  val defaultLanguage: String = "fr"
 
   val businessConfig: Option[BusinessConfig] =
     parse(dom.window.localStorage.getItem("Configuration")).flatMap(_.as[BusinessConfig]) match {
@@ -32,9 +34,17 @@ object Configuration extends CirceClassFormatters {
   def getThemeFromThemeId(themeId: ThemeId): String = {
     businessConfig.flatMap { bc =>
       bc.themes.toArray.find(_.themeId.value == themeId.value).flatMap { theme =>
-        theme.translations.toArray.find(_.language == "fr").map(_.title)
+        theme.translations.toArray.find(_.language == defaultLanguage).map(_.title)
       }
     }.getOrElse("")
+  }
+
+  def getTagsFromThemeId(themeId: ThemeId): Seq[Tag] = {
+    businessConfig.flatMap { bc =>
+      bc.themes.toArray.find(_.themeId.value == themeId.value).map { theme =>
+        theme.tags.toSeq
+      }
+    }.getOrElse(Seq.empty)
   }
 
   def choicesThemeFilter: js.Array[Choice] = {
@@ -43,7 +53,7 @@ object Configuration extends CirceClassFormatters {
         theme =>
           Choice(
             id = theme.themeId.value,
-            name = theme.translations.toArray.find(_.language == "fr").map(_.title).getOrElse("")
+            name = theme.translations.toArray.find(_.language == defaultLanguage).map(_.title).getOrElse("")
         )
       )
     }.getOrElse(Seq.empty.toJSArray)
