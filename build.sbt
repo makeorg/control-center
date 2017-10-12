@@ -56,6 +56,12 @@ npmDependencies in Compile ++= Seq(
   "admin-on-rest" -> npmAdminOnRestVersion,
   "material-ui" -> npmMaterialUi,
   "bulma" -> npmBulmaVersion,
+  "font-awesome" -> npmFontAwesomeVersion,
+  "normalize-scss" -> npmNormalizeVersion,
+  "bootstrap" -> npmBootstrapVersion
+)
+
+npmDevDependencies in Compile ++= Seq(
   "ajv" -> "5.2.2",
   "sass-loader" -> npmSassLoaderVersion,
   "node-sass" -> npmNodeSassVersion,
@@ -66,19 +72,12 @@ npmDependencies in Compile ++= Seq(
   "html-webpack-plugin" -> npmHtmlWebpackPluginVersion,
   "webpack-md5-hash" -> npmWebpackMd5HashVersion,
   "file-loader" -> npmFileLoaderVersion,
-  "font-awesome" -> npmFontAwesomeVersion,
-  "normalize-scss" -> npmNormalizeVersion,
-  "bootstrap" -> npmBootstrapVersion,
-  "webpack" -> npmWebpackVersion
-)
-
-npmDevDependencies in Compile ++= Seq(
   "webpack-dev-server" -> "2.8.2",
   "webpack" -> npmWebpackVersion
 )
 
 npmResolutions in Compile := {
-  (npmDependencies in Compile).value.toMap
+  (npmDependencies in Compile).value.toMap ++ (npmDevDependencies in Compile).value.toMap
 }
 
 version in webpack := npmWebpackVersion
@@ -88,19 +87,14 @@ webpackResources := {
 
 webpackDevServerPort := 4242
 
-// webpackConfigFile in fastOptJS := Some(baseDirectory.value / "make-webpack-dev.config.js")
 webpackConfigFile in fastOptJS := Some(baseDirectory.value / "make-webpack-library.config.js")
 webpackConfigFile in fullOptJS := Some(baseDirectory.value / "make-webpack-prod.config.js")
 
 webpackDevServerExtraArgs := Seq("--lazy", "--inline")
 
-webpackBundlingMode := {
-  if (System.getenv("CI_BUILD") == "true") {
-    BundlingMode.Application
-  } else {
-    BundlingMode.LibraryOnly("makeBackoffice")
-  }
-}
+webpackBundlingMode in fastOptJS := BundlingMode.LibraryOnly("makeBackoffice")
+webpackBundlingMode in fullOptJS := BundlingMode.Application
+
 scalacOptions ++= {
   if (System.getenv("CI_BUILD") == "true") {
     Seq("-Xelide-below", "OFF")
@@ -108,6 +102,7 @@ scalacOptions ++= {
     Seq.empty
   }
 }
+
 emitSourceMaps := System.getenv("CI_BUILD") != "true"
 
 scalaJSUseMainModuleInitializer := true
