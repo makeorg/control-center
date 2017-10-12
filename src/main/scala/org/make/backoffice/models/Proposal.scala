@@ -159,4 +159,7 @@ trait ProposalsResult extends js.Object {
 object ProposalsResult {
   def apply(total: Int, results: js.Array[Proposal]): ProposalsResult =
     js.Dynamic.literal(total = total, results = results).asInstanceOf[ProposalsResult]
+
+  def empty: ProposalsResult =
+    ProposalsResult(total = 0, results = Seq.empty.toJSArray)
 }

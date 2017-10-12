@@ -7,8 +7,10 @@ import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, Synthetic
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
+import org.make.backoffice.components.RichVirtualDOMElements
+import org.make.backoffice.components.proposal.SimilarProposalsComponent.SimilarProposalsProps
 import org.make.backoffice.helpers.Configuration
-import org.make.backoffice.models.{SingleProposal, ThemeId}
+import org.make.backoffice.models.{ProposalId, SingleProposal, ThemeId}
 import org.make.services.proposal.ProposalServiceComponent
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
 import org.scalajs.dom.raw.HTMLInputElement
@@ -25,7 +27,8 @@ object FormValidateProposalComponent {
                        labels: Seq[String] = Seq.empty,
                        notifyUser: Boolean = true,
                        theme: Option[ThemeId] = None,
-                       errorMessage: Option[String] = None)
+                       errorMessage: Option[String] = None,
+                       similarProposals: Seq[String] = Seq.empty)
 
   lazy val reactClass: ReactClass =
     WithRouter(React.createClass[FormProps, FormState](getInitialState = { self =>
@@ -78,7 +81,8 @@ object FormValidateProposalComponent {
               newContent = mayBeNewContent,
               sendNotificationEmail = self.state.notifyUser,
               labels = self.state.labels,
-              theme = self.state.theme
+              theme = self.state.theme,
+              similarProposals = self.state.similarProposals.map(ProposalId.apply)
             )
             .onComplete {
               case Success(_) =>
@@ -101,6 +105,10 @@ object FormValidateProposalComponent {
 
       val errorMessage: Option[Element] =
         self.state.errorMessage.map(msg => <.p()(msg))
+
+      def setSimilarProposals(similarProposals: Seq[String]): Unit = {
+        self.setState(_.copy(similarProposals = similarProposals))
+      }
 
       <.div()(
         <.div()("I want to validate that proposal"),
@@ -150,6 +158,11 @@ object FormValidateProposalComponent {
           <.label(^.`for` := "labels-star")("Star"),
           <.button(^.onClick := handleSubmitValidate)("Confirm validation"),
           errorMessage
+        ),
+        <.div()(
+          <.SimilarProposalsComponent(
+            ^.wrapped := SimilarProposalsProps(self.props.wrapped.proposal, setSimilarProposals)
+          )()
         )
       )
     }))
