@@ -19,8 +19,8 @@ build:
     - . /root/.profile
   script:
     - sbt clean publish
-    # TODO: only publish on master ?
-    # TODO: call rundeck
+    - docker tag $NEXUS_URL/repository/docker-dev/make-backoffice:$CI_COMMIT_REF_NAME-`date +"%Y-%m-%d"`-`git rev-parse --short HEAD` $NEXUS_URL/repository/docker-dev/make-backoffice:$CI_COMMIT_REF_NAME-latest
+    - docker push $NEXUS_URL/repository/docker-dev/make-backoffice:$CI_COMMIT_REF_NAME-latest
 
 deploy:
   stage: deploy
@@ -32,5 +32,5 @@ deploy:
       -H "Accept: application/json"
       -H "Content-Type: application/x-www-form-urlencoded"
       -H "X-Rundeck-Auth-Token: $RUNDECK_TOKEN"
-      --data-urlencode "argString=-tag 1.0.0-SNAPSHOT"
+      --data-urlencode "argString=-version $CI_COMMIT_REF_NAME-latest"
       http://rundeck.preprod.makeorg.tech:4440/api/16/job/bf93c510-99af-4de4-ab21-d4fa50baf1cd/run

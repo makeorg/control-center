@@ -1,6 +1,10 @@
+import java.time.LocalDate
+
+import com.typesafe.sbt.GitVersioning
+import sbt.enablePlugins
+
 organization := "org.make.backoffice"
 name := "make-backoffice"
-version := "1.0.0-SNAPSHOT"
 scalaVersion := "2.12.1"
 
 /* scala libraries version */
@@ -128,3 +132,15 @@ gitCommitMessageHook := Some(baseDirectory.value / "bin" / "commit-msg.hook")
 enablePlugins(GitHooks)
 
 useYarn := true
+
+git.formattedShaVersion := git.gitHeadCommit.value map { sha => sha.take(7) }
+
+version in ThisBuild := {
+  if (System.getenv().containsKey("CI_BUILD")) {
+    s"${System.getenv("CI_COMMIT_REF_NAME")}-${LocalDate.now()}-${git.formattedShaVersion.value.get}"
+  } else {
+    s"${git.gitCurrentBranch.value}-${LocalDate.now()}-${git.formattedShaVersion.value.get}"
+  }
+}
+
+enablePlugins(GitVersioning)
