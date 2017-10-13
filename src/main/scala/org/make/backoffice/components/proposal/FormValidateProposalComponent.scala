@@ -9,13 +9,15 @@ import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.components.RichVirtualDOMElements
 import org.make.backoffice.components.proposal.SimilarProposalsComponent.SimilarProposalsProps
+import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.helpers.Configuration
-import org.make.backoffice.models.{ProposalId, SingleProposal, ThemeId}
+import org.make.backoffice.models._
 import org.make.services.proposal.ProposalServiceComponent
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js
 import scala.util.{Failure, Success}
 
 object FormValidateProposalComponent {
@@ -27,6 +29,7 @@ object FormValidateProposalComponent {
                        labels: Seq[String] = Seq.empty,
                        notifyUser: Boolean = true,
                        theme: Option[ThemeId] = None,
+                       tags: Seq[Tag] = Seq.empty,
                        errorMessage: Option[String] = None,
                        similarProposals: Seq[String] = Seq.empty)
 
@@ -47,9 +50,20 @@ object FormValidateProposalComponent {
         self.setState(_.copy(content = newContent))
       }
 
-      def handleThemeChange: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
-        val theme = Some(ThemeId(event.target.value))
-        self.setState(_.copy(theme = theme))
+      def handleThemeChange: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
+        val theme = Some(ThemeId(value))
+        self.setState(_.copy(theme = theme, tags = Seq.empty))
+      }
+
+      def handleTagChange: (js.Object, js.UndefOr[Int], js.Array[String]) => Unit = { (_, _, values) =>
+        val tags: Seq[Tag] = values.toSeq.map { value =>
+          val tagId = self.state.theme.flatMap { themeId =>
+            val taglist = Configuration.getTagsFromThemeId(themeId)
+            taglist.find(tag => tag.label == value).map(_.tagId.value)
+          }.getOrElse("")
+          Tag(tagId = TagId(tagId), label = value)
+        }
+        self.setState(_.copy(tags = tags))
       }
 
       def handleNotifyUserChange: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
@@ -82,7 +96,8 @@ object FormValidateProposalComponent {
               sendNotificationEmail = self.state.notifyUser,
               labels = self.state.labels,
               theme = self.state.theme,
-              similarProposals = self.state.similarProposals.map(ProposalId.apply)
+              similarProposals = self.state.similarProposals.map(ProposalId.apply),
+              tags = self.state.tags.map(_.tagId)
             )
             .onComplete {
               case Success(_) =>
@@ -93,15 +108,42 @@ object FormValidateProposalComponent {
             }
       }
 
-      val choicesTheme: Seq[Element] = Configuration.choicesThemeFilter.map { themeChoice =>
-        <.option(^.value := themeChoice.id)(themeChoice.name)
-      }
+      val selectTheme = <.SelectField(
+        ^.disabled := self.props.wrapped.proposal.theme.nonEmpty,
+        ^.hintText := "Select a theme",
+        ^.value := self.state.theme.map(_.value).getOrElse("Select a theme"),
+        ^.onChangeSelect :=
+          handleThemeChange
+      )(Configuration.businessConfig.map { bc =>
+        bc.themes.map { theme =>
+          <.MenuItem(
+            ^.value := theme.themeId.value,
+            ^.primaryText := theme.translations.toArray
+              .find(_.language == Configuration.defaultLanguage)
+              .map(_.title)
+              .getOrElse("")
+          )()
+        }
+      })
 
-      val selectTheme = <.select(
-        ^.id := "refusal-reason",
-        ^.value := self.state.theme.map(_.value).getOrElse(""),
-        ^.onChange := handleThemeChange
-      )(<.option(^.disabled := true, ^.value := "")("-- select a theme --"), choicesTheme)
+      val tags = self.state.theme.map { themeId =>
+        Configuration.getTagsFromThemeId(themeId)
+      }.getOrElse(Configuration.getTagsFromVFF)
+
+      val selectTags = <.SelectField(
+        ^.disabled := self.state.theme.isEmpty,
+        ^.multiple := true,
+        ^.hintText := "Select some tags",
+        ^.valueSelect := self.state.tags.map(_.label),
+        ^.onChangeMultipleSelect := handleTagChange
+      )(tags.map { tag =>
+        <.MenuItem(
+          ^.insetChildren := true,
+          ^.checked := self.state.tags.contains(tag),
+          ^.value := tag.label,
+          ^.primaryText := tag.label
+        )()
+      })
 
       val errorMessage: Option[Element] =
         self.state.errorMessage.map(msg => <.p()(msg))
@@ -121,6 +163,7 @@ object FormValidateProposalComponent {
           )(),
           <.span()(s"${self.state.content.length}/${self.state.maxLength}"),
           selectTheme,
+          selectTags,
           <.input(
             ^.`type`.checkbox,
             ^.id := "notify-user-validate",

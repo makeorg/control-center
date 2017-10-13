@@ -8,6 +8,7 @@ trait BusinessConfig extends js.Object {
   val proposalMinLength: Int
   val proposalMaxLength: Int
   val themes: js.Array[Theme]
+  val tagsVFF: js.Array[Tag]
   val nVotesTriggerConnexion: Int
   val nPendingProposalsTriggerEmailModerator: Int
   val minProposalsPerSequence: Int
@@ -19,6 +20,7 @@ object BusinessConfig {
   def apply(proposalMinLength: Int,
             proposalMaxLength: Int,
             themes: Seq[Theme],
+            tagsVFF: Seq[Tag],
             nVotesTriggerConnexion: Int,
             nPendingProposalsTriggerEmailModerator: Int,
             minProposalsPerSequence: Int,
@@ -29,6 +31,7 @@ object BusinessConfig {
         proposalMinLength = proposalMinLength,
         proposalMaxLength = proposalMaxLength,
         themes = themes.toJSArray,
+        tagsVFF = tagsVFF.toJSArray,
         nVotesTriggerConnexion = nVotesTriggerConnexion,
         nPendingProposalsTriggerEmailModerator = nPendingProposalsTriggerEmailModerator,
         minProposalsPerSequence = minProposalsPerSequence,
