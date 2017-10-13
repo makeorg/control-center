@@ -1,6 +1,10 @@
+import java.time.LocalDate
+
+import com.typesafe.sbt.GitVersioning
+import sbt.enablePlugins
+
 organization := "org.make.backoffice"
 name := "make-backoffice"
-version := "1.0.0-SNAPSHOT"
 scalaVersion := "2.12.1"
 
 /* scala libraries version */
@@ -56,6 +60,12 @@ npmDependencies in Compile ++= Seq(
   "admin-on-rest" -> npmAdminOnRestVersion,
   "material-ui" -> npmMaterialUi,
   "bulma" -> npmBulmaVersion,
+  "font-awesome" -> npmFontAwesomeVersion,
+  "normalize-scss" -> npmNormalizeVersion,
+  "bootstrap" -> npmBootstrapVersion
+)
+
+npmDevDependencies in Compile ++= Seq(
   "ajv" -> "5.2.2",
   "sass-loader" -> npmSassLoaderVersion,
   "node-sass" -> npmNodeSassVersion,
@@ -66,19 +76,12 @@ npmDependencies in Compile ++= Seq(
   "html-webpack-plugin" -> npmHtmlWebpackPluginVersion,
   "webpack-md5-hash" -> npmWebpackMd5HashVersion,
   "file-loader" -> npmFileLoaderVersion,
-  "font-awesome" -> npmFontAwesomeVersion,
-  "normalize-scss" -> npmNormalizeVersion,
-  "bootstrap" -> npmBootstrapVersion,
-  "webpack" -> npmWebpackVersion
-)
-
-npmDevDependencies in Compile ++= Seq(
   "webpack-dev-server" -> "2.8.2",
   "webpack" -> npmWebpackVersion
 )
 
 npmResolutions in Compile := {
-  (npmDependencies in Compile).value.toMap
+  (npmDependencies in Compile).value.toMap ++ (npmDevDependencies in Compile).value.toMap
 }
 
 version in webpack := npmWebpackVersion
@@ -88,19 +91,14 @@ webpackResources := {
 
 webpackDevServerPort := 4242
 
-// webpackConfigFile in fastOptJS := Some(baseDirectory.value / "make-webpack-dev.config.js")
 webpackConfigFile in fastOptJS := Some(baseDirectory.value / "make-webpack-library.config.js")
 webpackConfigFile in fullOptJS := Some(baseDirectory.value / "make-webpack-prod.config.js")
 
 webpackDevServerExtraArgs := Seq("--lazy", "--inline")
 
-webpackBundlingMode := {
-  if (System.getenv("CI_BUILD") == "true") {
-    BundlingMode.Application
-  } else {
-    BundlingMode.LibraryOnly("makeBackoffice")
-  }
-}
+webpackBundlingMode in fastOptJS := BundlingMode.LibraryOnly("makeBackoffice")
+webpackBundlingMode in fullOptJS := BundlingMode.Application
+
 scalacOptions ++= {
   if (System.getenv("CI_BUILD") == "true") {
     Seq("-Xelide-below", "OFF")
@@ -108,6 +106,7 @@ scalacOptions ++= {
     Seq.empty
   }
 }
+
 emitSourceMaps := System.getenv("CI_BUILD") != "true"
 
 scalaJSUseMainModuleInitializer := true
@@ -133,3 +132,15 @@ gitCommitMessageHook := Some(baseDirectory.value / "bin" / "commit-msg.hook")
 enablePlugins(GitHooks)
 
 useYarn := true
+
+git.formattedShaVersion := git.gitHeadCommit.value map { sha => sha.take(7) }
+
+version in ThisBuild := {
+  if (System.getenv().containsKey("CI_BUILD")) {
+    s"${System.getenv("CI_COMMIT_REF_NAME")}-${LocalDate.now()}-${git.formattedShaVersion.value.get}"
+  } else {
+    s"${git.gitCurrentBranch.value}-${LocalDate.now()}-${git.formattedShaVersion.value.get}"
+  }
+}
+
+enablePlugins(GitVersioning)
