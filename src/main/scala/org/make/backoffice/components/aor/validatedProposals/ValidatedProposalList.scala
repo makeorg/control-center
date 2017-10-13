@@ -78,7 +78,7 @@ object ValidatedProposalList {
           ^.choices := Configuration.choicesThemeFilter
         )(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
-        <.TextInput(^.label := "Support", ^.source := "support", ^.alwaysOn := false)(),
+        <.TextInput(^.label := "Operation", ^.source := "operation", ^.alwaysOn := false)(),
         <.SelectArrayInput(
           ^.label := "Tags",
           ^.source := "tag",

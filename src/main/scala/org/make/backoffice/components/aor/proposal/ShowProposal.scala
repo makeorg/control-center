@@ -37,8 +37,8 @@ object ShowProposal {
               Configuration.getThemeFromThemeId(id)
             }
           })(),
-          <.TextField(^.source := "creationContext.operation", ^.label := "support")(),
-          <.TextField(^.source := "creationContext.source", ^.label := "context")(),
+          <.TextField(^.source := "creationContext.operation", ^.label := "operation")(),
+          <.TextField(^.source := "creationContext.source", ^.label := "source")(),
           <.TextField(^.source := "creationContext.question", ^.label := "question")(),
           <.DateField(
             ^.source := "createdAt",
