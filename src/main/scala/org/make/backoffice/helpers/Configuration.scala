@@ -48,4 +48,17 @@ object Configuration extends CirceClassFormatters {
       )
     }.getOrElse(Seq.empty.toJSArray)
   }
+
+  def choicesTagsFilter: js.Array[Choice] = {
+
+    businessConfig.map { bc =>
+      bc.themes
+        .flatMap(theme => theme.tags)
+        .groupBy(_.tagId.value)
+        .map {
+          case (_, tags) => Choice(id = tags.head.tagId.value, name = tags.head.label)
+        }
+        .toJSArray
+    }.getOrElse(Seq.empty.toJSArray)
+  }
 }

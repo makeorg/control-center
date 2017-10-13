@@ -78,8 +78,14 @@ object ValidatedProposalList {
           ^.choices := Configuration.choicesThemeFilter
         )(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
-        <.TextInput(^.label := "Support", ^.source := "support", ^.alwaysOn := false)()
-        //TODO: add filter on: "reason for refusal" and "moderator"
+        <.TextInput(^.label := "Support", ^.source := "support", ^.alwaysOn := false)(),
+        <.SelectArrayInput(
+          ^.label := "Tags",
+          ^.source := "tag",
+          ^.alwaysOn := false,
+          ^.choices := Configuration.choicesTagsFilter
+        )()
+        //TODO: add filter on: "moderator"
       )
     )
   }
