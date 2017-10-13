@@ -42,9 +42,9 @@ object ValidatedProposalList {
               Configuration.getThemeFromThemeId(ThemeId(id))
             }
           })(),
-          <.TextField(^.source := "proposalContext.operation", ^.label := "operation", ^.sortable := false)(),
-          <.TextField(^.source := "proposalContext.source", ^.label := "source", ^.sortable := false)(),
-          <.TextField(^.source := "proposalContext.question", ^.label := "question", ^.sortable := false)(),
+          <.TextField(^.source := "context.operation", ^.label := "operation", ^.sortable := false)(),
+          <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
+          <.TextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
           <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
           <.TextField(^.source := "status", ^.sortable := false)(),
           <.FunctionField(^.label := "tags", ^.sortable := false, ^.render := { record =>
