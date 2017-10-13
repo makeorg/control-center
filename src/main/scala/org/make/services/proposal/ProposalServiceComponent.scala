@@ -17,7 +17,6 @@ trait ProposalServiceComponent {
   def proposalService: ProposalService = new ProposalService
 
   class ProposalService extends ApiService with CirceClassFormatters {
-
     override val resourceName: String = "proposals"
 
     def getProposalById(id: String): Future[SingleResponse[SingleProposal]] =
@@ -81,6 +80,9 @@ trait ProposalServiceComponent {
             false
         }
     }
+
+    def getDuplicates(proposalId: ProposalId): Future[ProposalsResult] =
+      client.get[ProposalsResult](resourceName / proposalId.value / "duplicates").map(_.get)
 
   }
 }
