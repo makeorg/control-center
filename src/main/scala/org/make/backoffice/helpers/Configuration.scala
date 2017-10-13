@@ -13,7 +13,6 @@ import scala.scalajs.js.JSConverters._
 object Configuration extends CirceClassFormatters {
 
   val defaultProposalMaxLength: Int = 256
-
   val defaultLanguage: String = "fr"
 
   val businessConfig: Option[BusinessConfig] =
@@ -44,6 +43,12 @@ object Configuration extends CirceClassFormatters {
       bc.themes.toArray.find(_.themeId.value == themeId.value).map { theme =>
         theme.tags.toSeq
       }
+    }.getOrElse(Seq.empty)
+  }
+
+  def getTagsFromVFF: Seq[Tag] = {
+    businessConfig.map { bc =>
+      bc.tagsVFF.toSeq
     }.getOrElse(Seq.empty)
   }
 

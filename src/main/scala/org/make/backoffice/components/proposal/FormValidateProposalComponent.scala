@@ -57,8 +57,8 @@ object FormValidateProposalComponent {
 
       def handleTagChange: (js.Object, js.UndefOr[Int], js.Array[String]) => Unit = { (_, _, values) =>
         val tags: Seq[Tag] = values.toSeq.map { value =>
-          val tagId = self.state.theme.flatMap { theme =>
-            val taglist = Configuration.getTagsFromThemeId(theme)
+          val tagId = self.state.theme.flatMap { themeId =>
+            val taglist = Configuration.getTagsFromThemeId(themeId)
             taglist.find(tag => tag.label == value).map(_.tagId.value)
           }.getOrElse("")
           Tag(tagId = TagId(tagId), label = value)
@@ -109,6 +109,7 @@ object FormValidateProposalComponent {
       }
 
       val selectTheme = <.SelectField(
+        ^.disabled := self.props.wrapped.proposal.theme.nonEmpty,
         ^.hintText := "Select a theme",
         ^.value := self.state.theme.map(_.value).getOrElse("Select a theme"),
         ^.onChangeSelect :=
@@ -125,18 +126,24 @@ object FormValidateProposalComponent {
         }
       })
 
-      val selectTags = <.SelectField(^.multiple := true, ^.hintText := "Select some tags", ^.valueSelect := {
-        self.state.tags.map(_.label)
-      }, ^.onChangeMultipleSelect := handleTagChange)(self.state.theme.map { theme =>
-        Configuration.getTagsFromThemeId(theme).map { tag =>
-          <.MenuItem(
-            ^.insetChildren := true,
-            ^.checked := self.state.tags.contains(tag),
-            ^.value := tag.label,
-            ^.primaryText := tag.label
-          )()
-        }
-      }.getOrElse(Seq.empty))
+      val tags = self.state.theme.map { themeId =>
+        Configuration.getTagsFromThemeId(themeId)
+      }.getOrElse(Configuration.getTagsFromVFF)
+
+      val selectTags = <.SelectField(
+        ^.disabled := self.state.theme.isEmpty,
+        ^.multiple := true,
+        ^.hintText := "Select some tags",
+        ^.valueSelect := self.state.tags.map(_.label),
+        ^.onChangeMultipleSelect := handleTagChange
+      )(tags.map { tag =>
+        <.MenuItem(
+          ^.insetChildren := true,
+          ^.checked := self.state.tags.contains(tag),
+          ^.value := tag.label,
+          ^.primaryText := tag.label
+        )()
+      })
 
       val errorMessage: Option[Element] =
         self.state.errorMessage.map(msg => <.p()(msg))

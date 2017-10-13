@@ -163,10 +163,11 @@ trait CirceClassFormatters extends TimeInstances {
     )
 
   implicit lazy val businessConfigEncoder: Encoder[BusinessConfig] =
-    Encoder.forProduct8(
+    Encoder.forProduct9(
       "proposalMinLength",
       "proposalMaxLength",
       "themes",
+      "tagsVFF",
       "nVotesTriggerConnexion",
       "nPendingProposalsTriggerEmailModerator",
       "minProposalsPerSequence",
@@ -178,6 +179,7 @@ trait CirceClassFormatters extends TimeInstances {
           businessConfig.proposalMinLength,
           businessConfig.proposalMaxLength,
           businessConfig.themes,
+          businessConfig.tagsVFF,
           businessConfig.nVotesTriggerConnexion,
           businessConfig.nPendingProposalsTriggerEmailModerator,
           businessConfig.minProposalsPerSequence,
@@ -205,10 +207,11 @@ trait CirceClassFormatters extends TimeInstances {
     )(Theme.apply)
 
   implicit lazy val businessConfigDecoder: Decoder[BusinessConfig] =
-    Decoder.forProduct8(
+    Decoder.forProduct9(
       "proposalMinLength",
       "proposalMaxLength",
       "themes",
+      "tagsVFF",
       "nVotesTriggerConnexion",
       "nPendingProposalsTriggerEmailModerator",
       "minProposalsPerSequence",
