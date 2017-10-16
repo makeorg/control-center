@@ -96,7 +96,7 @@ trait Proposal extends js.Object {
   val createdAt: Date
   val updatedAt: js.UndefOr[Date]
   val votes: js.Array[Vote]
-  val context: Option[Context]
+  val context: Context
   val trending: js.UndefOr[String]
   val labels: js.Array[String]
   val author: Author
@@ -115,7 +115,7 @@ object Proposal {
             createdAt: ZonedDateTime,
             updatedAt: Option[ZonedDateTime],
             votes: js.Array[Vote],
-            context: Option[Context],
+            context: Context,
             trending: Option[String],
             labels: js.Array[String],
             author: Author,
@@ -133,7 +133,7 @@ object Proposal {
         createdAt = createdAt.toJSDate,
         updatedAt = updatedAt.map(_.toJSDate).orUndefined,
         votes = votes,
-        context = context.orUndefined,
+        context = context,
         trending = trending.orUndefined,
         labels = labels.toJSArray,
         author = author,
