@@ -29,6 +29,7 @@ object FormValidateProposalComponent {
                        labels: Seq[String] = Seq.empty,
                        notifyUser: Boolean = true,
                        theme: Option[ThemeId] = None,
+                       operation: Option[String] = None,
                        tags: Seq[Tag] = Seq.empty,
                        errorMessage: Option[String] = None,
                        similarProposals: Seq[String] = Seq.empty)
@@ -43,7 +44,12 @@ object FormValidateProposalComponent {
         theme = self.props.wrapped.proposal.theme.toOption
       )
     }, componentWillReceiveProps = { (self, props) =>
-      self.setState(_.copy(theme = props.wrapped.proposal.theme.toOption))
+      self.setState(
+        _.copy(
+          theme = props.wrapped.proposal.theme.toOption,
+          operation = props.wrapped.proposal.creationContext.operation.toOption
+        )
+      )
     }, render = { self =>
       def handleContentEdition: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
         val newContent: String = event.target.value.substring(0, self.state.maxLength)
@@ -109,7 +115,7 @@ object FormValidateProposalComponent {
       }
 
       val selectTheme = <.SelectField(
-        ^.disabled := self.props.wrapped.proposal.theme.nonEmpty,
+        ^.disabled := self.state.operation.nonEmpty || self.props.wrapped.proposal.theme.nonEmpty,
         ^.hintText := "Select a theme",
         ^.value := self.state.theme.map(_.value).getOrElse("Select a theme"),
         ^.onChangeSelect :=
@@ -131,7 +137,7 @@ object FormValidateProposalComponent {
       }.getOrElse(Configuration.getTagsFromVFF)
 
       val selectTags = <.SelectField(
-        ^.disabled := self.state.theme.isEmpty,
+        ^.disabled := self.state.theme.isEmpty && self.state.operation.isEmpty,
         ^.multiple := true,
         ^.hintText := "Select some tags",
         ^.valueSelect := self.state.tags.map(_.label),
