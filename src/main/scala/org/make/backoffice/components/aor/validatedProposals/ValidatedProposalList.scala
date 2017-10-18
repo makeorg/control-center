@@ -79,6 +79,7 @@ object ValidatedProposalList {
         )(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
         <.TextInput(^.label := "Operation", ^.source := "operation", ^.alwaysOn := false)(),
+        <.TextInput(^.label := "Question", ^.source := "question", ^.alwaysOn := false)(),
         <.SelectArrayInput(
           ^.label := "Tags",
           ^.source := "tag",
