@@ -5,7 +5,6 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.events.FormSyntheticEvent
-import io.github.shogowada.statictags.Element
 import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models.{Proposal, ProposalId, SingleProposal}
@@ -36,7 +35,7 @@ object SimilarProposalsComponent {
         }
       },
       render = { self =>
-        def handleAddSimilar: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
+        def handleAddSimilar: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = { (event, _) =>
           val proposalId: String = event.target.value
           val selectedSimilars =
             if (self.state.selectedSimilars.contains(proposalId)) {
@@ -73,18 +72,16 @@ object SimilarProposalsComponent {
           self.props.wrapped.setSimilarProposals(selectedSimilars)
         }
 
-        val similars: Seq[Element] =
+        val similars =
           self.state.similarProposals.flatMap { similar =>
             Seq(
-              <.input(
-                ^.`type`.checkbox,
+              <.Checkbox(
                 ^.value := similar.id,
-                ^.id := s"similar-${similar.id}",
-                ^.name := s"similar-${similar.id}",
+                ^.label := similar.content,
                 ^.checked := self.state.selectedSimilars.contains(similar.id),
-                ^.onChange := handleAddSimilar
+                ^.onCheck := handleAddSimilar,
+                ^.style := Map("maxWidth" -> "25em")
               )(),
-              <.label(^.`for` := s"similar-${similar.id}")(similar.content),
               <.hr()()
             )
           }

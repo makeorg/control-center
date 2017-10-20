@@ -67,7 +67,8 @@ object ModerationHistoryComponent {
       self.setState(HistoryState(contentActions = contentActions(props.wrapped.proposal.events)))
     },
     render = self =>
-      <.div()(
+      <.Card(^.style := Map("marginTop" -> "1em"))(
+        <.CardTitle(^.title := "Moderation history")(),
         <.Table(^.selectable := false)(
           <.TableHeader(^.displaySelectAll := false)(
             <.TableRow()(<.TableHeaderColumn()("Date"), <.TableHeaderColumn()("Action"), <.TableHeaderColumn()("Actor"))

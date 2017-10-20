@@ -148,6 +148,21 @@ object Proposal {
   def totalVotes(proposal: Proposal): Int = {
     proposal.votes.map(_.count).sum
   }
+
+  private def formatToPercent(count: Int, total: Int): Int = {
+    if (count == 0) 0
+    else if (total == 0) 100
+    else count * 100 / total
+  }
+
+  def agreementRate(proposal: Proposal): Int = {
+    proposal.votes
+      .find(_.key == "agree")
+      .map { agree =>
+        formatToPercent(agree.count, totalVotes(proposal))
+      }
+      .getOrElse(0)
+  }
 }
 
 @js.native

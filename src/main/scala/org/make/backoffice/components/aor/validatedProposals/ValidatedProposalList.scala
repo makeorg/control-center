@@ -58,7 +58,9 @@ object ValidatedProposalList {
           <.FunctionField(^.label := "Votes", ^.sortable := false, ^.render := { record =>
             Proposal.totalVotes(record.asInstanceOf[Proposal])
           })(),
-          <.TextField(^.source := "votesAgree.count", ^.label := "Agreement rate", ^.sortable := false)(),
+          <.FunctionField(^.label := "Agreement rate", ^.sortable := false, ^.render := { record =>
+            Proposal.agreementRate(record.asInstanceOf[Proposal])
+          })(),
           <.FunctionField(^.label := "Emergence rate", ^.sortable := false, ^.render := { record =>
             Proposal.totalVotes(record.asInstanceOf[Proposal])
           })()

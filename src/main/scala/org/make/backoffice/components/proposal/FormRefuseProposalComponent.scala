@@ -8,12 +8,14 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.helpers.Configuration
+import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models.SingleProposal
 import org.make.services.proposal.ProposalServiceComponent
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js
 import scala.util.{Failure, Success}
 
 object FormRefuseProposalComponent {
@@ -34,14 +36,12 @@ object FormRefuseProposalComponent {
           FormState(reasons = reasons)
         },
         render = { self =>
-          def handleReasonRefusalChange: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
-            val refusalReason = event.target.value
-            self.setState(_.copy(refusalReason = refusalReason))
+          def handleReasonRefusalChange: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
+            self.setState(_.copy(refusalReason = value))
           }
 
-          def handleNotifyUserChange: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
-            val notifyUser = event.target.checked
-            self.setState(_.copy(notifyUser = notifyUser))
+          def handleNotifyUserChange: (js.Object, Boolean) => Unit = { (_, checked) =>
+            self.setState(_.copy(notifyUser = checked))
           }
 
           def handleSubmitRefuse: () => Unit =
@@ -57,33 +57,31 @@ object FormRefuseProposalComponent {
                 }
             }
 
-          val selectReasons = <.select(
-            ^.id := "refusal-reason",
+          val selectReasons = <.SelectField(
+            ^.floatingLabelText := "Refusal reason",
+            ^.floatingLabelFixed := true,
             ^.value := self.state.refusalReason,
-            ^.onChange := handleReasonRefusalChange,
+            ^.onChangeSelect := handleReasonRefusalChange,
             ^.required := true
-          )(<.option(^.disabled := true, ^.value := "")("-- select a reason for refusal --"), self.state.reasons.map {
-            reason =>
-              <.option(^.value := reason)(reason)
+          )(self.state.reasons.map { reason =>
+            <.MenuItem(^.key := reason, ^.value := reason, ^.primaryText := reason)()
           })
 
           val errorMessage: Option[Element] =
             self.state.errorMessage.map(msg => <.p()(msg))
 
-          <.div()(
-            <.div()("I want to refuse that proposal"),
-            <.div()(
+          <.Card(^.style := Map("marginTop" -> "10px"))(
+            <.CardTitle(^.title := "I want to refuse that proposal")(),
+            <.CardActions()(
               selectReasons,
-              <.label(^.`for` := "refusal-reason")("Refusal reason"),
-              <.input(
-                ^.`type`.checkbox,
-                ^.id := "notify-user-refuse",
-                ^.value := "notify-user-refuse",
+              <.Checkbox(
+                ^.label := "Notify User",
                 ^.checked := self.state.notifyUser,
-                ^.onChange := handleNotifyUserChange
+                ^.onCheck := handleNotifyUserChange,
+                ^.style := Map("maxWidth" -> "250px")
               )(),
               <.label(^.`for` := "notify-user-refuse")("Notify user"),
-              <.button(^.onClick := handleSubmitRefuse)("Confirm refusal"),
+              <.RaisedButton(^.label := "Confirm refusal", ^.onClick := handleSubmitRefuse)(),
               errorMessage
             )
           )

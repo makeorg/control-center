@@ -23,7 +23,7 @@ import scala.util.{Failure, Success}
 object FormValidateProposalComponent {
   val proposalService: ProposalService = ProposalServiceComponent.proposalService
 
-  case class FormProps(proposal: SingleProposal)
+  case class FormProps(proposal: SingleProposal, action: String)
   case class FormState(content: String,
                        maxLength: Int,
                        labels: Seq[String] = Seq.empty,
@@ -34,185 +34,202 @@ object FormValidateProposalComponent {
                        errorMessage: Option[String] = None,
                        similarProposals: Seq[String] = Seq.empty)
 
+  def getTagFromThemeIdAndTagId(themeId: Option[ThemeId], tagId: TagId): Option[Tag] = {
+    themeId.map { themeId =>
+      Configuration.getTagsFromThemeId(themeId).find(_.tagId.value == tagId.value)
+    }.getOrElse(Configuration.getTagsFromVFF.find(_.tagId.value == tagId.value))
+  }
+
   lazy val reactClass: ReactClass =
-    WithRouter(React.createClass[FormProps, FormState](getInitialState = { self =>
-      FormState(
-        content = self.props.wrapped.proposal.content,
-        maxLength =
-          Configuration.businessConfig.map(_.proposalMaxLength).getOrElse(Configuration.defaultProposalMaxLength),
-        labels = self.props.wrapped.proposal.labels,
-        theme = self.props.wrapped.proposal.theme.toOption
-      )
-    }, componentWillReceiveProps = { (self, props) =>
-      self.setState(
-        _.copy(
-          theme = props.wrapped.proposal.theme.toOption,
-          operation = props.wrapped.proposal.creationContext.operation.toOption
-        )
-      )
-    }, render = { self =>
-      def handleContentEdition: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
-        val newContent: String = event.target.value.substring(0, self.state.maxLength)
-        self.setState(_.copy(content = newContent))
-      }
-
-      def handleThemeChange: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
-        val theme = Some(ThemeId(value))
-        self.setState(_.copy(theme = theme, tags = Seq.empty))
-      }
-
-      def handleTagChange: (js.Object, js.UndefOr[Int], js.Array[String]) => Unit = { (_, _, values) =>
-        val tags: Seq[Tag] = values.toSeq.map { value =>
-          val tagId = self.state.theme.flatMap { themeId =>
-            val taglist = Configuration.getTagsFromThemeId(themeId)
-            taglist.find(tag => tag.label == value).map(_.tagId.value)
-          }.getOrElse("")
-          Tag(tagId = TagId(tagId), label = value)
-        }
-        self.setState(_.copy(tags = tags))
-      }
-
-      def handleNotifyUserChange: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
-        val notifyUser = event.target.checked
-        self.setState(_.copy(notifyUser = notifyUser))
-      }
-
-      def handleLabelSelection: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
-        val label: String = event.target.value
-        val newLabels: Seq[String] =
-          if (self.state.labels.contains(label)) {
-            self.state.labels.filter(_ != label)
-          } else {
-            self.state.labels :+ label
-          }
-        self.setState(_.copy(labels = newLabels))
-      }
-
-      def handleSubmitValidate: (SyntheticEvent) => Unit = {
-        event =>
-          event.preventDefault()
-          val mayBeNewContent =
-            if (self.state.content != self.props.wrapped.proposal.content) {
-              Some(self.state.content)
-            } else { None }
-          proposalService
-            .validateProposal(
-              proposalId = self.props.wrapped.proposal.id,
-              newContent = mayBeNewContent,
-              sendNotificationEmail = self.state.notifyUser,
-              labels = self.state.labels,
-              theme = self.state.theme,
-              similarProposals = self.state.similarProposals.map(ProposalId.apply),
-              tags = self.state.tags.map(_.tagId)
-            )
-            .onComplete {
-              case Success(_) =>
-                self.props.history.push("/proposals")
-                self.setState(_.copy(errorMessage = None))
-              case Failure(e) =>
-                self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
+    WithRouter(
+      React.createClass[FormProps, FormState](
+        getInitialState = { self =>
+          FormState(
+            content = self.props.wrapped.proposal.content,
+            maxLength =
+              Configuration.businessConfig.map(_.proposalMaxLength).getOrElse(Configuration.defaultProposalMaxLength),
+            labels = self.props.wrapped.proposal.labels,
+            theme = self.props.wrapped.proposal.theme.toOption,
+            tags = self.props.wrapped.proposal.tags.toSeq.map { tagId =>
+              getTagFromThemeIdAndTagId(self.props.wrapped.proposal.theme.toOption, tagId).getOrElse(Tag(TagId(""), ""))
             }
-      }
+          )
+        },
+        componentWillReceiveProps = { (self, props) =>
+          self.setState(
+            _.copy(
+              theme = props.wrapped.proposal.theme.toOption,
+              operation = props.wrapped.proposal.creationContext.operation.toOption,
+              tags = props.wrapped.proposal.tags.toSeq.map { tagId =>
+                getTagFromThemeIdAndTagId(props.wrapped.proposal.theme.toOption, tagId).getOrElse(Tag(TagId(""), ""))
+              }
+            )
+          )
+        },
+        render = { self =>
+          def handleContentEdition: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
+            val newContent: String = event.target.value.substring(0, self.state.maxLength)
+            self.setState(_.copy(content = newContent))
+          }
 
-      val selectTheme = <.SelectField(
-        ^.disabled := self.state.operation.nonEmpty || self.props.wrapped.proposal.theme.nonEmpty,
-        ^.hintText := "Select a theme",
-        ^.value := self.state.theme.map(_.value).getOrElse("Select a theme"),
-        ^.onChangeSelect :=
-          handleThemeChange
-      )(Configuration.businessConfig.map { bc =>
-        bc.themes.map { theme =>
-          <.MenuItem(
-            ^.value := theme.themeId.value,
-            ^.primaryText := theme.translations.toArray
-              .find(_.language == Configuration.defaultLanguage)
-              .map(_.title)
-              .getOrElse("")
-          )()
+          def handleThemeChange: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
+            val theme = Some(ThemeId(value))
+            self.setState(_.copy(theme = theme, tags = Seq.empty))
+          }
+
+          def handleTagChange: (js.Object, js.UndefOr[Int], js.Array[String]) => Unit = { (_, _, values) =>
+            val tags: Seq[Tag] = values.toSeq.map { value =>
+              val tagId = self.state.theme.flatMap { themeId =>
+                val taglist = Configuration.getTagsFromThemeId(themeId)
+                taglist.find(tag => tag.label == value).map(_.tagId.value)
+              }.getOrElse("")
+              Tag(tagId = TagId(tagId), label = value)
+            }
+            self.setState(_.copy(tags = tags))
+          }
+
+          def handleNotifyUserChange: (js.Object, Boolean) => Unit = { (_, checked) =>
+            self.setState(_.copy(notifyUser = checked))
+          }
+
+          def handleLabelSelection: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = { (event, _) =>
+            val label: String = event.target.value
+            val newLabels: Seq[String] =
+              if (self.state.labels.contains(label)) {
+                self.state.labels.filter(_ != label)
+              } else {
+                self.state.labels :+ label
+              }
+            self.setState(_.copy(labels = newLabels))
+          }
+
+          def handleSubmitValidate: (SyntheticEvent) => Unit = {
+            event =>
+              event.preventDefault()
+              val mayBeNewContent =
+                if (self.state.content != self.props.wrapped.proposal.content) {
+                  Some(self.state.content)
+                } else { None }
+              proposalService
+                .validateProposal(
+                  proposalId = self.props.wrapped.proposal.id,
+                  newContent = mayBeNewContent,
+                  sendNotificationEmail = self.state.notifyUser,
+                  labels = self.state.labels,
+                  theme = self.state.theme,
+                  similarProposals = self.state.similarProposals.map(ProposalId.apply),
+                  tags = self.state.tags.map(_.tagId)
+                )
+                .onComplete {
+                  case Success(_) =>
+                    self.props.history.push("/proposals")
+                    self.setState(_.copy(errorMessage = None))
+                  case Failure(_) =>
+                    self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
+                }
+          }
+
+          val selectTheme = <.SelectField(
+            ^.disabled := self.state.operation.nonEmpty,
+            ^.floatingLabelText := "Theme",
+            ^.floatingLabelFixed := true,
+            ^.value := self.state.theme.map(_.value).getOrElse("Select a theme"),
+            ^.onChangeSelect :=
+              handleThemeChange
+          )(Configuration.businessConfig.map { bc =>
+            bc.themes.map { theme =>
+              <.MenuItem(
+                ^.key := theme.themeId.value,
+                ^.value := theme.themeId.value,
+                ^.primaryText := theme.translations.toArray
+                  .find(_.language == Configuration.defaultLanguage)
+                  .map(_.title)
+                  .getOrElse("")
+              )()
+            }
+          })
+
+          val tags = self.state.theme.map { themeId =>
+            Configuration.getTagsFromThemeId(themeId)
+          }.getOrElse(Configuration.getTagsFromVFF)
+
+          val selectTags = <.SelectField(
+            ^.disabled := self.state.theme.isEmpty && self.state.operation.isEmpty,
+            ^.multiple := true,
+            ^.floatingLabelText := "Tags",
+            ^.floatingLabelFixed := true,
+            ^.valueSelect := self.state.tags.map(_.label),
+            ^.onChangeMultipleSelect := handleTagChange
+          )(tags.map { tag =>
+            <.MenuItem(
+              ^.key := tag.tagId.value,
+              ^.insetChildren := true,
+              ^.checked := self.state.tags.contains(tag),
+              ^.value := tag.label,
+              ^.primaryText := tag.label
+            )()
+          })
+
+          val errorMessage: Option[Element] =
+            self.state.errorMessage.map(msg => <.p()(msg))
+
+          def setSimilarProposals(similarProposals: Seq[String]): Unit = {
+            self.setState(_.copy(similarProposals = similarProposals))
+          }
+
+          <.Card(^.style := Map("marginTop" -> "1em"))(
+            <.CardTitle(^.title := s"I want to ${self.props.wrapped.action} this proposal")(),
+            <.CardActions()(
+              <.TextFieldMaterialUi(
+                ^.floatingLabelText := "Proposal content",
+                ^.value := self.state.content,
+                ^.onChange := handleContentEdition
+              )(),
+              <.span()(s"${self.state.content.length}/${self.state.maxLength}"),
+              <.br()(),
+              selectTheme,
+              selectTags,
+              <.Checkbox(
+                ^.label := "Notify user",
+                ^.checked := self.state.notifyUser,
+                ^.onCheck := handleNotifyUserChange,
+                ^.style := Map("maxWidth" -> "25em")
+              )(),
+              <.Checkbox(
+                ^.label := "Local",
+                ^.value := "Local",
+                ^.checked := self.state.labels.contains("Local"),
+                ^.onCheck := handleLabelSelection,
+                ^.style := Map("maxWidth" -> "25em")
+              )(),
+              <.Checkbox(
+                ^.label := "Action",
+                ^.value := "Action",
+                ^.checked := self.state.labels.contains("Action"),
+                ^.onCheck := handleLabelSelection,
+                ^.style := Map("maxWidth" -> "25em")
+              )(),
+              <.Checkbox(
+                ^.label := "Star",
+                ^.value := "Star",
+                ^.checked := self.state.labels.contains("Star"),
+                ^.onCheck := handleLabelSelection,
+                ^.style := Map("maxWidth" -> "25em")
+              )(),
+              <.RaisedButton(
+                ^.label := s"Confirm ${if (self.props.wrapped.action == "validate") "validation" else "changes"}",
+                ^.onClick := handleSubmitValidate
+              )(),
+              errorMessage
+            ),
+            <.Card()(
+              <.CardTitle(^.title := "Similar proposal")(),
+              <.SimilarProposalsComponent(
+                ^.wrapped := SimilarProposalsProps(self.props.wrapped.proposal, setSimilarProposals)
+              )()
+            )
+          )
         }
-      })
-
-      val tags = self.state.theme.map { themeId =>
-        Configuration.getTagsFromThemeId(themeId)
-      }.getOrElse(Configuration.getTagsFromVFF)
-
-      val selectTags = <.SelectField(
-        ^.disabled := self.state.theme.isEmpty && self.state.operation.isEmpty,
-        ^.multiple := true,
-        ^.hintText := "Select some tags",
-        ^.valueSelect := self.state.tags.map(_.label),
-        ^.onChangeMultipleSelect := handleTagChange
-      )(tags.map { tag =>
-        <.MenuItem(
-          ^.insetChildren := true,
-          ^.checked := self.state.tags.contains(tag),
-          ^.value := tag.label,
-          ^.primaryText := tag.label
-        )()
-      })
-
-      val errorMessage: Option[Element] =
-        self.state.errorMessage.map(msg => <.p()(msg))
-
-      def setSimilarProposals(similarProposals: Seq[String]): Unit = {
-        self.setState(_.copy(similarProposals = similarProposals))
-      }
-
-      <.div()(
-        <.div()("I want to validate that proposal"),
-        <.div()(
-          <.input(
-            ^.`type`.text,
-            ^.label := "content",
-            ^.value := self.state.content,
-            ^.onChange := handleContentEdition
-          )(),
-          <.span()(s"${self.state.content.length}/${self.state.maxLength}"),
-          selectTheme,
-          selectTags,
-          <.input(
-            ^.`type`.checkbox,
-            ^.id := "notify-user-validate",
-            ^.value := "notify-user-validate",
-            ^.checked := self.state.notifyUser,
-            ^.onChange := handleNotifyUserChange
-          )(),
-          <.label(^.`for` := "notify-user-validate")("Notify user"),
-          <.input(
-            ^.`type`.checkbox,
-            ^.name := "labels-local",
-            ^.id := "labels-local",
-            ^.value := "Local",
-            ^.checked := self.state.labels.contains("Local"),
-            ^.onChange := handleLabelSelection
-          )(),
-          <.label(^.`for` := "labels-local")("Local"),
-          <.input(
-            ^.`type`.checkbox,
-            ^.name := "labels-action",
-            ^.id := "labels-action",
-            ^.value := "Action",
-            ^.checked := self.state.labels.contains("Action"),
-            ^.onChange := handleLabelSelection
-          )(),
-          <.label(^.`for` := "labels-action")("Action"),
-          <.input(
-            ^.`type`.checkbox,
-            ^.name := "labels-star",
-            ^.id := "labels-star",
-            ^.value := "Star",
-            ^.checked := self.state.labels.contains("Star"),
-            ^.onChange := handleLabelSelection
-          )(),
-          <.label(^.`for` := "labels-star")("Star"),
-          <.button(^.onClick := handleSubmitValidate)("Confirm validation"),
-          errorMessage
-        ),
-        <.div()(
-          <.SimilarProposalsComponent(
-            ^.wrapped := SimilarProposalsProps(self.props.wrapped.proposal, setSimilarProposals)
-          )()
-        )
       )
-    }))
+    )
 }
