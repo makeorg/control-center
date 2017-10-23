@@ -51,12 +51,31 @@ object NativeSelectField extends ReactClass
 @JSImport("material-ui", "MenuItem")
 object NativeMenuItem extends ReactClass
 
+@js.native
+@JSImport("material-ui", "AutoComplete")
+object NativeAutoComplete extends ReactClass
+
+@js.native
+trait DataSourceConfig extends js.Object {
+  val text: String
+  val value: String
+}
+
+object DataSourceConfig {
+  def apply(text: String, value: String): DataSourceConfig =
+    js.Dynamic.literal(text = text, value = value).asInstanceOf[DataSourceConfig]
+}
+
 object MaterialUi {
   type OnRowColumnInteraction = js.Function2[Int, Int, Unit]
   type OnRowInteraction = js.Function1[Int, Unit]
   type OnRowSelection = js.Function2[Int, Seq[Int] | String, Unit]
   type OnChangeMultipleSelect = js.Function3[js.Object, js.UndefOr[Int], js.Array[String], Unit]
   type OnChangeSelect = js.Function3[js.Object, js.UndefOr[Int], String, Unit]
+  type FilterAutoComplete = js.Function2[String, String, Boolean]
+  type BaseFunction0 = js.Function0[Unit]
+  type OnNewRequest = js.Function2[js.Object, Int, Unit]
+  type OnUpdateInput = js.Function3[String, js.Array[js.Object], js.Object, Unit]
 
   case class OnRowColumnAttributeSpec(name: String) extends AttributeSpec {
     def :=(element: OnRowColumnInteraction): Attribute[OnRowColumnInteraction] =
@@ -88,6 +107,36 @@ object MaterialUi {
       Attribute(name = name, value = elements.toJSArray, AS_IS)
   }
 
+  case class DataSourceAttributeSpec(name: String) extends AttributeSpec {
+    def :=(elements: Seq[js.Object]): Attribute[js.Array[js.Object]] =
+      Attribute(name = name, value = elements.toJSArray, AS_IS)
+  }
+
+  case class DataSourceConfigAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: DataSourceConfig): Attribute[DataSourceConfig] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
+  case class FilterAutoCompleteAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: FilterAutoComplete): Attribute[FilterAutoComplete] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
+  case class BaseFunction0AttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: BaseFunction0): Attribute[BaseFunction0] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
+  case class OnNewRequestAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: OnNewRequest): Attribute[OnNewRequest] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
+  case class OnUpdateInputAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: OnUpdateInput): Attribute[OnUpdateInput] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
   implicit class MaterialUiVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val Card: ReactClassElementSpec = elements(NativeCard)
     lazy val MenuItem: ReactClassElementSpec = elements(NativeMenuItem)
@@ -99,47 +148,72 @@ object MaterialUi {
     lazy val TableHeaderColumn: ReactClassElementSpec = elements(NativeTableHeaderColumn)
     lazy val TableBody: ReactClassElementSpec = elements(NativeTableBody)
     lazy val TableFooter: ReactClassElementSpec = elements(NativeTableFooter)
+    lazy val AutoComplete: ReactClassElementSpec = elements(NativeAutoComplete)
   }
 
   implicit class MaterialUiVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val adjustForCheckbox = BooleanAttributeSpec("adjustForCheckbox")
     lazy val allRowsSelected = BooleanAttributeSpec("allRowsSelected")
+//    lazy val anchorOrigin = DynamicAttributeSpec("anchorOrigin")
+    lazy val animated = BooleanAttributeSpec("animated")
     lazy val bodyStyle = MapAttributeSpec("bodyStyle")
     lazy val children = ElementAttributeSpec("children")
     lazy val className = StringAttributeSpec("className")
     lazy val columnNumber = IntegerAttributeSpec("columnNumber")
+    lazy val dataSource = DataSourceAttributeSpec("dataSource")
+    lazy val dataSourceConfig = DataSourceConfigAttributeSpec("dataSourceConfig")
     lazy val deselectOnClickaway = BooleanAttributeSpec("deselectOnClickaway")
+    lazy val disableFocusRipple = BooleanAttributeSpec("disableFocusRipple")
     lazy val displayBorder = BooleanAttributeSpec("displayBorder")
     lazy val displayRowCheckbox = BooleanAttributeSpec("displayRowCheckbox")
     lazy val displaySelectAll = BooleanAttributeSpec("displaySelectAll")
     lazy val enableSelectAll = BooleanAttributeSpec("enableSelectAll")
+    lazy val errorStyle = MapAttributeSpec("errorStyle")
+    lazy val errorText = ElementAttributeSpec("errorText")
+    lazy val filter = FilterAutoCompleteAttributeSpec("filter")
     lazy val fixedFooter = BooleanAttributeSpec("fixedFooter")
     lazy val fixedHeader = BooleanAttributeSpec("fixedHeader")
+    lazy val floatingLabelText = ElementAttributeSpec("floatingLabelText")
     lazy val footerStyle = MapAttributeSpec("footerStyle")
+    lazy val fullWidth = BooleanAttributeSpec("fullWidth")
     lazy val headerStyle = MapAttributeSpec("headerStyle")
     lazy val height = StringAttributeSpec("height")
     lazy val hintText = StringAttributeSpec("hintText")
     lazy val hoverable = BooleanAttributeSpec("hoverable")
     lazy val hovered = MapAttributeSpec("hovered")
     lazy val insetChildren = BooleanAttributeSpec("insetChildren")
+    lazy val listStyle = MapAttributeSpec("listStyle")
+    lazy val maxSearchResults = IntegerAttributeSpec("maxSearchResults")
+    lazy val menuCloseDelay = IntegerAttributeSpec("menuCloseDelay")
+//    lazy val menuProps = DynamicAttributeSpec("menuProps")
+    lazy val menuStyle = MapAttributeSpec("menuStyle")
     lazy val multiSelectable = BooleanAttributeSpec("multiSelectable")
     lazy val onCellClick = OnRowColumnAttributeSpec("onCellClick")
     lazy val onCellHover = OnRowColumnAttributeSpec("onCellHover")
     lazy val onCellHoverExit = OnRowColumnAttributeSpec("onCellHoverExit")
     lazy val onChangeSelect = OnChangeSelectAttributeSpec("onChange")
     lazy val onChangeMultipleSelect = OnChangeMultipleSelectAttributeSpec("onChange")
+    lazy val onClose = BaseFunction0AttributeSpec("onClose")
+    lazy val onNewRequest = OnNewRequestAttributeSpec("onNewRequest")
     lazy val onRowHover = OnRowAttributeSpec("onRowHover")
     lazy val onRowHoverExit = OnRowAttributeSpec("onRowHoverExit")
     lazy val onRowSelection = OnRowSelectionAttributeSpec("onRowSelection")
+    lazy val onUpdateInput = OnUpdateInputAttributeSpec("onUpdateInput")
+    lazy val open = BooleanAttributeSpec("open")
+    lazy val openOnFocus = BooleanAttributeSpec("openOnFocus")
+//    lazy val popoverProps = DynamicAttributeSpec("popoverProps")
     lazy val preScanRows = BooleanAttributeSpec("preScanRows")
     lazy val primaryText = StringAttributeSpec("primaryText")
     lazy val rowNumber = IntegerAttributeSpec("rowNumber")
+    lazy val searchText = StringAttributeSpec("searchText")
     lazy val selectable = BooleanAttributeSpec("selectable")
     lazy val selected = BooleanAttributeSpec("selected")
     lazy val showRowHover = BooleanAttributeSpec("showRowHover")
     lazy val striped = BooleanAttributeSpec("striped")
     lazy val stripedRows = BooleanAttributeSpec("stripedRows")
     lazy val style = MapAttributeSpec("style")
+//    lazy val targetOrigin = DynamicAttributeSpec("targetOrigin")
+    lazy val textFieldStyle = MapAttributeSpec("textFieldStyle")
     lazy val tooltip = StringAttributeSpec("tooltip")
     lazy val tooltipStyle = MapAttributeSpec("tooltipStyle")
     lazy val valueSelect = ValueSelectAttributeSpec("value")
