@@ -20,7 +20,7 @@ object ModerationHistoryComponent {
     val actions: Map[String, Element] = Map(
       "propose" -> <.p()("Proposal creation"),
       "refuse" -> <.p()(s"Refused with reason: ${arguments.getOrElse("refusalReason", "no reason provided")}"),
-      "accept" -> <.p()(
+      "accept" -> <.div()(
         "Accepted with:",
         <.ul()(
           <.li()({
@@ -50,7 +50,7 @@ object ModerationHistoryComponent {
         .map(_.sortBy(-_.date.toString.toLong).map { event =>
           <.TableRow(^.key := s"${event.date}-${event.actionType}")(
             <.TableRowColumn()(new Date(event.date.toString.toLong).toUTCString()),
-            <.TableRowColumn()(<.p()(explicitAction(event.actionType, event.arguments))),
+            <.TableRowColumn()(<.div()(explicitAction(event.actionType, event.arguments))),
             <.TableRowColumn()(event.user.map(_.firstName).getOrElse("-"))
           )
         })
