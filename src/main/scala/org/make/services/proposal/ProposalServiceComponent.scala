@@ -42,6 +42,33 @@ trait ProposalServiceComponent {
         }
     }
 
+    def updateProposal(proposalId: String,
+                       newContent: Option[String],
+                       theme: Option[ThemeId] = None,
+                       labels: Seq[String] = Seq.empty,
+                       tags: Seq[TagId] = Seq(TagId("default-tag")),
+                       similarProposals: Seq[ProposalId] = Seq.empty): Future[SingleProposal] = {
+      val request: UpdateProposalRequest = UpdateProposalRequest(
+        newContent = newContent,
+        theme = theme,
+        labels = labels,
+        tags = tags,
+        similarProposals = similarProposals
+      )
+      client
+        .put[SingleProposal](
+          resourceName / proposalId,
+          urlParams = Seq.empty,
+          data = request.asJson.pretty(ApiService.printer)
+        )
+        .map(_.get)
+        .recover {
+          case e =>
+            js.Dynamic.global.console.log(s"instead of getting Proposal: $e")
+            throw e
+        }
+    }
+
     def validateProposal(proposalId: String,
                          newContent: Option[String],
                          sendNotificationEmail: Boolean,

@@ -58,6 +58,7 @@ object FormValidateProposalComponent {
         componentWillReceiveProps = { (self, props) =>
           self.setState(
             _.copy(
+              labels = props.wrapped.proposal.labels,
               theme = props.wrapped.proposal.theme.toOption,
               operation = props.wrapped.proposal.creationContext.operation.toOption,
               tags = props.wrapped.proposal.tags.toSeq.map { tagId =>
@@ -77,15 +78,18 @@ object FormValidateProposalComponent {
             self.setState(_.copy(theme = theme, tags = Seq.empty))
           }
 
-          def handleTagChange: (js.Object, js.UndefOr[Int], js.Array[String]) => Unit = { (_, _, values) =>
-            val tags: Seq[Tag] = values.toSeq.map { value =>
-              val tagId = self.state.theme.flatMap { themeId =>
-                val taglist = Configuration.getTagsFromThemeId(themeId)
-                taglist.find(tag => tag.label == value).map(_.tagId.value)
-              }.getOrElse("")
-              Tag(tagId = TagId(tagId), label = value)
-            }
-            self.setState(_.copy(tags = tags))
+          def handleTagChange: (js.Object, js.UndefOr[Int], js.Array[String]) => Unit = {
+            (_, _, values) =>
+              val tags: Seq[Tag] = values.toSeq.map { value =>
+                val tagId = self.state.theme.flatMap { themeId =>
+                  val taglist = Configuration.getTagsFromThemeId(themeId)
+                  taglist.find(tag => tag.label == value).map(_.tagId.value)
+                }.getOrElse(
+                  Configuration.getTagsFromVFF.find(tag => tag.label == value).map(_.tagId.value).getOrElse("")
+                )
+                Tag(tagId = TagId(tagId), label = value)
+              }
+              self.setState(_.copy(tags = tags))
           }
 
           def handleNotifyUserChange: (js.Object, Boolean) => Unit = { (_, checked) =>
@@ -101,6 +105,31 @@ object FormValidateProposalComponent {
                 self.state.labels :+ label
               }
             self.setState(_.copy(labels = newLabels))
+          }
+
+          def handleSubmitUpdate: (SyntheticEvent) => Unit = {
+            event =>
+              event.preventDefault()
+              val mayBeNewContent =
+                if (self.state.content != self.props.wrapped.proposal.content) {
+                  Some(self.state.content)
+                } else { None }
+              proposalService
+                .updateProposal(
+                  proposalId = self.props.wrapped.proposal.id,
+                  newContent = mayBeNewContent,
+                  labels = self.state.labels,
+                  theme = self.state.theme,
+                  tags = self.state.tags.map(_.tagId),
+                  similarProposals = self.state.similarProposals.map(ProposalId.apply)
+                )
+                .onComplete {
+                  case Success(_) =>
+                    self.props.history.push("/validated_proposals")
+                    self.setState(_.copy(errorMessage = None))
+                  case Failure(_) =>
+                    self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
+                }
           }
 
           def handleSubmitValidate: (SyntheticEvent) => Unit = {
@@ -127,6 +156,13 @@ object FormValidateProposalComponent {
                   case Failure(_) =>
                     self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
                 }
+          }
+
+          def handleSubmit: (SyntheticEvent) => Unit = {
+            if (self.props.wrapped.action == "validate")
+              handleSubmitValidate
+            else
+              handleSubmitUpdate
           }
 
           val selectTheme = <.SelectField(
@@ -190,8 +226,9 @@ object FormValidateProposalComponent {
               selectTheme,
               selectTags,
               <.Checkbox(
+                ^.disabled := self.props.wrapped.action == "update",
                 ^.label := "Notify user",
-                ^.checked := self.state.notifyUser,
+                ^.checked := self.state.notifyUser && self.props.wrapped.action == "validate",
                 ^.onCheck := handleNotifyUserChange,
                 ^.style := Map("maxWidth" -> "25em")
               )(),
@@ -216,17 +253,18 @@ object FormValidateProposalComponent {
                 ^.onCheck := handleLabelSelection,
                 ^.style := Map("maxWidth" -> "25em")
               )(),
+              <.Card(^.style := Map("marginTop" -> "1em"))(
+                <.CardTitle(^.title := "Similar proposal")(),
+                <.SimilarProposalsComponent(
+                  ^.wrapped := SimilarProposalsProps(self.props.wrapped.proposal, setSimilarProposals)
+                )()
+              ),
               <.RaisedButton(
+                ^.style := Map("marginTop" -> "1em"),
                 ^.label := s"Confirm ${if (self.props.wrapped.action == "validate") "validation" else "changes"}",
-                ^.onClick := handleSubmitValidate
+                ^.onClick := handleSubmit
               )(),
               errorMessage
-            ),
-            <.Card()(
-              <.CardTitle(^.title := "Similar proposal")(),
-              <.SimilarProposalsComponent(
-                ^.wrapped := SimilarProposalsProps(self.props.wrapped.proposal, setSimilarProposals)
-              )()
             )
           )
         }

@@ -11,5 +11,6 @@ package object components {
     def FormValidateProposalComponent: ReactClassElementSpec = self(proposal.FormValidateProposalComponent.reactClass)
     def ModerationHistoryComponent: ReactClassElementSpec = self(proposal.ModerationHistoryComponent.reactClass)
     def SimilarProposalsComponent: ReactClassElementSpec = self(proposal.SimilarProposalsComponent.reactClass)
+    def StatsValidatedProposal: ReactClassElementSpec = self(proposal.StatsValidatedProposal.reactClass)
   }
 }

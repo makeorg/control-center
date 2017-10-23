@@ -30,6 +30,10 @@ object NativeCardTitle extends ReactClass
 object NativeCardActions extends ReactClass
 
 @js.native
+@JSImport("material-ui", "CardText")
+object NativeCardText extends ReactClass
+
+@js.native
 @JSImport("material-ui", "Table")
 object NativeTable extends ReactClass
 
@@ -79,6 +83,8 @@ object DataSourceConfig {
   def apply(text: String, value: String): DataSourceConfig =
     js.Dynamic.literal(text = text, value = value).asInstanceOf[DataSourceConfig]
 }
+
+@js.native
 @JSImport("material-ui", "RaisedButton")
 object NativeRaisedButton extends ReactClass
 
@@ -176,6 +182,7 @@ object MaterialUi {
     lazy val Card: ReactClassElementSpec = elements(NativeCard)
     lazy val CardActions: ReactClassElementSpec = elements(NativeCardActions)
     lazy val CardHeader: ReactClassElementSpec = elements(NativeCardHeader)
+    lazy val CardText: ReactClassElementSpec = elements(NativeCardText)
     lazy val CardTitle: ReactClassElementSpec = elements(NativeCardTitle)
     lazy val Checkbox: ReactClassElementSpec = elements(NativeCheckbox)
     lazy val MenuItem: ReactClassElementSpec = elements(NativeMenuItem)

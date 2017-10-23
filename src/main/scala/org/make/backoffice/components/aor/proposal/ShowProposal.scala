@@ -43,7 +43,8 @@ object ShowProposal {
           <.DateField(
             ^.source := "createdAt",
             ^.label := "date",
-            ^.options := Map("weekday" -> "long", "year" -> "numeric", "month" -> "long", "day" -> "numeric")
+            ^.options := Map("weekday" -> "long", "year" -> "numeric", "month" -> "long", "day" -> "numeric"),
+            ^.locales := "en-EN"
           )(),
           <.TextField(^.source := "author.firstName", ^.label := "User name")(),
           <.ShowProposalComponents()()

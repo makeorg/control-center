@@ -97,7 +97,7 @@ object SimilarProposalsComponent {
             ^.onNewRequest := handleNewRequest
           )()
 
-        <.div()(searchNew, <.br()(), similars)
+        <.CardActions()(searchNew, <.br()(), similars)
       }
     )
 }

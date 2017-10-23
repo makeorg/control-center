@@ -25,6 +25,8 @@ object ShowProposalComponents {
         if (self.state.proposal.status == Refused.shortName)
           <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(self.state.proposal))(),
         if (self.state.proposal.status == Accepted.shortName)
+          <.StatsValidatedProposal(^.wrapped := StatsValidatedProposal.StatsProps(self.state.proposal))(),
+        if (self.state.proposal.status == Accepted.shortName)
           <.FormValidateProposalComponent(
             ^.wrapped := FormValidateProposalComponent.FormProps(self.state.proposal, "update")
           )(),

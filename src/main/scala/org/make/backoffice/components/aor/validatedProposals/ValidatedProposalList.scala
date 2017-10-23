@@ -49,20 +49,20 @@ object ValidatedProposalList {
           <.TextField(^.source := "status", ^.sortable := false)(),
           <.FunctionField(^.label := "tags", ^.sortable := false, ^.render := { record =>
             val proposal = record.asInstanceOf[Proposal]
-            proposal.tags.map(_.tagId.value).mkString(", ")
-          })(<.ChipField(^.source := "tags.label")()),
+            proposal.tags.map(_.label).mkString(", ")
+          })(),
           <.FunctionField(^.label := "labels", ^.sortable := false, ^.render := { record =>
             val proposal = record.asInstanceOf[Proposal]
             proposal.labels.mkString(", ")
-          })(<.ChipField(^.source := "labels.labelId.value")()),
+          })(),
           <.FunctionField(^.label := "Votes", ^.sortable := false, ^.render := { record =>
-            Proposal.totalVotes(record.asInstanceOf[Proposal])
+            Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
           })(),
           <.FunctionField(^.label := "Agreement rate", ^.sortable := false, ^.render := { record =>
-            Proposal.agreementRate(record.asInstanceOf[Proposal])
+            s"${Proposal.voteRate(record.asInstanceOf[Proposal].votes, "agree")}%"
           })(),
           <.FunctionField(^.label := "Emergence rate", ^.sortable := false, ^.render := { record =>
-            Proposal.totalVotes(record.asInstanceOf[Proposal])
+            Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
           })()
         )
     )

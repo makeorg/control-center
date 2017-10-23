@@ -3,16 +3,14 @@ package org.make.backoffice.components.proposal
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.scalajs.reactjs.events.FormSyntheticEvent
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
-import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.facades.MaterialUi._
+import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models.SingleProposal
 import org.make.services.proposal.ProposalServiceComponent
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
-import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -70,7 +68,7 @@ object FormRefuseProposalComponent {
           val errorMessage: Option[Element] =
             self.state.errorMessage.map(msg => <.p()(msg))
 
-          <.Card(^.style := Map("marginTop" -> "10px"))(
+          <.Card(^.style := Map("marginTop" -> "1em"))(
             <.CardTitle(^.title := "I want to refuse that proposal")(),
             <.CardActions()(
               selectReasons,
@@ -78,9 +76,8 @@ object FormRefuseProposalComponent {
                 ^.label := "Notify User",
                 ^.checked := self.state.notifyUser,
                 ^.onCheck := handleNotifyUserChange,
-                ^.style := Map("maxWidth" -> "250px")
+                ^.style := Map("maxWidth" -> "25em")
               )(),
-              <.label(^.`for` := "notify-user-refuse")("Notify user"),
               <.RaisedButton(^.label := "Confirm refusal", ^.onClick := handleSubmitRefuse)(),
               errorMessage
             )
