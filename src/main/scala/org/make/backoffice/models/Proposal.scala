@@ -4,6 +4,7 @@ import java.time.ZonedDateTime
 
 import io.circe.{Decoder, Encoder, Json}
 import org.make.core.StringValue
+import org.make.backoffice.helpers.FormatToPercent._
 
 import scala.scalajs.js
 import js.JSConverters._
@@ -145,8 +146,48 @@ object Proposal {
       .asInstanceOf[Proposal]
   }
 
-  def totalVotes(proposal: Proposal): Int = {
-    proposal.votes.map(_.count).sum
+  def totalVotes(votes: Seq[Vote]): Int = {
+    votes.map(_.count).sum
+  }
+
+  def totalQualifications(qualifications: Seq[Qualification]): Int = {
+    qualifications.map(_.count).sum
+  }
+
+  def voteFromKey(votes: Seq[Vote], key: String): Int = {
+    votes
+      .find(_.key == key)
+      .map { vote =>
+        vote.count
+      }
+      .getOrElse(0)
+  }
+
+  def qualificationFromKey(qualifications: Seq[Qualification], key: String): Int = {
+    qualifications
+      .find(_.key == key)
+      .map { qualification =>
+        qualification.count
+      }
+      .getOrElse(0)
+  }
+
+  def voteRate(votes: Seq[Vote], key: String): Int = {
+    votes
+      .find(_.key == key)
+      .map { vote =>
+        formatToPercent(vote.count, totalVotes(votes))
+      }
+      .getOrElse(0)
+  }
+
+  def qualificationRate(qualifications: Seq[Qualification], key: String): Int = {
+    qualifications
+      .find(_.key == key)
+      .map { qualification =>
+        formatToPercent(qualification.count, totalQualifications(qualifications))
+      }
+      .getOrElse(0)
   }
 }
 

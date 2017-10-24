@@ -24,10 +24,18 @@ object ShowProposalComponents {
       <.div()(
         if (self.state.proposal.status == Refused.shortName)
           <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(self.state.proposal))(),
+        if (self.state.proposal.status == Accepted.shortName)
+          <.StatsValidatedProposal(^.wrapped := StatsValidatedProposal.StatsProps(self.state.proposal))(),
+        if (self.state.proposal.status == Accepted.shortName)
+          <.FormValidateProposalComponent(
+            ^.wrapped := FormValidateProposalComponent.FormProps(self.state.proposal, "update")
+          )(),
         if (self.state.proposal.status != Refused.shortName)
           <.FormRefuseProposalComponent(^.wrapped := FormRefuseProposalComponent.FormProps(self.state.proposal))(),
         if (self.state.proposal.status != Accepted.shortName)
-          <.FormValidateProposalComponent(^.wrapped := FormValidateProposalComponent.FormProps(self.state.proposal))(),
+          <.FormValidateProposalComponent(
+            ^.wrapped := FormValidateProposalComponent.FormProps(self.state.proposal, "validate")
+          )(),
         if (self.state.proposal.status == Accepted.shortName)
           <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(self.state.proposal))()
     )

@@ -137,6 +137,12 @@ object ExhaustiveSearchRequest {
     }
 }
 
+final case class UpdateProposalRequest(newContent: Option[String],
+                                       theme: Option[ThemeId],
+                                       labels: Seq[String],
+                                       tags: Seq[TagId],
+                                       similarProposals: Seq[ProposalId])
+
 final case class RefuseProposalRequest(sendNotificationEmail: Boolean, refusalReason: Option[String])
 final case class ValidateProposalRequest(newContent: Option[String],
                                          sendNotificationEmail: Boolean,
