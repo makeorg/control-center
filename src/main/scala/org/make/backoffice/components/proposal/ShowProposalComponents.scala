@@ -12,6 +12,7 @@ object ShowProposalComponents {
   case class ShowComponentsState(proposal: SingleProposal)
 
   lazy val reactClass: ReactClass = React.createClass[Unit, ShowComponentsState](
+    displayName = "ShowProposalComponent",
     getInitialState = { self =>
       val proposal = self.props.native.record.asInstanceOf[SingleProposal]
       ShowComponentsState(proposal)

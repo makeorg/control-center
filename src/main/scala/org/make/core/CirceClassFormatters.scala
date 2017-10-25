@@ -107,7 +107,7 @@ trait CirceClassFormatters extends TimeInstances {
       "refusalReason",
       "tags",
       "votes",
-      "creationContext",
+      "context",
       "createdAt",
       "updatedAt",
       "events"

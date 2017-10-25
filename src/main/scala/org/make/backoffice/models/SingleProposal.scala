@@ -84,7 +84,7 @@ trait SingleProposal extends js.Object {
   val refusalReason: js.UndefOr[String]
   val tags: js.Array[TagId]
   val votes: js.Array[Vote]
-  val creationContext: RequestContext
+  val context: RequestContext
   val createdAt: js.UndefOr[Date]
   val updatedAt: js.UndefOr[Date]
   val events: js.UndefOr[js.Array[ProposalAction]]
@@ -101,7 +101,7 @@ object SingleProposal {
             refusalReason: Option[String],
             tags: js.Array[TagId],
             votes: js.Array[Vote],
-            creationContext: RequestContext,
+            context: RequestContext,
             createdAt: Option[ZonedDateTime],
             updatedAt: Option[ZonedDateTime],
             events: Option[js.Array[ProposalAction]]): SingleProposal =
@@ -117,7 +117,7 @@ object SingleProposal {
         refusalReason = refusalReason.orUndefined,
         tags = tags,
         votes = votes,
-        creationContext = creationContext,
+        context = context,
         createdAt = createdAt.map(_.toJSDate).orUndefined,
         updatedAt = updatedAt.map(_.toJSDate).orUndefined,
         events = events.orUndefined
