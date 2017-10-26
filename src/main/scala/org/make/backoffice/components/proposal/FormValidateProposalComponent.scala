@@ -260,7 +260,12 @@ object FormValidateProposalComponent {
                 <.Card(^.style := Map("marginTop" -> "1em"))(
                   <.CardTitle(^.title := "Similar proposal")(),
                   <.SimilarProposalsComponent(
-                    ^.wrapped := SimilarProposalsProps(self.props.wrapped.proposal, setSimilarProposals)
+                    ^.wrapped := SimilarProposalsProps(
+                      self.props.wrapped.proposal,
+                      setSimilarProposals,
+                      self.state.theme,
+                      self.state.operation
+                    )
                   )()
                 ),
                 <.RaisedButton(
