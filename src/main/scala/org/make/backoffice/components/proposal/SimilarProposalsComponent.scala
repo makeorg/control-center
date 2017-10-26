@@ -4,7 +4,7 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
-import io.github.shogowada.scalajs.reactjs.events.FormSyntheticEvent
+import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
 import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models.{Proposal, ProposalId, SingleProposal}
@@ -64,26 +64,43 @@ object SimilarProposalsComponent {
         }
 
         def handleNewRequest(chosenRequest: js.Object, index: Int): Unit = {
-          val selectedSimilars = (self.state.selectedSimilars ++ Seq(chosenRequest.asInstanceOf[Proposal].id)).distinct
-          val similarProposals = (self.state.similarProposals ++ Seq(chosenRequest.asInstanceOf[Proposal])).distinct
+          val similar = chosenRequest.asInstanceOf[Proposal]
+          val selectedSimilars = (self.state.selectedSimilars ++ Seq(similar.id)).distinct
+          val similarProposals = if (self.state.similarProposals.map(_.id).contains(similar.id)) {
+            self.state.similarProposals
+          } else {
+            self.state.similarProposals ++ Seq(similar)
+          }
           self.setState(
             _.copy(searchProposalContent = "", similarProposals = similarProposals, selectedSimilars = selectedSimilars)
           )
           self.props.wrapped.setSimilarProposals(selectedSimilars)
         }
 
+        def handleInvalidateSimilarProposal(similarProposalId: String): SyntheticEvent => Unit = { _ =>
+          ProposalServiceComponent.proposalService
+            .invalidateSimilarProposal(ProposalId(self.props.wrapped.proposal.id), ProposalId(similarProposalId))
+          self.setState(_.copy(selectedSimilars = self.state.selectedSimilars.filterNot(_ == similarProposalId)))
+        }
+
         val similars =
-          self.state.similarProposals.flatMap { similar =>
-            Seq(
-              <.Checkbox(
-                ^.value := similar.id,
-                ^.label := similar.content,
-                ^.checked := self.state.selectedSimilars.contains(similar.id),
-                ^.onCheck := handleAddSimilar,
-                ^.style := Map("maxWidth" -> "25em")
-              )(),
-              <.hr()()
-            )
+          self.state.similarProposals.flatMap {
+            similar =>
+              Seq(
+                <.Checkbox(
+                  ^.value := similar.id,
+                  ^.label := similar.content,
+                  ^.checked := self.state.selectedSimilars.contains(similar.id),
+                  ^.onCheck := handleAddSimilar,
+                  ^.style := Map("max-width" -> "90%", "display" -> "inline-block")
+                )(),
+                <.a(
+                  ^.onClick := handleInvalidateSimilarProposal(similar.id),
+                  ^.title := "Invalidate this similar proposal suggestion",
+                  ^.style := Map("font-size" -> "1.5em", "cursor" -> "pointer", "text-decoration" -> "none")
+                )("\uD83D\uDEAB"),
+                <.hr(^.style := Map("margin-top" -> "10px"))()
+              )
           }
 
         val searchNew: ReactElement =

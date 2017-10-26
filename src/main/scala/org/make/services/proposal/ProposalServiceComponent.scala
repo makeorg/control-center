@@ -111,6 +111,9 @@ trait ProposalServiceComponent {
     def getDuplicates(proposalId: ProposalId): Future[ProposalsResult] =
       client.get[ProposalsResult](resourceName / proposalId.value / "duplicates").map(_.get)
 
+    def invalidateSimilarProposal(proposalId: ProposalId, similarProposalId: ProposalId): Future[Unit] =
+      Future.successful()
+
   }
 }
 
