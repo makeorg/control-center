@@ -30,21 +30,27 @@ object SimilarProposalsComponent {
       },
       componentWillMount = { self =>
         ProposalServiceComponent.proposalService.getDuplicates(ProposalId(self.props.wrapped.proposal.id)).onComplete {
-          case Success(proposalsResult) => self.setState(_.copy(similarProposals = proposalsResult.results))
-          case Failure(e)               => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
+          case Success(proposalsResult) =>
+            self.setState(
+              _.copy(similarProposals = proposalsResult.results, selectedSimilars = proposalsResult.results.map(_.id))
+            )
+          case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
         }
       },
       render = { self =>
-        def handleAddSimilar: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = { (event, _) =>
-          val proposalId: String = event.target.value
-          val selectedSimilars =
-            if (self.state.selectedSimilars.contains(proposalId)) {
-              self.state.selectedSimilars.filterNot(_ == proposalId)
-            } else {
-              self.state.selectedSimilars :+ proposalId
-            }
-          self.setState(_.copy(selectedSimilars = selectedSimilars))
-          self.props.wrapped.setSimilarProposals(selectedSimilars)
+        def handleAddSimilar: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = {
+          (event, _) =>
+            val proposalId: String = event.target.value
+            val selectedSimilars =
+              if (self.state.selectedSimilars.contains(proposalId)) {
+                ProposalServiceComponent.proposalService
+                  .invalidateSimilarProposal(ProposalId(self.props.wrapped.proposal.id), ProposalId(proposalId))
+                self.state.selectedSimilars.filterNot(_ == proposalId)
+              } else {
+                self.state.selectedSimilars :+ proposalId
+              }
+            self.setState(_.copy(selectedSimilars = selectedSimilars))
+            self.props.wrapped.setSimilarProposals(selectedSimilars)
         }
 
         def handleUpdateInput(searchText: String, dataSource: js.Array[js.Object], params: js.Object): Unit = {
@@ -77,30 +83,18 @@ object SimilarProposalsComponent {
           self.props.wrapped.setSimilarProposals(selectedSimilars)
         }
 
-        def handleInvalidateSimilarProposal(similarProposalId: String): SyntheticEvent => Unit = { _ =>
-          ProposalServiceComponent.proposalService
-            .invalidateSimilarProposal(ProposalId(self.props.wrapped.proposal.id), ProposalId(similarProposalId))
-          self.setState(_.copy(selectedSimilars = self.state.selectedSimilars.filterNot(_ == similarProposalId)))
-        }
-
         val similars =
-          self.state.similarProposals.flatMap {
-            similar =>
-              Seq(
-                <.Checkbox(
-                  ^.value := similar.id,
-                  ^.label := similar.content,
-                  ^.checked := self.state.selectedSimilars.contains(similar.id),
-                  ^.onCheck := handleAddSimilar,
-                  ^.style := Map("max-width" -> "90%", "display" -> "inline-block")
-                )(),
-                <.a(
-                  ^.onClick := handleInvalidateSimilarProposal(similar.id),
-                  ^.title := "Invalidate this similar proposal suggestion",
-                  ^.style := Map("font-size" -> "1.5em", "cursor" -> "pointer", "text-decoration" -> "none")
-                )("\uD83D\uDEAB"),
-                <.hr(^.style := Map("margin-top" -> "10px"))()
-              )
+          self.state.similarProposals.flatMap { similar =>
+            Seq(
+              <.Checkbox(
+                ^.value := similar.id,
+                ^.label := similar.content,
+                ^.checked := self.state.selectedSimilars.contains(similar.id),
+                ^.onCheck := handleAddSimilar,
+                ^.style := Map("maxWidth" -> "90%", "display" -> "inline-block")
+              )(),
+              <.hr(^.style := Map("marginTop" -> "10px"))()
+            )
           }
 
         val searchNew: ReactElement =
