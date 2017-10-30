@@ -108,8 +108,14 @@ trait ProposalServiceComponent {
         }
     }
 
-    def getDuplicates(proposalId: ProposalId): Future[ProposalsResult] =
-      client.get[ProposalsResult](resourceName / proposalId.value / "duplicates").map(_.get)
+    def getDuplicates(proposalId: ProposalId,
+                      themeId: Option[ThemeId],
+                      operation: Option[String]): Future[ProposalsResult] = {
+      var headers: Map[String, String] = Map.empty
+      themeId.foreach(themeId => headers += client.themeIdHeader -> themeId.value)
+      operation.foreach(op    => headers += client.operationHeader -> op)
+      client.get[ProposalsResult](resourceName / proposalId.value / "duplicates", headers = headers).map(_.get)
+    }
 
     def invalidateSimilarProposal(proposalId: ProposalId, similarProposalId: ProposalId): Future[Unit] =
       Future.successful()

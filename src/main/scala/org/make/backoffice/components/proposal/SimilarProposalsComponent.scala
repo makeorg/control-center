@@ -1,40 +1,60 @@
 package org.make.backoffice.components.proposal
 
 import io.github.shogowada.scalajs.reactjs.React
+import io.github.shogowada.scalajs.reactjs.React.Self
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
 import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
-import org.make.backoffice.models.{Proposal, ProposalId, SingleProposal}
+import org.make.backoffice.models._
 import org.make.client.request.{Filter, Pagination}
 import org.make.services.proposal.{Accepted, ProposalServiceComponent}
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
 object SimilarProposalsComponent {
-  case class SimilarProposalsProps(proposal: SingleProposal, setSimilarProposals: Seq[String] => Unit)
+  case class SimilarProposalsProps(proposal: SingleProposal,
+                                   setSimilarProposals: Seq[String] => Unit,
+                                   maybeThemeId: Option[ThemeId],
+                                   maybeOperation: Option[String])
   case class SimilarProposalsState(similarProposals: Seq[Proposal],
                                    selectedSimilars: Seq[String],
                                    searchProposalContent: String,
                                    foundSimilarProposals: Seq[Proposal])
 
+  def loadSimilarProposals(self: Self[SimilarProposalsProps, SimilarProposalsState],
+                           props: SimilarProposalsProps): Future[ProposalsResult] = {
+    val proposalId: ProposalId = ProposalId(props.proposal.id)
+    val themeId: Option[ThemeId] = props.maybeThemeId
+    val operation: Option[String] = props.maybeOperation
+    ProposalServiceComponent.proposalService
+      .getDuplicates(proposalId, themeId, operation)
+  }
+
   lazy val reactClass: ReactClass =
     React.createClass[SimilarProposalsProps, SimilarProposalsState](
-      getInitialState = { _ =>
+      getInitialState = { self =>
         SimilarProposalsState(Seq.empty, Seq.empty, "", Seq.empty)
       },
-      componentWillMount = { self =>
-        ProposalServiceComponent.proposalService.getDuplicates(ProposalId(self.props.wrapped.proposal.id)).onComplete {
+      componentWillMount = { (self) =>
+        loadSimilarProposals(self, self.props.wrapped).onComplete {
           case Success(proposalsResult) =>
             self.setState(
               _.copy(similarProposals = proposalsResult.results, selectedSimilars = proposalsResult.results.map(_.id))
             )
           case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
+        }
+      },
+      componentWillReceiveProps = { (self, props) =>
+        loadSimilarProposals(self, props.wrapped).onComplete {
+          case Success(proposalsResult) => self.setState(_.copy(similarProposals = proposalsResult.results))
+          case Failure(e)               => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
         }
       },
       render = { self =>
