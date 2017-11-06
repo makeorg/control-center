@@ -102,13 +102,15 @@ object FormValidateProposalComponent {
 
             def handleLabelSelection: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = { (event, _) =>
               val label: String = event.target.value
-              val newLabels: Seq[String] =
+              val selectedLabels: Seq[String] = {
                 if (self.state.labels.contains(label)) {
                   self.state.labels.filter(_ != label)
                 } else {
                   self.state.labels :+ label
                 }
-              self.setState(_.copy(labels = newLabels))
+              }
+
+              self.setState(_.copy(labels = selectedLabels))
             }
 
             def handleSubmitUpdate: (SyntheticEvent) => Unit = {
@@ -238,22 +240,22 @@ object FormValidateProposalComponent {
                 )(),
                 <.Checkbox(
                   ^.label := "Local",
-                  ^.value := "Local",
-                  ^.checked := self.state.labels.contains("Local"),
+                  ^.value := Label.Local.name,
+                  ^.checked := self.state.labels.contains(Label.Local.name),
                   ^.onCheck := handleLabelSelection,
                   ^.style := Map("maxWidth" -> "25em")
                 )(),
                 <.Checkbox(
                   ^.label := "Action",
-                  ^.value := "Action",
-                  ^.checked := self.state.labels.contains("Action"),
+                  ^.value := Label.Action.name,
+                  ^.checked := self.state.labels.contains(Label.Action.name),
                   ^.onCheck := handleLabelSelection,
                   ^.style := Map("maxWidth" -> "25em")
                 )(),
                 <.Checkbox(
                   ^.label := "Star",
-                  ^.value := "Star",
-                  ^.checked := self.state.labels.contains("Star"),
+                  ^.value := Label.Star.name,
+                  ^.checked := self.state.labels.contains(Label.Star.name),
                   ^.onCheck := handleLabelSelection,
                   ^.style := Map("maxWidth" -> "25em")
                 )(),
