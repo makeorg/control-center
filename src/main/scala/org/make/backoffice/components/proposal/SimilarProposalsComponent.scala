@@ -43,18 +43,22 @@ object SimilarProposalsComponent {
         SimilarProposalsState(Seq.empty, Seq.empty, "", Seq.empty)
       },
       componentWillMount = { (self) =>
-        loadSimilarProposals(self, self.props.wrapped).onComplete {
-          case Success(proposalsResult) =>
-            self.setState(
-              _.copy(similarProposals = proposalsResult.results, selectedSimilars = proposalsResult.results.map(_.id))
-            )
-          case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
+        if (self.props.wrapped.proposal.status != Accepted.shortName) {
+          loadSimilarProposals(self, self.props.wrapped).onComplete {
+            case Success(proposalsResult) =>
+              self.setState(
+                _.copy(similarProposals = proposalsResult.results, selectedSimilars = proposalsResult.results.map(_.id))
+              )
+            case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
+          }
         }
       },
       componentWillReceiveProps = { (self, props) =>
-        loadSimilarProposals(self, props.wrapped).onComplete {
-          case Success(proposalsResult) => self.setState(_.copy(similarProposals = proposalsResult.results))
-          case Failure(e)               => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
+        if (props.wrapped.proposal.status != Accepted.shortName) {
+          loadSimilarProposals(self, props.wrapped).onComplete {
+            case Success(proposalsResult) => self.setState(_.copy(similarProposals = proposalsResult.results))
+            case Failure(e)               => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
+          }
         }
       },
       render = { self =>
