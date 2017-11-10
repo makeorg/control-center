@@ -225,7 +225,8 @@ object FormValidateProposalComponent {
                 <.TextFieldMaterialUi(
                   ^.floatingLabelText := "Proposal content",
                   ^.value := self.state.content,
-                  ^.onChange := handleContentEdition
+                  ^.onChange := handleContentEdition,
+                  ^.fullWidth := true
                 )(),
                 <.span()(s"${self.state.content.length}/${self.state.maxLength}"),
                 <.br()(),
