@@ -4,6 +4,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMAttributes.Type.
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
+import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.events.FormSyntheticEvent
 import io.github.shogowada.statictags._
 import org.scalajs.dom.raw.HTMLInputElement
@@ -85,6 +86,10 @@ object DataSourceConfig {
 }
 
 @js.native
+@JSImport("material-ui", "FlatButton")
+object NativeFlatButton extends ReactClass
+
+@js.native
 @JSImport("material-ui", "RaisedButton")
 object NativeRaisedButton extends ReactClass
 
@@ -95,6 +100,10 @@ object NativeTextField extends ReactClass
 @js.native
 @JSImport("material-ui", "Checkbox")
 object NativeCheckbox extends ReactClass
+
+@js.native
+@JSImport("material-ui", "Dialog")
+object NativeDialog extends ReactClass
 
 @js.native
 trait Event extends js.Object {
@@ -178,6 +187,11 @@ object MaterialUi {
       Attribute(name = name, value = element, AS_IS)
   }
 
+  case class ElementListAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: Seq[ReactElement]): Attribute[js.Array[ReactElement]] =
+      Attribute(name = name, value = element.toJSArray, AS_IS)
+  }
+
   implicit class MaterialUiVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val Card: ReactClassElementSpec = elements(NativeCard)
     lazy val CardActions: ReactClassElementSpec = elements(NativeCardActions)
@@ -185,6 +199,8 @@ object MaterialUi {
     lazy val CardText: ReactClassElementSpec = elements(NativeCardText)
     lazy val CardTitle: ReactClassElementSpec = elements(NativeCardTitle)
     lazy val Checkbox: ReactClassElementSpec = elements(NativeCheckbox)
+    lazy val Dialog: ReactClassElementSpec = elements(NativeDialog)
+    lazy val FlatButton: ReactClassElementSpec = elements(NativeFlatButton)
     lazy val MenuItem: ReactClassElementSpec = elements(NativeMenuItem)
     lazy val RaisedButton: ReactClassElementSpec = elements(NativeRaisedButton)
     lazy val SelectField: ReactClassElementSpec = elements(NativeSelectField)
@@ -200,6 +216,7 @@ object MaterialUi {
   }
 
   implicit class MaterialUiVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val actionsModal = ElementListAttributeSpec("actions")
     lazy val adjustForCheckbox = BooleanAttributeSpec("adjustForCheckbox")
     lazy val allRowsSelected = BooleanAttributeSpec("allRowsSelected")
     lazy val animated = BooleanAttributeSpec("animated")
@@ -217,7 +234,7 @@ object MaterialUi {
     lazy val enableSelectAll = BooleanAttributeSpec("enableSelectAll")
     lazy val errorStyle = MapAttributeSpec("errorStyle")
     lazy val errorText = ElementAttributeSpec("errorText")
-    lazy val filter = FilterAutoCompleteAttributeSpec("filter")
+    lazy val filterAutoComplete = FilterAutoCompleteAttributeSpec("filter")
     lazy val fixedFooter = BooleanAttributeSpec("fixedFooter")
     lazy val fixedHeader = BooleanAttributeSpec("fixedHeader")
     lazy val floatingLabelFixed = BooleanAttributeSpec("floatingLabelFixed")
@@ -234,6 +251,7 @@ object MaterialUi {
     lazy val maxSearchResults = IntegerAttributeSpec("maxSearchResults")
     lazy val menuCloseDelay = IntegerAttributeSpec("menuCloseDelay")
     lazy val menuStyle = MapAttributeSpec("menuStyle")
+    lazy val modal = BooleanAttributeSpec("modal")
     lazy val multiSelectable = BooleanAttributeSpec("multiSelectable")
     lazy val onCellClick = OnRowColumnAttributeSpec("onCellClick")
     lazy val onCellHover = OnRowColumnAttributeSpec("onCellHover")
@@ -250,9 +268,11 @@ object MaterialUi {
     lazy val open = BooleanAttributeSpec("open")
     lazy val openOnFocus = BooleanAttributeSpec("openOnFocus")
     lazy val preScanRows = BooleanAttributeSpec("preScanRows")
+    lazy val primary = BooleanAttributeSpec("primary")
     lazy val primaryText = StringAttributeSpec("primaryText")
     lazy val rowNumber = IntegerAttributeSpec("rowNumber")
     lazy val searchText = StringAttributeSpec("searchText")
+    lazy val secondary = BooleanAttributeSpec("secondary")
     lazy val selectable = BooleanAttributeSpec("selectable")
     lazy val selected = BooleanAttributeSpec("selected")
     lazy val showRowHover = BooleanAttributeSpec("showRowHover")
