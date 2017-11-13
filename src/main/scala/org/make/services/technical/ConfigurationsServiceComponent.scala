@@ -17,7 +17,7 @@ trait ConfigurationsServiceComponent extends CirceClassFormatters {
     override val resourceName: String = "configurations"
 
     def getConfigurations: Future[BusinessConfig] =
-      client.get[BusinessConfig](resourceName / "backoffice").map(_.get).recover {
+      client.get[BusinessConfig](resourceName / "backoffice").recover {
         case e =>
           g.console.log(s"exception $e")
           throw e

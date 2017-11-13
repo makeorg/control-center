@@ -20,7 +20,7 @@ trait ProposalServiceComponent {
     override val resourceName: String = "proposals"
 
     def getProposalById(id: String): Future[SingleResponse[SingleProposal]] =
-      client.get[SingleProposal](resourceName / "moderation" / id).map(_.get).map(SingleResponse.apply).recover {
+      client.get[SingleProposal](resourceName / "moderation" / id).map(SingleResponse.apply).recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of converting to SingleResponse: failed cursor $e")
           throw e
@@ -33,7 +33,6 @@ trait ProposalServiceComponent {
         ExhaustiveSearchRequest.buildExhaustiveSearchRequest(pagination, sort, filters)
       client
         .post[ProposalsResult](resourceName / "search" / "all", data = request.asJson.pretty(ApiService.printer))
-        .map(_.get)
         .map(proposalsResult => ListTotalResponse.apply(proposalsResult.total, proposalsResult.results))
         .recover {
           case e =>
@@ -61,7 +60,6 @@ trait ProposalServiceComponent {
           urlParams = Seq.empty,
           data = request.asJson.pretty(ApiService.printer)
         )
-        .map(_.get)
         .recover {
           case e =>
             js.Dynamic.global.console.log(s"instead of getting Proposal: $e")
@@ -86,7 +84,6 @@ trait ProposalServiceComponent {
       )
       client
         .post[SingleProposal](resourceName / proposalId / "accept", data = request.asJson.pretty(ApiService.printer))
-        .map(_.get)
         .recover {
           case e =>
             js.Dynamic.global.console.log(s"instead of getting Proposal: $e")
@@ -114,7 +111,7 @@ trait ProposalServiceComponent {
       var headers: Map[String, String] = Map.empty
       themeId.foreach(themeId => headers += client.themeIdHeader -> themeId.value)
       operation.foreach(op    => headers += client.operationHeader -> op)
-      client.get[ProposalsResult](resourceName / proposalId.value / "duplicates", headers = headers).map(_.get)
+      client.get[ProposalsResult](resourceName / proposalId.value / "duplicates", headers = headers)
     }
 
     def invalidateSimilarProposal(proposalId: ProposalId, similarProposalId: ProposalId): Future[Unit] =
