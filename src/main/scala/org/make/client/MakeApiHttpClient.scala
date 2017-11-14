@@ -23,7 +23,7 @@ trait MakeApiHttpClientComponent {
   def client: HttpClient
   def maxTimeout: Int = 9000
   def defaultHeaders: Map[String, String] = Map.empty
-  def withCredentials: Boolean = false
+  def withCredentials: Boolean = true
 }
 
 //TODO: add error handler. throw custom exception in the promise.future
