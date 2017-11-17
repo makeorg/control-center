@@ -117,6 +117,10 @@ trait ProposalServiceComponent {
     def invalidateSimilarProposal(proposalId: ProposalId, similarProposalId: ProposalId): Future[Unit] =
       Future.successful()
 
+    def lock(proposalId: String): Future[Unit] = {
+      client.post[Unit](resourceName / proposalId / "lock")
+    }
+
   }
 }
 

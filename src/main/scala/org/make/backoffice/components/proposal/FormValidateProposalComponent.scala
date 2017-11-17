@@ -23,7 +23,7 @@ import scala.util.{Failure, Success}
 object FormValidateProposalComponent {
   val proposalService: ProposalService = ProposalServiceComponent.proposalService
 
-  case class FormProps(proposal: SingleProposal, action: String)
+  case class FormProps(proposal: SingleProposal, action: String, isLocked: Boolean = false)
   case class FormState(content: String,
                        maxLength: Int,
                        labels: Seq[String] = Seq.empty,
@@ -32,7 +32,8 @@ object FormValidateProposalComponent {
                        operation: Option[String] = None,
                        tags: Seq[Tag] = Seq.empty,
                        errorMessage: Option[String] = None,
-                       similarProposals: Seq[String] = Seq.empty)
+                       similarProposals: Seq[String] = Seq.empty,
+                       isLocked: Boolean = false)
 
   def getTagFromThemeIdAndTagId(themeId: Option[ThemeId], tagId: TagId): Option[Tag] = {
     themeId.map { themeId =>
@@ -56,7 +57,8 @@ object FormValidateProposalComponent {
               tags = self.props.wrapped.proposal.tags.toSeq.map { tagId =>
                 getTagFromThemeIdAndTagId(self.props.wrapped.proposal.theme.toOption, tagId)
                   .getOrElse(Tag(TagId(""), ""))
-              }
+              },
+              isLocked = self.props.wrapped.isLocked
             )
           },
           componentWillReceiveProps = { (self, props) =>
@@ -67,7 +69,8 @@ object FormValidateProposalComponent {
                 operation = props.wrapped.proposal.context.operation.toOption,
                 tags = props.wrapped.proposal.tags.toSeq.map { tagId =>
                   getTagFromThemeIdAndTagId(props.wrapped.proposal.theme.toOption, tagId).getOrElse(Tag(TagId(""), ""))
-                }
+                },
+                isLocked = props.wrapped.isLocked
               )
             )
           },
@@ -274,7 +277,8 @@ object FormValidateProposalComponent {
                 <.RaisedButton(
                   ^.style := Map("marginTop" -> "1em"),
                   ^.label := s"Confirm ${if (self.props.wrapped.action == "validate") "validation" else "changes"}",
-                  ^.onClick := handleSubmit
+                  ^.onClick := handleSubmit,
+                  ^.disabled := self.state.isLocked
                 )(),
                 errorMessage
               )

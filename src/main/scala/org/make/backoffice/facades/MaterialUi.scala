@@ -75,6 +75,10 @@ object NativeMenuItem extends ReactClass
 object NativeAutoComplete extends ReactClass
 
 @js.native
+@JSImport("material-ui", "Snackbar")
+object NativeSnackbar extends ReactClass
+
+@js.native
 trait DataSourceConfig extends js.Object {
   val text: String
   val value: String
@@ -193,6 +197,7 @@ object MaterialUi {
   }
 
   implicit class MaterialUiVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val AutoComplete: ReactClassElementSpec = elements(NativeAutoComplete)
     lazy val Card: ReactClassElementSpec = elements(NativeCard)
     lazy val CardActions: ReactClassElementSpec = elements(NativeCardActions)
     lazy val CardHeader: ReactClassElementSpec = elements(NativeCardHeader)
@@ -204,6 +209,7 @@ object MaterialUi {
     lazy val MenuItem: ReactClassElementSpec = elements(NativeMenuItem)
     lazy val RaisedButton: ReactClassElementSpec = elements(NativeRaisedButton)
     lazy val SelectField: ReactClassElementSpec = elements(NativeSelectField)
+    lazy val Snackbar: ReactClassElementSpec = elements(NativeSnackbar)
     lazy val Table: ReactClassElementSpec = elements(NativeTable)
     lazy val TableRow: ReactClassElementSpec = elements(NativeTableRow)
     lazy val TableRowColumn: ReactClassElementSpec = elements(NativeTableRowColumn)
@@ -211,7 +217,6 @@ object MaterialUi {
     lazy val TableHeaderColumn: ReactClassElementSpec = elements(NativeTableHeaderColumn)
     lazy val TableBody: ReactClassElementSpec = elements(NativeTableBody)
     lazy val TableFooter: ReactClassElementSpec = elements(NativeTableFooter)
-    lazy val AutoComplete: ReactClassElementSpec = elements(NativeAutoComplete)
     lazy val TextFieldMaterialUi: ReactClassElementSpec = elements(NativeTextField)
   }
 
@@ -220,6 +225,7 @@ object MaterialUi {
     lazy val adjustForCheckbox = BooleanAttributeSpec("adjustForCheckbox")
     lazy val allRowsSelected = BooleanAttributeSpec("allRowsSelected")
     lazy val animated = BooleanAttributeSpec("animated")
+    lazy val autoHideDuration = IntegerAttributeSpec("autoHideDuration")
     lazy val bodyStyle = MapAttributeSpec("bodyStyle")
     lazy val children = ElementAttributeSpec("children")
     lazy val className = StringAttributeSpec("className")
@@ -251,16 +257,17 @@ object MaterialUi {
     lazy val maxSearchResults = IntegerAttributeSpec("maxSearchResults")
     lazy val menuCloseDelay = IntegerAttributeSpec("menuCloseDelay")
     lazy val menuStyle = MapAttributeSpec("menuStyle")
+    lazy val message = StringAttributeSpec("message")
     lazy val modal = BooleanAttributeSpec("modal")
     lazy val multiSelectable = BooleanAttributeSpec("multiSelectable")
     lazy val onCellClick = OnRowColumnAttributeSpec("onCellClick")
     lazy val onCellHover = OnRowColumnAttributeSpec("onCellHover")
     lazy val onCellHoverExit = OnRowColumnAttributeSpec("onCellHoverExit")
-    lazy val onChangeSelect = OnChangeSelectAttributeSpec("onChange")
     lazy val onChangeMultipleSelect = OnChangeMultipleSelectAttributeSpec("onChange")
+    lazy val onChangeSelect = OnChangeSelectAttributeSpec("onChange")
+    lazy val onCheck = OnCheckAttributeSpec("onCheck")
     lazy val onClose = BaseFunction0AttributeSpec("onClose")
     lazy val onNewRequest = OnNewRequestAttributeSpec("onNewRequest")
-    lazy val onCheck = OnCheckAttributeSpec("onCheck")
     lazy val onRowHover = OnRowAttributeSpec("onRowHover")
     lazy val onRowHoverExit = OnRowAttributeSpec("onRowHoverExit")
     lazy val onRowSelection = OnRowSelectionAttributeSpec("onRowSelection")

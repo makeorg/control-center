@@ -5,6 +5,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.components.RichVirtualDOMElements
+import org.make.backoffice.components.proposal.ShowProposalComponents.ShowComponentsProps
 import org.make.backoffice.facades.AdminOnRest.Fields._
 import org.make.backoffice.facades.AdminOnRest.Show._
 import org.make.backoffice.facades.AdminOnRest.SimpleShowLayout._
@@ -47,7 +48,7 @@ object ShowProposal {
             ^.locales := "en-EN"
           )(),
           <.TextField(^.source := "author.firstName", ^.label := "User name")(),
-          <.ShowProposalComponents()()
+          <.ShowProposalComponents(^.wrapped := ShowComponentsProps(org.scalajs.dom.window.location.hash))()
         )
     )
   )

@@ -51,7 +51,8 @@ object ModerationHistoryComponent {
           <.li()(s"tags: ${arguments.getOrElse("tags", "no tags provided")}"),
           <.li()(s"labels: ${arguments.getOrElse("labels", "no labels provided")}")
         )
-      )
+      ),
+      "lock" -> <.p()("Start Moderation")
     )
     val defaultMessage: Element = if (arguments.isEmpty) {
       <.p()(actionType)
