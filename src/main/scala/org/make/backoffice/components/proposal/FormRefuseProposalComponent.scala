@@ -19,11 +19,12 @@ import scala.util.{Failure, Success}
 object FormRefuseProposalComponent {
   val proposalService: ProposalService = ProposalServiceComponent.proposalService
 
-  case class FormProps(proposal: SingleProposal)
+  case class FormProps(proposal: SingleProposal, isLocked: Boolean = false)
   case class FormState(reasons: Seq[String],
                        refusalReason: String = "Other",
                        notifyUser: Boolean = true,
-                       errorMessage: Option[String] = None)
+                       errorMessage: Option[String] = None,
+                       isLocked: Boolean = false)
 
   val reasons: Seq[String] = Configuration.getReasonsForRefusal
 
@@ -32,6 +33,9 @@ object FormRefuseProposalComponent {
       React.createClass[FormProps, FormState](
         getInitialState = { _ =>
           FormState(reasons = reasons)
+        },
+        componentWillReceiveProps = { (self, props) =>
+          self.setState(_.copy(isLocked = props.wrapped.isLocked))
         },
         render = { self =>
           def handleReasonRefusalChange: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
@@ -78,7 +82,11 @@ object FormRefuseProposalComponent {
                 ^.onCheck := handleNotifyUserChange,
                 ^.style := Map("maxWidth" -> "25em")
               )(),
-              <.RaisedButton(^.label := "Confirm refusal", ^.onClick := handleSubmitRefuse)(),
+              <.RaisedButton(
+                ^.disabled := self.state.isLocked,
+                ^.label := "Confirm refusal",
+                ^.onClick := handleSubmitRefuse
+              )(),
               errorMessage
             )
           )
