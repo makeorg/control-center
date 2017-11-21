@@ -5,7 +5,7 @@ import io.github.shogowada.scalajs.reactjs.React.Self
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
-import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
+import io.github.shogowada.scalajs.reactjs.events.FormSyntheticEvent
 import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models._
@@ -42,24 +42,34 @@ object SimilarProposalsComponent {
       getInitialState = { self =>
         SimilarProposalsState(Seq.empty, Seq.empty, "", Seq.empty)
       },
-      componentWillMount = { (self) =>
-        if (self.props.wrapped.proposal.status != Accepted.shortName) {
-          loadSimilarProposals(self, self.props.wrapped).onComplete {
-            case Success(proposalsResult) =>
-              self.setState(
-                _.copy(similarProposals = proposalsResult.results, selectedSimilars = proposalsResult.results.map(_.id))
-              )
-            case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
+      componentWillMount = {
+        (self) =>
+          if (self.props.wrapped.proposal.status != Accepted.shortName) {
+            loadSimilarProposals(self, self.props.wrapped).onComplete {
+              case Success(proposalsResult) =>
+                val selectedSimilars = proposalsResult.results.map(_.id)
+                self.setState(_.copy(similarProposals = proposalsResult.results, selectedSimilars = selectedSimilars))
+                self.props.wrapped.setSimilarProposals(selectedSimilars)
+              case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
+            }
           }
-        }
       },
-      componentWillReceiveProps = { (self, props) =>
-        if (props.wrapped.proposal.status != Accepted.shortName) {
-          loadSimilarProposals(self, props.wrapped).onComplete {
-            case Success(proposalsResult) => self.setState(_.copy(similarProposals = proposalsResult.results))
-            case Failure(e)               => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
+      componentWillReceiveProps = {
+        (self, props) =>
+          if (props.wrapped.proposal.status != Accepted.shortName) {
+            loadSimilarProposals(self, props.wrapped).onComplete {
+              case Success(proposalsResult) =>
+                val newSimilarProposals =
+                  proposalsResult.results.filterNot(
+                    similar => self.state.similarProposals.map(_.id).contains(similar.id)
+                  )
+                val similarProposals = self.state.similarProposals ++ newSimilarProposals
+                val selectedSimilars = self.state.selectedSimilars ++ newSimilarProposals.map(_.id)
+                self.setState(_.copy(similarProposals = similarProposals, selectedSimilars = selectedSimilars))
+                self.props.wrapped.setSimilarProposals(selectedSimilars)
+              case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
+            }
           }
-        }
       },
       render = { self =>
         def handleAddSimilar: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = {
@@ -129,7 +139,8 @@ object SimilarProposalsComponent {
             ^.dataSourceConfig := DataSourceConfig("content", "id"),
             ^.searchText := self.state.searchProposalContent,
             ^.onUpdateInput := handleUpdateInput,
-            ^.onNewRequest := handleNewRequest
+            ^.onNewRequest := handleNewRequest,
+            ^.fullWidth := true
           )()
 
         <.CardActions()(searchNew, <.br()(), similars)

@@ -204,7 +204,8 @@ object FormValidateProposalComponent {
               ^.floatingLabelText := "Tags",
               ^.floatingLabelFixed := true,
               ^.valueSelect := self.state.tags.map(_.label),
-              ^.onChangeMultipleSelect := handleTagChange
+              ^.onChangeMultipleSelect := handleTagChange,
+              ^.fullWidth := true
             )(tags.map { tag =>
               <.MenuItem(
                 ^.key := tag.tagId.value,
