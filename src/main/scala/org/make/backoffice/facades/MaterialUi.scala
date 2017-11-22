@@ -281,6 +281,7 @@ object MaterialUi {
     lazy val onUpdateInput = OnUpdateInputAttributeSpec("onUpdateInput")
     lazy val open = BooleanAttributeSpec("open")
     lazy val openOnFocus = BooleanAttributeSpec("openOnFocus")
+    lazy val popoverProps = MapAttributeSpec("popoverProps")
     lazy val preScanRows = BooleanAttributeSpec("preScanRows")
     lazy val primary = BooleanAttributeSpec("primary")
     lazy val primaryText = StringAttributeSpec("primaryText")
