@@ -140,7 +140,8 @@ object SimilarProposalsComponent {
             ^.searchText := self.state.searchProposalContent,
             ^.onUpdateInput := handleUpdateInput,
             ^.onNewRequest := handleNewRequest,
-            ^.fullWidth := true
+            ^.fullWidth := true,
+            ^.popoverProps := Map("canAutoPosition" -> "true")
           )()
 
         <.CardActions()(searchNew, <.br()(), similars)
