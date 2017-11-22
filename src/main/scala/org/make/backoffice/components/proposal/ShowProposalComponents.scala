@@ -79,7 +79,7 @@ object ShowProposalComponents {
               case Some(moderatorName) => s"proposal locked by: $moderatorName"
               case None                => "proposal locked"
             }
-          })()
+          }, ^.onRequestClose := (_ => ()))()
     )
   )
 

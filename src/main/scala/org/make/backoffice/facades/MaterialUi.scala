@@ -123,6 +123,7 @@ object MaterialUi {
   type FilterAutoComplete = js.Function2[String, String, Boolean]
   type BaseFunction0 = js.Function0[Unit]
   type OnNewRequest = js.Function2[js.Object, Int, Unit]
+  type OnRequestClose = js.Function1[String, Unit]
   type OnUpdateInput = js.Function3[String, js.Array[js.Object], js.Object, Unit]
   type OnCheck = js.Function2[FormSyntheticEvent[HTMLInputElement], Boolean, Unit]
 
@@ -183,6 +184,11 @@ object MaterialUi {
 
   case class OnNewRequestAttributeSpec(name: String) extends AttributeSpec {
     def :=(element: OnNewRequest): Attribute[OnNewRequest] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
+  case class OnRequestCloseAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: OnRequestClose): Attribute[OnRequestClose] =
       Attribute(name = name, value = element, AS_IS)
   }
 
@@ -268,12 +274,14 @@ object MaterialUi {
     lazy val onCheck = OnCheckAttributeSpec("onCheck")
     lazy val onClose = BaseFunction0AttributeSpec("onClose")
     lazy val onNewRequest = OnNewRequestAttributeSpec("onNewRequest")
+    lazy val onRequestClose = OnRequestCloseAttributeSpec("onRequestClose")
     lazy val onRowHover = OnRowAttributeSpec("onRowHover")
     lazy val onRowHoverExit = OnRowAttributeSpec("onRowHoverExit")
     lazy val onRowSelection = OnRowSelectionAttributeSpec("onRowSelection")
     lazy val onUpdateInput = OnUpdateInputAttributeSpec("onUpdateInput")
     lazy val open = BooleanAttributeSpec("open")
     lazy val openOnFocus = BooleanAttributeSpec("openOnFocus")
+    lazy val popoverProps = MapAttributeSpec("popoverProps")
     lazy val preScanRows = BooleanAttributeSpec("preScanRows")
     lazy val primary = BooleanAttributeSpec("primary")
     lazy val primaryText = StringAttributeSpec("primaryText")
