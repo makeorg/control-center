@@ -90,12 +90,15 @@ object SimilarProposalsComponent {
         def handleUpdateInput(searchText: String, dataSource: js.Array[js.Object], params: js.Object): Unit = {
           self.setState(_.copy(searchProposalContent = searchText))
           if (searchText.length >= 3) {
+            val filters: Option[Seq[Filter]] = Some(
+              Seq(Filter("content", searchText), Filter("status", Accepted.shortName)) ++
+                (self.props.wrapped.maybeOperation match {
+                  case Some(operation) => Seq(Filter("operation", operation))
+                  case None            => Seq.empty
+                })
+            )
             ProposalServiceComponent.proposalService
-              .proposals(
-                Some(Pagination(1, 10)),
-                None,
-                Some(Seq(Filter("content", searchText), Filter("status", Accepted.shortName)))
-              )
+              .proposals(Some(Pagination(1, 10)), None, filters)
               .onComplete {
                 case Success(proposals) => self.setState(_.copy(foundSimilarProposals = proposals.data))
                 case Failure(e)         => js.Dynamic.global.console.log(e.getMessage)
