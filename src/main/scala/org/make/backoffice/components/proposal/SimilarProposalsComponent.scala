@@ -39,7 +39,7 @@ object SimilarProposalsComponent {
 
   lazy val reactClass: ReactClass =
     React.createClass[SimilarProposalsProps, SimilarProposalsState](
-      getInitialState = { self =>
+      getInitialState = { _ =>
         SimilarProposalsState(Seq.empty, Seq.empty, "", Seq.empty)
       },
       componentWillMount = { (self) =>
@@ -72,7 +72,7 @@ object SimilarProposalsComponent {
                   .invalidateSimilarProposal(ProposalId(self.props.wrapped.proposal.id), ProposalId(proposalId))
                 self.state.selectedSimilars.filterNot(_ == proposalId)
               } else {
-                self.state.selectedSimilars :+ proposalId
+                Seq(proposalId)
               }
             self.setState(_.copy(selectedSimilars = selectedSimilars))
             self.props.wrapped.setSimilarProposals(selectedSimilars)
@@ -99,7 +99,7 @@ object SimilarProposalsComponent {
 
         def handleNewRequest(chosenRequest: js.Object, index: Int): Unit = {
           val similar = chosenRequest.asInstanceOf[Proposal]
-          val selectedSimilars = (self.state.selectedSimilars ++ Seq(similar.id)).distinct
+          val selectedSimilars = Seq(similar.id)
           val similarProposals = if (self.state.similarProposals.map(_.id).contains(similar.id)) {
             self.state.similarProposals
           } else {
