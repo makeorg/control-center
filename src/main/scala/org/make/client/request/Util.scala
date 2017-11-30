@@ -2,6 +2,7 @@ package org.make.client.request
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
+import scala.scalajs.js.|
 
 @js.native
 trait Pagination extends js.Object {
@@ -39,9 +40,9 @@ object Sort {
 @js.native
 trait Filter extends js.Object {
   val field: String
-  val value: Any
+  val value: String | js.Array[String]
 }
 object Filter {
-  def apply(field: String, value: js.Any): Filter =
-    js.Dynamic.literal(field = field, value = value).asInstanceOf[Filter]
+  def apply(field: String, value: String | js.Array[String]): Filter =
+    js.Dynamic.literal(field = field, value = value.asInstanceOf[js.Any]).asInstanceOf[Filter]
 }

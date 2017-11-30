@@ -5,6 +5,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactCl
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
+import io.github.shogowada.scalajs.reactjs.router.Location
 import io.github.shogowada.statictags._
 
 import scala.scalajs.js
@@ -41,14 +42,26 @@ case class ElementAttributeSpec(name: String) extends AttributeSpec {
     Attribute(name = name, value = element, AS_IS)
 }
 
-case class MapAttributeSpec(name: String) extends AttributeSpec {
-  def :=(sort: Map[String, String]): Attribute[js.Dictionary[String]] =
-    Attribute(name = name, value = sort.toJSDictionary, AS_IS)
+case class MapStringAttributeSpec(name: String) extends AttributeSpec {
+  def :=(map: Map[String, String]): Attribute[js.Dictionary[String]] =
+    Attribute(name = name, value = map.toJSDictionary, AS_IS)
+}
+
+case class MapArrayAttributeSpec(name: String) extends AttributeSpec {
+  def :=(map: Map[String, Seq[String]]): Attribute[js.Dictionary[js.Array[String]]] =
+    Attribute(name = name, value = map.map { case (key, value) => key -> value.toJSArray }.toJSDictionary, AS_IS)
 }
 
 case class MatchAttributeSpec(name: String) extends AttributeSpec {
   def :=(value: Match): Attribute[Match] =
     Attribute(name = name, value = value, AS_IS)
+}
+
+case class LocationAttributeSpec(name: String) extends AttributeSpec {
+  def :=(path: String): Attribute[String] =
+    Attribute[String](name = name, value = path)
+  def :=(location: Location): Attribute[Location] =
+    Attribute[Location](name = name, value = location, AS_IS)
 }
 
 case class ChoicesAttributeSpec(name: String) extends AttributeSpec {

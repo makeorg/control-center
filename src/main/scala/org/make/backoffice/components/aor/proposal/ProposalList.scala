@@ -67,6 +67,7 @@ object ProposalList {
   def filterList(): ReactElement = {
     val choices = Seq(
       Choice(Pending.shortName, "Pending"),
+      Choice(Postponed.shortName, "Postponed"),
       Choice(Refused.shortName, "Refused"),
       Choice(Archived.shortName, "Archived")
     )
@@ -74,7 +75,7 @@ object ProposalList {
       Seq(
         //TODO: add the possibility to search by userId or proposalId
         <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
-        <.SelectInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := choices)(),
+        <.SelectArrayInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := choices)(),
         <.SelectInput(
           ^.label := "Theme",
           ^.source := "theme",
