@@ -15,7 +15,9 @@ import org.make.backoffice.facades.Choice
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models.{Proposal, ThemeId}
 import org.make.client.Resource
-import org.make.services.proposal.{Archived, Pending, Refused}
+import org.make.services.proposal.{Archived, Pending, Refused, Postponed}
+
+import scala.scalajs.js
 
 object ProposalList {
 
@@ -33,7 +35,7 @@ object ProposalList {
         ^.filters := filterList(),
         ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
       )(
-        <.Datagrid()(
+        <.Datagrid(^.rowStyle := rowStyle)(
           <.ShowButton()(),
           <.TextField(^.source := "content", ^.sortable := false)(),
           <.TextField(^.source := "status", ^.sortable := false)(),
@@ -50,6 +52,17 @@ object ProposalList {
         )
     )
   )
+
+  def rowStyle: RowStyle = {
+    (record, index) =>
+      val proposal = record.asInstanceOf[Proposal]
+
+      proposal.status match  {
+        case Postponed.shortName => js.Dictionary("backgroundColor" -> "#ffa500", "color" -> "white")
+        case Refused.shortName => js.Dictionary("backgroundColor" -> "#fdd")
+        case _ => js.Dictionary.empty
+      }
+  }
 
   def filterList(): ReactElement = {
     val choices = Seq(

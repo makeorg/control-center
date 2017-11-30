@@ -1,5 +1,6 @@
 package org.make.backoffice.facades.AdminOnRest
 
+import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMAttributes.Type.AS_IS
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
@@ -70,12 +71,20 @@ object NativeDatagrid extends ReactClass
 
 object Datagrid {
 
+  type RowStyle = js.Function2[js.Object, Int, js.Dictionary[js.Any]]
+
+  case class RowStyleAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: RowStyle): Attribute[RowStyle] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
   implicit class DatagridVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val Datagrid: ReactClassElementSpec = elements(NativeDatagrid)
   }
 
   implicit class DatagridVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val styles = CssAttributeSpec("styles")
+    lazy val rowStyle = RowStyleAttributeSpec("rowStyle")
     lazy val options = MapAttributeSpec("options")
     lazy val headerOptions = MapAttributeSpec("headerOptions")
     lazy val bodyOptions = MapAttributeSpec("bodyOptions")
