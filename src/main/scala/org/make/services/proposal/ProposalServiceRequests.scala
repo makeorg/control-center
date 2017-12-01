@@ -54,7 +54,7 @@ object ProposalStatus {
     Decoder.decodeString.emap { value: String =>
       statusMap.get(value) match {
         case Some(status) => Right(status)
-        case None          => Left(s"$value is not a proposal status")
+        case None         => Left(s"$value is not a proposal status")
       }
     }
 
@@ -72,7 +72,7 @@ final case class ExhaustiveSearchRequest(themesIds: Option[Seq[String]] = None,
                                          labelsIds: Option[Seq[String]] = None,
                                          content: Option[String] = None,
                                          context: Option[ContextFilterRequest] = None,
-                                         status: Option[ProposalStatus] = None,
+                                         status: Option[Seq[ProposalStatus]] = None,
                                          sorts: Option[Seq[SortRequest]] = None,
                                          limit: Option[Int] = None,
                                          skip: Option[Int] = None)
@@ -97,7 +97,7 @@ object ExhaustiveSearchRequest {
   private def getIdsFromFilters(field: String, maybeFilters: Option[Seq[Filter]]): Option[Seq[String]] = {
     maybeFilters.flatMap {
       _.find(_.field == field).map {
-        _.value match {
+        _.value.asInstanceOf[Any] match {
           case filterListField: js.Array[_] =>
             Some(filterListField.asInstanceOf[js.Array[String]].toSeq)
           case filterField: String => Some(Seq(filterField))
@@ -110,25 +110,35 @@ object ExhaustiveSearchRequest {
   }
 
   private def getContentFromFilters(maybeFilters: Option[Seq[Filter]]): Option[String] =
-    maybeFilters.flatMap(_.find(_.field == "content").map(_.value.asInstanceOf[String]))
+    maybeFilters.flatMap(_.find(_.field == "content").map(_.value.toString))
 
   private def getContextFromFilters(maybeFilters: Option[Seq[Filter]]): Option[ContextFilterRequest] =
     Some(
       ContextFilterRequest(
-        operation = maybeFilters.flatMap(_.find(_.field == "operation").map(_.value.asInstanceOf[String])),
-        source = maybeFilters.flatMap(_.find(_.field == "source").map(_.value.asInstanceOf[String])),
-        location = maybeFilters.flatMap(_.find(_.field == "location").map(_.value.asInstanceOf[String])),
-        question = maybeFilters.flatMap(_.find(_.field == "question").map(_.value.asInstanceOf[String]))
+        operation = maybeFilters.flatMap(_.find(_.field == "operation").map(_.value.toString)),
+        source = maybeFilters.flatMap(_.find(_.field == "source").map(_.value.toString)),
+        location = maybeFilters.flatMap(_.find(_.field == "location").map(_.value.toString)),
+        question = maybeFilters.flatMap(_.find(_.field == "question").map(_.value.toString))
       )
     )
 
-  private def getStatusFromFilters(maybeFilters: Option[Seq[Filter]]): Option[ProposalStatus] =
-    maybeFilters
-      .flatMap(_.find(_.field == "status").map { status =>
-        val maybeStatus = ProposalStatus.matchProposalStatus(status.value.asInstanceOf[String])
-        if (maybeStatus.isEmpty) Some(Pending) else maybeStatus
-      })
-      .getOrElse(Some(Pending))
+  private def getStatusFromFilters(maybeFilters: Option[Seq[Filter]]): Option[Seq[ProposalStatus]] = {
+    maybeFilters.flatMap(_.find(_.field == "status")).map(_.value).map {
+      case statusList: js.Array[_] =>
+        if (statusList.isEmpty) {
+          Some(Seq(Pending, Postponed))
+        } else {
+          Some(
+            statusList
+              .map(status => ProposalStatus.matchProposalStatus(status.toString).getOrElse(Pending))
+              .toSeq
+          )
+        }
+      case unknownFilterType =>
+        g.console.warn(s"Unknown filter with value $unknownFilterType")
+        None
+    }
+  }.getOrElse(Some(Seq(Pending, Postponed)))
 
   def getSortFromOptionalSort(maybeSort: Option[Sort]): Option[Seq[SortRequest]] =
     maybeSort.flatMap { sort =>

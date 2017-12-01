@@ -4,8 +4,7 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.statictags.StringAttributeSpec
-import io.github.shogowada.scalajs.reactjs.router.Router.RouterVirtualDOMAttributes.LocationAttributeSpec
-import org.make.backoffice.facades.{ElementAttributeSpec, MatchAttributeSpec}
+import org.make.backoffice.facades.{ElementAttributeSpec, LocationAttributeSpec, MatchAttributeSpec}
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport

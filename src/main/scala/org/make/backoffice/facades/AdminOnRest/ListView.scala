@@ -4,9 +4,13 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMAttributes.Type.
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.scalajs.reactjs.router.Router.RouterVirtualDOMAttributes.LocationAttributeSpec
 import io.github.shogowada.statictags._
-import org.make.backoffice.facades.{ElementAttributeSpec, MapAttributeSpec}
+import org.make.backoffice.facades.{
+  ElementAttributeSpec,
+  LocationAttributeSpec,
+  MapArrayAttributeSpec,
+  MapStringAttributeSpec
+}
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
@@ -57,8 +61,8 @@ object List {
     lazy val actions = ElementAttributeSpec("actions")
     lazy val filters = ElementAttributeSpec("filters")
     lazy val perPage = IntegerAttributeSpec("perPage")
-    lazy val sort = MapAttributeSpec("sort")
-    lazy val filter = MapAttributeSpec("filter")
+    lazy val sort = MapStringAttributeSpec("sort")
+    lazy val filter = MapArrayAttributeSpec("filter")
     lazy val location = LocationAttributeSpec("location")
     lazy val resource = StringAttributeSpec("resource")
     lazy val hasCreate = BooleanAttributeSpec("hasCreate")
@@ -85,9 +89,8 @@ object Datagrid {
   implicit class DatagridVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val styles = CssAttributeSpec("styles")
     lazy val rowStyle = RowStyleAttributeSpec("rowStyle")
-    lazy val options = MapAttributeSpec("options")
-    lazy val headerOptions = MapAttributeSpec("headerOptions")
-    lazy val bodyOptions = MapAttributeSpec("bodyOptions")
-    lazy val rowOptions = MapAttributeSpec("rowOptions")
+    lazy val headerOptions = MapStringAttributeSpec("headerOptions")
+    lazy val bodyOptions = MapStringAttributeSpec("bodyOptions")
+    lazy val rowOptions = MapStringAttributeSpec("rowOptions")
   }
 }

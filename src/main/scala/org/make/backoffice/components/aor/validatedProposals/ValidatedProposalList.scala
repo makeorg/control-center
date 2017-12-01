@@ -134,10 +134,10 @@ object ValidatedProposalList {
     <.List(
       ^.title := "Validated proposals",
       ^.location := self.props.location,
-      ^.resource := Resource.validatedProposals,
+      ^.resource := Resource.proposals,
       ^.hasCreate := false,
       ^.filters := filterList(),
-      ^.filter := Map("status" -> Accepted.shortName),
+      ^.filter := Map("status" -> Seq(Accepted.shortName)),
       ^.actions := <.ActionComponent()(),
       ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
     )(
@@ -177,7 +177,7 @@ object ValidatedProposalList {
   })
 
   def filterList(): ReactElement = {
-    <.Filter(^.resource := Resource.validatedProposals)(
+    <.Filter(^.resource := Resource.proposals)(
       Seq(
         //TODO: add the possibility to search by userId or proposalId
         <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
