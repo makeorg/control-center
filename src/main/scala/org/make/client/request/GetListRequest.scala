@@ -1,17 +1,17 @@
 package org.make.client.request
 
 import org.make.client.{MakeServices, Resource, Response}
-import org.make.services.proposal.Accepted
 
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
+import scala.scalajs.js.|
 
 @js.native
 trait GetListRequest extends js.Object with Request {
   val pagination: js.UndefOr[Pagination]
   val sort: js.UndefOr[Sort]
-  val filter: js.UndefOr[js.Dictionary[js.Any]]
+  val filter: js.UndefOr[js.Dictionary[String | js.Array[String]]]
 }
 
 object GetListRequest extends MakeServices {
@@ -29,17 +29,9 @@ object GetListRequest extends MakeServices {
         proposalService.proposals(
           request.pagination.toOption,
           request.sort.toOption,
-          request.filter.toOption.map(_.toJSArray.map(fieldValue => Filter(fieldValue._1, fieldValue._2)))
-        )
-      case Resource.validatedProposals =>
-        val request = params.asInstanceOf[GetListRequest]
-        proposalService.proposals(
-          request.pagination.toOption,
-          request.sort.toOption,
-          request.filter.toOption.map(
-            _.toJSArray
-              .map(fieldValue => Filter(fieldValue._1, fieldValue._2)) ++ Seq(Filter("status", Accepted.shortName))
-          )
+          request.filter.toOption.map(_.toJSArray.map {
+            case (fieldName, filterValue) => Filter(fieldName, filterValue)
+          })
         )
       case Resource.users =>
         throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetListRequest")

@@ -90,7 +90,7 @@ object Fields {
     lazy val src = StringAttributeSpec("src")
     lazy val render = RenderRecordAttributeSpec("render")
     lazy val locales = StringAttributeSpec("locales")
-    lazy val options = MapAttributeSpec("options")
+    lazy val options = MapStringAttributeSpec("options")
     lazy val reference = StringAttributeSpec("reference")
     lazy val linkType = DynamicAttributeSpec("linkType")
     lazy val target = StringAttributeSpec("target")

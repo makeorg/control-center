@@ -15,7 +15,9 @@ import org.make.backoffice.facades.Choice
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models.{Proposal, ThemeId}
 import org.make.client.Resource
-import org.make.services.proposal.{Archived, Pending, Refused}
+import org.make.services.proposal.{Archived, Pending, Refused, Postponed}
+
+import scala.scalajs.js
 
 object ProposalList {
 
@@ -33,7 +35,7 @@ object ProposalList {
         ^.filters := filterList(),
         ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
       )(
-        <.Datagrid()(
+        <.Datagrid(^.rowStyle := rowStyle)(
           <.ShowButton()(),
           <.TextField(^.source := "content", ^.sortable := false)(),
           <.TextField(^.source := "status", ^.sortable := false)(),
@@ -51,9 +53,21 @@ object ProposalList {
     )
   )
 
+  def rowStyle: RowStyle = {
+    (record, index) =>
+      val proposal = record.asInstanceOf[Proposal]
+
+      proposal.status match  {
+        case Postponed.shortName => js.Dictionary("backgroundColor" -> "#ffa500", "color" -> "white")
+        case Refused.shortName => js.Dictionary("backgroundColor" -> "#fdd")
+        case _ => js.Dictionary.empty
+      }
+  }
+
   def filterList(): ReactElement = {
     val choices = Seq(
       Choice(Pending.shortName, "Pending"),
+      Choice(Postponed.shortName, "Postponed"),
       Choice(Refused.shortName, "Refused"),
       Choice(Archived.shortName, "Archived")
     )
@@ -61,7 +75,7 @@ object ProposalList {
       Seq(
         //TODO: add the possibility to search by userId or proposalId
         <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
-        <.SelectInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := choices)(),
+        <.SelectArrayInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := choices)(),
         <.SelectInput(
           ^.label := "Theme",
           ^.source := "theme",
