@@ -62,7 +62,7 @@ trait ProposalServiceComponent {
         )
         .recover {
           case e =>
-            js.Dynamic.global.console.log(s"instead of getting Proposal: $e")
+            js.Dynamic.global.console.log(s"instead of updating proposal: failed cursor $e")
             throw e
         }
     }
@@ -86,23 +86,30 @@ trait ProposalServiceComponent {
         .post[SingleProposal](resourceName / proposalId / "accept", data = request.asJson.pretty(ApiService.printer))
         .recover {
           case e =>
-            js.Dynamic.global.console.log(s"instead of getting Proposal: $e")
+            js.Dynamic.global.console.log(s"instead of validating proposal: failed cursor $e")
             throw e
         }
     }
 
-    def refuseProposal(proposalId: String, refusalReason: Option[String], notifyUser: Boolean): Future[Boolean] = {
+    def refuseProposal(proposalId: String, refusalReason: Option[String], notifyUser: Boolean): Future[Unit] = {
       val request: RefuseProposalRequest =
         RefuseProposalRequest(sendNotificationEmail = notifyUser, refusalReason = refusalReason)
       client
         .post[SingleProposal](resourceName / proposalId / "refuse", data = request.asJson.pretty(ApiService.printer))
-        .map(_ => true)
+        .map(_ => {})
         .recover {
           case e =>
-            js.Dynamic.global.console.log(s"instead of getting Proposal: $e")
+            js.Dynamic.global.console.log(s"instead of refusing proposal: failed cursor $e")
             throw e
-            false
         }
+    }
+
+    def postponeProposal(proposalId: String): Future[Unit] = {
+      client.post[SingleProposal](resourceName / proposalId / "postpone").map(_ => {}).recover {
+        case e =>
+          js.Dynamic.global.console.log(s"instead of postponing proposal: failed cursor $e")
+          throw e
+      }
     }
 
     def getDuplicates(proposalId: ProposalId,

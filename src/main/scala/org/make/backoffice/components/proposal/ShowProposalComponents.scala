@@ -10,7 +10,7 @@ import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models.SingleProposal
 import org.make.client.BadRequestHttpException
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
-import org.make.services.proposal.{Accepted, ProposalServiceComponent, Refused}
+import org.make.services.proposal._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
@@ -19,7 +19,7 @@ object ShowProposalComponents {
   val proposalService: ProposalService = ProposalServiceComponent.proposalService
 
   val timer = new Timer()
-  def task(self: React.Self[ShowComponentsProps, ShowComponentsState]) = new TimerTask {
+  def task(self: React.Self[ShowComponentsProps, ShowComponentsState]): TimerTask = new TimerTask {
     override def run(): Unit = {
       if (org.scalajs.dom.window.location.hash == self.props.wrapped.hash) {
         proposalService.lock(self.state.proposal.id).onComplete {
@@ -62,6 +62,10 @@ object ShowProposalComponents {
         if (self.state.proposal.status == Accepted.shortName)
           <.FormValidateProposalComponent(
             ^.wrapped := FormValidateProposalComponent.FormProps(self.state.proposal, "update", self.state.isLocked)
+          )(),
+        if (self.state.proposal.status == Pending.shortName)
+          <.FormPostponeProposalComponent(
+            ^.wrapped := FormPostponeProposalComponent.FormProps(self.state.proposal, self.state.isLocked)
           )(),
         if (self.state.proposal.status != Refused.shortName)
           <.FormRefuseProposalComponent(

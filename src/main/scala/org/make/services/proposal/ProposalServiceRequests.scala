@@ -96,8 +96,8 @@ object ExhaustiveSearchRequest {
 
   private def getIdsFromFilters(field: String, maybeFilters: Option[Seq[Filter]]): Option[Seq[String]] = {
     maybeFilters.flatMap {
-      _.find(_.field == field).map {
-        _.value.asInstanceOf[Any] match {
+      _.find(_.field == field).flatMap { filter =>
+        (filter.value: Any) match {
           case filterListField: js.Array[_] =>
             Some(filterListField.asInstanceOf[js.Array[String]].toSeq)
           case filterField: String => Some(Seq(filterField))
@@ -105,7 +105,7 @@ object ExhaustiveSearchRequest {
             g.console.warn(s"Unknown filter with value $unknownFilterType")
             None
         }
-      }.getOrElse(None)
+      }
     }
   }
 
