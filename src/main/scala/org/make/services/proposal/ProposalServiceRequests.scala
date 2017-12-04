@@ -89,15 +89,15 @@ object ExhaustiveSearchRequest {
       content = getContentFromFilters(filters),
       context = getContextFromFilters(filters),
       status = getStatusFromFilters(filters),
-      sorts = getSortFromOptionalSort(sort),
+      sorts = getSortFromOptionalSort(sort, filters),
       limit = pagination.map(_.perPage),
       skip = pagination.map(page => page.page * page.perPage - page.perPage)
     )
 
   private def getIdsFromFilters(field: String, maybeFilters: Option[Seq[Filter]]): Option[Seq[String]] = {
     maybeFilters.flatMap {
-      _.find(_.field == field).map {
-        _.value.asInstanceOf[Any] match {
+      _.find(_.field == field).flatMap { filter =>
+        (filter.value: Any) match {
           case filterListField: js.Array[_] =>
             Some(filterListField.asInstanceOf[js.Array[String]].toSeq)
           case filterField: String => Some(Seq(filterField))
@@ -105,7 +105,7 @@ object ExhaustiveSearchRequest {
             g.console.warn(s"Unknown filter with value $unknownFilterType")
             None
         }
-      }.getOrElse(None)
+      }
     }
   }
 
@@ -140,13 +140,18 @@ object ExhaustiveSearchRequest {
     }
   }.getOrElse(Some(Seq(Pending, Postponed)))
 
-  def getSortFromOptionalSort(maybeSort: Option[Sort]): Option[Seq[SortRequest]] =
-    maybeSort.flatMap { sort =>
-      for {
-        _     <- sort.field.toOption
-        order <- sort.order.toOption.flatMap(Order.matchOrder)
-      } yield Seq(SortRequest(sort.field.toOption, Some(order)))
+  def getSortFromOptionalSort(maybeSort: Option[Sort], maybeFilters: Option[Seq[Filter]]): Option[Seq[SortRequest]] = {
+    maybeFilters.flatMap(_.find(_.field == "content")) match {
+      case Some(_) => None
+      case None =>
+        maybeSort.flatMap { sort =>
+          for {
+            _     <- sort.field.toOption
+            order <- sort.order.toOption.flatMap(Order.matchOrder)
+          } yield Seq(SortRequest(sort.field.toOption, Some(order)))
+        }
     }
+  }
 }
 
 final case class UpdateProposalRequest(newContent: Option[String],

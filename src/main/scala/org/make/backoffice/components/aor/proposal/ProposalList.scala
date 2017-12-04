@@ -15,7 +15,7 @@ import org.make.backoffice.facades.Choice
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models.{Proposal, ThemeId}
 import org.make.client.Resource
-import org.make.services.proposal.{Archived, Pending, Refused, Postponed}
+import org.make.services.proposal.{Archived, Pending, Postponed, Refused}
 
 import scala.scalajs.js
 
@@ -53,15 +53,14 @@ object ProposalList {
     )
   )
 
-  def rowStyle: RowStyle = {
-    (record, index) =>
-      val proposal = record.asInstanceOf[Proposal]
+  def rowStyle: RowStyle = { (record, _) =>
+    val proposal = record.asInstanceOf[Proposal]
 
-      proposal.status match  {
-        case Postponed.shortName => js.Dictionary("backgroundColor" -> "#ffa500", "color" -> "white")
-        case Refused.shortName => js.Dictionary("backgroundColor" -> "#fdd")
-        case _ => js.Dictionary.empty
-      }
+    proposal.status match {
+      case Postponed.shortName => js.Dictionary("backgroundColor" -> "#fda")
+      case Refused.shortName   => js.Dictionary("backgroundColor" -> "#fdd")
+      case _                   => js.Dictionary.empty
+    }
   }
 
   def filterList(): ReactElement = {

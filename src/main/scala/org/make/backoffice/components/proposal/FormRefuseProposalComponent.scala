@@ -54,7 +54,7 @@ object FormRefuseProposalComponent {
                   case Success(_) =>
                     self.props.history.goBack()
                     self.setState(_.copy(errorMessage = None))
-                  case Failure(e) =>
+                  case Failure(_) =>
                     self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
                 }
             }
