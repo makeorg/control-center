@@ -89,7 +89,7 @@ object ExhaustiveSearchRequest {
       content = getContentFromFilters(filters),
       context = getContextFromFilters(filters),
       status = getStatusFromFilters(filters),
-      sorts = getSortFromOptionalSort(sort),
+      sorts = getSortFromOptionalSort(sort, filters),
       limit = pagination.map(_.perPage),
       skip = pagination.map(page => page.page * page.perPage - page.perPage)
     )
@@ -140,13 +140,18 @@ object ExhaustiveSearchRequest {
     }
   }.getOrElse(Some(Seq(Pending, Postponed)))
 
-  def getSortFromOptionalSort(maybeSort: Option[Sort]): Option[Seq[SortRequest]] =
-    maybeSort.flatMap { sort =>
-      for {
-        _     <- sort.field.toOption
-        order <- sort.order.toOption.flatMap(Order.matchOrder)
-      } yield Seq(SortRequest(sort.field.toOption, Some(order)))
+  def getSortFromOptionalSort(maybeSort: Option[Sort], maybeFilters: Option[Seq[Filter]]): Option[Seq[SortRequest]] = {
+    maybeFilters.flatMap(_.find(_.field == "content")) match {
+      case Some(_) => None
+      case None =>
+        maybeSort.flatMap { sort =>
+          for {
+            _     <- sort.field.toOption
+            order <- sort.order.toOption.flatMap(Order.matchOrder)
+          } yield Seq(SortRequest(sort.field.toOption, Some(order)))
+        }
     }
+  }
 }
 
 final case class UpdateProposalRequest(newContent: Option[String],
