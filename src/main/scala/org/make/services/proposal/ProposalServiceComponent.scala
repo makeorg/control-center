@@ -128,6 +128,10 @@ trait ProposalServiceComponent {
       client.post[Unit](resourceName / proposalId / "lock")
     }
 
+    def removeFromCluster(proposalId: String): Future[Unit] = {
+      client.delete[Unit](apiEndpoint = resourceName / "similars" / proposalId, urlParams = Seq.empty, data = "")
+    }
+
   }
 }
 

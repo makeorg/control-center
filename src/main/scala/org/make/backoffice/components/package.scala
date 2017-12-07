@@ -13,6 +13,7 @@ package object components {
     def FormPostponeProposalComponent: ReactClassElementSpec = self(proposal.FormPostponeProposalComponent.reactClass)
     def ModerationHistoryComponent: ReactClassElementSpec = self(proposal.ModerationHistoryComponent.reactClass)
     def SimilarProposalsComponent: ReactClassElementSpec = self(proposal.SimilarProposalsComponent.reactClass)
+    def SimilarClusterComponent: ReactClassElementSpec = self(proposal.SimilarClusterComponent.reactClass)
     def StatsValidatedProposal: ReactClassElementSpec = self(proposal.StatsValidatedProposal.reactClass)
     def ActionComponent: ReactClassElementSpec = self(ValidatedProposalList.Action.reactClass)
     def ExportComponent: ReactClassElementSpec = self(ValidatedProposalList.ExportComponent.reactClass)

@@ -38,6 +38,26 @@ object SimpleShowLayout {
 }
 
 @js.native
+@JSImport("admin-on-rest", "TabbedShowLayout")
+object NativeTabbedShowLayout extends ReactClass
+
+object TabbedShowLayout {
+  implicit class TabbedShowLayoutVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val TabbedShowLayout: ReactClassElementSpec = elements(NativeTabbedShowLayout)
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "Tab")
+object NativeTab extends ReactClass
+
+object Tab {
+  implicit class TabVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val Tab: ReactClassElementSpec = elements(NativeTab)
+  }
+}
+
+@js.native
 @JSImport("admin-on-rest", "ShowButton")
 object NativeShowButton extends ReactClass
 

@@ -67,7 +67,8 @@ final case class ContextFilterRequest(operation: Option[String] = None,
 
 final case class SortRequest(field: Option[String], direction: Option[Order])
 
-final case class ExhaustiveSearchRequest(themesIds: Option[Seq[String]] = None,
+final case class ExhaustiveSearchRequest(proposalIds: Option[Seq[String]] = None,
+                                         themesIds: Option[Seq[String]] = None,
                                          tagsIds: Option[Seq[String]] = None,
                                          labelsIds: Option[Seq[String]] = None,
                                          content: Option[String] = None,
@@ -83,6 +84,7 @@ object ExhaustiveSearchRequest {
                                    sort: Option[Sort],
                                    filters: Option[Seq[Filter]]): ExhaustiveSearchRequest =
     ExhaustiveSearchRequest(
+      proposalIds = getIdsFromFilters("proposalIds", filters),
       themesIds = getIdsFromFilters("theme", filters),
       tagsIds = getIdsFromFilters("tags", filters),
       labelsIds = getIdsFromFilters("label", filters),
@@ -99,7 +101,7 @@ object ExhaustiveSearchRequest {
       _.find(_.field == field).flatMap { filter =>
         (filter.value: Any) match {
           case filterListField: js.Array[_] =>
-            Some(filterListField.asInstanceOf[js.Array[String]].toSeq)
+            Some(filterListField.map(_.toString).toSeq)
           case filterField: String => Some(Seq(filterField))
           case unknownFilterType =>
             g.console.warn(s"Unknown filter with value $unknownFilterType")
