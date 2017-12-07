@@ -20,7 +20,7 @@ import scala.util.{Failure, Success}
 
 object SimilarProposalsComponent {
   case class SimilarProposalsProps(proposal: SingleProposal,
-                                   setSimilarProposals: Seq[String] => Unit,
+                                   setSelectedSimilarProposals: Seq[String] => Unit,
                                    maybeThemeId: Option[ThemeId],
                                    maybeOperation: Option[String])
   case class SimilarProposalsState(similarProposals: Seq[Proposal],
@@ -42,40 +42,33 @@ object SimilarProposalsComponent {
       getInitialState = { _ =>
         SimilarProposalsState(Seq.empty, Seq.empty, "", Seq.empty)
       },
-      componentWillMount = { (self) =>
-        if (self.props.wrapped.proposal.status != Accepted.shortName) {
-          loadSimilarProposals(self, self.props.wrapped).onComplete {
-            case Success(proposalsResult) =>
-              self.setState(_.copy(similarProposals = proposalsResult.results))
-            case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
-          }
+      componentDidMount = { (self) =>
+        loadSimilarProposals(self, self.props.wrapped).onComplete {
+          case Success(proposalsResult) =>
+            self.setState(_.copy(similarProposals = proposalsResult.results))
+          case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
         }
       },
       componentWillReceiveProps = { (self, props) =>
-        if (props.wrapped.proposal.status != Accepted.shortName) {
-          loadSimilarProposals(self, props.wrapped).onComplete {
-            case Success(proposalsResult) =>
-              val newSimilarProposals =
-                proposalsResult.results.filterNot(similar => self.state.similarProposals.map(_.id).contains(similar.id))
-              self.setState(_.copy(similarProposals = self.state.similarProposals ++ newSimilarProposals))
-            case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
-          }
+        loadSimilarProposals(self, props.wrapped).onComplete {
+          case Success(proposalsResult) =>
+            val newSimilarProposals =
+              proposalsResult.results.filterNot(similar => self.state.similarProposals.map(_.id).contains(similar.id))
+            self.setState(_.copy(similarProposals = self.state.similarProposals ++ newSimilarProposals))
+          case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get duplicate failed with error $e")
         }
       },
       render = { self =>
-        def handleAddSimilar: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = {
-          (event, _) =>
-            val proposalId: String = event.target.value
-            val selectedSimilars =
-              if (self.state.selectedSimilars.contains(proposalId)) {
-                ProposalServiceComponent.proposalService
-                  .invalidateSimilarProposal(ProposalId(self.props.wrapped.proposal.id), ProposalId(proposalId))
-                self.state.selectedSimilars.filterNot(_ == proposalId)
-              } else {
-                Seq(proposalId)
-              }
-            self.setState(_.copy(selectedSimilars = selectedSimilars))
-            self.props.wrapped.setSimilarProposals(selectedSimilars)
+        def handleAddSimilar: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = { (event, _) =>
+          val proposalId: String = event.target.value
+          val selectedSimilars =
+            if (self.state.selectedSimilars.contains(proposalId)) {
+              self.state.selectedSimilars.filterNot(_ == proposalId)
+            } else {
+              Seq(proposalId)
+            }
+          self.setState(_.copy(selectedSimilars = selectedSimilars))
+          self.props.wrapped.setSelectedSimilarProposals(selectedSimilars)
         }
 
         def handleUpdateInput(searchText: String, dataSource: js.Array[js.Object], params: js.Object): Unit = {
@@ -108,7 +101,7 @@ object SimilarProposalsComponent {
           self.setState(
             _.copy(searchProposalContent = "", similarProposals = similarProposals, selectedSimilars = selectedSimilars)
           )
-          self.props.wrapped.setSimilarProposals(selectedSimilars)
+          self.props.wrapped.setSelectedSimilarProposals(selectedSimilars)
         }
 
         val similars =
