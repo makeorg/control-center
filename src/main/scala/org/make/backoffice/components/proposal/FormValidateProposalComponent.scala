@@ -12,7 +12,7 @@ import org.make.backoffice.components.proposal.SimilarProposalsComponent.Similar
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models._
-import org.make.services.proposal.ProposalServiceComponent
+import org.make.services.proposal.{Pending, ProposalServiceComponent}
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -264,7 +264,7 @@ object FormValidateProposalComponent {
                   ^.onCheck := handleLabelSelection,
                   ^.style := Map("maxWidth" -> "25em")
                 )(),
-                if (self.state.similarProposals.isEmpty) {
+                if (self.props.wrapped.proposal.status == Pending.shortName) {
                   <.Card(^.style := Map("marginTop" -> "1em"))(
                     <.CardTitle(^.title := "Similar proposal")(),
                     <.SimilarProposalsComponent(

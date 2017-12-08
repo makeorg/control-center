@@ -22,6 +22,7 @@ object ShowProposal {
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass = React.createClass[ShowProps, Unit](
+    displayName = "ShowProposal",
     render = (self) =>
       <.Show(
         ^.location := self.props.location,
@@ -54,7 +55,7 @@ object ShowProposal {
           <.Tab(^.label := "Actions")(
             <.ShowProposalComponents(^.wrapped := ShowComponentsProps(org.scalajs.dom.window.location.hash))()
           ),
-          <.Tab(^.label := "Cluster")(<.SimilarClusterComponent()())
+          <.Tab(^.label := "Similars")(<.TabSimilarsComponent()())
         )
     )
   )
