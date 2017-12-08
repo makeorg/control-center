@@ -42,6 +42,11 @@ case class ElementAttributeSpec(name: String) extends AttributeSpec {
     Attribute(name = name, value = element, AS_IS)
 }
 
+case class MapBooleanAttributeSpec(name: String) extends AttributeSpec {
+  def :=(map: Map[String, Boolean]): Attribute[js.Dictionary[Boolean]] =
+    Attribute(name = name, value = map.toJSDictionary, AS_IS)
+}
+
 case class MapStringAttributeSpec(name: String) extends AttributeSpec {
   def :=(map: Map[String, String]): Attribute[js.Dictionary[String]] =
     Attribute(name = name, value = map.toJSDictionary, AS_IS)

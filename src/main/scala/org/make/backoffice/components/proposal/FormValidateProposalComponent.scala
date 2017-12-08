@@ -12,7 +12,7 @@ import org.make.backoffice.components.proposal.SimilarProposalsComponent.Similar
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models._
-import org.make.services.proposal.ProposalServiceComponent
+import org.make.services.proposal.{Pending, ProposalServiceComponent}
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -54,11 +54,9 @@ object FormValidateProposalComponent {
               labels = self.props.wrapped.proposal.labels,
               theme = self.props.wrapped.proposal.theme.toOption,
               operation = self.props.wrapped.proposal.context.operation.toOption,
-              tags = self.props.wrapped.proposal.tags.toSeq.map { tagId =>
-                getTagFromThemeIdAndTagId(self.props.wrapped.proposal.theme.toOption, tagId)
-                  .getOrElse(Tag(TagId(""), ""))
-              },
-              isLocked = self.props.wrapped.isLocked
+              isLocked = self.props.wrapped.isLocked,
+              similarProposals =
+                self.props.wrapped.proposal.similarProposals.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
             )
           },
           componentWillReceiveProps = { (self, props) =>
@@ -70,7 +68,9 @@ object FormValidateProposalComponent {
                 tags = props.wrapped.proposal.tags.toSeq.map { tagId =>
                   getTagFromThemeIdAndTagId(props.wrapped.proposal.theme.toOption, tagId).getOrElse(Tag(TagId(""), ""))
                 },
-                isLocked = props.wrapped.isLocked
+                isLocked = props.wrapped.isLocked,
+                similarProposals =
+                  self.props.wrapped.proposal.similarProposals.toOption.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
               )
             )
           },
@@ -264,17 +264,19 @@ object FormValidateProposalComponent {
                   ^.onCheck := handleLabelSelection,
                   ^.style := Map("maxWidth" -> "25em")
                 )(),
-                <.Card(^.style := Map("marginTop" -> "1em"))(
-                  <.CardTitle(^.title := "Similar proposal")(),
-                  <.SimilarProposalsComponent(
-                    ^.wrapped := SimilarProposalsProps(
-                      self.props.wrapped.proposal,
-                      setSimilarProposals,
-                      self.state.theme,
-                      self.state.operation
-                    )
-                  )()
-                ),
+                if (self.props.wrapped.proposal.status == Pending.shortName) {
+                  <.Card(^.style := Map("marginTop" -> "1em"))(
+                    <.CardTitle(^.title := "Similar proposal")(),
+                    <.SimilarProposalsComponent(
+                      ^.wrapped := SimilarProposalsProps(
+                        self.props.wrapped.proposal,
+                        setSimilarProposals,
+                        self.state.theme,
+                        self.state.operation
+                      )
+                    )()
+                  )
+                },
                 <.RaisedButton(
                   ^.style := Map("marginTop" -> "1em"),
                   ^.label := s"Confirm ${if (self.props.wrapped.action == "validate") "validation" else "changes"}",

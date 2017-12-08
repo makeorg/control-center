@@ -35,7 +35,7 @@ object ShowProposalComponents {
     }
   }
 
-  case class ShowComponentsProps(hash: String)
+  case class ShowComponentsProps(hash: String, eventRefresh: Boolean = false)
   case class ShowComponentsState(proposal: SingleProposal,
                                  isLocked: Boolean = false,
                                  moderatorName: Option[String] = None)

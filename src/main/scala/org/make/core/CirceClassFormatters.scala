@@ -96,7 +96,7 @@ trait CirceClassFormatters extends TimeInstances {
   implicit lazy val tagDecoder: Decoder[Tag] = Decoder.forProduct2("tagId", "label")(Tag.apply)
 
   implicit lazy val singleProposal: Decoder[SingleProposal] =
-    Decoder.forProduct14(
+    Decoder.forProduct15(
       "proposalId",
       "slug",
       "content",
@@ -110,7 +110,8 @@ trait CirceClassFormatters extends TimeInstances {
       "context",
       "createdAt",
       "updatedAt",
-      "events"
+      "events",
+      "similarProposals"
     )(SingleProposal.apply)
 
   implicit lazy val proposalActionDecoder: Decoder[ProposalAction] =
