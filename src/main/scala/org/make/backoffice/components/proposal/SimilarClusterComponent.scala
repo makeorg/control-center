@@ -74,23 +74,19 @@ object SimilarClusterComponent {
           <.Table(^.selectable := false)(
             <.TableHeader(^.displaySelectAll := false)(
               <.TableRow()(
-                <.TableRowColumn()("Content"),
+                <.TableRowColumn(^.style := Map("width" -> "70%"))("Content"),
                 <.TableRowColumn()("Theme"),
                 <.TableRowColumn()("Operation"),
-                <.TableRowColumn()("Author name"),
-                <.TableRowColumn()("Author age"),
                 <.TableRowColumn()()
               )
             ),
             <.TableBody(^.displayRowCheckbox := false)(self.state.similarProposals.map { proposal =>
               <.TableRow()(
-                <.TableRowColumn()(proposal.content),
+                <.TableRowColumn(^.style := Map("width" -> "70%"))(proposal.content),
                 <.TableRowColumn()(
                   proposal.themeId.map(themeId => Configuration.getThemeFromThemeId(ThemeId(themeId))).getOrElse("")
                 ),
                 <.TableRowColumn()(proposal.context.operation.getOrElse("")),
-                <.TableRowColumn()(proposal.author.firstName.getOrElse("")),
-                <.TableRowColumn()(proposal.author.age.getOrElse("")),
                 <.TableRowColumn()(
                   <.RaisedButton(
                     ^.secondary := true,
