@@ -33,7 +33,8 @@ object ModerationHistoryComponent {
             s"theme: $theme"
           }),
           <.li()(s"tags: ${arguments.getOrElse("tags", "no tags provided")}"),
-          <.li()(s"labels: ${arguments.getOrElse("labels", "no labels provided")}")
+          <.li()(s"labels: ${arguments.getOrElse("labels", "no labels provided")}"),
+          <.li()(s"idea: ${arguments.getOrElse("idea", "no idea provided")}")
         )
       ),
       "update" -> <.div()(
@@ -49,7 +50,8 @@ object ModerationHistoryComponent {
             s"theme: $theme"
           }),
           <.li()(s"tags: ${arguments.getOrElse("tags", "no tags provided")}"),
-          <.li()(s"labels: ${arguments.getOrElse("labels", "no labels provided")}")
+          <.li()(s"labels: ${arguments.getOrElse("labels", "no labels provided")}"),
+          <.li()(s"idea: ${arguments.getOrElse("idea", "no idea provided")}")
         )
       ),
       "lock" -> <.p()("Start Moderation")

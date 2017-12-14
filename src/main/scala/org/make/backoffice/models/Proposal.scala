@@ -44,9 +44,9 @@ trait Vote extends js.Object {
 }
 
 object Vote {
-  def apply(key: String, count: Int = 0, qualifications: js.Array[Qualification]): Vote =
+  def apply(key: String, count: Int = 0, qualifications: Seq[Qualification]): Vote =
     js.Dynamic
-      .literal(key = key, count = count, qualifications = qualifications)
+      .literal(key = key, count = count, qualifications = qualifications.toJSArray)
       .asInstanceOf[Vote]
 }
 
@@ -115,15 +115,15 @@ object Proposal {
             status: ProposalStatus,
             createdAt: ZonedDateTime,
             updatedAt: Option[ZonedDateTime],
-            votes: js.Array[Vote],
+            votes: Seq[Vote],
             context: Context,
             trending: Option[String],
-            labels: js.Array[String],
+            labels: Seq[String],
             author: Author,
             country: String,
             language: String,
             themeId: Option[ThemeId],
-            tags: js.Array[Tag]): Proposal = {
+            tags: Seq[Tag]): Proposal = {
     js.Dynamic
       .literal(
         id = id.value,
@@ -133,7 +133,7 @@ object Proposal {
         status = status.shortName,
         createdAt = createdAt.toJSDate,
         updatedAt = updatedAt.map(_.toJSDate).orUndefined,
-        votes = votes,
+        votes = votes.toJSArray,
         context = context,
         trending = trending.orUndefined,
         labels = labels.toJSArray,
@@ -141,7 +141,7 @@ object Proposal {
         country = country,
         language = language,
         themeId = themeId.map(_.value).orUndefined,
-        tags = tags
+        tags = tags.toJSArray
       )
       .asInstanceOf[Proposal]
   }
@@ -198,9 +198,9 @@ trait ProposalsResult extends js.Object {
 }
 
 object ProposalsResult {
-  def apply(total: Int, results: js.Array[Proposal]): ProposalsResult =
-    js.Dynamic.literal(total = total, results = results).asInstanceOf[ProposalsResult]
+  def apply(total: Int, results: Seq[Proposal]): ProposalsResult =
+    js.Dynamic.literal(total = total, results = results.toJSArray).asInstanceOf[ProposalsResult]
 
   def empty: ProposalsResult =
-    ProposalsResult(total = 0, results = Seq.empty.toJSArray)
+    ProposalsResult(total = 0, results = Seq.empty)
 }

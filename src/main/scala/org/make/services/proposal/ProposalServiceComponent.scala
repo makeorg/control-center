@@ -46,13 +46,15 @@ trait ProposalServiceComponent {
                        theme: Option[ThemeId] = None,
                        labels: Seq[String] = Seq.empty,
                        tags: Seq[TagId] = Seq(TagId("default-tag")),
-                       similarProposals: Seq[ProposalId] = Seq.empty): Future[SingleProposal] = {
+                       similarProposals: Seq[ProposalId] = Seq.empty,
+                       idea: Option[IdeaId] = None): Future[SingleProposal] = {
       val request: UpdateProposalRequest = UpdateProposalRequest(
         newContent = newContent,
         theme = theme,
         labels = labels,
         tags = tags,
-        similarProposals = similarProposals
+        similarProposals = similarProposals,
+        idea = idea
       )
       client
         .put[SingleProposal](
@@ -73,14 +75,16 @@ trait ProposalServiceComponent {
                          theme: Option[ThemeId] = None,
                          labels: Seq[String] = Seq.empty,
                          tags: Seq[TagId] = Seq(TagId("default-tag")),
-                         similarProposals: Seq[ProposalId] = Seq.empty): Future[SingleProposal] = {
+                         similarProposals: Seq[ProposalId] = Seq.empty,
+                         idea: Option[IdeaId] = None): Future[SingleProposal] = {
       val request: ValidateProposalRequest = ValidateProposalRequest(
         newContent = newContent,
         sendNotificationEmail = sendNotificationEmail,
         theme = theme,
         labels = labels,
         tags = tags,
-        similarProposals = similarProposals
+        similarProposals = similarProposals,
+        idea = idea
       )
       client
         .post[SingleProposal](resourceName / proposalId / "accept", data = request.asJson.pretty(ApiService.printer))
