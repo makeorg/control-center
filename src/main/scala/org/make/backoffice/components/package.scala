@@ -15,8 +15,10 @@ package object components {
     def SimilarProposalsComponent: ReactClassElementSpec = self(proposal.SimilarProposalsComponent.reactClass)
     def SimilarClusterComponent: ReactClassElementSpec = self(proposal.SimilarClusterComponent.reactClass)
     def TabSimilarsComponent: ReactClassElementSpec = self(proposal.TabSimilarsComponent.reactClass)
+    def ProposalIdeaComponent: ReactClassElementSpec = self(proposal.ProposalIdeaComponent.reactClass)
     def StatsValidatedProposal: ReactClassElementSpec = self(proposal.StatsValidatedProposal.reactClass)
     def ActionComponent: ReactClassElementSpec = self(ValidatedProposalList.Action.reactClass)
     def ExportComponent: ReactClassElementSpec = self(ValidatedProposalList.ExportComponent.reactClass)
+    def NewIdeaComponent: ReactClassElementSpec = self(proposal.NewIdeaComponent.reactClass)
   }
 }

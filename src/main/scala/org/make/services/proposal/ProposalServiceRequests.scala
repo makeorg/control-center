@@ -1,7 +1,7 @@
 package org.make.services.proposal
 
 import io.circe.{Decoder, Encoder, Json}
-import org.make.backoffice.models.{ProposalId, TagId, ThemeId}
+import org.make.backoffice.models.{IdeaId, ProposalId, TagId, ThemeId}
 import org.make.client.request.{Filter, Pagination, Sort}
 
 import scala.scalajs.js
@@ -160,7 +160,8 @@ final case class UpdateProposalRequest(newContent: Option[String],
                                        theme: Option[ThemeId],
                                        labels: Seq[String],
                                        tags: Seq[TagId],
-                                       similarProposals: Seq[ProposalId])
+                                       similarProposals: Seq[ProposalId],
+                                       idea: Option[IdeaId])
 
 final case class RefuseProposalRequest(sendNotificationEmail: Boolean, refusalReason: Option[String])
 final case class ValidateProposalRequest(newContent: Option[String],
@@ -168,4 +169,5 @@ final case class ValidateProposalRequest(newContent: Option[String],
                                          theme: Option[ThemeId],
                                          labels: Seq[String],
                                          tags: Seq[TagId],
-                                         similarProposals: Seq[ProposalId])
+                                         similarProposals: Seq[ProposalId],
+                                         idea: Option[IdeaId])

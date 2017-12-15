@@ -89,6 +89,7 @@ trait SingleProposal extends js.Object {
   val updatedAt: js.UndefOr[Date]
   val events: js.UndefOr[js.Array[ProposalAction]]
   val similarProposals: js.UndefOr[js.Array[ProposalId]]
+  val idea: js.UndefOr[IdeaId]
 }
 
 object SingleProposal {
@@ -96,34 +97,36 @@ object SingleProposal {
             slug: String,
             content: String,
             author: User,
-            labels: js.Array[String],
+            labels: Seq[String],
             theme: Option[ThemeId],
             status: String,
             refusalReason: Option[String],
-            tags: js.Array[TagId],
-            votes: js.Array[Vote],
+            tags: Seq[TagId],
+            votes: Seq[Vote],
             context: RequestContext,
             createdAt: Option[ZonedDateTime],
             updatedAt: Option[ZonedDateTime],
-            events: Option[js.Array[ProposalAction]],
-            similarProposals: Option[js.Array[ProposalId]]): SingleProposal =
+            events: Option[Seq[ProposalAction]],
+            similarProposals: Option[Seq[ProposalId]],
+            idea: Option[IdeaId]): SingleProposal =
     js.Dynamic
       .literal(
         id = proposalId.value,
         slug = slug,
         content = content,
         author = author,
-        labels = labels,
+        labels = labels.toJSArray,
         theme = theme.orUndefined,
         status = status,
         refusalReason = refusalReason.orUndefined,
-        tags = tags,
-        votes = votes,
+        tags = tags.toJSArray,
+        votes = votes.toJSArray,
         context = context,
         createdAt = createdAt.map(_.toJSDate).orUndefined,
         updatedAt = updatedAt.map(_.toJSDate).orUndefined,
-        events = events.orUndefined,
-        similarProposals = similarProposals.orUndefined
+        events = events.map(_.toJSArray).orUndefined,
+        similarProposals = similarProposals.map(_.toJSArray).orUndefined,
+        idea = idea.orUndefined
       )
       .asInstanceOf[SingleProposal]
 }
