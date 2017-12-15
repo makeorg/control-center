@@ -10,7 +10,6 @@ class UriDsl(val uri: String) extends AnyVal {
   private def hasParams(uri: String) = uri.contains("?")
 
   def paramToString(param: (String, Any)): String = param match {
-    case (key, None)        => urlify(key)
     case (key, Some(value)) => s"${urlify(key)}=${urlify(value.toString)}"
     case (key, value)       => s"${urlify(key)}=${urlify(value.toString)}"
   }
@@ -18,9 +17,19 @@ class UriDsl(val uri: String) extends AnyVal {
   def paramsToString(params: Seq[(String, Any)], separator: String = "&"): String =
     params.map(paramToString).mkString(separator)
 
-  def ?(param: (String, Any)) = s"$uri?${paramToString(param)}"
+  def ?(param: (String, Any)): String = param match {
+    case (_, None) => s"$uri"
+    case _         => s"$uri?${paramToString(param)}"
+  }
 
-  def &(param: (String, Any)) = s"$uri&${paramToString(param)}"
+  def &(param: (String, Any)): String = param match {
+    case (_, None) => s"$uri"
+    case _ =>
+      if (hasParams(uri))
+        s"$uri&${paramToString(param)}"
+      else
+        s"$uri?${paramToString(param)}"
+  }
 
   def `#`(fragment: String) = s"$uri#$fragment"
 

@@ -8,10 +8,13 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.components.RichVirtualDOMElements
+import org.make.backoffice.components.proposal.ProposalIdeaComponent.ProposalIdeaProps
 import org.make.backoffice.components.proposal.SimilarProposalsComponent.SimilarProposalsProps
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models._
+import org.make.services.idea.IdeaServiceComponent
+import org.make.services.idea.IdeaServiceComponent.IdeaService
 import org.make.services.proposal.{Pending, ProposalServiceComponent}
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
 import org.scalajs.dom.raw.HTMLInputElement
@@ -22,6 +25,7 @@ import scala.util.{Failure, Success}
 
 object FormValidateProposalComponent {
   val proposalService: ProposalService = ProposalServiceComponent.proposalService
+  val ideaService: IdeaService = IdeaServiceComponent.ideaService
 
   case class FormProps(proposal: SingleProposal, action: String, isLocked: Boolean = false)
   case class FormState(content: String,
@@ -33,6 +37,7 @@ object FormValidateProposalComponent {
                        tags: Seq[Tag] = Seq.empty,
                        errorMessage: Option[String] = None,
                        similarProposals: Seq[String] = Seq.empty,
+                       idea: Option[IdeaId] = None,
                        isLocked: Boolean = false)
 
   def getTagFromThemeIdAndTagId(themeId: Option[ThemeId], tagId: TagId): Option[Tag] = {
@@ -130,7 +135,8 @@ object FormValidateProposalComponent {
                     labels = self.state.labels,
                     theme = self.state.theme,
                     tags = self.state.tags.map(_.tagId),
-                    similarProposals = self.state.similarProposals.map(ProposalId.apply)
+                    similarProposals = self.state.similarProposals.map(ProposalId.apply),
+                    idea = self.state.idea
                   )
                   .onComplete {
                     case Success(_) =>
@@ -156,7 +162,8 @@ object FormValidateProposalComponent {
                     labels = self.state.labels,
                     theme = self.state.theme,
                     similarProposals = self.state.similarProposals.map(ProposalId.apply),
-                    tags = self.state.tags.map(_.tagId)
+                    tags = self.state.tags.map(_.tagId),
+                    idea = self.state.idea
                   )
                   .onComplete {
                     case Success(_) =>
@@ -179,8 +186,8 @@ object FormValidateProposalComponent {
               ^.floatingLabelText := "Theme",
               ^.floatingLabelFixed := true,
               ^.value := self.state.theme.map(_.value).getOrElse("Select a theme"),
-              ^.onChangeSelect :=
-                handleThemeChange
+              ^.onChangeSelect := handleThemeChange,
+              ^.fullWidth := true
             )(Configuration.businessConfig.map { bc =>
               bc.themes.map { theme =>
                 <.MenuItem(
@@ -221,6 +228,10 @@ object FormValidateProposalComponent {
 
             def setSimilarProposals(similarProposals: Seq[String]): Unit = {
               self.setState(_.copy(similarProposals = similarProposals))
+            }
+
+            def setProposalIdea(idea: Option[IdeaId]): Unit = {
+              self.setState(_.copy(idea = idea))
             }
 
             <.Card(^.style := Map("marginTop" -> "1em"))(
@@ -277,6 +288,12 @@ object FormValidateProposalComponent {
                     )()
                   )
                 },
+                <.Card(^.style := Map("marginTop" -> "1em"))(
+                  <.CardTitle(^.title := "Idea")(),
+                  <.ProposalIdeaComponent(
+                    ^.wrapped := ProposalIdeaProps(self.props.wrapped.proposal, setProposalIdea, self.state.operation)
+                  )()
+                ),
                 <.RaisedButton(
                   ^.style := Map("marginTop" -> "1em"),
                   ^.label := s"Confirm ${if (self.props.wrapped.action == "validate") "validation" else "changes"}",
