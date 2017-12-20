@@ -164,11 +164,7 @@ useYarn := true
 git.formattedShaVersion := git.gitHeadCommit.value map { sha => sha.take(7) }
 
 version in ThisBuild := {
-  if (System.getenv().containsKey("CI_BUILD")) {
-    s"${System.getenv("CI_COMMIT_REF_NAME")}-${LocalDate.now()}-${git.formattedShaVersion.value.get}"
-  } else {
-    s"${git.gitCurrentBranch.value}-${LocalDate.now()}-${git.formattedShaVersion.value.get}"
-  }
+  git.formattedShaVersion.value.get
 }
 
 enablePlugins(GitVersioning)
