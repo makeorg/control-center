@@ -21,11 +21,11 @@ import scala.util.{Failure, Success}
 
 object NewIdeaComponent {
 
-  case class NewIdeaProps(setProposalIdea: Option[IdeaId] => Unit, setIdeas: Idea => Unit)
+  case class NewIdeaProps(setProposalIdea: Option[IdeaId] => Unit, setIdeas: Idea => Unit, operation: Option[String])
   case class NewIdeaState(ideaName: String, open: Boolean = false)
 
   private def createIdea(self: React.Self[NewIdeaProps, NewIdeaState]): (SyntheticEvent) => Unit = { _ =>
-    IdeaServiceComponent.ideaService.createIdea(self.state.ideaName).onComplete {
+    IdeaServiceComponent.ideaService.createIdea(name = self.state.ideaName, operation = self.props.wrapped.operation).onComplete {
       case Success(idea) =>
         self.props.wrapped.setProposalIdea(Some(idea.ideaId))
         self.props.wrapped.setIdeas(idea)
@@ -160,7 +160,11 @@ object ProposalIdeaComponent {
         <.CardActions()(
           searchNew,
           <.br()(),
-          <.NewIdeaComponent(^.wrapped := NewIdeaProps(self.props.wrapped.setProposalIdea, setIdeas))()
+          <.NewIdeaComponent(^.wrapped := NewIdeaProps(
+            self.props.wrapped.setProposalIdea,
+            setIdeas,
+            self.props.wrapped.proposal.context.operation.toOption
+          ))()
         )
       }
     )
