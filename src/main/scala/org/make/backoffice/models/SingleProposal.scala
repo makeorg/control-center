@@ -90,7 +90,7 @@ trait SingleProposal extends js.Object {
   val events: js.UndefOr[js.Array[ProposalAction]]
   val similarProposals: js.UndefOr[js.Array[ProposalId]]
   val idea: js.UndefOr[IdeaId]
-  val ideaProposals: js.UndefOr[js.Array[Proposal]]
+  val ideaProposals: js.Array[Proposal]
 }
 
 object SingleProposal {
@@ -110,7 +110,7 @@ object SingleProposal {
             events: Option[Seq[ProposalAction]],
             similarProposals: Option[Seq[ProposalId]],
             idea: Option[IdeaId],
-            ideaProposals: Option[Seq[Proposal]]): SingleProposal =
+            ideaProposals: Seq[Proposal]): SingleProposal =
     js.Dynamic
       .literal(
         id = proposalId.value,
@@ -129,7 +129,7 @@ object SingleProposal {
         events = events.map(_.toJSArray).orUndefined,
         similarProposals = similarProposals.map(_.toJSArray).orUndefined,
         idea = idea.orUndefined,
-        ideaProposals = ideaProposals.map(_.toJSArray).orUndefined
+        ideaProposals = ideaProposals.toJSArray
       )
       .asInstanceOf[SingleProposal]
 }
