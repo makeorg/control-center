@@ -40,8 +40,12 @@ trait IdeaServiceComponent {
           throw e
       }
 
-    def createIdea(name: String): Future[Idea] = {
-      val request: CreateIdeaRequest = CreateIdeaRequest(name = name)
+    def createIdea(name: String,
+                   language: Option[String] = None,
+                   country: Option[String] = None,
+                   operation: Option[String] = None,
+                   question: Option[String] = None): Future[Idea] = {
+      val request: CreateIdeaRequest = CreateIdeaRequest(name = name, language = language, country = country, operation = operation, question = question)
       client.post[Idea](resourceName, data = request.asJson.pretty(ApiService.printer)).recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of creating idea: failed cursor $e")

@@ -55,7 +55,8 @@ object ShowProposal {
           <.Tab(^.label := "Actions")(
             <.ShowProposalComponents(^.wrapped := ShowComponentsProps(org.scalajs.dom.window.location.hash))()
           ),
-          <.Tab(^.label := "Similars")(<.TabSimilarsComponent()())
+          <.Tab(^.label := "Similars")(<.TabSimilarsComponent()()),
+          <.Tab(^.label := "Cluster of the idea")(<.TabIdeaClusterComponent()())
         )
     )
   )

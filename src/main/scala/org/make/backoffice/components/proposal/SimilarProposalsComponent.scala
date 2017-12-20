@@ -104,7 +104,7 @@ object SimilarProposalsComponent {
           self.props.wrapped.setSelectedSimilarProposals(selectedSimilars)
         }
 
-        val similars =
+        val similars: Seq[Object] =
           self.state.similarProposals.flatMap { similar =>
             Seq(
               <.Checkbox(
