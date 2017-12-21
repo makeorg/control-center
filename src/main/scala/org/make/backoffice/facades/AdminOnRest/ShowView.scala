@@ -1,9 +1,10 @@
 package org.make.backoffice.facades.AdminOnRest
 
-import io.github.shogowada.scalajs.reactjs.classes.ReactClass
+import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMAttributes.Type.AS_IS
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
-import io.github.shogowada.statictags.StringAttributeSpec
+import io.github.shogowada.scalajs.reactjs.classes.ReactClass
+import io.github.shogowada.statictags.{Attribute, StringAttributeSpec}
 import org.make.backoffice.facades.{ElementAttributeSpec, LocationAttributeSpec, MatchAttributeSpec}
 
 import scala.scalajs.js
@@ -62,7 +63,18 @@ object Tab {
 object NativeShowButton extends ReactClass
 
 object ShowButton {
+
+  case class RecordAttributeSpec(name: String) {
+    def :=(element: js.Dynamic): Attribute[js.Dynamic] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
   implicit class ShowButtonVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val ShowButton: ReactClassElementSpec = elements(NativeShowButton)
+  }
+
+  implicit class ShowButtonVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val basePath = StringAttributeSpec("basePath")
+    lazy val record = RecordAttributeSpec("record")
   }
 }
