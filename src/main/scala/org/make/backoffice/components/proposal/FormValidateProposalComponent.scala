@@ -38,6 +38,7 @@ object FormValidateProposalComponent {
                        errorMessage: Option[String] = None,
                        similarProposals: Seq[String] = Seq.empty,
                        idea: Option[IdeaId] = None,
+                       ideaName: String = "",
                        isLocked: Boolean = false)
 
   def getTagFromThemeIdAndTagId(themeId: Option[ThemeId], tagId: TagId): Option[Tag] = {
@@ -78,6 +79,13 @@ object FormValidateProposalComponent {
                   self.props.wrapped.proposal.similarProposals.toOption.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
               )
             )
+            props.wrapped.proposal.idea.toOption.foreach { idea =>
+              ideaService.getIdea(idea.value).onComplete {
+                case Success(response) =>
+                  self.setState(_.copy(idea = Some(response.data.ideaId), ideaName = response.data.name))
+                case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
+              }
+            }
           },
           render = { self =>
             def handleContentEdition: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
@@ -291,7 +299,12 @@ object FormValidateProposalComponent {
                 <.Card(^.style := Map("marginTop" -> "1em"))(
                   <.CardTitle(^.title := "Idea")(),
                   <.ProposalIdeaComponent(
-                    ^.wrapped := ProposalIdeaProps(self.props.wrapped.proposal, setProposalIdea, self.state.operation)
+                    ^.wrapped := ProposalIdeaProps(
+                      self.props.wrapped.proposal,
+                      setProposalIdea,
+                      self.state.operation,
+                      self.state.ideaName
+                    )
                   )()
                 ),
                 <.RaisedButton(

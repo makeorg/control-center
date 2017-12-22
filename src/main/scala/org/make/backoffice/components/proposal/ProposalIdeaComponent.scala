@@ -25,13 +25,15 @@ object NewIdeaComponent {
   case class NewIdeaState(ideaName: String, open: Boolean = false)
 
   private def createIdea(self: React.Self[NewIdeaProps, NewIdeaState]): (SyntheticEvent) => Unit = { _ =>
-    IdeaServiceComponent.ideaService.createIdea(name = self.state.ideaName, operation = self.props.wrapped.operation).onComplete {
-      case Success(idea) =>
-        self.props.wrapped.setProposalIdea(Some(idea.ideaId))
-        self.props.wrapped.setIdeas(idea)
-        self.setState(_.copy(open = false))
-      case Failure(e) => js.Dynamic.global.console.log(s"Fail to create idea: $e")
-    }
+    IdeaServiceComponent.ideaService
+      .createIdea(name = self.state.ideaName, operation = self.props.wrapped.operation)
+      .onComplete {
+        case Success(idea) =>
+          self.props.wrapped.setProposalIdea(Some(idea.ideaId))
+          self.props.wrapped.setIdeas(idea)
+          self.setState(_.copy(open = false))
+        case Failure(e) => js.Dynamic.global.console.log(s"Fail to create idea: $e")
+      }
   }
 
   private def handleOpen(self: React.Self[NewIdeaProps, NewIdeaState]): (SyntheticEvent) => Unit = { event =>
@@ -85,7 +87,8 @@ object NewIdeaComponent {
 object ProposalIdeaComponent {
   case class ProposalIdeaProps(proposal: SingleProposal,
                                setProposalIdea: Option[IdeaId] => Unit,
-                               maybeOperation: Option[String])
+                               maybeOperation: Option[String],
+                               ideaName: String)
   case class ProposalIdeaState(ideas: Seq[Idea],
                                selectedIdea: Option[IdeaId],
                                searchIdeaContent: String,
@@ -121,12 +124,6 @@ object ProposalIdeaComponent {
           self.props.wrapped.setProposalIdea(selectedIdea)
         }
 
-        def handleIdeaChange: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
-          val idea = Some(IdeaId(value))
-          self.setState(_.copy(selectedIdea = idea))
-          self.props.wrapped.setProposalIdea(idea)
-        }
-
         def setIdeas(newIdea: Idea): Unit = {
           self.setState(
             _.copy(
@@ -149,6 +146,7 @@ object ProposalIdeaComponent {
             ^.dataSource := self.state.foundProposalIdeas,
             ^.dataSourceConfig := DataSourceConfig("name", "ideaId"),
             ^.searchText := self.state.searchIdeaContent,
+            ^.hintText := { if (self.props.wrapped.ideaName.nonEmpty) self.props.wrapped.ideaName else "Search idea" },
             ^.onUpdateInput := handleUpdateInput,
             ^.onNewRequest := handleNewRequest,
             ^.fullWidth := true,
@@ -160,11 +158,13 @@ object ProposalIdeaComponent {
         <.CardActions()(
           searchNew,
           <.br()(),
-          <.NewIdeaComponent(^.wrapped := NewIdeaProps(
-            self.props.wrapped.setProposalIdea,
-            setIdeas,
-            self.props.wrapped.proposal.context.operation.toOption
-          ))()
+          <.NewIdeaComponent(
+            ^.wrapped := NewIdeaProps(
+              self.props.wrapped.setProposalIdea,
+              setIdeas,
+              self.props.wrapped.proposal.context.operation.toOption
+            )
+          )()
         )
       }
     )
