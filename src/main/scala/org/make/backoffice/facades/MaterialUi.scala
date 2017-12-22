@@ -262,6 +262,7 @@ object MaterialUi {
     lazy val listStyle = MapStringAttributeSpec("listStyle")
     lazy val maxSearchResults = IntegerAttributeSpec("maxSearchResults")
     lazy val menuCloseDelay = IntegerAttributeSpec("menuCloseDelay")
+    lazy val menuProps = MapStringAttributeSpec("menuProps")
     lazy val menuStyle = MapStringAttributeSpec("menuStyle")
     lazy val message = StringAttributeSpec("message")
     lazy val modal = BooleanAttributeSpec("modal")
