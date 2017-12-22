@@ -152,7 +152,8 @@ object ProposalIdeaComponent {
             ^.fullWidth := true,
             ^.popoverProps := Map("canAutoPosition" -> true),
             ^.openOnFocus := true,
-            ^.filterAutoComplete := filterAutoComplete
+            ^.filterAutoComplete := filterAutoComplete,
+            ^.menuProps := Map("maxHeight" -> "400")
           )()
 
         <.CardActions()(

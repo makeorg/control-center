@@ -49,7 +49,7 @@ object TabIdeaClusterComponent {
       },
       render = self =>
         <.Card()(
-          <.CardTitle(^.title := self.state.ideaName)(),
+          <.CardTitle(^.title := (self.state.ideaName + " (" + self.state.ideaProposals.length.toString + ")"))(),
           <.Table(^.selectable := false)(ideaProposalsElements(self.state.ideaProposals))
       )
     )
