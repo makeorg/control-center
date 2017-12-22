@@ -22,7 +22,7 @@ object TabIdeaClusterComponent {
   def ideaProposalsElements(ideaProposals: Seq[Proposal]): ReactElement = {
     <.TableBody(^.displayRowCheckbox := false)(ideaProposals.map { ideaProposal =>
       <.TableRow(^.key := s"${ideaProposal.id}")(
-        <.TableRowColumn()(
+        <.TableRowColumn(^.style := Map("width" -> "10%"))(
           <.ShowButton(^.basePath := "/validated_proposals", ^.record := js.Dynamic.literal("id" -> ideaProposal.id))()
         ),
         <.TableRowColumn()(ideaProposal.content)
