@@ -9,13 +9,12 @@ import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.components.RichVirtualDOMElements
 import org.make.backoffice.components.proposal.ProposalIdeaComponent.ProposalIdeaProps
-import org.make.backoffice.components.proposal.SimilarProposalsComponent.SimilarProposalsProps
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models._
 import org.make.services.idea.IdeaServiceComponent
 import org.make.services.idea.IdeaServiceComponent.IdeaService
-import org.make.services.proposal.{Pending, ProposalServiceComponent}
+import org.make.services.proposal.ProposalServiceComponent
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -283,19 +282,6 @@ object FormValidateProposalComponent {
                   ^.onCheck := handleLabelSelection,
                   ^.style := Map("maxWidth" -> "25em")
                 )(),
-                if (self.props.wrapped.proposal.status == Pending.shortName) {
-                  <.Card(^.style := Map("marginTop" -> "1em"))(
-                    <.CardTitle(^.title := "Similar proposal")(),
-                    <.SimilarProposalsComponent(
-                      ^.wrapped := SimilarProposalsProps(
-                        self.props.wrapped.proposal,
-                        setSimilarProposals,
-                        self.state.theme,
-                        self.state.operation
-                      )
-                    )()
-                  )
-                },
                 <.Card(^.style := Map("marginTop" -> "1em"))(
                   <.CardTitle(^.title := "Idea")(),
                   <.ProposalIdeaComponent(
