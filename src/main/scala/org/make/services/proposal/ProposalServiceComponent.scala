@@ -116,13 +116,20 @@ trait ProposalServiceComponent {
       }
     }
 
-    def getDuplicates(proposalId: ProposalId,
+    def getDuplicates(proposalId: String,
                       themeId: Option[ThemeId],
-                      operation: Option[String]): Future[ProposalsResult] = {
+                      operation: Option[String]): Future[Seq[SimilarResult]] = {
       var headers: Map[String, String] = Map.empty
       themeId.foreach(themeId => headers += client.themeIdHeader -> themeId.value)
       operation.foreach(op    => headers += client.operationHeader -> op)
-      client.get[ProposalsResult]("proposals" / proposalId.value / "duplicates", headers = headers)
+      client
+        .get[js.Array[SimilarResult]](resourceName / proposalId / "duplicates", headers = headers)
+        .map(similarResult => similarResult.toSeq)
+        .recover {
+          case e =>
+            js.Dynamic.global.console.log(s"instead of converting to SimilarResult: failed cursor $e")
+            throw e
+        }
     }
 
     def lock(proposalId: String): Future[Unit] = {
