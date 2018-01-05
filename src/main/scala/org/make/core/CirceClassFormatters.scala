@@ -84,6 +84,9 @@ trait CirceClassFormatters extends TimeInstances {
   implicit lazy val proposalsResultDecoder: Decoder[ProposalsResult] =
     Decoder.forProduct2("total", "results")(ProposalsResult.apply)
 
+  implicit lazy val similarResultDecoder: Decoder[SimilarResult] =
+    Decoder.forProduct2("ideaId", "ideaName")(SimilarResult.apply)
+
   implicit lazy val voteDecoder: Decoder[Vote] =
     Decoder.forProduct3("key", "count", "qualifications")(Vote.apply)
 

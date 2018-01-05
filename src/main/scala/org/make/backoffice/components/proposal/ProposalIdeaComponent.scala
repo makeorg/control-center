@@ -12,6 +12,7 @@ import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models._
 import org.make.services.idea.IdeaServiceComponent
+import org.make.services.proposal.ProposalServiceComponent
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -92,17 +93,23 @@ object ProposalIdeaComponent {
   case class ProposalIdeaState(ideas: Seq[Idea],
                                selectedIdea: Option[IdeaId],
                                searchIdeaContent: String,
-                               foundProposalIdeas: Seq[Idea])
+                               foundProposalIdeas: Seq[Idea],
+                               similarResult: Seq[SimilarResult])
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState], props: ProposalIdeaProps): Future[Seq[Idea]] = {
     IdeaServiceComponent.ideaService.listIdeas(None, None, props.maybeOperation, None)
+  }
+
+  def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {
+    ProposalServiceComponent.proposalService
+      .getDuplicates(props.proposal.id, props.proposal.theme.toOption, props.maybeOperation)
   }
 
   lazy val reactClass: ReactClass =
     React.createClass[ProposalIdeaProps, ProposalIdeaState](
       displayName = "ProposalIdeaComponent",
       getInitialState = { _ =>
-        ProposalIdeaState(Seq.empty, None, "", Seq.empty)
+        ProposalIdeaState(Seq.empty, None, "", Seq.empty, Seq.empty)
       },
       componentDidMount = { (self) =>
         loadIdeas(self, self.props.wrapped).onComplete {
@@ -110,18 +117,24 @@ object ProposalIdeaComponent {
             self.setState(_.copy(ideas = listIdeas, foundProposalIdeas = listIdeas))
           case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get ideas failed with error $e")
         }
+        loadDuplicates(self.props.wrapped).onComplete {
+          case Success(similarResult) => self.setState(_.copy(similarResult = similarResult))
+          case Failure(e)             => scalajs.js.Dynamic.global.console.log(s"get similar failed with error $e")
+        }
         self.setState(_.copy(selectedIdea = self.props.wrapped.proposal.idea.toOption))
       },
       render = { self =>
-        def handleUpdateInput(searchText: String, dataSource: js.Array[js.Object], params: js.Object): Unit = {
+        def handleUpdateInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
           self.setState(_.copy(searchIdeaContent = searchText))
         }
 
-        def handleNewRequest(chosenRequest: js.Object, index: Int): Unit = {
+        def handleNewRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
           val idea = chosenRequest.asInstanceOf[Idea]
           val selectedIdea = Some(idea.ideaId)
-          self.setState(_.copy(selectedIdea = selectedIdea))
-          self.props.wrapped.setProposalIdea(selectedIdea)
+          if (self.state.selectedIdea.exists(_.value != idea.ideaId.value)) {
+            self.setState(_.copy(selectedIdea = selectedIdea))
+            self.props.wrapped.setProposalIdea(selectedIdea)
+          }
         }
 
         def setIdeas(newIdea: Idea): Unit = {
@@ -146,26 +159,50 @@ object ProposalIdeaComponent {
             ^.dataSource := self.state.foundProposalIdeas,
             ^.dataSourceConfig := DataSourceConfig("name", "ideaId"),
             ^.searchText := self.state.searchIdeaContent,
-            ^.hintText := { if (self.props.wrapped.ideaName.nonEmpty) self.props.wrapped.ideaName else "Search idea" },
+            ^.hintText := "Search idea",
             ^.onUpdateInput := handleUpdateInput,
             ^.onNewRequest := handleNewRequest,
             ^.fullWidth := true,
             ^.popoverProps := Map("canAutoPosition" -> true),
             ^.openOnFocus := true,
             ^.filterAutoComplete := filterAutoComplete,
-            ^.menuProps := Map("maxHeight" -> "400")
+            ^.menuProps := Map("maxHeight" -> 400)
           )()
 
-        <.CardActions()(
-          searchNew,
-          <.br()(),
-          <.NewIdeaComponent(
-            ^.wrapped := NewIdeaProps(
-              self.props.wrapped.setProposalIdea,
-              setIdeas,
-              self.props.wrapped.proposal.context.operation.toOption
-            )
-          )()
+        def onCheckSimilarIdea(ideaId: IdeaId): (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit =
+          (_, isChecked) => {
+            if (isChecked) {
+              self.setState(_.copy(selectedIdea = Some(ideaId)))
+              self.props.wrapped.setProposalIdea(Some(ideaId))
+            } else {
+              self.setState(_.copy(selectedIdea = None))
+              self.props.wrapped.setProposalIdea(None)
+            }
+
+            self.setState(_.copy(searchIdeaContent = ""))
+          }
+
+        <.Card(^.style := Map("marginTop" -> "1em"))(
+          <.CardTitle(^.title := "Idea", ^.subtitle := self.props.wrapped.ideaName)(),
+          <.CardActions()(
+            searchNew,
+            <.br()(),
+            <.NewIdeaComponent(
+              ^.wrapped := NewIdeaProps(
+                self.props.wrapped.setProposalIdea,
+                setIdeas,
+                self.props.wrapped.proposal.context.operation.toOption
+              )
+            )(),
+            <.br()(),
+            self.state.similarResult.map { idea =>
+              <.Checkbox(
+                ^.label := idea.ideaName,
+                ^.checked := self.state.selectedIdea.contains(idea.ideaId),
+                ^.onCheck := onCheckSimilarIdea(idea.ideaId)
+              )()
+            }
+          )
         )
       }
     )

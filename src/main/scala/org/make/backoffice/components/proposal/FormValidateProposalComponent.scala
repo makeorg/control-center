@@ -282,17 +282,14 @@ object FormValidateProposalComponent {
                   ^.onCheck := handleLabelSelection,
                   ^.style := Map("maxWidth" -> "25em")
                 )(),
-                <.Card(^.style := Map("marginTop" -> "1em"))(
-                  <.CardTitle(^.title := "Idea")(),
-                  <.ProposalIdeaComponent(
-                    ^.wrapped := ProposalIdeaProps(
-                      self.props.wrapped.proposal,
-                      setProposalIdea,
-                      self.state.operation,
-                      self.state.ideaName
-                    )
-                  )()
-                ),
+                <.ProposalIdeaComponent(
+                  ^.wrapped := ProposalIdeaProps(
+                    self.props.wrapped.proposal,
+                    setProposalIdea,
+                    self.state.operation,
+                    self.state.ideaName
+                  )
+                )(),
                 <.RaisedButton(
                   ^.style := Map("marginTop" -> "1em"),
                   ^.label := s"Confirm ${if (self.props.wrapped.action == "validate") "validation" else "changes"}",
