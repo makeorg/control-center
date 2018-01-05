@@ -94,7 +94,8 @@ object ProposalIdeaComponent {
                                selectedIdea: Option[IdeaId],
                                searchIdeaContent: String,
                                foundProposalIdeas: Seq[Idea],
-                               similarResult: Seq[SimilarResult])
+                               similarResult: Seq[SimilarResult],
+                               ideaName: Option[String])
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState], props: ProposalIdeaProps): Future[Seq[Idea]] = {
     IdeaServiceComponent.ideaService.listIdeas(None, None, props.maybeOperation, None)
@@ -109,7 +110,7 @@ object ProposalIdeaComponent {
     React.createClass[ProposalIdeaProps, ProposalIdeaState](
       displayName = "ProposalIdeaComponent",
       getInitialState = { _ =>
-        ProposalIdeaState(Seq.empty, None, "", Seq.empty, Seq.empty)
+        ProposalIdeaState(Seq.empty, None, "", Seq.empty, Seq.empty, None)
       },
       componentDidMount = { (self) =>
         loadIdeas(self, self.props.wrapped).onComplete {
@@ -131,10 +132,8 @@ object ProposalIdeaComponent {
         def handleNewRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
           val idea = chosenRequest.asInstanceOf[Idea]
           val selectedIdea = Some(idea.ideaId)
-          if (self.state.selectedIdea.exists(_.value != idea.ideaId.value)) {
-            self.setState(_.copy(selectedIdea = selectedIdea))
-            self.props.wrapped.setProposalIdea(selectedIdea)
-          }
+          self.setState(_.copy(selectedIdea = selectedIdea, ideaName = Some(idea.name)))
+          self.props.wrapped.setProposalIdea(selectedIdea)
         }
 
         def setIdeas(newIdea: Idea): Unit = {
@@ -169,40 +168,29 @@ object ProposalIdeaComponent {
             ^.menuProps := Map("maxHeight" -> 400)
           )()
 
-        def onCheckSimilarIdea(ideaId: IdeaId): (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit =
+        def onCheckSimilarIdea(ideaId: IdeaId,
+                               ideaName: String): (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit =
           (_, isChecked) => {
             if (isChecked) {
-              self.setState(_.copy(selectedIdea = Some(ideaId)))
+              self.setState(_.copy(selectedIdea = Some(ideaId), ideaName = Some(ideaName)))
               self.props.wrapped.setProposalIdea(Some(ideaId))
             } else {
-              self.setState(_.copy(selectedIdea = None))
-              self.props.wrapped.setProposalIdea(None)
+              self.setState(_.copy(selectedIdea = None, ideaName = None))
+              self.props.wrapped.setProposalIdea(self.props.wrapped.proposal.idea.toOption)
             }
 
             self.setState(_.copy(searchIdeaContent = ""))
           }
 
         <.Card(^.style := Map("marginTop" -> "1em"))(
-          <.CardTitle(^.title := "Idea", ^.subtitle := self.props.wrapped.ideaName)(),
-          <.CardActions()(
-            searchNew,
-            <.br()(),
-            <.NewIdeaComponent(
-              ^.wrapped := NewIdeaProps(
-                self.props.wrapped.setProposalIdea,
-                setIdeas,
-                self.props.wrapped.proposal.context.operation.toOption
-              )
-            )(),
-            <.br()(),
-            self.state.similarResult.map { idea =>
-              <.Checkbox(
-                ^.label := idea.ideaName,
-                ^.checked := self.state.selectedIdea.contains(idea.ideaId),
-                ^.onCheck := onCheckSimilarIdea(idea.ideaId)
-              )()
-            }
-          )
+          <.CardTitle(^.title := "Idea", ^.subtitle := self.state.ideaName.getOrElse(self.props.wrapped.ideaName))(),
+          <.CardActions()(<.h4()("Similar ideas:"), self.state.similarResult.map { idea =>
+            <.Checkbox(
+              ^.label := idea.ideaName,
+              ^.checked := self.state.selectedIdea.contains(idea.ideaId),
+              ^.onCheck := onCheckSimilarIdea(idea.ideaId, idea.ideaName)
+            )()
+          }, searchNew, <.br()(), <.NewIdeaComponent(^.wrapped := NewIdeaProps(self.props.wrapped.setProposalIdea, setIdeas, self.props.wrapped.proposal.context.operation.toOption))())
         )
       }
     )
