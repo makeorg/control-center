@@ -227,4 +227,27 @@ trait CirceClassFormatters extends TimeInstances {
       "maxProposalsPerSequence",
       "reasonsForRefusal"
     )(BusinessConfig.apply)
+
+  implicit lazy val operationTranslationDecoder: Decoder[OperationTranslation] =
+    Decoder.forProduct2("title", "language")(OperationTranslation.apply)
+
+  implicit lazy val operationCountryConfigurationDecoder: Decoder[OperationCountryConfiguration] =
+    Decoder.forProduct2("countryCode", "tagIds")(OperationCountryConfiguration.apply)
+
+  implicit lazy val operationActionDecoder: Decoder[OperationAction] =
+    Decoder.forProduct4("date", "user", "actionType", "arguments")(OperationAction.apply)
+
+  implicit lazy val operationDecoder: Decoder[Operation] =
+    Decoder.forProduct10(
+      "operationId",
+      "status",
+      "slug",
+      "translations",
+      "defaultLanguage",
+      "sequenceLandingId",
+      "createdAt",
+      "updatedAt",
+      "events",
+      "countriesConfiguration"
+    )(Operation.apply)
 }
