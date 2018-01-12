@@ -4,9 +4,10 @@ object Resource {
   val proposals = "proposals"
   val validatedProposals = "validated_proposals"
   val users = "users"
+  val operations = "operations"
 
   def amongst: String => Boolean = {
-    case `proposals` | `validatedProposals` | `users` => true
-    case _                                            => false
+    case `proposals` | `validatedProposals` | `users` | `operations` => true
+    case _                                                           => false
   }
 }

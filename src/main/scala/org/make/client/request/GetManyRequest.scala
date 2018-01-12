@@ -7,15 +7,18 @@ import scala.scalajs.js
 
 @js.native
 trait GetManyRequest extends js.Object with Request {
-  val id: Seq[String]
+  val ids: js.Array[String]
 }
 
 object GetManyRequest extends MakeServices {
-  def apply(id: Seq[String]): GetManyRequest =
-    js.Dynamic.literal(id = id).asInstanceOf[GetManyRequest]
+  def apply(ids: Seq[String]): GetManyRequest =
+    js.Dynamic.literal(ids = ids).asInstanceOf[GetManyRequest]
 
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
+      case Resource.operations =>
+        val request = params.asInstanceOf[GetManyRequest]
+        operationService.getOperationByIds(request.ids)
       case Resource.proposals =>
         throw ResourceNotImplementedException(
           s"Resource ${Resource.proposals} not implemented for request GetManyRequest"

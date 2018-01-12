@@ -150,7 +150,13 @@ object ValidatedProposalList {
             Configuration.getThemeFromThemeId(id)
           }
         })(),
-        <.TextField(^.source := "context.operation", ^.label := "operation", ^.sortable := false)(),
+        <.ReferenceField(
+          ^.source := "operationId",
+          ^.label := "operation",
+          ^.reference := Resource.operations,
+          ^.linkType := false,
+          ^.allowEmpty := true
+        )(<.TextField(^.source := "slug")()),
         <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
         <.TextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
         <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),

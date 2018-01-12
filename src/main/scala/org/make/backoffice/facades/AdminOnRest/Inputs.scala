@@ -41,6 +41,5 @@ object Inputs {
   implicit class InputsVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val stripTags = BooleanAttributeSpec("stripTags")
     lazy val choices = ChoicesAttributeSpec("choices")
-    lazy val reference = StringAttributeSpec("reference")
   }
 }
