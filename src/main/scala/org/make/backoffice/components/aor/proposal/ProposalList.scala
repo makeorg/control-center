@@ -13,7 +13,7 @@ import org.make.backoffice.facades.AdminOnRest.List._
 import org.make.backoffice.facades.AdminOnRest.ShowButton._
 import org.make.backoffice.facades.Choice
 import org.make.backoffice.helpers.Configuration
-import org.make.backoffice.models.{Proposal, ThemeId}
+import org.make.backoffice.models.Proposal
 import org.make.client.Resource
 import org.make.services.proposal.{Archived, Pending, Postponed, Refused}
 
@@ -42,7 +42,7 @@ object ProposalList {
           <.FunctionField(^.label := "theme", ^.render := { record =>
             val proposal = record.asInstanceOf[Proposal]
             proposal.themeId.map { id =>
-              Configuration.getThemeFromThemeId(ThemeId(id))
+              Configuration.getThemeFromThemeId(id)
             }
           })(),
           <.TextField(^.source := "context.operation", ^.label := "operation", ^.sortable := false)(),

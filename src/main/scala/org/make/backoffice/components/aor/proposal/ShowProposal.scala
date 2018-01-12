@@ -37,7 +37,7 @@ object ShowProposal {
             <.TextField(^.source := "status")(),
             <.FunctionField(^.label := "theme", ^.render := { record =>
               val proposal = record.asInstanceOf[SingleProposal]
-              proposal.theme.map { id =>
+              proposal.themeId.map { id =>
                 Configuration.getThemeFromThemeId(id)
               }
             })(),

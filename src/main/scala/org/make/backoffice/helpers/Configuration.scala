@@ -2,7 +2,7 @@ package org.make.backoffice.helpers
 
 import io.circe.parser.parse
 import org.make.backoffice.facades.Choice
-import org.make.backoffice.models.{BusinessConfig, Tag, ThemeId}
+import org.make.backoffice.models.{BusinessConfig, Tag}
 import org.make.core.CirceClassFormatters
 import org.scalajs.dom
 
@@ -30,25 +30,19 @@ object Configuration extends CirceClassFormatters {
     }.getOrElse(Seq.empty)
   }
 
-  def getThemeFromThemeId(themeId: ThemeId): String = {
+  def getThemeFromThemeId(themeId: String): String = {
     businessConfig.flatMap { bc =>
-      bc.themes.toArray.find(_.themeId.value == themeId.value).flatMap { theme =>
+      bc.themes.toArray.find(_.themeId.value == themeId).flatMap { theme =>
         theme.translations.toArray.find(_.language == defaultLanguage).map(_.title)
       }
     }.getOrElse("")
   }
 
-  def getTagsFromThemeId(themeId: ThemeId): Seq[Tag] = {
+  def getTagsFromThemeId(themeId: String): Seq[Tag] = {
     businessConfig.flatMap { bc =>
-      bc.themes.toArray.find(_.themeId.value == themeId.value).map { theme =>
+      bc.themes.toArray.find(_.themeId.value == themeId).map { theme =>
         theme.tags.toSeq
       }
-    }.getOrElse(Seq.empty)
-  }
-
-  def getTagsFromVFF: Seq[Tag] = {
-    businessConfig.map { bc =>
-      bc.tagsVFF.toSeq
     }.getOrElse(Seq.empty)
   }
 
