@@ -41,7 +41,13 @@ object ShowProposal {
                 Configuration.getThemeFromThemeId(id)
               }
             })(),
-            <.TextField(^.source := "context.operation", ^.label := "operation")(),
+            <.ReferenceField(
+              ^.source := "operationId",
+              ^.label := "operation",
+              ^.reference := Resource.operations,
+              ^.linkType := false,
+              ^.allowEmpty := true
+            )(<.TextField(^.source := "slug")()),
             <.TextField(^.source := "context.source", ^.label := "source")(),
             <.TextField(^.source := "context.question", ^.label := "question")(),
             <.DateField(

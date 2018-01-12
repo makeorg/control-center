@@ -1,6 +1,7 @@
 package org.make.services.operation
 
 import org.make.backoffice.models._
+import org.make.client.ListDataResponse
 import org.make.core.CirceClassFormatters
 import org.make.core.URI._
 import org.make.services.ApiService
@@ -35,6 +36,11 @@ object OperationServiceComponent {
               throw e
           }
       }
+
+    def getOperationByIds(ids: Seq[String]): Future[ListDataResponse[Operation]] =
+      Future
+        .traverse(ids)(id => getOperationById(id))
+        .map(ListDataResponse.apply)
 
     def operations(slug: Option[String] = None, forceReload: Boolean = false): Future[Seq[Operation]] = {
       if (!forceReload && (slug.isEmpty || operationsCache.exists(_.slug == slug.getOrElse("")))) {

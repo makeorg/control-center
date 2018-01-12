@@ -32,7 +32,8 @@ object Main {
           ^.name := Resource.validatedProposals,
           ^.listing := ValidatedProposalList(),
           ^.show := ShowProposal()
-        )()
+        )(),
+        <.Resource(^.name := Resource.operations)()
       ),
       dom.document.getElementById("make-backoffice")
     )

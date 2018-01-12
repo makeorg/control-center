@@ -91,6 +91,7 @@ object Fields {
     lazy val render = RenderRecordAttributeSpec("render")
     lazy val locales = StringAttributeSpec("locales")
     lazy val options = MapStringAttributeSpec("options")
+    lazy val allowEmpty = BooleanAttributeSpec("allowEmpty")
     lazy val reference = StringAttributeSpec("reference")
     lazy val linkType = DynamicAttributeSpec("linkType")
     lazy val target = StringAttributeSpec("target")
@@ -102,5 +103,5 @@ object Fields {
     lazy val style = CssAttributeSpec("style")
     lazy val elStyle = CssAttributeSpec("elStyle")
     lazy val alwaysOn = BooleanAttributeSpec("alwaysOn")
- }
+  }
 }
