@@ -1,6 +1,7 @@
 package org.make.backoffice.components.proposal
 
 import io.github.shogowada.scalajs.reactjs.React
+import io.github.shogowada.scalajs.reactjs.React.Self
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
@@ -14,8 +15,12 @@ import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models._
 import org.make.services.idea.IdeaServiceComponent
 import org.make.services.idea.IdeaServiceComponent.IdeaService
+import org.make.services.operation.OperationServiceComponent
+import org.make.services.operation.OperationServiceComponent.OperationService
 import org.make.services.proposal.ProposalServiceComponent
 import org.make.services.proposal.ProposalServiceComponent.ProposalService
+import org.make.services.tag.TagServiceComponent
+import org.make.services.tag.TagServiceComponent.TagService
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -25,6 +30,8 @@ import scala.util.{Failure, Success}
 object FormValidateProposalComponent {
   val proposalService: ProposalService = ProposalServiceComponent.proposalService
   val ideaService: IdeaService = IdeaServiceComponent.ideaService
+  val operationService: OperationService = OperationServiceComponent.operationService
+  val tagService: TagService = TagServiceComponent.tagService
 
   case class FormProps(proposal: SingleProposal, action: String, isLocked: Boolean = false)
   case class FormState(content: String,
@@ -32,18 +39,50 @@ object FormValidateProposalComponent {
                        labels: Seq[String] = Seq.empty,
                        notifyUser: Boolean = true,
                        theme: Option[ThemeId] = None,
-                       operation: Option[String] = None,
+                       operation: Option[Operation] = None,
                        tags: Seq[Tag] = Seq.empty,
+                       tagsList: Seq[Tag] = Seq.empty,
                        errorMessage: Option[String] = None,
                        similarProposals: Seq[String] = Seq.empty,
                        idea: Option[IdeaId] = None,
                        ideaName: String = "",
                        isLocked: Boolean = false)
 
-  def getTagFromThemeIdAndTagId(themeId: Option[ThemeId], tagId: TagId): Option[Tag] = {
-    themeId.map { themeId =>
-      Configuration.getTagsFromThemeId(themeId).find(_.tagId.value == tagId.value)
-    }.getOrElse(Configuration.getTagsFromVFF.find(_.tagId.value == tagId.value))
+  def setTagsFromTagIds(self: Self[FormProps, FormState], props: FormProps): Unit = {
+    if (!js.isUndefined(props.proposal.tagIds)) {
+      props.proposal.tagIds.foreach { tagId =>
+        tagService.tags.onComplete {
+          case Success(tags) =>
+            self.setState(_.copy(tags = tags.find(_.tagId.value == tagId) match {
+              case Some(tag) => self.state.tags :+ tag
+              case None      => self.state.tags
+            }))
+          case Failure(e) => js.Dynamic.global.console.log(s"Fail with error: $e")
+        }
+      }
+    }
+  }
+
+  def setTagsListAndOperation(self: Self[FormProps, FormState], props: FormProps): Unit = {
+    props.proposal.themeId.toOption match {
+      case Some(themeId) =>
+        self.setState(_.copy(tagsList = Configuration.getTagsFromThemeId(themeId)))
+      case None =>
+        props.proposal.operationId.toOption.foreach { operationId =>
+          val futureOperationTags = for {
+            operation <- operationService.getOperationById(operationId)
+            tags      <- tagService.tags
+          } yield (operation, tags)
+          futureOperationTags.onComplete {
+            case Success((operation, tags)) =>
+              val tagsList =
+                operation.countriesConfiguration.headOption
+                  .map(_.tagIds.flatMap(tagId => tags.find(_.tagId.value == tagId.value)))
+              self.setState(_.copy(operation = Some(operation), tagsList = tagsList.map(_.toSeq).getOrElse(Seq.empty)))
+            case Failure(e) => js.Dynamic.global.console.log(s"File with error: $e")
+          }
+        }
+    }
   }
 
   lazy val reactClass: ReactClass =
@@ -57,8 +96,7 @@ object FormValidateProposalComponent {
               maxLength =
                 Configuration.businessConfig.map(_.proposalMaxLength).getOrElse(Configuration.defaultProposalMaxLength),
               labels = self.props.wrapped.proposal.labels,
-              theme = self.props.wrapped.proposal.theme.toOption,
-              operation = self.props.wrapped.proposal.context.operation.toOption,
+              theme = self.props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
               isLocked = self.props.wrapped.isLocked,
               similarProposals =
                 self.props.wrapped.proposal.similarProposals.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
@@ -68,16 +106,14 @@ object FormValidateProposalComponent {
             self.setState(
               _.copy(
                 labels = props.wrapped.proposal.labels,
-                theme = props.wrapped.proposal.theme.toOption,
-                operation = props.wrapped.proposal.context.operation.toOption,
-                tags = props.wrapped.proposal.tags.toSeq.map { tagId =>
-                  getTagFromThemeIdAndTagId(props.wrapped.proposal.theme.toOption, tagId).getOrElse(Tag(TagId(""), ""))
-                },
+                theme = props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
                 isLocked = props.wrapped.isLocked,
                 similarProposals =
                   self.props.wrapped.proposal.similarProposals.toOption.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
               )
             )
+            setTagsFromTagIds(self, props.wrapped)
+            setTagsListAndOperation(self, props.wrapped)
             props.wrapped.proposal.idea.toOption.foreach { idea =>
               ideaService.getIdea(idea.value).onComplete {
                 case Success(response) =>
@@ -97,18 +133,11 @@ object FormValidateProposalComponent {
               self.setState(_.copy(theme = theme, tags = Seq.empty))
             }
 
-            def handleTagChange: (js.Object, js.UndefOr[Int], js.Array[String]) => Unit = {
-              (_, _, values) =>
-                val tags: Seq[Tag] = values.toSeq.map { value =>
-                  val tagId = self.state.theme.flatMap { themeId =>
-                    val taglist = Configuration.getTagsFromThemeId(themeId)
-                    taglist.find(tag => tag.label == value).map(_.tagId.value)
-                  }.getOrElse(
-                    Configuration.getTagsFromVFF.find(tag => tag.label == value).map(_.tagId.value).getOrElse("")
-                  )
-                  Tag(tagId = TagId(tagId), label = value)
-                }
-                self.setState(_.copy(tags = tags))
+            def handleTagChange: (js.Object, js.UndefOr[Int], js.Array[String]) => Unit = { (_, _, values) =>
+              val tags: Seq[Tag] = values.toSeq.map { value =>
+                self.state.tagsList.find(tag => tag.label == value).getOrElse(Tag(TagId(""), ""))
+              }
+              self.setState(_.copy(tags = tags))
             }
 
             def handleNotifyUserChange: (js.Object, Boolean) => Unit = { (_, checked) =>
@@ -208,10 +237,6 @@ object FormValidateProposalComponent {
               }
             })
 
-            val tags = self.state.theme.map { themeId =>
-              Configuration.getTagsFromThemeId(themeId)
-            }.getOrElse(Configuration.getTagsFromVFF)
-
             val selectTags = <.SelectField(
               ^.disabled := self.state.theme.isEmpty && self.state.operation.isEmpty,
               ^.multiple := true,
@@ -220,7 +245,7 @@ object FormValidateProposalComponent {
               ^.valueSelect := self.state.tags.map(_.label),
               ^.onChangeMultipleSelect := handleTagChange,
               ^.fullWidth := true
-            )(tags.map { tag =>
+            )(self.state.tagsList.map { tag =>
               <.MenuItem(
                 ^.key := tag.tagId.value,
                 ^.insetChildren := true,
@@ -232,10 +257,6 @@ object FormValidateProposalComponent {
 
             val errorMessage: Option[Element] =
               self.state.errorMessage.map(msg => <.p()(msg))
-
-            def setSimilarProposals(similarProposals: Seq[String]): Unit = {
-              self.setState(_.copy(similarProposals = similarProposals))
-            }
 
             def setProposalIdea(idea: Option[IdeaId]): Unit = {
               self.setState(_.copy(idea = idea))
@@ -286,7 +307,7 @@ object FormValidateProposalComponent {
                   ^.wrapped := ProposalIdeaProps(
                     self.props.wrapped.proposal,
                     setProposalIdea,
-                    self.state.operation,
+                    self.state.operation.map(operation => OperationId(operation.operationId)),
                     self.state.ideaName
                   )
                 )(),

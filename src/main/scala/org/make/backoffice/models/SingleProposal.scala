@@ -79,10 +79,10 @@ trait SingleProposal extends js.Object {
   val content: String
   val author: User
   val labels: js.Array[String]
-  val theme: js.UndefOr[ThemeId]
+  val themeId: js.UndefOr[String]
   val status: String
   val refusalReason: js.UndefOr[String]
-  val tags: js.Array[TagId]
+  val tagIds: js.Array[String]
   val votes: js.Array[Vote]
   val context: RequestContext
   val createdAt: js.UndefOr[Date]
@@ -91,6 +91,7 @@ trait SingleProposal extends js.Object {
   val similarProposals: js.UndefOr[js.Array[ProposalId]]
   val idea: js.UndefOr[IdeaId]
   val ideaProposals: js.Array[Proposal]
+  val operationId: js.UndefOr[String]
 }
 
 object SingleProposal {
@@ -102,7 +103,7 @@ object SingleProposal {
             theme: Option[ThemeId],
             status: String,
             refusalReason: Option[String],
-            tags: Seq[TagId],
+            tags: Seq[String],
             votes: Seq[Vote],
             context: RequestContext,
             createdAt: Option[ZonedDateTime],
@@ -110,7 +111,8 @@ object SingleProposal {
             events: Option[Seq[ProposalAction]],
             similarProposals: Option[Seq[ProposalId]],
             idea: Option[IdeaId],
-            ideaProposals: Seq[Proposal]): SingleProposal =
+            ideaProposals: Seq[Proposal],
+            operationId: Option[OperationId]): SingleProposal =
     js.Dynamic
       .literal(
         id = proposalId.value,
@@ -118,10 +120,10 @@ object SingleProposal {
         content = content,
         author = author,
         labels = labels.toJSArray,
-        theme = theme.orUndefined,
+        themeId = theme.map(_.value).orUndefined,
         status = status,
         refusalReason = refusalReason.orUndefined,
-        tags = tags.toJSArray,
+        tagIds = tags.toJSArray,
         votes = votes.toJSArray,
         context = context,
         createdAt = createdAt.map(_.toJSDate).orUndefined,
@@ -129,7 +131,8 @@ object SingleProposal {
         events = events.map(_.toJSArray).orUndefined,
         similarProposals = similarProposals.map(_.toJSArray).orUndefined,
         idea = idea.orUndefined,
-        ideaProposals = ideaProposals.toJSArray
+        ideaProposals = ideaProposals.toJSArray,
+        operationId = operationId.map(_.value).orUndefined
       )
       .asInstanceOf[SingleProposal]
 }

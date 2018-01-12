@@ -147,7 +147,7 @@ object ValidatedProposalList {
         <.FunctionField(^.label := "theme", ^.render := { record =>
           val proposal = record.asInstanceOf[Proposal]
           proposal.themeId.map { id =>
-            Configuration.getThemeFromThemeId(ThemeId(id))
+            Configuration.getThemeFromThemeId(id)
           }
         })(),
         <.TextField(^.source := "context.operation", ^.label := "operation", ^.sortable := false)(),
