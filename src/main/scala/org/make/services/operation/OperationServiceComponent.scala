@@ -19,13 +19,13 @@ object OperationServiceComponent {
     override val resourceName: String = "moderation/operations"
 
     def getOperationById(id: String, forceReload: Boolean = false): Future[Operation] =
-      if (!forceReload && operationsCache.exists(_.operationId == id)) {
-        Future.successful(operationsCache.find(_.operationId == id).get)
+      if (!forceReload && operationsCache.exists(_.id == id)) {
+        Future.successful(operationsCache.find(_.id == id).get)
       } else {
         client
           .get[Operation](resourceName / id)
           .map { operation =>
-            if (!operationsCache.exists(_.operationId == operation.operationId)) {
+            if (!operationsCache.exists(_.id == operation.id)) {
               operationsCache +:= operation
             }
             operation
@@ -37,29 +37,30 @@ object OperationServiceComponent {
           }
       }
 
-    def getOperationByIds(ids: Seq[String]): Future[ListDataResponse[Operation]] =
+    def getOperationByIds(ids: js.Array[String]): Future[ListDataResponse[Operation]] =
       Future
-        .traverse(ids)(id => getOperationById(id))
+        .traverse(ids.toSeq)(id => getOperationById(id))
         .map(ListDataResponse.apply)
 
     def operations(slug: Option[String] = None, forceReload: Boolean = false): Future[Seq[Operation]] = {
       if (!forceReload && (slug.isEmpty || operationsCache.exists(_.slug == slug.getOrElse("")))) {
         slug match {
-          case Some(s) => Future.successful(operationsCache.find(_.operationId == s).get)
+          case Some(s) => Future.successful(Seq(operationsCache.find(_.id == s).get))
           case None    => Future.successful(operationsCache)
         }
+      } else {
+        client
+          .get[Seq[Operation]](resourceName ? ("slug", slug))
+          .map { operations =>
+            operationsCache = operations
+            operationsCache
+          }
+          .recover {
+            case e =>
+              js.Dynamic.global.console.log(s"instead of converting to ListTotalResponse: failed cursor $e")
+              throw e
+          }
       }
-      client
-        .get[Seq[Operation]](resourceName ? ("slug", slug))
-        .map { operations =>
-          operationsCache = operations
-          operationsCache
-        }
-        .recover {
-          case e =>
-            js.Dynamic.global.console.log(s"instead of converting to ListTotalResponse: failed cursor $e")
-            throw e
-        }
     }
   }
 

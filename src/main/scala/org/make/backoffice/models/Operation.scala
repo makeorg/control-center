@@ -46,7 +46,7 @@ object OperationCountryConfiguration {
 
 @js.native
 trait Operation extends js.Object {
-  val operationId: String
+  val id: String
   val status: String
   val slug: String
   val translations: js.Array[OperationTranslation]
@@ -71,7 +71,7 @@ object Operation {
             countriesConfiguration: Seq[OperationCountryConfiguration]): Operation =
     js.Dynamic
       .literal(
-        operationId = operationId.value,
+        id = operationId.value,
         status = status,
         slug = slug,
         translations = translations.toJSArray,

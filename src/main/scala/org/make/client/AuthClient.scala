@@ -44,7 +44,7 @@ object AuthClient extends CirceClassFormatters with ConfigurationsServiceCompone
               case Failure(e) =>
                 g.alert("Failed to load configuration. Please refresh the page to avoid unexpected behaviours.")
             }
-            OperationServiceComponent.operationService.operations()
+            OperationServiceComponent.operationService.operations(forceReload = true)
             Future.successful("auth_login")
           case None =>
             dom.window.localStorage.setItem(AUTHENTICATION_KEY, "false")

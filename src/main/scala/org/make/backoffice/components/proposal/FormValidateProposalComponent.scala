@@ -307,7 +307,7 @@ object FormValidateProposalComponent {
                   ^.wrapped := ProposalIdeaProps(
                     self.props.wrapped.proposal,
                     setProposalIdea,
-                    self.state.operation.map(operation => OperationId(operation.operationId)),
+                    self.state.operation.map(operation => OperationId(operation.id)),
                     self.state.ideaName
                   )
                 )(),

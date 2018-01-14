@@ -50,7 +50,8 @@ object ProposalList {
             ^.label := "operation",
             ^.reference := Resource.operations,
             ^.linkType := false,
-            ^.allowEmpty := true
+            ^.allowEmpty := true,
+            ^.sortable := false
           )(<.TextField(^.source := "slug")()),
           <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
           <.TextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
