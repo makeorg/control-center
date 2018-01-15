@@ -26,6 +26,7 @@ object ProposalList {
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass: ReactClass = React.createClass[ListProps, Unit](
+    displayName = "ProposalList",
     render = (self) =>
       <.List(
         ^.title := "Proposals",
@@ -71,7 +72,7 @@ object ProposalList {
   }
 
   def filterList(): ReactElement = {
-    val choices = Seq(
+    val statusChoices = Seq(
       Choice(Pending.shortName, "Pending"),
       Choice(Postponed.shortName, "Postponed"),
       Choice(Refused.shortName, "Refused"),
@@ -81,7 +82,7 @@ object ProposalList {
       Seq(
         //TODO: add the possibility to search by userId or proposalId
         <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
-        <.SelectArrayInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := choices)(),
+        <.SelectArrayInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := statusChoices)(),
         <.SelectInput(
           ^.label := "Theme",
           ^.source := "theme",
@@ -89,7 +90,9 @@ object ProposalList {
           ^.choices := Configuration.choicesThemeFilter
         )(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
-        <.TextInput(^.label := "Operation", ^.source := "operation", ^.alwaysOn := false)()
+        <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(
+          <.SelectInput(^.optionText := "slug", ^.alwaysOn := false)()
+        )
         //TODO: add filter on: "reason for refusal" and "moderator"
       )
     )

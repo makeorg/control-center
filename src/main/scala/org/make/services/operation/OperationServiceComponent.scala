@@ -1,7 +1,7 @@
 package org.make.services.operation
 
 import org.make.backoffice.models._
-import org.make.client.ListDataResponse
+import org.make.client.{ListDataResponse, ListTotalResponse}
 import org.make.core.CirceClassFormatters
 import org.make.core.URI._
 import org.make.services.ApiService
@@ -9,6 +9,7 @@ import org.make.services.ApiService
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
+import js.JSConverters._
 
 object OperationServiceComponent {
   def operationService: OperationService = new OperationService
@@ -42,18 +43,19 @@ object OperationServiceComponent {
         .traverse(ids.toSeq)(id => getOperationById(id))
         .map(ListDataResponse.apply)
 
-    def operations(slug: Option[String] = None, forceReload: Boolean = false): Future[Seq[Operation]] = {
+    def operations(slug: Option[String] = None, forceReload: Boolean = false): Future[ListTotalResponse[Operation]] = {
       if (!forceReload && (slug.isEmpty || operationsCache.exists(_.slug == slug.getOrElse("")))) {
         slug match {
-          case Some(s) => Future.successful(Seq(operationsCache.find(_.id == s).get))
-          case None    => Future.successful(operationsCache)
+          case Some(s) =>
+            Future.successful(ListTotalResponse(total = 1, data = js.Array(operationsCache.find(_.slug == s).get)))
+          case None => Future.successful(ListTotalResponse(operationsCache.length, operationsCache.toJSArray))
         }
       } else {
         client
-          .get[Seq[Operation]](resourceName ? ("slug", slug))
+          .get[OperationsResult](resourceName ? ("slug", slug))
           .map { operations =>
-            operationsCache = operations
-            operationsCache
+            operationsCache = operations.results.toSeq
+            ListTotalResponse(operations.total, operations.results)
           }
           .recover {
             case e =>
