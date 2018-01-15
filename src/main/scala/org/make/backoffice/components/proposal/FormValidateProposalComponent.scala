@@ -304,12 +304,7 @@ object FormValidateProposalComponent {
                   ^.style := Map("maxWidth" -> "25em")
                 )(),
                 <.ProposalIdeaComponent(
-                  ^.wrapped := ProposalIdeaProps(
-                    self.props.wrapped.proposal,
-                    setProposalIdea,
-                    self.state.operation.map(operation => OperationId(operation.id)),
-                    self.state.ideaName
-                  )
+                  ^.wrapped := ProposalIdeaProps(self.props.wrapped.proposal, setProposalIdea, self.state.ideaName)
                 )(),
                 <.RaisedButton(
                   ^.style := Map("marginTop" -> "1em"),

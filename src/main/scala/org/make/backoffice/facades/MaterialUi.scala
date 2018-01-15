@@ -110,6 +110,10 @@ object NativeCheckbox extends ReactClass
 object NativeDialog extends ReactClass
 
 @js.native
+@JSImport("material-ui", "CircularProgress")
+object NativeCircularProgress extends ReactClass
+
+@js.native
 trait Event extends js.Object {
   val target: Element = js.native
 }
@@ -210,6 +214,7 @@ object MaterialUi {
     lazy val CardText: ReactClassElementSpec = elements(NativeCardText)
     lazy val CardTitle: ReactClassElementSpec = elements(NativeCardTitle)
     lazy val Checkbox: ReactClassElementSpec = elements(NativeCheckbox)
+    lazy val CircularProgress: ReactClassElementSpec = elements(NativeCircularProgress)
     lazy val Dialog: ReactClassElementSpec = elements(NativeDialog)
     lazy val FlatButton: ReactClassElementSpec = elements(NativeFlatButton)
     lazy val MenuItem: ReactClassElementSpec = elements(NativeMenuItem)
