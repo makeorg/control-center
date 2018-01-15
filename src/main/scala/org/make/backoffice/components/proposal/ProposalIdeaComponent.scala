@@ -86,19 +86,17 @@ object NewIdeaComponent {
 }
 
 object ProposalIdeaComponent {
-  case class ProposalIdeaProps(proposal: SingleProposal,
-                               setProposalIdea: Option[IdeaId] => Unit,
-                               maybeOperation: Option[OperationId],
-                               ideaName: String)
+  case class ProposalIdeaProps(proposal: SingleProposal, setProposalIdea: Option[IdeaId] => Unit, ideaName: String)
   case class ProposalIdeaState(ideas: Seq[Idea],
                                selectedIdea: Option[IdeaId],
                                searchIdeaContent: String,
                                foundProposalIdeas: Seq[Idea],
                                similarResult: Seq[SimilarResult],
-                               ideaName: Option[String])
+                               ideaName: Option[String],
+                               isLoading: Boolean = true)
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState], props: ProposalIdeaProps): Future[Seq[Idea]] = {
-    IdeaServiceComponent.ideaService.listIdeas(None, None, props.maybeOperation.map(_.value), None)
+    IdeaServiceComponent.ideaService.listIdeas(None, None, props.proposal.operationId.toOption, None)
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {
@@ -106,7 +104,7 @@ object ProposalIdeaComponent {
       .getDuplicates(
         props.proposal.id,
         props.proposal.themeId.toOption.map(ThemeId(_)),
-        props.maybeOperation.map(_.value)
+        props.proposal.operationId.toOption
       )
   }
 
@@ -123,8 +121,10 @@ object ProposalIdeaComponent {
           case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get ideas failed with error $e")
         }
         loadDuplicates(self.props.wrapped).onComplete {
-          case Success(similarResult) => self.setState(_.copy(similarResult = similarResult))
-          case Failure(e)             => scalajs.js.Dynamic.global.console.log(s"get similar failed with error $e")
+          case Success(similarResult) => self.setState(_.copy(similarResult = similarResult, isLoading = false))
+          case Failure(e) =>
+            self.setState(_.copy(isLoading = false))
+            scalajs.js.Dynamic.global.console.log(s"get similar failed with error $e")
         }
         self.setState(_.copy(selectedIdea = self.props.wrapped.proposal.idea.toOption))
       },
@@ -188,12 +188,16 @@ object ProposalIdeaComponent {
 
         <.Card(^.style := Map("marginTop" -> "1em"))(
           <.CardTitle(^.title := "Idea", ^.subtitle := self.state.ideaName.getOrElse(self.props.wrapped.ideaName))(),
-          <.CardActions()(<.h4()("Similar ideas:"), self.state.similarResult.map { idea =>
-            <.Checkbox(
-              ^.label := idea.ideaName,
-              ^.checked := self.state.selectedIdea.contains(idea.ideaId),
-              ^.onCheck := onCheckSimilarIdea(idea.ideaId, idea.ideaName)
-            )()
+          <.CardActions()(<.h4()("Similar ideas:"), if (self.state.isLoading) {
+            <.CircularProgress()()
+          } else {
+            self.state.similarResult.map { idea =>
+              <.Checkbox(
+                ^.label := idea.ideaName,
+                ^.checked := self.state.selectedIdea.contains(idea.ideaId),
+                ^.onCheck := onCheckSimilarIdea(idea.ideaId, idea.ideaName)
+              )()
+            }
           }, searchNew, <.br()(), <.NewIdeaComponent(^.wrapped := NewIdeaProps(self.props.wrapped.setProposalIdea, setIdeas, self.props.wrapped.proposal.context.operation.toOption))())
         )
       }
