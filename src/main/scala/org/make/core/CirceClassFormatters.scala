@@ -59,7 +59,7 @@ trait CirceClassFormatters extends TimeInstances {
     )
 
   implicit lazy val proposalDecoder: Decoder[Proposal] =
-    Decoder.forProduct16(
+    Decoder.forProduct17(
       "id",
       "userId",
       "content",
@@ -75,7 +75,8 @@ trait CirceClassFormatters extends TimeInstances {
       "country",
       "language",
       "themeId",
-      "tags"
+      "tags",
+      "operationId"
     )(Proposal.apply)
 
   implicit lazy val ideaDecoder: Decoder[Idea] =
@@ -101,8 +102,8 @@ trait CirceClassFormatters extends TimeInstances {
   implicit lazy val tagEncoder: Encoder[Tag] = Encoder.forProduct2("tagId", "label")(tag => (tag.tagId, tag.label))
   implicit lazy val tagDecoder: Decoder[Tag] = Decoder.forProduct2("tagId", "label")(Tag.apply)
 
-  implicit lazy val singleProposal: Decoder[SingleProposal] =
-    Decoder.forProduct17(
+  implicit lazy val singleProposalDecoder: Decoder[SingleProposal] =
+    Decoder.forProduct18(
       "proposalId",
       "slug",
       "content",
@@ -119,7 +120,8 @@ trait CirceClassFormatters extends TimeInstances {
       "events",
       "similarProposals",
       "idea",
-      "ideaProposals"
+      "ideaProposals",
+      "operationId"
     )(SingleProposal.apply)
 
   implicit lazy val proposalActionDecoder: Decoder[ProposalAction] =
@@ -172,11 +174,10 @@ trait CirceClassFormatters extends TimeInstances {
     )
 
   implicit lazy val businessConfigEncoder: Encoder[BusinessConfig] =
-    Encoder.forProduct9(
+    Encoder.forProduct8(
       "proposalMinLength",
       "proposalMaxLength",
       "themes",
-      "tagsVFF",
       "nVotesTriggerConnexion",
       "nPendingProposalsTriggerEmailModerator",
       "minProposalsPerSequence",
@@ -188,7 +189,6 @@ trait CirceClassFormatters extends TimeInstances {
           businessConfig.proposalMinLength,
           businessConfig.proposalMaxLength,
           businessConfig.themes,
-          businessConfig.tagsVFF,
           businessConfig.nVotesTriggerConnexion,
           businessConfig.nPendingProposalsTriggerEmailModerator,
           businessConfig.minProposalsPerSequence,
@@ -216,15 +216,37 @@ trait CirceClassFormatters extends TimeInstances {
     )(Theme.apply)
 
   implicit lazy val businessConfigDecoder: Decoder[BusinessConfig] =
-    Decoder.forProduct9(
+    Decoder.forProduct8(
       "proposalMinLength",
       "proposalMaxLength",
       "themes",
-      "tagsVFF",
       "nVotesTriggerConnexion",
       "nPendingProposalsTriggerEmailModerator",
       "minProposalsPerSequence",
       "maxProposalsPerSequence",
       "reasonsForRefusal"
     )(BusinessConfig.apply)
+
+  implicit lazy val operationTranslationDecoder: Decoder[OperationTranslation] =
+    Decoder.forProduct2("title", "language")(OperationTranslation.apply)
+
+  implicit lazy val operationCountryConfigurationDecoder: Decoder[OperationCountryConfiguration] =
+    Decoder.forProduct2("countryCode", "tagIds")(OperationCountryConfiguration.apply)
+
+  implicit lazy val operationActionDecoder: Decoder[OperationAction] =
+    Decoder.forProduct4("date", "user", "actionType", "arguments")(OperationAction.apply)
+
+  implicit lazy val operationDecoder: Decoder[Operation] =
+    Decoder.forProduct10(
+      "operationId",
+      "status",
+      "slug",
+      "translations",
+      "defaultLanguage",
+      "sequenceLandingId",
+      "createdAt",
+      "updatedAt",
+      "events",
+      "countriesConfiguration"
+    )(Operation.apply)
 }

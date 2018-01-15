@@ -88,7 +88,7 @@ object NewIdeaComponent {
 object ProposalIdeaComponent {
   case class ProposalIdeaProps(proposal: SingleProposal,
                                setProposalIdea: Option[IdeaId] => Unit,
-                               maybeOperation: Option[String],
+                               maybeOperation: Option[OperationId],
                                ideaName: String)
   case class ProposalIdeaState(ideas: Seq[Idea],
                                selectedIdea: Option[IdeaId],
@@ -98,12 +98,16 @@ object ProposalIdeaComponent {
                                ideaName: Option[String])
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState], props: ProposalIdeaProps): Future[Seq[Idea]] = {
-    IdeaServiceComponent.ideaService.listIdeas(None, None, props.maybeOperation, None)
+    IdeaServiceComponent.ideaService.listIdeas(None, None, props.maybeOperation.map(_.value), None)
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {
     ProposalServiceComponent.proposalService
-      .getDuplicates(props.proposal.id, props.proposal.theme.toOption, props.maybeOperation)
+      .getDuplicates(
+        props.proposal.id,
+        props.proposal.themeId.toOption.map(ThemeId(_)),
+        props.maybeOperation.map(_.value)
+      )
   }
 
   lazy val reactClass: ReactClass =

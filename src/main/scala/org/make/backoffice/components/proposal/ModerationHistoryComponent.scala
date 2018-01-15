@@ -7,7 +7,7 @@ import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.helpers.Configuration
-import org.make.backoffice.models.{SingleProposal, ThemeId}
+import org.make.backoffice.models.SingleProposal
 
 import scala.scalajs.js
 import scala.scalajs.js.Date
@@ -28,7 +28,7 @@ object ModerationHistoryComponent {
             val theme: String =
               arguments
                 .get("theme")
-                .map(themeId => Configuration.getThemeFromThemeId(ThemeId(themeId)))
+                .map(themeId => Configuration.getThemeFromThemeId(themeId))
                 .getOrElse("no theme provided")
             s"theme: $theme"
           }),
@@ -45,7 +45,7 @@ object ModerationHistoryComponent {
             val theme: String =
               arguments
                 .get("theme")
-                .map(themeId => Configuration.getThemeFromThemeId(ThemeId(themeId)))
+                .map(themeId => Configuration.getThemeFromThemeId(themeId))
                 .getOrElse("no theme provided")
             s"theme: $theme"
           }),

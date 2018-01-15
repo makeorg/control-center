@@ -6,6 +6,7 @@ import org.scalajs.dom
 import io.circe.syntax._
 import org.make.backoffice.facades.Configuration
 import org.make.services.technical.ConfigurationsServiceComponent
+import org.make.services.operation.OperationServiceComponent
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -43,6 +44,7 @@ object AuthClient extends CirceClassFormatters with ConfigurationsServiceCompone
               case Failure(e) =>
                 g.alert("Failed to load configuration. Please refresh the page to avoid unexpected behaviours.")
             }
+            OperationServiceComponent.operationService.operations(forceReload = true)
             Future.successful("auth_login")
           case None =>
             dom.window.localStorage.setItem(AUTHENTICATION_KEY, "false")

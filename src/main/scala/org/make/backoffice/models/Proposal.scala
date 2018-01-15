@@ -105,6 +105,7 @@ trait Proposal extends js.Object {
   val language: String
   val themeId: js.UndefOr[String]
   val tags: js.Array[Tag]
+  val operationId: js.UndefOr[String]
 }
 
 object Proposal {
@@ -123,7 +124,8 @@ object Proposal {
             country: String,
             language: String,
             themeId: Option[ThemeId],
-            tags: Seq[Tag]): Proposal = {
+            tags: Seq[Tag],
+            operationId: Option[OperationId]): Proposal = {
     js.Dynamic
       .literal(
         id = id.value,
@@ -141,7 +143,8 @@ object Proposal {
         country = country,
         language = language,
         themeId = themeId.map(_.value).orUndefined,
-        tags = tags.toJSArray
+        tags = tags.toJSArray,
+        operationId = operationId.map(_.value).orUndefined
       )
       .asInstanceOf[Proposal]
   }
