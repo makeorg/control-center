@@ -19,7 +19,7 @@ import org.make.backoffice.facades.Configuration.apiUrl
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.facades.React._
 import org.make.backoffice.helpers.Configuration
-import org.make.backoffice.models.{Proposal, ThemeId}
+import org.make.backoffice.models.Proposal
 import org.make.client.Resource
 import org.make.services.proposal.Accepted
 import org.scalajs.dom.raw.HTMLInputElement
@@ -130,58 +130,61 @@ object ValidatedProposalList {
       })
   }
 
-  private lazy val reactClass: ReactClass = React.createClass[ListProps, Unit](render = { (self) =>
-    <.List(
-      ^.title := "Validated proposals",
-      ^.location := self.props.location,
-      ^.resource := Resource.proposals,
-      ^.hasCreate := false,
-      ^.filters := filterList(),
-      ^.filter := Map("status" -> Seq(Accepted.shortName)),
-      ^.actions := <.ActionComponent()(),
-      ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
-    )(
-      <.Datagrid()(
-        <.ShowButton()(),
-        <.TextField(^.source := "content")(),
-        <.FunctionField(^.label := "theme", ^.render := { record =>
-          val proposal = record.asInstanceOf[Proposal]
-          proposal.themeId.map { id =>
-            Configuration.getThemeFromThemeId(id)
-          }
-        })(),
-        <.ReferenceField(
-          ^.source := "operationId",
-          ^.label := "operation",
-          ^.reference := Resource.operations,
-          ^.linkType := false,
-          ^.allowEmpty := true,
-          ^.sortable := false
-        )(<.TextField(^.source := "slug")()),
-        <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
-        <.RichTextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
-        <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
-        <.TextField(^.source := "status", ^.sortable := false)(),
-        <.FunctionField(^.label := "tags", ^.sortable := false, ^.render := { record =>
-          val proposal = record.asInstanceOf[Proposal]
-          proposal.tags.map(_.label).mkString(", ")
-        })(),
-        <.FunctionField(^.label := "labels", ^.sortable := false, ^.render := { record =>
-          val proposal = record.asInstanceOf[Proposal]
-          proposal.labels.mkString(", ")
-        })(),
-        <.FunctionField(^.label := "Votes", ^.sortable := false, ^.render := { record =>
-          Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
-        })(),
-        <.FunctionField(^.label := "Agreement rate", ^.sortable := false, ^.render := { record =>
-          s"${Proposal.voteRate(record.asInstanceOf[Proposal].votes, "agree")}%"
-        })(),
-        <.FunctionField(^.label := "Emergence rate", ^.sortable := false, ^.render := { record =>
-          Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
-        })()
-      )
-    )
-  })
+  private lazy val reactClass: ReactClass =
+    React
+      .createClass[ListProps, Unit](displayName = "ValidatedProposalList", render = {
+        (self) =>
+          <.List(
+            ^.title := "Validated proposals",
+            ^.location := self.props.location,
+            ^.resource := Resource.proposals,
+            ^.hasCreate := false,
+            ^.filters := filterList(),
+            ^.filter := Map("status" -> Seq(Accepted.shortName)),
+            ^.actions := <.ActionComponent()(),
+            ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
+          )(
+            <.Datagrid()(
+              <.ShowButton()(),
+              <.TextField(^.source := "content")(),
+              <.FunctionField(^.label := "theme", ^.render := { record =>
+                val proposal = record.asInstanceOf[Proposal]
+                proposal.themeId.map { id =>
+                  Configuration.getThemeFromThemeId(id)
+                }
+              })(),
+              <.ReferenceField(
+                ^.source := "operationId",
+                ^.label := "operation",
+                ^.reference := Resource.operations,
+                ^.linkType := false,
+                ^.allowEmpty := true,
+                ^.sortable := false
+              )(<.TextField(^.source := "slug")()),
+              <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
+              <.RichTextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
+              <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
+              <.TextField(^.source := "status", ^.sortable := false)(),
+              <.FunctionField(^.label := "tags", ^.sortable := false, ^.render := { record =>
+                val proposal = record.asInstanceOf[Proposal]
+                proposal.tags.map(_.label).mkString(", ")
+              })(),
+              <.FunctionField(^.label := "labels", ^.sortable := false, ^.render := { record =>
+                val proposal = record.asInstanceOf[Proposal]
+                proposal.labels.mkString(", ")
+              })(),
+              <.FunctionField(^.label := "Votes", ^.sortable := false, ^.render := { record =>
+                Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
+              })(),
+              <.FunctionField(^.label := "Agreement rate", ^.sortable := false, ^.render := { record =>
+                s"${Proposal.voteRate(record.asInstanceOf[Proposal].votes, "agree")}%"
+              })(),
+              <.FunctionField(^.label := "Emergence rate", ^.sortable := false, ^.render := { record =>
+                Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
+              })()
+            )
+          )
+      })
 
   def filterList(): ReactElement = {
     <.Filter(^.resource := Resource.proposals)(
@@ -195,7 +198,9 @@ object ValidatedProposalList {
           ^.choices := Configuration.choicesThemeFilter
         )(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
-        <.TextInput(^.label := "Operation", ^.source := "operation", ^.alwaysOn := false)(),
+        <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(
+          <.SelectInput(^.optionText := "slug", ^.alwaysOn := false)()
+        ),
         <.TextInput(^.label := "Question", ^.source := "question", ^.alwaysOn := false)(),
         <.SelectArrayInput(
           ^.label := "Tags",

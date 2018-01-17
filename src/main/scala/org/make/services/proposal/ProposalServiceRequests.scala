@@ -71,6 +71,7 @@ final case class ExhaustiveSearchRequest(proposalIds: Option[Seq[String]] = None
                                          themesIds: Option[Seq[String]] = None,
                                          tagsIds: Option[Seq[String]] = None,
                                          labelsIds: Option[Seq[String]] = None,
+                                         operationId: Option[String] = None,
                                          content: Option[String] = None,
                                          context: Option[ContextFilterRequest] = None,
                                          status: Option[Seq[ProposalStatus]] = None,
@@ -88,6 +89,7 @@ object ExhaustiveSearchRequest {
       themesIds = getIdsFromFilters("theme", filters),
       tagsIds = getIdsFromFilters("tags", filters),
       labelsIds = getIdsFromFilters("label", filters),
+      operationId = getIdFromFilters("operationId", filters),
       content = getContentFromFilters(filters),
       context = getContextFromFilters(filters),
       status = getStatusFromFilters(filters),
@@ -95,6 +97,10 @@ object ExhaustiveSearchRequest {
       limit = pagination.map(_.perPage),
       skip = pagination.map(page => page.page * page.perPage - page.perPage)
     )
+
+  private def getIdFromFilters(field: String, maybeFilters: Option[Seq[Filter]]): Option[String] = {
+    maybeFilters.flatMap(_.find(_.field == field).map(_.value.toString))
+  }
 
   private def getIdsFromFilters(field: String, maybeFilters: Option[Seq[Filter]]): Option[Seq[String]] = {
     maybeFilters.flatMap {

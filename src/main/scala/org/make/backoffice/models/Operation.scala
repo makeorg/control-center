@@ -107,3 +107,14 @@ object OperationAction {
       )
       .asInstanceOf[OperationAction]
 }
+
+@js.native
+trait OperationsResult extends js.Object {
+  val total: Int
+  val results: js.Array[Operation]
+}
+
+object OperationsResult {
+  def apply(total: Int, results: Seq[Operation]): OperationsResult =
+    js.Dynamic.literal(total = total, results = results.toJSArray).asInstanceOf[OperationsResult]
+}
