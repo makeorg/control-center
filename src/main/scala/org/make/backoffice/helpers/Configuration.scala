@@ -15,7 +15,7 @@ object Configuration extends CirceClassFormatters {
   val defaultProposalMaxLength: Int = 256
   val defaultLanguage: String = "fr"
 
-  val businessConfig: Option[BusinessConfig] =
+  def businessConfig: Option[BusinessConfig] =
     parse(dom.window.localStorage.getItem("Configuration")).flatMap(_.as[BusinessConfig]) match {
       case Right(bc) =>
         Some(bc)

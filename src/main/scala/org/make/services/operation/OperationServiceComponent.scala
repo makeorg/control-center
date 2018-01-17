@@ -38,10 +38,13 @@ object OperationServiceComponent {
           }
       }
 
-    def getOperationByIds(ids: js.Array[String]): Future[ListDataResponse[Operation]] =
-      Future
-        .traverse(ids.toSeq)(id => getOperationById(id))
-        .map(ListDataResponse.apply)
+    def getOperationByIds(ids: js.Array[String]): Future[ListDataResponse[Operation]] = {
+      if (ids.head.length != 0) {
+        Future
+          .traverse(ids.toSeq)(id => getOperationById(id))
+          .map(ListDataResponse.apply)
+      } else Future.successful(ListDataResponse(Seq.empty))
+    }
 
     def operations(slug: Option[String] = None, forceReload: Boolean = false): Future[ListTotalResponse[Operation]] = {
       if (!forceReload && (slug.isEmpty || operationsCache.exists(_.slug == slug.getOrElse("")))) {

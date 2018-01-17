@@ -102,6 +102,10 @@ object FormValidateProposalComponent {
                 self.props.wrapped.proposal.similarProposals.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
             )
           },
+          componentDidMount = self => {
+            setTagsFromTagIds(self, self.props.wrapped)
+            setTagsListAndOperation(self, self.props.wrapped)
+          },
           componentWillReceiveProps = { (self, props) =>
             self.setState(
               _.copy(
