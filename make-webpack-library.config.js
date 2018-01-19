@@ -13,7 +13,7 @@ module.exports.plugins = [
     new HtmlWebpackPlugin({
         "title": "Make.org - Backoffice",
         "template": path.join(__dirname, "index-library.template.ejs"),
-        "apiUrl": "http://localhost:9000",
+        "apiUrl": "https://api.preprod.makeorg.tech",
         "googleAppId": "810331964280-qtdupbrjusihad3b5da51i5p66qpmhmr.apps.googleusercontent.com",
         "inject": false
     }),

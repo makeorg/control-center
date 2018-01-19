@@ -33,6 +33,8 @@ object GetListRequest extends MakeServices {
             case (fieldName, filterValue) => Filter(fieldName, filterValue)
           })
         )
+      case Resource.ideas =>
+        ideaService.listIdeas(None, None, None, None)
       case Resource.operations =>
         operationService.operations()
       case Resource.users =>

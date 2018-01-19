@@ -20,7 +20,7 @@ object IdeaId {
 
 @js.native
 trait Idea extends js.Object {
-  val ideaId: IdeaId
+  val id: String
   val name: String
   val language: js.UndefOr[String]
   val country: js.UndefOr[String]
@@ -37,7 +37,7 @@ object Idea {
             question: Option[String]): Idea = {
     js.Dynamic
       .literal(
-        ideaId = ideaId,
+        id = ideaId.value,
         name = name,
         language = language.orUndefined,
         country = country.orUndefined,

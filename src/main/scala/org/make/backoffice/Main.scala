@@ -2,6 +2,7 @@ package org.make.backoffice
 
 import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
+import org.make.backoffice.components.aor.idea.IdeaList
 import org.make.backoffice.components.aor.proposal.{CreateProposal, DeleteProposal, ProposalList, ShowProposal}
 import org.make.backoffice.components.aor.validatedProposals.ValidatedProposalList
 import org.make.backoffice.components.{Dashboard, LoginPage}
@@ -33,6 +34,7 @@ object Main {
           ^.listing := ValidatedProposalList(),
           ^.show := ShowProposal()
         )(),
+        <.Resource(^.name := Resource.ideas, ^.listing := IdeaList())(),
         <.Resource(^.name := Resource.operations)()
       ),
       dom.document.getElementById("make-backoffice")
