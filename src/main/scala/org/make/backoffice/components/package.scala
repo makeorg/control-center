@@ -12,11 +12,11 @@ package object components {
     def FormValidateProposalComponent: ReactClassElementSpec = self(proposal.FormValidateProposalComponent.reactClass)
     def FormPostponeProposalComponent: ReactClassElementSpec = self(proposal.FormPostponeProposalComponent.reactClass)
     def ModerationHistoryComponent: ReactClassElementSpec = self(proposal.ModerationHistoryComponent.reactClass)
-    def TabIdeaClusterComponent: ReactClassElementSpec = self(proposal.TabIdeaClusterComponent.reactClass)
     def ProposalIdeaComponent: ReactClassElementSpec = self(proposal.ProposalIdeaComponent.reactClass)
     def StatsValidatedProposal: ReactClassElementSpec = self(proposal.StatsValidatedProposal.reactClass)
     def ActionComponent: ReactClassElementSpec = self(ValidatedProposalList.Action.reactClass)
     def ExportComponent: ReactClassElementSpec = self(ValidatedProposalList.ExportComponent.reactClass)
     def NewIdeaComponent: ReactClassElementSpec = self(proposal.NewIdeaComponent.reactClass)
+    def IdeaTitle: ReactClassElementSpec = self(aor.idea.EditIdea.ideaTitle)
   }
 }

@@ -63,9 +63,9 @@ object Configuration extends CirceClassFormatters {
     businessConfig.map { bc =>
       bc.themes
         .flatMap(theme => theme.tags)
-        .groupBy(_.tagId.value)
+        .groupBy(_.id)
         .map {
-          case (_, tags) => Choice(id = tags.head.tagId.value, name = tags.head.label)
+          case (_, tags) => Choice(id = tags.head.id, name = tags.head.label)
         }
         .toJSArray
     }.getOrElse(Seq.empty.toJSArray)

@@ -1,21 +1,19 @@
 package org.make.client
 
-import org.make.backoffice.models.User
-import org.make.core.CirceClassFormatters
-import org.scalajs.dom
 import io.circe.syntax._
 import org.make.backoffice.facades.Configuration
+import org.make.backoffice.models.User
+import org.make.core.CirceClassFormatters
 import org.make.services.technical.ConfigurationsServiceComponent
-import org.make.services.operation.OperationServiceComponent
+import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
+import scala.scalajs.js.Dynamic.{global => g}
 import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.Promise
 import scala.util.{Failure, Success}
-
-import scala.scalajs.js.Dynamic.{global => g}
 
 object AuthClient extends CirceClassFormatters with ConfigurationsServiceComponent {
   override def apiBaseUrl: String = Configuration.apiUrl
@@ -44,7 +42,6 @@ object AuthClient extends CirceClassFormatters with ConfigurationsServiceCompone
               case Failure(e) =>
                 g.alert("Failed to load configuration. Please refresh the page to avoid unexpected behaviours.")
             }
-            OperationServiceComponent.operationService.operations(forceReload = true)
             Future.successful("auth_login")
           case None =>
             dom.window.localStorage.setItem(AUTHENTICATION_KEY, "false")

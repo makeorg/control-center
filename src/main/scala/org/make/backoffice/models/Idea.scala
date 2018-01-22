@@ -3,13 +3,12 @@ package org.make.backoffice.models
 import java.time.ZonedDateTime
 
 import io.circe.{Decoder, Encoder, Json}
+import org.make.core.JSConverters._
 import org.make.core.StringValue
 
-import scalajs.js
-import js.JSConverters._
-import org.make.core.JSConverters._
-
+import scala.scalajs.js
 import scala.scalajs.js.Date
+import scala.scalajs.js.JSConverters._
 
 @js.native
 trait IdeaId extends js.Object with StringValue {
@@ -19,8 +18,8 @@ trait IdeaId extends js.Object with StringValue {
 object IdeaId {
   def apply(value: String): IdeaId = js.Dynamic.literal(value = value).asInstanceOf[IdeaId]
 
-  implicit lazy val IdeaIdEncoder: Encoder[IdeaId] = (a: IdeaId) => Json.fromString(a.value)
-  implicit lazy val IdeaIdDecoder: Decoder[IdeaId] = Decoder.decodeString.map(IdeaId(_))
+  implicit lazy val ideaIdEncoder: Encoder[IdeaId] = (a: IdeaId) => Json.fromString(a.value)
+  implicit lazy val ideaIdDecoder: Decoder[IdeaId] = Decoder.decodeString.map(IdeaId(_))
 }
 
 @js.native
@@ -44,8 +43,7 @@ object Idea {
             operationId: Option[OperationId],
             question: Option[String],
             createdAt: ZonedDateTime,
-            updatedAt: Option[ZonedDateTime]
-  ): Idea = {
+            updatedAt: Option[ZonedDateTime]): Idea = {
     js.Dynamic
       .literal(
         id = ideaId.value,
@@ -73,4 +71,3 @@ object IdeasResult {
 
   def empty: IdeasResult = IdeasResult(total = 0, results = Seq.empty)
 }
-

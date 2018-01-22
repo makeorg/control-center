@@ -167,7 +167,7 @@ final case class UpdateProposalRequest(newContent: Option[String],
                                        labels: Seq[String],
                                        tags: Seq[TagId],
                                        similarProposals: Seq[ProposalId],
-                                       idea: Option[IdeaId])
+                                       ideaId: Option[IdeaId])
 
 final case class RefuseProposalRequest(sendNotificationEmail: Boolean, refusalReason: Option[String])
 final case class ValidateProposalRequest(newContent: Option[String],
@@ -176,4 +176,4 @@ final case class ValidateProposalRequest(newContent: Option[String],
                                          labels: Seq[String],
                                          tags: Seq[TagId],
                                          similarProposals: Seq[ProposalId],
-                                         idea: Option[IdeaId])
+                                         ideaId: Option[IdeaId])

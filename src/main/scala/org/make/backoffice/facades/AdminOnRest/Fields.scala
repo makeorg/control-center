@@ -5,7 +5,6 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactCl
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.statictags._
-import org.make.backoffice.facades._
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
@@ -51,6 +50,10 @@ object NativeReferenceField extends ReactClass
 object NativeReferenceManyField extends ReactClass
 
 @js.native
+@JSImport("admin-on-rest", "ReferenceArrayField")
+object NativeReferenceArrayField extends ReactClass
+
+@js.native
 @JSImport("admin-on-rest", "RichTextField")
 object NativeRichTextField extends ReactClass
 
@@ -80,6 +83,7 @@ object Fields {
     lazy val NumberField: ReactClassElementSpec = elements(NativeNumberField)
     lazy val ReferenceField: ReactClassElementSpec = elements(NativeReferenceField)
     lazy val ReferenceManyField: ReactClassElementSpec = elements(NativeReferenceManyField)
+    lazy val ReferenceArrayField: ReactClassElementSpec = elements(NativeReferenceArrayField)
     lazy val RichTextField: ReactClassElementSpec = elements(NativeRichTextField)
     lazy val UrlField: ReactClassElementSpec = elements(NativeUrlField)
     lazy val SingleFieldList: ReactClassElementSpec = elements(NativeSingleFieldList)
@@ -90,7 +94,7 @@ object Fields {
     lazy val src = StringAttributeSpec("src")
     lazy val render = RenderRecordAttributeSpec("render")
     lazy val locales = StringAttributeSpec("locales")
-    lazy val options = MapStringAttributeSpec("options")
+    lazy val options = CssAttributeSpec("options")
     lazy val allowEmpty = BooleanAttributeSpec("allowEmpty")
     lazy val reference = StringAttributeSpec("reference")
     lazy val linkType = DynamicAttributeSpec("linkType")

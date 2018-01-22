@@ -36,7 +36,7 @@ object OperationServiceComponent {
     }
 
     def getOperationById(id: OperationId, forceReload: Boolean = false): Future[Operation] = {
-      loadOperationList(forceReload).map(_.filter(_.id == id).head)
+      loadOperationList(forceReload).map(_.filter(_.id == id.value).head)
     }
 
     def getOperationByIds(ids: js.Array[String]): Future[ListDataResponse[Operation]] = {

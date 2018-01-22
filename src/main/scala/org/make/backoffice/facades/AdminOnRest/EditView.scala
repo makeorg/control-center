@@ -3,9 +3,9 @@ package org.make.backoffice.facades.AdminOnRest
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.scalajs.reactjs.router.Router.RouterVirtualDOMAttributes.LocationAttributeSpec
 import io.github.shogowada.statictags.StringAttributeSpec
-import org.make.backoffice.facades.{ElementAttributeSpec, MatchAttributeSpec}
+import org.make.backoffice.facades.AdminOnRest.ShowButton.RecordAttributeSpec
+import org.make.backoffice.facades.{ElementAttributeSpec, LocationAttributeSpec, MatchAttributeSpec}
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
@@ -20,7 +20,7 @@ object Edit {
   }
 
   implicit class EditVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
-    lazy val title = StringAttributeSpec("title")
+    lazy val editTitle = ElementAttributeSpec("title")
     lazy val actions = ElementAttributeSpec("actions")
     lazy val resource = StringAttributeSpec("resource")
     lazy val location = LocationAttributeSpec("location")
@@ -36,5 +36,29 @@ object EditButton {
   implicit class EditButtonVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val EditButton: ReactClassElementSpec = elements(NativeEditButton)
   }
+
+  implicit class EditButtonVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val basePath = StringAttributeSpec("basePath")
+    lazy val record = RecordAttributeSpec("record")
+  }
 }
 
+@js.native
+@JSImport("admin-on-rest", "TabbedForm")
+object NativeTabbedForm extends ReactClass
+
+object TabbedForm {
+  implicit class TabbedFormVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val TabbedForm: ReactClassElementSpec = elements(NativeTabbedForm)
+  }
+}
+
+@js.native
+@JSImport("admin-on-rest", "FormTab")
+object NativeFormTab extends ReactClass
+
+object FormTab {
+  implicit class FormTabVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val FormTab: ReactClassElementSpec = elements(NativeFormTab)
+  }
+}

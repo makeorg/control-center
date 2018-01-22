@@ -41,20 +41,38 @@ trait ProposalServiceComponent {
         }
     }
 
+    def proposalsByIdea(ideaId: String): Future[ListTotalResponse[Proposal]] = {
+      val request: ExhaustiveSearchRequest =
+        ExhaustiveSearchRequest.buildExhaustiveSearchRequest(
+          Some(Pagination(page = 1, perPage = 5000)),
+          None,
+          Some(Seq(Filter("status", js.Array(Accepted))))
+        )
+      client
+        .post[ProposalsResult](resourceName / "search", data = request.asJson.pretty(ApiService.printer))
+        .map(
+          proposalsResult =>
+            ListTotalResponse(
+              total = proposalsResult.total,
+              data = proposalsResult.results.filter(proposal => proposal.ideaId.exists(id => id == ideaId))
+          )
+        )
+    }
+
     def updateProposal(proposalId: String,
                        newContent: Option[String],
                        theme: Option[ThemeId] = None,
                        labels: Seq[String] = Seq.empty,
                        tags: Seq[TagId] = Seq(TagId("default-tag")),
                        similarProposals: Seq[ProposalId] = Seq.empty,
-                       idea: Option[IdeaId] = None): Future[SingleProposal] = {
+                       ideaId: Option[IdeaId] = None): Future[SingleProposal] = {
       val request: UpdateProposalRequest = UpdateProposalRequest(
         newContent = newContent,
         theme = theme,
         labels = labels,
         tags = tags,
         similarProposals = similarProposals,
-        idea = idea
+        ideaId = ideaId
       )
       client
         .put[SingleProposal](
@@ -76,7 +94,7 @@ trait ProposalServiceComponent {
                          labels: Seq[String] = Seq.empty,
                          tags: Seq[TagId] = Seq(TagId("default-tag")),
                          similarProposals: Seq[ProposalId] = Seq.empty,
-                         idea: Option[IdeaId] = None): Future[SingleProposal] = {
+                         ideaId: Option[IdeaId] = None): Future[SingleProposal] = {
       val request: ValidateProposalRequest = ValidateProposalRequest(
         newContent = newContent,
         sendNotificationEmail = sendNotificationEmail,
@@ -84,7 +102,7 @@ trait ProposalServiceComponent {
         labels = labels,
         tags = tags,
         similarProposals = similarProposals,
-        idea = idea
+        ideaId = ideaId
       )
       client
         .post[SingleProposal](resourceName / proposalId / "accept", data = request.asJson.pretty(ApiService.printer))

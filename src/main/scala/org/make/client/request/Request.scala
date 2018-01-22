@@ -15,13 +15,13 @@ trait Request extends js.Object
 object Request {
   def fetch(restVerb: String, resource: String, params: js.Object): Future[Response] =
     restVerb match {
-      case "GET_LIST"            => GetListRequest.fetch(resource, params)
-      case "GET_ONE"             => GetOneRequest.fetch(resource, params)
-      case "CREATE"              => CreateRequest.fetch(resource, params)
-      case "UPDATE"              => UpdateRequest.fetch(resource, params)
-      case "DELETE"              => DeleteRequest.fetch(resource, params)
-      case "GET_MANY"            => GetManyRequest.fetch(resource, params)
-      case "GET_MANY_REFERENCES" => GetManyReferenceRequest.fetch(resource, params)
-      case invalidRestVerb       => throw InvalidRestVerbException(s"Invalid REST verb: $invalidRestVerb")
+      case "GET_LIST"           => GetListRequest.fetch(resource, params)
+      case "GET_ONE"            => GetOneRequest.fetch(resource, params)
+      case "CREATE"             => CreateRequest.fetch(resource, params)
+      case "UPDATE"             => UpdateRequest.fetch(resource, params)
+      case "DELETE"             => DeleteRequest.fetch(resource, params)
+      case "GET_MANY"           => GetManyRequest.fetch(resource, params)
+      case "GET_MANY_REFERENCE" => GetManyReferenceRequest.fetch(resource, params)
+      case invalidRestVerb      => throw InvalidRestVerbException(s"Invalid REST verb: $invalidRestVerb")
     }
 }

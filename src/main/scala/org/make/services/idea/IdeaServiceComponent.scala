@@ -70,6 +70,18 @@ trait IdeaServiceComponent {
             throw e
         }
     }
+
+    def updateIdea(ideaId: String, idea: Idea): Future[SingleResponse[Idea]] = {
+      val request: UpdateIdeaRequest = UpdateIdeaRequest(name = idea.name)
+      client
+        .put[String](resourceName / ideaId, data = request.asJson.pretty(ApiService.printer))
+        .map(_ => SingleResponse(idea))
+        .recover {
+          case e =>
+            js.Dynamic.global.console.log(s"instead of updating idea: failed cursor $e")
+            throw e
+        }
+    }
   }
 }
 

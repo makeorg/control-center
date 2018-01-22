@@ -27,7 +27,7 @@ object ShowProposal {
       <.Show(
         ^.location := self.props.location,
         ^.resource := Resource.proposals,
-        ^.`match` := Match(params = Params(id = self.props.location.pathname.split('/')(2))),
+        ^.`match` := Match(params = Params(id = self.props.location.pathname.split('/')(2))), //todo: investigate a better way to get the id
         ^.showTitle := <.ShowProposalTitle()()
       )(
         <.TabbedShowLayout()(
@@ -60,8 +60,7 @@ object ShowProposal {
           ),
           <.Tab(^.label := "Actions")(
             <.ShowProposalComponents(^.wrapped := ShowComponentsProps(org.scalajs.dom.window.location.hash))()
-          ),
-          <.Tab(^.label := "Cluster of the idea")(<.TabIdeaClusterComponent()())
+          )
         )
     )
   )

@@ -7,12 +7,12 @@ import scala.scalajs.js
 
 @js.native
 trait Tag extends js.Object {
-  val tagId: TagId
+  val id: String
   val label: String
 }
 
 object Tag {
-  def apply(tagId: TagId, label: String): Tag = js.Dynamic.literal(tagId = tagId, label = label).asInstanceOf[Tag]
+  def apply(tagId: TagId, label: String): Tag = js.Dynamic.literal(id = tagId.value, label = label).asInstanceOf[Tag]
 }
 
 @js.native
