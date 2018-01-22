@@ -68,9 +68,9 @@ object FormValidateProposalComponent {
       case Some(themeId) =>
         self.setState(_.copy(tagsList = Configuration.getTagsFromThemeId(themeId)))
       case None =>
-        props.proposal.operationId.toOption.foreach { operationId =>
+        props.proposal.operationId.toOption.foreach { operationIdValue =>
           val futureOperationTags = for {
-            operation <- operationService.getOperationById(operationId)
+            operation <- operationService.getOperationById(OperationId(operationIdValue))
             tags      <- tagService.tags
           } yield (operation, tags)
           futureOperationTags.onComplete {

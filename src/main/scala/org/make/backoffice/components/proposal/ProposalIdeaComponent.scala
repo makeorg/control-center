@@ -31,9 +31,9 @@ object NewIdeaComponent {
     IdeaServiceComponent.ideaService
       .createIdea(name = self.state.ideaName, operation = self.props.wrapped.operation)
       .onComplete {
-        case Success(idea) =>
-          self.props.wrapped.setProposalIdea(Some(IdeaId(idea.id)))
-          self.props.wrapped.setIdeas(idea)
+        case Success(ideaResponse) =>
+          self.props.wrapped.setProposalIdea(Some(ideaResponse.data.id))
+          self.props.wrapped.setIdeas(ideaResponse.data)
           self.setState(_.copy(open = false))
         case Failure(e) => js.Dynamic.global.console.log(s"Fail to create idea: $e")
       }
@@ -99,7 +99,9 @@ object ProposalIdeaComponent {
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState],
                 props: ProposalIdeaProps): Future[ListTotalResponse[Idea]] = {
-    IdeaServiceComponent.ideaService.listIdeas(filters = Some(Seq(Filter.apply(field = "operationId", value = props.proposal.operationId.toOption))))
+    IdeaServiceComponent.ideaService.listIdeas(
+      filters = Some(Seq(Filter.apply(field = "operationId", value = props.proposal.operationId.toOption)))
+    )
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {

@@ -53,7 +53,7 @@ trait IdeaServiceComponent {
                    language: Option[String] = None,
                    country: Option[String] = None,
                    operation: Option[String] = None,
-                   question: Option[String] = None): Future[Idea] = {
+                   question: Option[String] = None): Future[SingleResponse[Idea]] = {
       val request: CreateIdeaRequest = CreateIdeaRequest(
         name = name,
         language = language,
@@ -61,11 +61,14 @@ trait IdeaServiceComponent {
         operation = operation,
         question = question
       )
-      client.post[Idea](resourceName, data = request.asJson.pretty(ApiService.printer)).recover {
-        case e =>
-          js.Dynamic.global.console.log(s"instead of creating idea: failed cursor $e")
-          throw e
-      }
+      client
+        .post[Idea](resourceName, data = request.asJson.pretty(ApiService.printer))
+        .map(SingleResponse.apply)
+        .recover {
+          case e =>
+            js.Dynamic.global.console.log(s"instead of creating idea: failed cursor $e")
+            throw e
+        }
     }
   }
 }

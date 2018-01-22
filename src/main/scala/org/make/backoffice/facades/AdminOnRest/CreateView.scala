@@ -3,14 +3,11 @@ package org.make.backoffice.facades.AdminOnRest
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.scalajs.reactjs.router.Router.RouterVirtualDOMAttributes.LocationAttributeSpec
 import io.github.shogowada.statictags.StringAttributeSpec
-import org.make.backoffice.facades.ElementAttributeSpec
+import org.make.backoffice.facades.{ElementAttributeSpec, LocationAttributeSpec}
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
-
-
 @js.native
 @JSImport("admin-on-rest", "Create")
 object NativeCreate extends ReactClass

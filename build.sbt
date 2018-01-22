@@ -15,7 +15,7 @@ val scalajsDomVersion = "0.9.1"
 val scalaCssCoreVersion = "0.5.3"
 
 /* Npm versions */
-val npmReactVersion = "15.6.1"
+val npmReactVersion = "15.6.2"
 val npmWebpackVersion = "3.6.0"
 val npmReactRouterVersion = "4.1.2"
 val npmBulmaVersion = "0.4.4"
@@ -31,7 +31,8 @@ val npmFontAwesomeVersion = "4.7.0"
 val npmFileLoaderVersion = "0.11.2"
 val npmNormalizeVersion = "7.0.0"
 val npmBootstrapVersion = "3.3.7"
-val npmAdminOnRestVersion = "1.3.1"
+val npmAdminOnRestVersion = "1.3.4"
+val npmAorDependentInput = "1.2.0"
 val npmMaterialUi = "0.19.2"
 val npmReactGoogleLogin = "2.9.2"
 
@@ -60,7 +61,8 @@ npmDependencies in Compile ++= Seq(
   "bulma" -> npmBulmaVersion,
   "font-awesome" -> npmFontAwesomeVersion,
   "normalize-scss" -> npmNormalizeVersion,
-  "bootstrap" -> npmBootstrapVersion
+  "bootstrap" -> npmBootstrapVersion,
+  "aor-dependent-input" -> npmAorDependentInput
 )
 
 npmDevDependencies in Compile ++= Seq(
