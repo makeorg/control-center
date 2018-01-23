@@ -12,6 +12,7 @@ import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models._
 import org.make.client.ListTotalResponse
+import org.make.client.request.Filter
 import org.make.services.idea.IdeaServiceComponent
 import org.make.services.proposal.ProposalServiceComponent
 import org.scalajs.dom.raw.HTMLInputElement
@@ -98,7 +99,7 @@ object ProposalIdeaComponent {
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState],
                 props: ProposalIdeaProps): Future[ListTotalResponse[Idea]] = {
-    IdeaServiceComponent.ideaService.listIdeas(None, None, props.proposal.operationId.toOption, None)
+    IdeaServiceComponent.ideaService.listIdeas(filters = Some(Seq(Filter.apply(field = "operationId", value = props.proposal.operationId.toOption))))
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {

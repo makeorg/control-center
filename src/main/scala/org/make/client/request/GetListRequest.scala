@@ -34,7 +34,12 @@ object GetListRequest extends MakeServices {
           })
         )
       case Resource.ideas =>
-        ideaService.listIdeas(None, None, None, None)
+        val request = params.asInstanceOf[GetListRequest]
+        ideaService.listIdeas(request.pagination.toOption,
+          request.sort.toOption,
+          request.filter.toOption.map(_.toJSArray.map {
+            case (fieldName, filterValue) => Filter(fieldName, filterValue)
+          }))
       case Resource.operations =>
         operationService.operations()
       case Resource.users =>

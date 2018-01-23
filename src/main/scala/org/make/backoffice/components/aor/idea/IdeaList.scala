@@ -3,10 +3,14 @@ package org.make.backoffice.components.aor.idea
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
+import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.facades.AdminOnRest.Datagrid._
 import org.make.backoffice.facades.AdminOnRest.Fields._
+import org.make.backoffice.facades.AdminOnRest.Filter._
+import org.make.backoffice.facades.AdminOnRest.Inputs._
 import org.make.backoffice.facades.AdminOnRest.List._
+import org.make.backoffice.facades.AdminOnRest.EditButton._
 import org.make.client.Resource
 
 object IdeaList {
@@ -24,12 +28,14 @@ object IdeaList {
             ^.title := "Ideas",
             ^.location := self.props.location,
             ^.resource := Resource.ideas,
-            ^.hasCreate := true
+            ^.hasCreate := true,
+            ^.filters := ideaFilters()
           )(
             <.Datagrid()(
+              <.EditButton()(),
               <.TextField(^.source := "name")(),
               <.ReferenceField(
-                ^.source := "operation",
+                ^.source := "operationId",
                 ^.label := "operation",
                 ^.reference := Resource.operations,
                 ^.linkType := false,
@@ -40,5 +46,17 @@ object IdeaList {
           )
         }
       )
+
+
+  def ideaFilters(): ReactElement = {
+    <.Filter(^.resource := Resource.proposals)(
+      Seq(
+        <.TextInput(^.label := "Name", ^.source := "name")(),
+        <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(
+          <.SelectInput(^.optionText := "slug", ^.alwaysOn := false)()
+        )
+      )
+    )
+  }
 
 }
