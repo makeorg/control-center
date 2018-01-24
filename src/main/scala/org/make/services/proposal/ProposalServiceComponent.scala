@@ -134,6 +134,15 @@ trait ProposalServiceComponent {
       }
     }
 
+    def changeProposalsIdea(ideaId: IdeaId, proposalsIds: Seq[ProposalId]): Future[Unit] = {
+      val request = PatchProposalsIdeaRequest(proposalsIds, ideaId)
+      client.post[Unit](resourceName / "change-idea", data = request.asJson.pretty(ApiService.printer)).recover {
+        case e =>
+          js.Dynamic.global.console.log(s"instead of updating proposals: failed cursor $e")
+          throw e
+      }
+    }
+
     def getDuplicates(proposalId: String,
                       themeId: Option[ThemeId],
                       operation: Option[String]): Future[Seq[SimilarResult]] = {

@@ -94,6 +94,13 @@ object FormValidateProposalComponent extends MakeServices {
           componentDidMount = self => {
             setTagsFromTagIds(self, self.props.wrapped)
             setTagsListAndOperation(self, self.props.wrapped)
+            self.props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
+              ideaService.getIdea(ideaId).onComplete {
+                case Success(response) =>
+                  self.setState(_.copy(ideaId = Some(IdeaId(response.data.id)), ideaName = response.data.name))
+                case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
+              }
+            }
           },
           componentWillReceiveProps = { (self, props) =>
             self.setState(

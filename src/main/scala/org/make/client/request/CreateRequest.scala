@@ -30,7 +30,7 @@ object CreateRequest extends MakeServices {
           name = request.data.name,
           language = request.data.language.toOption,
           country = request.data.country.toOption,
-          operation = request.data.operation.toOption,
+          operation = request.data.operationId.toOption,
           question = request.data.question.toOption
         )
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in CreateRequest")
