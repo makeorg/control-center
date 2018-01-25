@@ -121,7 +121,7 @@ object FormValidateProposalComponent {
             props.wrapped.proposal.idea.toOption.foreach { idea =>
               ideaService.getIdea(idea.value).onComplete {
                 case Success(response) =>
-                  self.setState(_.copy(idea = Some(response.data.ideaId), ideaName = response.data.name))
+                  self.setState(_.copy(idea = Some(IdeaId(response.data.id)), ideaName = response.data.name))
                 case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
               }
             }

@@ -11,6 +11,8 @@ import org.make.backoffice.components.proposal.NewIdeaComponent.NewIdeaProps
 import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models._
+import org.make.client.ListTotalResponse
+import org.make.client.request.Filter
 import org.make.services.idea.IdeaServiceComponent
 import org.make.services.proposal.ProposalServiceComponent
 import org.scalajs.dom.raw.HTMLInputElement
@@ -30,7 +32,7 @@ object NewIdeaComponent {
       .createIdea(name = self.state.ideaName, operation = self.props.wrapped.operation)
       .onComplete {
         case Success(idea) =>
-          self.props.wrapped.setProposalIdea(Some(idea.ideaId))
+          self.props.wrapped.setProposalIdea(Some(IdeaId(idea.id)))
           self.props.wrapped.setIdeas(idea)
           self.setState(_.copy(open = false))
         case Failure(e) => js.Dynamic.global.console.log(s"Fail to create idea: $e")
@@ -95,8 +97,9 @@ object ProposalIdeaComponent {
                                ideaName: Option[String],
                                isLoading: Boolean = true)
 
-  def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState], props: ProposalIdeaProps): Future[Seq[Idea]] = {
-    IdeaServiceComponent.ideaService.listIdeas(None, None, props.proposal.operationId.toOption, None)
+  def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState],
+                props: ProposalIdeaProps): Future[ListTotalResponse[Idea]] = {
+    IdeaServiceComponent.ideaService.listIdeas(filters = Some(Seq(Filter.apply(field = "operationId", value = props.proposal.operationId.toOption))))
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {
@@ -117,7 +120,7 @@ object ProposalIdeaComponent {
       componentDidMount = { (self) =>
         loadIdeas(self, self.props.wrapped).onComplete {
           case Success(listIdeas) =>
-            self.setState(_.copy(ideas = listIdeas, foundProposalIdeas = listIdeas))
+            self.setState(_.copy(ideas = listIdeas.data.toSeq, foundProposalIdeas = listIdeas.data.toSeq))
           case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get ideas failed with error $e")
         }
         loadDuplicates(self.props.wrapped).onComplete {
@@ -135,7 +138,7 @@ object ProposalIdeaComponent {
 
         def handleNewRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
           val idea = chosenRequest.asInstanceOf[Idea]
-          val selectedIdea = Some(idea.ideaId)
+          val selectedIdea = Some(IdeaId(idea.id))
           self.setState(_.copy(selectedIdea = selectedIdea, ideaName = Some(idea.name)))
           self.props.wrapped.setProposalIdea(selectedIdea)
         }
@@ -145,7 +148,7 @@ object ProposalIdeaComponent {
             _.copy(
               foundProposalIdeas = self.state.ideas ++ Seq(newIdea),
               ideas = self.state.ideas ++ Seq(newIdea),
-              selectedIdea = Some(newIdea.ideaId),
+              selectedIdea = Some(IdeaId(newIdea.id)),
               searchIdeaContent = newIdea.name
             )
           )
