@@ -94,7 +94,8 @@ trait ProposalServiceComponent {
                          labels: Seq[String] = Seq.empty,
                          tags: Seq[TagId] = Seq(TagId("default-tag")),
                          similarProposals: Seq[ProposalId] = Seq.empty,
-                         ideaId: Option[IdeaId] = None): Future[SingleProposal] = {
+                         ideaId: Option[IdeaId] = None,
+                         operationId: Option[OperationId] = None): Future[SingleProposal] = {
       val request: ValidateProposalRequest = ValidateProposalRequest(
         newContent = newContent,
         sendNotificationEmail = sendNotificationEmail,
@@ -102,7 +103,8 @@ trait ProposalServiceComponent {
         labels = labels,
         tags = tags,
         similarProposals = similarProposals,
-        ideaId = ideaId
+        idea = ideaId,
+        operation = operationId
       )
       client
         .post[SingleProposal](resourceName / proposalId / "accept", data = request.asJson.pretty(ApiService.printer))

@@ -1,7 +1,7 @@
 package org.make.services.proposal
 
 import io.circe.{Decoder, Encoder, Json}
-import org.make.backoffice.models.{IdeaId, ProposalId, TagId, ThemeId}
+import org.make.backoffice.models._
 import org.make.client.request.{Filter, Pagination, Sort}
 
 import scala.scalajs.js
@@ -177,6 +177,7 @@ final case class ValidateProposalRequest(newContent: Option[String],
                                          labels: Seq[String],
                                          tags: Seq[TagId],
                                          similarProposals: Seq[ProposalId],
-                                         ideaId: Option[IdeaId])
+                                         idea: Option[IdeaId],
+                                         operation: Option[OperationId])
 
 final case class PatchProposalsIdeaRequest(proposalIds: Seq[ProposalId], ideaId: IdeaId)

@@ -15,6 +15,7 @@ import org.make.backoffice.facades.AdminOnRest.TabbedForm._
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.facades.{DataSourceConfig, Match, Params}
 import org.make.backoffice.models.{Idea, IdeaId, Proposal, ProposalId}
+import org.make.client.request.{Filter, Pagination}
 import org.make.client.{MakeServices, Resource}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -50,10 +51,16 @@ object EditIdea extends MakeServices {
         getInitialState = _ => DataGridState(Seq.empty, Seq.empty, "", None, Seq.empty),
         componentDidMount = self => {
           if (self.state.ideas.isEmpty) {
-            ideaService.listIdeas(None, None, None).onComplete {
-              case Success(ideaResponse) => self.setState(_.copy(ideas = ideaResponse.data.toSeq))
-              case Failure(e)            => js.Dynamic.global.console.log(s"Failed with error $e")
-            }
+            ideaService
+              .listIdeas(
+                Some(Pagination(page = 1, perPage = 1000)),
+                None,
+                Some(Seq(Filter("operationId", self.props.native.record.operationId)))
+              )
+              .onComplete {
+                case Success(ideaResponse) => self.setState(_.copy(ideas = ideaResponse.data.toSeq))
+                case Failure(e)            => js.Dynamic.global.console.log(s"Failed with error $e")
+              }
           }
           proposalService.proposalsByIdea(self.props.native.record.id.toString).onComplete {
             case Success(proposals) => self.setState(_.copy(proposalsList = proposals.data.toSeq))

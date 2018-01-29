@@ -100,9 +100,9 @@ object ProposalIdeaComponent {
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState],
                 props: ProposalIdeaProps): Future[ListTotalResponse[Idea]] = {
-    IdeaServiceComponent.ideaService.listIdeas(
-      filters = Some(Seq(Filter.apply(field = "operationId", value = props.proposal.operationId.toOption)))
-    )
+    IdeaServiceComponent.ideaService.listIdeas(filters = props.proposal.operationId.toOption.map { operation =>
+      Seq(Filter.apply(field = "operationId", value = operation))
+    })
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {

@@ -199,7 +199,8 @@ object FormValidateProposalComponent extends MakeServices {
                     theme = self.state.theme,
                     similarProposals = self.state.similarProposals.map(ProposalId.apply),
                     tags = self.state.tags.map(tag => TagId(tag.id)),
-                    ideaId = self.state.ideaId
+                    ideaId = self.state.ideaId,
+                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
                   )
                   .onComplete {
                     case Success(_) =>
