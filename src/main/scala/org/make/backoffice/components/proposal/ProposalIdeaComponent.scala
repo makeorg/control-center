@@ -13,7 +13,7 @@ import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.facades.AdminOnRest.EditButton._
 import org.make.backoffice.models._
 import org.make.client.ListTotalResponse
-import org.make.client.request.Filter
+import org.make.client.request.{Filter, Pagination}
 import org.make.services.idea.IdeaServiceComponent
 import org.make.services.proposal.ProposalServiceComponent
 import org.scalajs.dom.raw.HTMLInputElement
@@ -100,9 +100,12 @@ object ProposalIdeaComponent {
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState],
                 props: ProposalIdeaProps): Future[ListTotalResponse[Idea]] = {
-    IdeaServiceComponent.ideaService.listIdeas(filters = props.proposal.operationId.toOption.map { operation =>
-      Seq(Filter.apply(field = "operationId", value = operation))
-    })
+    IdeaServiceComponent.ideaService.listIdeas(
+      pagination = Some(Pagination(page = 1, perPage = 1000)),
+      filters = props.proposal.operationId.toOption.map { operation =>
+        Seq(Filter.apply(field = "operationId", value = operation))
+      }
+    )
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {

@@ -10,7 +10,6 @@ import org.make.backoffice.facades.AdminOnRest.Fields._
 import org.make.backoffice.facades.AdminOnRest.Show._
 import org.make.backoffice.facades.AdminOnRest.Tab._
 import org.make.backoffice.facades.AdminOnRest.TabbedShowLayout._
-import org.make.backoffice.facades.{Match, Params}
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models.SingleProposal
 import org.make.client.Resource
@@ -27,7 +26,7 @@ object ShowProposal {
       <.Show(
         ^.location := self.props.location,
         ^.resource := Resource.proposals,
-        ^.`match` := Match(params = Params(id = self.props.location.pathname.split('/')(2))), //todo: investigate a better way to get the id
+        ^.`match` := self.props.`match`,
         ^.showTitle := <.ShowProposalTitle()()
       )(
         <.TabbedShowLayout()(

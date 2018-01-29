@@ -210,6 +210,11 @@ object MaterialUi {
       Attribute(name = name, value = element.toJSArray, AS_IS)
   }
 
+  case class IntAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: Int): Attribute[Int] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
   implicit class MaterialUiVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val AutoComplete: ReactClassElementSpec = elements(NativeAutoComplete)
     lazy val Card: ReactClassElementSpec = elements(NativeCard)
@@ -241,7 +246,7 @@ object MaterialUi {
     lazy val adjustForCheckbox = BooleanAttributeSpec("adjustForCheckbox")
     lazy val allRowsSelected = BooleanAttributeSpec("allRowsSelected")
     lazy val animated = BooleanAttributeSpec("animated")
-    lazy val autoHideDuration = IntegerAttributeSpec("autoHideDuration")
+    lazy val autoHideDuration = IntAttributeSpec("autoHideDuration")
     lazy val bodyStyle = MapStringAttributeSpec("bodyStyle")
     lazy val children = ElementAttributeSpec("children")
     lazy val className = StringAttributeSpec("className")

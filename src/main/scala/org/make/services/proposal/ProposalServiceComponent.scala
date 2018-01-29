@@ -65,14 +65,16 @@ trait ProposalServiceComponent {
                        labels: Seq[String] = Seq.empty,
                        tags: Seq[TagId] = Seq(TagId("default-tag")),
                        similarProposals: Seq[ProposalId] = Seq.empty,
-                       ideaId: Option[IdeaId] = None): Future[SingleProposal] = {
+                       ideaId: Option[IdeaId] = None,
+                       operationId: Option[OperationId] = None): Future[SingleProposal] = {
       val request: UpdateProposalRequest = UpdateProposalRequest(
         newContent = newContent,
         theme = theme,
         labels = labels,
         tags = tags,
         similarProposals = similarProposals,
-        ideaId = ideaId
+        idea = ideaId,
+        operation = operationId
       )
       client
         .put[SingleProposal](

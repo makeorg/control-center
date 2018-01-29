@@ -2,7 +2,9 @@ package org.make.backoffice
 
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
+import io.github.shogowada.statictags.{Attribute, SpaceSeparatedStringAttributeSpec}
 import org.make.backoffice.components.aor.validatedProposals.ValidatedProposalList
+import scalacss.DevDefaults._
 
 package object components {
   implicit class RichVirtualDOMElements(val self: VirtualDOMElements) extends AnyVal {
@@ -19,5 +21,11 @@ package object components {
     def NewIdeaComponent: ReactClassElementSpec = self(proposal.NewIdeaComponent.reactClass)
     def IdeaTitle: ReactClassElementSpec = self(aor.idea.EditIdea.ideaTitle)
     def CustomDatagrid: ReactClassElementSpec = self(aor.idea.EditIdea.dataGrid)
+  }
+
+  implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {
+    def :=(style: StyleA): Attribute[Iterable[String]] = spec := style.htmlClass
+
+    def :=(styleSeq: Seq[StyleA]): Attribute[Iterable[String]] = spec := styleSeq.map(_.htmlClass)
   }
 }
