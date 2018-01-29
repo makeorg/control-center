@@ -5,3 +5,5 @@ final case class CreateIdeaRequest(name: String,
                                    country: Option[String],
                                    operation: Option[String],
                                    question: Option[String])
+
+final case class UpdateIdeaRequest(name: String)

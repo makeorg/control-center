@@ -19,6 +19,9 @@ object GetOneRequest extends MakeServices {
       case Resource.proposals =>
         val request = params.asInstanceOf[GetOneRequest]
         proposalService.getProposalById(request.id)
+      case Resource.ideas =>
+        val request = params.asInstanceOf[GetOneRequest]
+        ideaService.getIdea(request.id)
       case Resource.users =>
         throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetOneRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in GetOneRequest")

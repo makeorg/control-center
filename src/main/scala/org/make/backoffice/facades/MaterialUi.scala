@@ -35,6 +35,10 @@ object NativeCardActions extends ReactClass
 object NativeCardText extends ReactClass
 
 @js.native
+@JSImport("material-ui", "Chip")
+object NativeChip extends ReactClass
+
+@js.native
 @JSImport("material-ui", "Table")
 object NativeTable extends ReactClass
 
@@ -121,7 +125,7 @@ trait Event extends js.Object {
 object MaterialUi {
   type OnRowColumnInteraction = js.Function2[Int, Int, Unit]
   type OnRowInteraction = js.Function1[Int, Unit]
-  type OnRowSelection = js.Function2[Int, Seq[Int] | String, Unit]
+  type OnRowSelection = js.Function1[js.Array[Int] | String, Unit]
   type OnChangeMultipleSelect = js.Function3[js.Object, js.UndefOr[Int], js.Array[String], Unit]
   type OnChangeSelect = js.Function3[js.Object, js.UndefOr[Int], String, Unit]
   type FilterAutoComplete = js.Function2[String, String, Boolean]
@@ -214,6 +218,7 @@ object MaterialUi {
     lazy val CardText: ReactClassElementSpec = elements(NativeCardText)
     lazy val CardTitle: ReactClassElementSpec = elements(NativeCardTitle)
     lazy val Checkbox: ReactClassElementSpec = elements(NativeCheckbox)
+    lazy val Chip: ReactClassElementSpec = elements(NativeChip)
     lazy val CircularProgress: ReactClassElementSpec = elements(NativeCircularProgress)
     lazy val Dialog: ReactClassElementSpec = elements(NativeDialog)
     lazy val FlatButton: ReactClassElementSpec = elements(NativeFlatButton)

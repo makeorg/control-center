@@ -1,5 +1,6 @@
 package org.make.client.request
 
+import org.make.backoffice.models.Idea
 import org.make.client.{MakeServices, Resource, Response}
 
 import scala.concurrent.Future
@@ -21,6 +22,9 @@ object UpdateRequest extends MakeServices {
         throw ResourceNotImplementedException(
           s"Resource ${Resource.proposals} not implemented for request UpdateRequest"
         )
+      case Resource.ideas =>
+        val request = params.asInstanceOf[UpdateRequest[Idea]]
+        ideaService.updateIdea(request.id, request.data)
       case Resource.users =>
         throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request UpdateRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in UpdateRequest")

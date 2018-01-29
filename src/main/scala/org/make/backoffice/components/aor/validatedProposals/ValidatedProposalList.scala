@@ -132,8 +132,9 @@ object ValidatedProposalList {
 
   private lazy val reactClass: ReactClass =
     React
-      .createClass[ListProps, Unit](displayName = "ValidatedProposalList", render = {
-        (self) =>
+      .createClass[ListProps, Unit](
+        displayName = "ValidatedProposalList",
+        render = { (self) =>
           <.List(
             ^.title := "Validated proposals",
             ^.location := self.props.location,
@@ -165,10 +166,9 @@ object ValidatedProposalList {
               <.RichTextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
               <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
               <.TextField(^.source := "status", ^.sortable := false)(),
-              <.FunctionField(^.label := "tags", ^.sortable := false, ^.render := { record =>
-                val proposal = record.asInstanceOf[Proposal]
-                proposal.tags.map(_.label).mkString(", ")
-              })(),
+              <.ReferenceArrayField(^.label := "Tags", ^.reference := Resource.tags, ^.source := "tagIds")(
+                <.SingleFieldList()(<.ChipField(^.source := "label")())
+              ),
               <.FunctionField(^.label := "labels", ^.sortable := false, ^.render := { record =>
                 val proposal = record.asInstanceOf[Proposal]
                 proposal.labels.mkString(", ")
@@ -184,7 +184,8 @@ object ValidatedProposalList {
               })()
             )
           )
-      })
+        }
+      )
 
   def filterList(): ReactElement = {
     <.Filter(^.resource := Resource.proposals)(

@@ -104,7 +104,8 @@ trait Proposal extends js.Object {
   val country: String
   val language: String
   val themeId: js.UndefOr[String]
-  val tags: js.Array[Tag]
+  val tagIds: js.Array[String]
+  val ideaId: js.UndefOr[String]
   val operationId: js.UndefOr[String]
 }
 
@@ -125,6 +126,7 @@ object Proposal {
             language: String,
             themeId: Option[ThemeId],
             tags: Seq[Tag],
+            ideaId: Option[IdeaId],
             operationId: Option[OperationId]): Proposal = {
     js.Dynamic
       .literal(
@@ -143,7 +145,8 @@ object Proposal {
         country = country,
         language = language,
         themeId = themeId.map(_.value).orUndefined,
-        tags = tags.toJSArray,
+        tagIds = tags.map(_.id).toJSArray,
+        ideaId = ideaId.map(_.value).orUndefined,
         operationId = operationId.map(_.value).orUndefined
       )
       .asInstanceOf[Proposal]
@@ -196,13 +199,13 @@ object Proposal {
 
 @js.native
 trait SimilarResult extends js.Object {
-  val ideaId: IdeaId
+  val ideaId: String
   val ideaName: String
 }
 
 object SimilarResult {
   def apply(ideaId: IdeaId, ideaName: String): SimilarResult =
-    js.Dynamic.literal(ideaId = ideaId, ideaName = ideaName).asInstanceOf[SimilarResult]
+    js.Dynamic.literal(ideaId = ideaId.value, ideaName = ideaName).asInstanceOf[SimilarResult]
 }
 
 @js.native

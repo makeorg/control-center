@@ -20,6 +20,9 @@ object GetManyRequest extends MakeServices {
       case Resource.operations =>
         val request = params.asInstanceOf[GetManyRequest]
         operationService.getOperationByIds(request.ids)
+      case Resource.tags =>
+        val request = params.asInstanceOf[GetManyRequest]
+        tagService.getTagsByIds(request.ids)
       case Resource.proposals =>
         throw ResourceNotImplementedException(
           s"Resource ${Resource.proposals} not implemented for request GetManyRequest"

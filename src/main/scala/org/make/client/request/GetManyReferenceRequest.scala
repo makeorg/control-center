@@ -11,7 +11,7 @@ trait GetManyReferenceRequest extends js.Object with Request {
   val target: String
   val id: String
   val pagination: js.UndefOr[Pagination]
-  val sorts: js.UndefOr[Seq[Sort]]
+  val sorts: js.UndefOr[Sort]
   val filter: js.UndefOr[Seq[Filter]]
 }
 
@@ -19,7 +19,7 @@ object GetManyReferenceRequest extends MakeServices {
   def apply(target: String,
             id: String,
             pagination: Option[Pagination] = None,
-            sorts: Option[Seq[Sort]] = None,
+            sorts: Option[Sort] = None,
             filter: Option[Seq[Filter]] = None): GetManyReferenceRequest =
     js.Dynamic
       .literal(
@@ -34,9 +34,8 @@ object GetManyReferenceRequest extends MakeServices {
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
       case Resource.proposals =>
-        throw ResourceNotImplementedException(
-          s"Resource ${Resource.proposals} not implemented for request GetManyReferenceRequest"
-        )
+        val request = params.asInstanceOf[GetManyReferenceRequest]
+        proposalService.proposalsByIdea(request.id)
       case Resource.users =>
         throw ResourceNotImplementedException(
           s"Resource ${Resource.users} not implemented for request GetManyReferenceRequest"

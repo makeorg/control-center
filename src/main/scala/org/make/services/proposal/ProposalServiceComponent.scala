@@ -41,20 +41,38 @@ trait ProposalServiceComponent {
         }
     }
 
+    def proposalsByIdea(ideaId: String): Future[ListTotalResponse[Proposal]] = {
+      val request: ExhaustiveSearchRequest =
+        ExhaustiveSearchRequest.buildExhaustiveSearchRequest(
+          Some(Pagination(page = 1, perPage = 5000)),
+          None,
+          Some(Seq(Filter("status", js.Array(Accepted))))
+        )
+      client
+        .post[ProposalsResult](resourceName / "search", data = request.asJson.pretty(ApiService.printer))
+        .map(
+          proposalsResult =>
+            ListTotalResponse(
+              total = proposalsResult.total,
+              data = proposalsResult.results.filter(proposal => proposal.ideaId.exists(id => id == ideaId))
+          )
+        )
+    }
+
     def updateProposal(proposalId: String,
                        newContent: Option[String],
                        theme: Option[ThemeId] = None,
                        labels: Seq[String] = Seq.empty,
                        tags: Seq[TagId] = Seq(TagId("default-tag")),
                        similarProposals: Seq[ProposalId] = Seq.empty,
-                       idea: Option[IdeaId] = None): Future[SingleProposal] = {
+                       ideaId: Option[IdeaId] = None): Future[SingleProposal] = {
       val request: UpdateProposalRequest = UpdateProposalRequest(
         newContent = newContent,
         theme = theme,
         labels = labels,
         tags = tags,
         similarProposals = similarProposals,
-        idea = idea
+        ideaId = ideaId
       )
       client
         .put[SingleProposal](
@@ -76,7 +94,8 @@ trait ProposalServiceComponent {
                          labels: Seq[String] = Seq.empty,
                          tags: Seq[TagId] = Seq(TagId("default-tag")),
                          similarProposals: Seq[ProposalId] = Seq.empty,
-                         idea: Option[IdeaId] = None): Future[SingleProposal] = {
+                         ideaId: Option[IdeaId] = None,
+                         operationId: Option[OperationId] = None): Future[SingleProposal] = {
       val request: ValidateProposalRequest = ValidateProposalRequest(
         newContent = newContent,
         sendNotificationEmail = sendNotificationEmail,
@@ -84,7 +103,8 @@ trait ProposalServiceComponent {
         labels = labels,
         tags = tags,
         similarProposals = similarProposals,
-        idea = idea
+        idea = ideaId,
+        operation = operationId
       )
       client
         .post[SingleProposal](resourceName / proposalId / "accept", data = request.asJson.pretty(ApiService.printer))
@@ -112,6 +132,15 @@ trait ProposalServiceComponent {
       client.post[SingleProposal](resourceName / proposalId / "postpone").map(_ => {}).recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of postponing proposal: failed cursor $e")
+          throw e
+      }
+    }
+
+    def changeProposalsIdea(ideaId: IdeaId, proposalsIds: Seq[ProposalId]): Future[Unit] = {
+      val request = PatchProposalsIdeaRequest(proposalsIds, ideaId)
+      client.post[Unit](resourceName / "change-idea", data = request.asJson.pretty(ApiService.printer)).recover {
+        case e =>
+          js.Dynamic.global.console.log(s"instead of updating proposals: failed cursor $e")
           throw e
       }
     }

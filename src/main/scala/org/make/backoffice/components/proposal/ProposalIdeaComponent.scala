@@ -10,6 +10,7 @@ import org.make.backoffice.components.RichVirtualDOMElements
 import org.make.backoffice.components.proposal.NewIdeaComponent.NewIdeaProps
 import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
+import org.make.backoffice.facades.AdminOnRest.EditButton._
 import org.make.backoffice.models._
 import org.make.client.ListTotalResponse
 import org.make.client.request.Filter
@@ -31,9 +32,9 @@ object NewIdeaComponent {
     IdeaServiceComponent.ideaService
       .createIdea(name = self.state.ideaName, operation = self.props.wrapped.operation)
       .onComplete {
-        case Success(idea) =>
-          self.props.wrapped.setProposalIdea(Some(IdeaId(idea.id)))
-          self.props.wrapped.setIdeas(idea)
+        case Success(ideaResponse) =>
+          self.props.wrapped.setProposalIdea(Some(IdeaId(ideaResponse.data.id)))
+          self.props.wrapped.setIdeas(ideaResponse.data)
           self.setState(_.copy(open = false))
         case Failure(e) => js.Dynamic.global.console.log(s"Fail to create idea: $e")
       }
@@ -90,7 +91,7 @@ object NewIdeaComponent {
 object ProposalIdeaComponent {
   case class ProposalIdeaProps(proposal: SingleProposal, setProposalIdea: Option[IdeaId] => Unit, ideaName: String)
   case class ProposalIdeaState(ideas: Seq[Idea],
-                               selectedIdea: Option[IdeaId],
+                               selectedIdeaId: Option[IdeaId],
                                searchIdeaContent: String,
                                foundProposalIdeas: Seq[Idea],
                                similarResult: Seq[SimilarResult],
@@ -99,7 +100,9 @@ object ProposalIdeaComponent {
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState],
                 props: ProposalIdeaProps): Future[ListTotalResponse[Idea]] = {
-    IdeaServiceComponent.ideaService.listIdeas(filters = Some(Seq(Filter.apply(field = "operationId", value = props.proposal.operationId.toOption))))
+    IdeaServiceComponent.ideaService.listIdeas(filters = props.proposal.operationId.toOption.map { operation =>
+      Seq(Filter.apply(field = "operationId", value = operation))
+    })
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {
@@ -129,7 +132,15 @@ object ProposalIdeaComponent {
             self.setState(_.copy(isLoading = false))
             scalajs.js.Dynamic.global.console.log(s"get similar failed with error $e")
         }
-        self.setState(_.copy(selectedIdea = self.props.wrapped.proposal.idea.toOption))
+        self.setState(_.copy(selectedIdeaId = self.props.wrapped.proposal.ideaId.map(IdeaId(_)).toOption))
+        if (self.props.wrapped.ideaName.isEmpty) {
+          self.props.wrapped.proposal.ideaId.foreach { ideaId =>
+            IdeaServiceComponent.ideaService.getIdea(ideaId).onComplete {
+              case Success(ideaResponse) => self.setState(_.copy(ideaName = Some(ideaResponse.data.name)))
+              case Failure(e)            => js.Dynamic.global.console.log(s"Failed with error $e")
+            }
+          }
+        }
       },
       render = { self =>
         def handleUpdateInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
@@ -139,7 +150,7 @@ object ProposalIdeaComponent {
         def handleNewRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
           val idea = chosenRequest.asInstanceOf[Idea]
           val selectedIdea = Some(IdeaId(idea.id))
-          self.setState(_.copy(selectedIdea = selectedIdea, ideaName = Some(idea.name)))
+          self.setState(_.copy(selectedIdeaId = selectedIdea, ideaName = Some(idea.name)))
           self.props.wrapped.setProposalIdea(selectedIdea)
         }
 
@@ -148,7 +159,7 @@ object ProposalIdeaComponent {
             _.copy(
               foundProposalIdeas = self.state.ideas ++ Seq(newIdea),
               ideas = self.state.ideas ++ Seq(newIdea),
-              selectedIdea = Some(IdeaId(newIdea.id)),
+              selectedIdeaId = Some(IdeaId(newIdea.id)),
               searchIdeaContent = newIdea.name
             )
           )
@@ -163,7 +174,7 @@ object ProposalIdeaComponent {
             ^.id := "search-proposal-idea",
             ^.hintText := "Search idea",
             ^.dataSource := self.state.foundProposalIdeas,
-            ^.dataSourceConfig := DataSourceConfig("name", "ideaId"),
+            ^.dataSourceConfig := DataSourceConfig("name", "id"),
             ^.searchText := self.state.searchIdeaContent,
             ^.hintText := "Search idea",
             ^.onUpdateInput := handleUpdateInput,
@@ -175,15 +186,15 @@ object ProposalIdeaComponent {
             ^.menuProps := Map("maxHeight" -> 400)
           )()
 
-        def onCheckSimilarIdea(ideaId: IdeaId,
+        def onCheckSimilarIdea(ideaId: String,
                                ideaName: String): (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit =
           (_, isChecked) => {
             if (isChecked) {
-              self.setState(_.copy(selectedIdea = Some(ideaId), ideaName = Some(ideaName)))
-              self.props.wrapped.setProposalIdea(Some(ideaId))
+              self.setState(_.copy(selectedIdeaId = Some(IdeaId(ideaId)), ideaName = Some(ideaName)))
+              self.props.wrapped.setProposalIdea(Some(IdeaId(ideaId)))
             } else {
-              self.setState(_.copy(selectedIdea = None, ideaName = None))
-              self.props.wrapped.setProposalIdea(self.props.wrapped.proposal.idea.toOption)
+              self.setState(_.copy(selectedIdeaId = None, ideaName = None))
+              self.props.wrapped.setProposalIdea(self.props.wrapped.proposal.ideaId.map(IdeaId(_)).toOption)
             }
 
             self.setState(_.copy(searchIdeaContent = ""))
@@ -191,13 +202,22 @@ object ProposalIdeaComponent {
 
         <.Card(^.style := Map("marginTop" -> "1em"))(
           <.CardTitle(^.title := "Idea", ^.subtitle := self.state.ideaName.getOrElse(self.props.wrapped.ideaName))(),
+          if (self.state.selectedIdeaId.isDefined) {
+            <.CardActions()(
+              <.EditButton(
+                ^.label := "Edit Idea",
+                ^.basePath := "/ideas",
+                ^.record := js.Dynamic.literal("id" -> self.state.selectedIdeaId.map(_.value).getOrElse("").toString)
+              )()
+            )
+          },
           <.CardActions()(<.h4()("Similar ideas:"), if (self.state.isLoading) {
             <.CircularProgress()()
           } else {
             self.state.similarResult.map { idea =>
               <.Checkbox(
                 ^.label := idea.ideaName,
-                ^.checked := self.state.selectedIdea.contains(idea.ideaId),
+                ^.checked := self.state.selectedIdeaId.exists(_.value == idea.ideaId),
                 ^.onCheck := onCheckSimilarIdea(idea.ideaId, idea.ideaName)
               )()
             }

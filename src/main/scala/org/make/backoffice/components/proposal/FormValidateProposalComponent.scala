@@ -13,25 +13,14 @@ import org.make.backoffice.components.proposal.ProposalIdeaComponent.ProposalIde
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models._
-import org.make.services.idea.IdeaServiceComponent
-import org.make.services.idea.IdeaServiceComponent.IdeaService
-import org.make.services.operation.OperationServiceComponent
-import org.make.services.operation.OperationServiceComponent.OperationService
-import org.make.services.proposal.ProposalServiceComponent
-import org.make.services.proposal.ProposalServiceComponent.ProposalService
-import org.make.services.tag.TagServiceComponent
-import org.make.services.tag.TagServiceComponent.TagService
+import org.make.client.MakeServices
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
-object FormValidateProposalComponent {
-  val proposalService: ProposalService = ProposalServiceComponent.proposalService
-  val ideaService: IdeaService = IdeaServiceComponent.ideaService
-  val operationService: OperationService = OperationServiceComponent.operationService
-  val tagService: TagService = TagServiceComponent.tagService
+object FormValidateProposalComponent extends MakeServices {
 
   case class FormProps(proposal: SingleProposal, action: String, isLocked: Boolean = false)
   case class FormState(content: String,
@@ -44,7 +33,7 @@ object FormValidateProposalComponent {
                        tagsList: Seq[Tag] = Seq.empty,
                        errorMessage: Option[String] = None,
                        similarProposals: Seq[String] = Seq.empty,
-                       idea: Option[IdeaId] = None,
+                       ideaId: Option[IdeaId] = None,
                        ideaName: String = "",
                        isLocked: Boolean = false)
 
@@ -53,7 +42,7 @@ object FormValidateProposalComponent {
       props.proposal.tagIds.foreach { tagId =>
         tagService.tags.onComplete {
           case Success(tags) =>
-            self.setState(_.copy(tags = tags.find(_.tagId.value == tagId) match {
+            self.setState(_.copy(tags = tags.find(_.id == tagId) match {
               case Some(tag) => self.state.tags :+ tag
               case None      => self.state.tags
             }))
@@ -68,16 +57,16 @@ object FormValidateProposalComponent {
       case Some(themeId) =>
         self.setState(_.copy(tagsList = Configuration.getTagsFromThemeId(themeId)))
       case None =>
-        props.proposal.operationId.toOption.foreach { operationId =>
+        props.proposal.operationId.toOption.foreach { operationIdValue =>
           val futureOperationTags = for {
-            operation <- operationService.getOperationById(operationId)
+            operation <- operationService.getOperationById(OperationId(operationIdValue))
             tags      <- tagService.tags
           } yield (operation, tags)
           futureOperationTags.onComplete {
             case Success((operation, tags)) =>
               val tagsList =
                 operation.countriesConfiguration.headOption
-                  .map(_.tagIds.flatMap(tagId => tags.find(_.tagId.value == tagId.value)))
+                  .map(_.tagIds.flatMap(tagId => tags.find(_.id == tagId.value)))
               self.setState(_.copy(operation = Some(operation), tagsList = tagsList.map(_.toSeq).getOrElse(Seq.empty)))
             case Failure(e) => js.Dynamic.global.console.log(s"File with error: $e")
           }
@@ -105,6 +94,13 @@ object FormValidateProposalComponent {
           componentDidMount = self => {
             setTagsFromTagIds(self, self.props.wrapped)
             setTagsListAndOperation(self, self.props.wrapped)
+            self.props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
+              ideaService.getIdea(ideaId).onComplete {
+                case Success(response) =>
+                  self.setState(_.copy(ideaId = Some(IdeaId(response.data.id)), ideaName = response.data.name))
+                case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
+              }
+            }
           },
           componentWillReceiveProps = { (self, props) =>
             self.setState(
@@ -118,10 +114,10 @@ object FormValidateProposalComponent {
             )
             setTagsFromTagIds(self, props.wrapped)
             setTagsListAndOperation(self, props.wrapped)
-            props.wrapped.proposal.idea.toOption.foreach { idea =>
-              ideaService.getIdea(idea.value).onComplete {
+            props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
+              ideaService.getIdea(ideaId).onComplete {
                 case Success(response) =>
-                  self.setState(_.copy(idea = Some(IdeaId(response.data.id)), ideaName = response.data.name))
+                  self.setState(_.copy(ideaId = Some(IdeaId(response.data.id)), ideaName = response.data.name))
                 case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
               }
             }
@@ -174,9 +170,9 @@ object FormValidateProposalComponent {
                     newContent = mayBeNewContent,
                     labels = self.state.labels,
                     theme = self.state.theme,
-                    tags = self.state.tags.map(_.tagId),
+                    tags = self.state.tags.map(tag => TagId(tag.id)),
                     similarProposals = self.state.similarProposals.map(ProposalId.apply),
-                    idea = self.state.idea
+                    ideaId = self.state.ideaId
                   )
                   .onComplete {
                     case Success(_) =>
@@ -202,8 +198,9 @@ object FormValidateProposalComponent {
                     labels = self.state.labels,
                     theme = self.state.theme,
                     similarProposals = self.state.similarProposals.map(ProposalId.apply),
-                    tags = self.state.tags.map(_.tagId),
-                    idea = self.state.idea
+                    tags = self.state.tags.map(tag => TagId(tag.id)),
+                    ideaId = self.state.ideaId,
+                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
                   )
                   .onComplete {
                     case Success(_) =>
@@ -251,7 +248,7 @@ object FormValidateProposalComponent {
               ^.fullWidth := true
             )(self.state.tagsList.map { tag =>
               <.MenuItem(
-                ^.key := tag.tagId.value,
+                ^.key := tag.id,
                 ^.insetChildren := true,
                 ^.checked := self.state.tags.contains(tag),
                 ^.value := tag.label,
@@ -262,8 +259,8 @@ object FormValidateProposalComponent {
             val errorMessage: Option[Element] =
               self.state.errorMessage.map(msg => <.p()(msg))
 
-            def setProposalIdea(idea: Option[IdeaId]): Unit = {
-              self.setState(_.copy(idea = idea))
+            def setProposalIdea(ideaId: Option[IdeaId]): Unit = {
+              self.setState(_.copy(ideaId = ideaId))
             }
 
             <.Card(^.style := Map("marginTop" -> "1em"))(

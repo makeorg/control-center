@@ -116,10 +116,12 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
       retryOnFailure[ENTITY](MakeApiClientHttp[ENTITY](requestData), retryAfterTimeout)
     }
 
-    override def put[ENTITY](apiEndpoint: String,
-                             urlParams: Seq[(String, Any)],
-                             data: InputData,
-                             headers: Map[String, String])(implicit decoder: Decoder[ENTITY]): Future[ENTITY] = {
+    override def put[ENTITY](
+      apiEndpoint: String,
+      urlParams: Seq[(String, Any)] = Seq.empty,
+      data: InputData = "",
+      headers: Map[String, String] = Map.empty
+    )(implicit decoder: Decoder[ENTITY]): Future[ENTITY] = {
       val requestData = RequestData(
         method = "PUT",
         url = urlFrom(apiEndpoint, urlParams),

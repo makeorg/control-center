@@ -89,7 +89,7 @@ trait SingleProposal extends js.Object {
   val updatedAt: js.UndefOr[Date]
   val events: js.UndefOr[js.Array[ProposalAction]]
   val similarProposals: js.UndefOr[js.Array[ProposalId]]
-  val idea: js.UndefOr[IdeaId]
+  val ideaId: js.UndefOr[String]
   val ideaProposals: js.Array[Proposal]
   val operationId: js.UndefOr[String]
 }
@@ -110,7 +110,7 @@ object SingleProposal {
             updatedAt: Option[ZonedDateTime],
             events: Option[Seq[ProposalAction]],
             similarProposals: Option[Seq[ProposalId]],
-            idea: Option[IdeaId],
+            ideaId: Option[IdeaId],
             ideaProposals: Seq[Proposal],
             operationId: Option[OperationId]): SingleProposal =
     js.Dynamic
@@ -130,7 +130,7 @@ object SingleProposal {
         updatedAt = updatedAt.map(_.toJSDate).orUndefined,
         events = events.map(_.toJSArray).orUndefined,
         similarProposals = similarProposals.map(_.toJSArray).orUndefined,
-        idea = idea.orUndefined,
+        ideaId = ideaId.map(_.value).orUndefined,
         ideaProposals = ideaProposals.toJSArray,
         operationId = operationId.map(_.value).orUndefined
       )
