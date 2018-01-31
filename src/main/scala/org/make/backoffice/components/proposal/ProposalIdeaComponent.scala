@@ -25,12 +25,23 @@ import scala.util.{Failure, Success}
 
 object NewIdeaComponent {
 
-  case class NewIdeaProps(setProposalIdea: Option[IdeaId] => Unit, setIdeas: Idea => Unit, operation: Option[String])
+  case class NewIdeaProps(setProposalIdea: Option[IdeaId] => Unit,
+                          setIdeas: Idea                  => Unit,
+                          operation: Option[String],
+                          language: Option[String],
+                          country: Option[String],
+                          question: Option[String])
   case class NewIdeaState(ideaName: String, open: Boolean = false)
 
   private def createIdea(self: React.Self[NewIdeaProps, NewIdeaState]): (SyntheticEvent) => Unit = { _ =>
     IdeaServiceComponent.ideaService
-      .createIdea(name = self.state.ideaName, operation = self.props.wrapped.operation)
+      .createIdea(
+        name = self.state.ideaName,
+        operation = self.props.wrapped.operation,
+        language = self.props.wrapped.language,
+        country = self.props.wrapped.country,
+        question = self.props.wrapped.question
+      )
       .onComplete {
         case Success(ideaResponse) =>
           self.props.wrapped.setProposalIdea(Some(IdeaId(ideaResponse.data.id)))
@@ -224,7 +235,7 @@ object ProposalIdeaComponent {
                 ^.onCheck := onCheckSimilarIdea(idea.ideaId, idea.ideaName)
               )()
             }
-          }, searchNew, <.br()(), <.NewIdeaComponent(^.wrapped := NewIdeaProps(self.props.wrapped.setProposalIdea, setIdeas, self.props.wrapped.proposal.context.operation.toOption))())
+          }, searchNew, <.br()(), <.NewIdeaComponent(^.wrapped := NewIdeaProps(self.props.wrapped.setProposalIdea, setIdeas, self.props.wrapped.proposal.operationId.toOption, self.props.wrapped.proposal.context.language.toOption, self.props.wrapped.proposal.context.country.toOption, self.props.wrapped.proposal.context.question.toOption))())
         )
       }
     )

@@ -41,10 +41,7 @@ object IdeaList {
                 ^.linkType := false,
                 ^.allowEmpty := true,
                 ^.sortable := false
-              )(<.TextField(^.source := "slug")()),
-              <.TextField(^.source := "country")(),
-              <.TextField(^.source := "language")(),
-              <.TextField(^.source := "question")()
+              )(<.TextField(^.source := "slug")())
             )
           )
         }

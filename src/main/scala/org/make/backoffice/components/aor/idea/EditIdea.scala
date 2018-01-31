@@ -105,7 +105,8 @@ object EditIdea extends MakeServices {
                   if (self.state.selectedIds.nonEmpty) {
                     proposalService.changeProposalsIdea(ideaId, self.state.selectedIds).onComplete {
                       case Success(_) =>
-                        val newProposalsList = self.state.proposalsList.diff(self.state.selectedIds)
+                        val newProposalsList = self.state.proposalsList
+                          .filterNot(proposal => self.state.selectedIds.exists(_.value == proposal.id))
                         self.setState(
                           _.copy(
                             proposalsList = newProposalsList,
