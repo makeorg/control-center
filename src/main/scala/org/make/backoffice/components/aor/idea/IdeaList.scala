@@ -41,17 +41,19 @@ object IdeaList {
                 ^.linkType := false,
                 ^.allowEmpty := true,
                 ^.sortable := false
-              )(<.TextField(^.source := "slug")())
+              )(<.TextField(^.source := "slug")()),
+              <.TextField(^.source := "country")(),
+              <.TextField(^.source := "language")(),
+              <.TextField(^.source := "question")()
             )
           )
         }
       )
 
-
   def ideaFilters(): ReactElement = {
-    <.Filter(^.resource := Resource.proposals)(
+    <.Filter(^.resource := Resource.ideas)(
       Seq(
-        <.TextInput(^.label := "Name", ^.source := "name")(),
+        <.TextInput(^.label := "Name", ^.source := "name", ^.alwaysOn := true)(),
         <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(
           <.SelectInput(^.optionText := "slug", ^.alwaysOn := false)()
         )

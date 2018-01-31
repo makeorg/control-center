@@ -4,7 +4,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.make.backoffice.models.{Idea, IdeasResult}
 import org.make.client.request.{Filter, Pagination, Sort}
-import org.make.client.{ListTotalResponse, SingleResponse}
+import org.make.client.{BadRequestHttpException, ListTotalResponse, SingleResponse}
 import org.make.core.CirceClassFormatters
 import org.make.core.URI._
 import org.make.services.ApiService
@@ -36,17 +36,25 @@ trait IdeaServiceComponent {
         .map { ideaResult =>
           ListTotalResponse.apply(total = ideaResult.total, data = ideaResult.results)
         }
-        .recover {
+        .recoverWith {
+          case e: BadRequestHttpException =>
+            js.Dynamic.global.console
+              .log(s"instead of listing idea: failed cursor ${e.getMessage}")
+            Future.failed(js.JavaScriptException(js.Error(e.errors.headOption.flatMap(_.message).getOrElse(""))))
           case e =>
             js.Dynamic.global.console.log(s"instead of converting to ListTotalResponse: failed cursor $e")
-            throw e
+            Future.failed(e)
         }
 
     def getIdea(ideaId: String): Future[SingleResponse[Idea]] =
-      client.get[Idea](resourceName / ideaId).map(SingleResponse.apply).recover {
+      client.get[Idea](resourceName / ideaId).map(SingleResponse.apply).recoverWith {
+        case e: BadRequestHttpException =>
+          js.Dynamic.global.console
+            .log(s"instead of getting idea: failed cursor ${e.getMessage}")
+          Future.failed(js.JavaScriptException(js.Error(e.errors.headOption.flatMap(_.message).getOrElse(""))))
         case e =>
           js.Dynamic.global.console.log(s"instead of converting to SingleResponse: failed cursor $e")
-          throw e
+          Future.failed(e)
       }
 
     def createIdea(name: String,
@@ -64,10 +72,14 @@ trait IdeaServiceComponent {
       client
         .post[Idea](resourceName, data = request.asJson.pretty(ApiService.printer))
         .map(SingleResponse.apply)
-        .recover {
+        .recoverWith {
+          case e: BadRequestHttpException =>
+            js.Dynamic.global.console
+              .log(s"instead of creating idea: failed cursor ${e.getMessage}")
+            Future.failed(js.JavaScriptException(js.Error(e.errors.headOption.flatMap(_.message).getOrElse(""))))
           case e =>
             js.Dynamic.global.console.log(s"instead of creating idea: failed cursor $e")
-            throw e
+            Future.failed(e)
         }
     }
 
@@ -76,10 +88,14 @@ trait IdeaServiceComponent {
       client
         .put[String](resourceName / ideaId, data = request.asJson.pretty(ApiService.printer))
         .map(_ => SingleResponse(idea))
-        .recover {
+        .recoverWith {
+          case e: BadRequestHttpException =>
+            js.Dynamic.global.console
+              .log(s"instead of updating idea: failed cursor ${e.getMessage}")
+            Future.failed(js.JavaScriptException(js.Error(e.errors.headOption.flatMap(_.message).getOrElse(""))))
           case e =>
             js.Dynamic.global.console.log(s"instead of updating idea: failed cursor $e")
-            throw e
+            Future.failed(e)
         }
     }
   }

@@ -5,7 +5,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactCl
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
-import io.github.shogowada.scalajs.reactjs.router.Location
+import io.github.shogowada.scalajs.reactjs.router.{Location, Match}
 import io.github.shogowada.statictags._
 
 import scala.scalajs.js
@@ -80,25 +80,6 @@ case class ChoicesAttributeSpec(name: String) extends AttributeSpec {
 
   def :=(value: js.Array[Choice]): Attribute[js.Array[Choice]] =
     Attribute(name = name, value = value, AS_IS)
-}
-
-@js.native
-trait Params extends js.Object {
-  val id: String
-}
-
-object Params {
-  def apply(id: String): Params =
-    js.Dynamic.literal(id = id).asInstanceOf[Params]
-}
-
-@js.native
-trait Match extends js.Object {
-  val params: Params
-}
-
-object Match {
-  def apply(params: Params): Match = js.Dynamic.literal(params = params).asInstanceOf[Match]
 }
 
 @js.native

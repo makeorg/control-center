@@ -167,7 +167,8 @@ final case class UpdateProposalRequest(newContent: Option[String],
                                        labels: Seq[String],
                                        tags: Seq[TagId],
                                        similarProposals: Seq[ProposalId],
-                                       ideaId: Option[IdeaId])
+                                       idea: Option[IdeaId],
+                                       operation: Option[OperationId])
 
 final case class RefuseProposalRequest(sendNotificationEmail: Boolean, refusalReason: Option[String])
 

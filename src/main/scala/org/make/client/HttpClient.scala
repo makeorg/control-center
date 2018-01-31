@@ -4,7 +4,6 @@ import io.circe.Decoder
 import org.scalajs.dom.ext.Ajax.InputData
 
 import scala.concurrent.Future
-import scala.scalajs.js
 
 trait HttpClient {
   def baseUrl: String
