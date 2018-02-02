@@ -120,12 +120,7 @@ object ProposalIdeaComponent {
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {
-    ProposalServiceComponent.proposalService
-      .getDuplicates(
-        props.proposal.id,
-        props.proposal.themeId.toOption.map(ThemeId(_)),
-        props.proposal.operationId.toOption
-      )
+    ProposalServiceComponent.proposalService.getDuplicates(props.proposal.id)
   }
 
   lazy val reactClass: ReactClass =

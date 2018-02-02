@@ -5,6 +5,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactCl
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.statictags._
+import org.make.backoffice.facades.MaterialUi.IntAttributeSpec
 import org.make.backoffice.facades.{
   ElementAttributeSpec,
   LocationAttributeSpec,
@@ -60,7 +61,7 @@ object List {
     lazy val title = StringAttributeSpec("title")
     lazy val actions = ElementAttributeSpec("actions")
     lazy val filters = ElementAttributeSpec("filters")
-    lazy val perPage = IntegerAttributeSpec("perPage")
+    lazy val perPage = IntAttributeSpec("perPage")
     lazy val sort = MapStringAttributeSpec("sort")
     lazy val filter = MapArrayAttributeSpec("filter")
     lazy val location = LocationAttributeSpec("location")

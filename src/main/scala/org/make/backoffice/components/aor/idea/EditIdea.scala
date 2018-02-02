@@ -8,15 +8,15 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.components.RichVirtualDOMElements
 import org.make.backoffice.facades.AdminOnRest.Edit._
 import org.make.backoffice.facades.AdminOnRest.Fields._
-import org.make.backoffice.facades.AdminOnRest.FormTab._
 import org.make.backoffice.facades.AdminOnRest.Inputs._
 import org.make.backoffice.facades.AdminOnRest.ShowButton._
-import org.make.backoffice.facades.AdminOnRest.TabbedForm._
+import org.make.backoffice.facades.AdminOnRest.SimpleForm._
 import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
-import org.make.backoffice.models.{Idea, IdeaId, Proposal, ProposalId}
+import org.make.backoffice.models._
 import org.make.client.request.{Filter, Pagination}
 import org.make.client.{MakeServices, Resource}
+import org.make.services.proposal.Accepted
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -37,36 +37,60 @@ object EditIdea extends MakeServices {
     <.h1()(self.state.idea.name)
   })
 
-  case class DataGridState(ideas: Seq[Idea],
-                           proposalsList: Seq[Proposal],
-                           searchIdeaContent: String,
-                           selectedIdeaId: Option[IdeaId],
-                           selectedIds: Seq[ProposalId],
-                           snackbarOkOpen: Boolean = false,
-                           snackbarKoOpen: Boolean = false)
+  case class DataGridProps(ideaId: Option[String], operationId: Option[String])
+  case class DataGridState(ideas: Seq[Idea] = Seq.empty,
+                           proposalsIdeaList: Seq[Proposal] = Seq.empty,
+                           proposalsSearchList: Seq[Proposal] = Seq.empty,
+                           searchIdeaContent: String = "",
+                           searchProposalContent: String = "",
+                           selectedIdeaId: Option[IdeaId] = None,
+                           selectedProposalToAdd: Option[Proposal] = None,
+                           selectedIds: Seq[ProposalId] = Seq.empty,
+                           snackbarUpdateOkOpen: Boolean = false,
+                           snackbarAddOkOpen: Boolean = false,
+                           snackbarKoOpen: Boolean = false,
+                           shouldUpdate: Boolean = true)
 
   lazy val dataGrid: ReactClass =
     React
-      .createClass[Unit, DataGridState](
+      .createClass[DataGridProps, DataGridState](
         displayName = "dataGrid",
-        getInitialState = _ => DataGridState(Seq.empty, Seq.empty, "", None, Seq.empty),
+        getInitialState = _ => DataGridState(),
         componentDidMount = self => {
-          if (self.state.ideas.isEmpty) {
-            ideaService
-              .listIdeas(
-                Some(Pagination(page = 1, perPage = 1000)),
+          ideaService
+            .listIdeas(Some(Pagination(page = 1, perPage = 1000)), None, None) //todo asynchronous search
+            .onComplete {
+              case Success(ideaResponse) => self.setState(_.copy(ideas = ideaResponse.data.toSeq))
+              case Failure(e)            => js.Dynamic.global.console.log(s"Failed with error $e")
+            }
+        },
+        componentDidUpdate = (self, _, _) => {
+          if (self.props.wrapped.operationId.nonEmpty)
+            self.setState(_.copy(shouldUpdate = false))
+          if (self.state.shouldUpdate) {
+            proposalService
+              .proposals(
+                Some(Pagination(page = 1, perPage = 5000)), //todo asynchronous search
                 None,
-                Some(Seq(Filter("operationId", self.props.native.record.operationId)))
+                Some(
+                  Seq(
+                    Filter(field = "operationId", value = self.props.wrapped.operationId.getOrElse("")),
+                    Filter(field = "status", value = js.Array(Accepted.shortName))
+                  )
+                )
               )
               .onComplete {
-                case Success(ideaResponse) => self.setState(_.copy(ideas = ideaResponse.data.toSeq))
-                case Failure(e)            => js.Dynamic.global.console.log(s"Failed with error $e")
+                case Success(proposals) =>
+                  self.setState(
+                    _.copy(
+                      proposalsIdeaList = proposals.data.toSeq
+                        .filter(proposal => proposal.ideaId.contains(self.props.wrapped.ideaId.getOrElse(""))),
+                      proposalsSearchList = proposals.data.toSeq
+                        .filterNot(proposal => proposal.ideaId.contains(self.props.wrapped.ideaId.getOrElse("")))
+                    )
+                  )
+                case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
               }
-          }
-          proposalService.proposalsByIdea(self.props.native.record.id.toString).onComplete {
-            case Success(proposals) =>
-              self.setState(_.copy(proposalsList = proposals.data.toSeq))
-            case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
           }
         },
         render = self => {
@@ -80,13 +104,22 @@ object EditIdea extends MakeServices {
             self.setState(_.copy(selectedIds = selectedIds.map(ProposalId(_))))
           }
 
-          def handleUpdateInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
+          def handleUpdateIdeaInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
             self.setState(_.copy(searchIdeaContent = searchText))
           }
 
-          def handleNewRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
+          def handleUpdateProposalInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
+            self.setState(_.copy(searchProposalContent = searchText))
+          }
+
+          def handleNewIdeaRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
             val idea = chosenRequest.asInstanceOf[Idea]
             self.setState(_.copy(selectedIdeaId = Some(IdeaId(idea.id))))
+          }
+
+          def handleNewProposalRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
+            val proposal = chosenRequest.asInstanceOf[Proposal]
+            self.setState(_.copy(selectedProposalToAdd = Some(proposal)))
           }
 
           def filterAutoComplete: (String, String) => Boolean = (searchText, key) => {
@@ -94,7 +127,7 @@ object EditIdea extends MakeServices {
           }
 
           def onSnackbarClose: (String) => Unit = (_) => {
-            self.setState(_.copy(snackbarOkOpen = false, snackbarKoOpen = false))
+            self.setState(_.copy(snackbarUpdateOkOpen = false, snackbarKoOpen = false, snackbarAddOkOpen = false))
           }
 
           def onClickChangeIdea: (SyntheticEvent) => Unit = {
@@ -105,14 +138,14 @@ object EditIdea extends MakeServices {
                   if (self.state.selectedIds.nonEmpty) {
                     proposalService.changeProposalsIdea(ideaId, self.state.selectedIds).onComplete {
                       case Success(_) =>
-                        val newProposalsList = self.state.proposalsList
+                        val newProposalsList = self.state.proposalsIdeaList
                           .filterNot(proposal => self.state.selectedIds.exists(_.value == proposal.id))
                         self.setState(
                           _.copy(
-                            proposalsList = newProposalsList,
+                            proposalsIdeaList = newProposalsList,
                             selectedIds = Seq.empty,
                             searchIdeaContent = "",
-                            snackbarOkOpen = true
+                            snackbarUpdateOkOpen = true
                           )
                         )
                       case Failure(_) => self.setState(_.copy(snackbarKoOpen = true))
@@ -122,89 +155,159 @@ object EditIdea extends MakeServices {
               }
           }
 
-          if (self.state.proposalsList.nonEmpty) {
-            <.div()(
-              <.h2()(s"Proposals list (${self.state.proposalsList.length}):"),
-              <.Table(
-                ^.multiSelectable := true,
-                ^.onRowSelection := onRowSelection(self.state.proposalsList.map(_.id)),
-                ^.style := Map("tableLayout" -> "auto"),
-                ^.fixedHeader := false
-              )(
-                <.TableHeader()(<.TableRow()(<.TableHeaderColumn()("Content"), <.TableHeaderColumn()())),
-                <.TableBody(^.deselectOnClickaway := false)(self.state.proposalsList.map { proposal =>
-                  <.TableRow(^.key := proposal.id, ^.selected := self.state.selectedIds.exists(_.value == proposal.id))(
-                    <.TableRowColumn(^.style := Map("whiteSpace" -> "normal", "wordWrap" -> "break-word"))(
-                      proposal.content
-                    ),
-                    <.TableRowColumn()(
-                      <.ShowButton(
-                        ^.basePath := "/validated_proposals",
-                        ^.record := js.Dynamic.literal("id" -> proposal.id)
-                      )()
-                    )
-                  )
-                })
-              ),
-              <.br()(),
-              <.AutoComplete(
-                ^.id := "search-proposal-idea",
-                ^.hintText := "Search idea",
-                ^.dataSource := self.state.ideas,
-                ^.dataSourceConfig := DataSourceConfig("name", "id"),
-                ^.searchText := self.state.searchIdeaContent,
-                ^.hintText := "Search idea",
-                ^.onUpdateInput := handleUpdateInput,
-                ^.onNewRequest := handleNewRequest,
-                ^.fullWidth := true,
-                ^.popoverProps := Map("canAutoPosition" -> true),
-                ^.openOnFocus := true,
-                ^.filterAutoComplete := filterAutoComplete,
-                ^.menuProps := Map("maxHeight" -> 400)
-              )(),
-              <.FlatButton(
-                ^.fullWidth := true,
-                ^.label := "Change idea",
-                ^.secondary := true,
-                ^.onClick := onClickChangeIdea
-              )(),
-              <.Snackbar(
-                ^.open := self.state.snackbarOkOpen,
-                ^.message := "Proposal(s) update successfully",
-                ^.autoHideDuration := 3000,
-                ^.onRequestClose := onSnackbarClose
-              )(),
-              <.Snackbar(
-                ^.open := self.state.snackbarKoOpen,
-                ^.message := "Proposal(s) update failed",
-                ^.autoHideDuration := 3000,
-                ^.onRequestClose := onSnackbarClose,
-                ^.bodyStyle := Map("backgroundColor" -> "red")
-              )()
-            )
-          } else {
-            <.h3()("No proposals")
+          def onClickAddProposal: (SyntheticEvent) => Unit = (event) => {
+            event.preventDefault()
+            self.state.selectedProposalToAdd match {
+              case Some(proposal) =>
+                self.props.wrapped.ideaId.foreach {
+                  ideaId =>
+                    proposalService
+                      .changeProposalsIdea(IdeaId(ideaId), Seq(ProposalId(proposal.id)))
+                      .onComplete {
+                        case Success(_) =>
+                          val newProposalsList = self.state.proposalsIdeaList :+ proposal
+                          val newSearchList = self.state.proposalsSearchList.filterNot(_.id == proposal.id)
+                          self.setState(
+                            _.copy(
+                              proposalsIdeaList = newProposalsList,
+                              proposalsSearchList = newSearchList,
+                              searchProposalContent = "",
+                              selectedProposalToAdd = None,
+                              snackbarAddOkOpen = true
+                            )
+                          )
+                        case Failure(_) => self.setState(_.copy(snackbarKoOpen = true))
+                      }
+                }
+              case None =>
+            }
           }
+
+          <.Card(^.style := Map("marginTop" -> "3em", "padding" -> "0px 1em 3em"))(
+            <.CardHeader(^.title := "Add proposals")(),
+            <.AutoComplete(
+              ^.id := "search-proposal",
+              ^.hintText := "Search proposals to add",
+              ^.dataSource := self.state.proposalsSearchList,
+              ^.dataSourceConfig := DataSourceConfig("content", "id"),
+              ^.searchText := self.state.searchProposalContent,
+              ^.onUpdateInput := handleUpdateProposalInput,
+              ^.onNewRequest := handleNewProposalRequest,
+              ^.fullWidth := true,
+              ^.popoverProps := Map("canAutoPosition" -> true),
+              ^.openOnFocus := true,
+              ^.filterAutoComplete := filterAutoComplete,
+              ^.menuProps := Map("maxHeight" -> 400)
+            )(),
+            <.FlatButton(
+              ^.fullWidth := true,
+              ^.label := "add proposal",
+              ^.secondary := true,
+              ^.onClick := onClickAddProposal
+            )(),
+            if (self.state.proposalsIdeaList.nonEmpty) {
+              <.div()(
+                <.CardTitle(
+                  ^.title := "Proposals list",
+                  ^.subtitle := s"${self.state.proposalsIdeaList.length} proposals"
+                )(),
+                <.Table(
+                  ^.multiSelectable := true,
+                  ^.onRowSelection := onRowSelection(self.state.proposalsIdeaList.map(_.id)),
+                  ^.style := Map("tableLayout" -> "auto"),
+                  ^.fixedHeader := false
+                )(
+                  <.TableHeader()(<.TableRow()(<.TableHeaderColumn()("Content"), <.TableHeaderColumn()())),
+                  <.TableBody(^.deselectOnClickaway := false)(self.state.proposalsIdeaList.map { proposal =>
+                    <.TableRow(
+                      ^.key := proposal.id,
+                      ^.selected := self.state.selectedIds.exists(_.value == proposal.id)
+                    )(
+                      <.TableRowColumn(^.style := Map("whiteSpace" -> "normal", "wordWrap" -> "break-word"))(
+                        proposal.content
+                      ),
+                      <.TableRowColumn()(
+                        <.ShowButton(
+                          ^.basePath := "/validated_proposals",
+                          ^.record := js.Dynamic.literal("id" -> proposal.id)
+                        )()
+                      )
+                    )
+                  })
+                ),
+                <.br()(),
+                <.AutoComplete(
+                  ^.id := "search-proposal-idea",
+                  ^.hintText := "Search idea",
+                  ^.dataSource := self.state.ideas,
+                  ^.dataSourceConfig := DataSourceConfig("name", "id"),
+                  ^.searchText := self.state.searchIdeaContent,
+                  ^.onUpdateInput := handleUpdateIdeaInput,
+                  ^.onNewRequest := handleNewIdeaRequest,
+                  ^.fullWidth := true,
+                  ^.popoverProps := Map("canAutoPosition" -> true),
+                  ^.openOnFocus := true,
+                  ^.filterAutoComplete := filterAutoComplete,
+                  ^.menuProps := Map("maxHeight" -> 400)
+                )(),
+                <.FlatButton(
+                  ^.fullWidth := true,
+                  ^.label := "Change idea",
+                  ^.secondary := true,
+                  ^.onClick := onClickChangeIdea
+                )(),
+                <.Snackbar(
+                  ^.open := self.state.snackbarUpdateOkOpen,
+                  ^.message := "Proposal(s) updated successfully",
+                  ^.autoHideDuration := 3000,
+                  ^.onRequestClose := onSnackbarClose
+                )(),
+                <.Snackbar(
+                  ^.open := self.state.snackbarAddOkOpen,
+                  ^.message := "Proposal(s) added successfully",
+                  ^.autoHideDuration := 3000,
+                  ^.onRequestClose := onSnackbarClose
+                )(),
+                <.Snackbar(
+                  ^.open := self.state.snackbarKoOpen,
+                  ^.message := "Proposal(s) update failed",
+                  ^.autoHideDuration := 3000,
+                  ^.onRequestClose := onSnackbarClose,
+                  ^.bodyStyle := Map("backgroundColor" -> "red")
+                )()
+              )
+            } else {
+              <.CardTitle(^.title := "No proposals")()
+            }
+          )
         }
       )
 
   case class EditProps() extends RouterProps
+  case class EditState(idea: Option[Idea])
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass: ReactClass =
     React
-      .createClass[EditProps, Unit](
+      .createClass[EditProps, EditState](
         displayName = "EditIdea",
+        getInitialState = _ => EditState(None),
+        componentDidMount = self => {
+          ideaService.getIdea(self.props.`match`.params.getOrElse("id", "")).onComplete {
+            case Success(ideaResponse) => self.setState(_.copy(Some(ideaResponse.data)))
+            case Failure(e)            => js.Dynamic.global.console.log(s"Failed with error: $e")
+          }
+        },
         render = self => {
-          <.Edit(
-            ^.resource := Resource.ideas,
-            ^.location := self.props.location,
-            ^.`match` := self.props.`match`,
-            ^.editTitle := <.IdeaTitle()()
-          )(
-            <.TabbedForm()(
-              <.FormTab(^.label := "Infos")(
+          <.div()(
+            <.Edit(
+              ^.resource := Resource.ideas,
+              ^.location := self.props.location,
+              ^.`match` := self.props.`match`,
+              ^.editTitle := <.IdeaTitle()()
+            )(
+              <.SimpleForm()(
                 <.TextField(^.source := "id")(),
                 <.TextInput(^.source := "name", ^.options := Map("fullWidth" -> true))(),
                 <.ReferenceField(
@@ -217,9 +320,14 @@ object EditIdea extends MakeServices {
                 <.TextField(^.source := "country")(),
                 <.TextField(^.source := "language")(),
                 <.TextField(^.source := "question")()
-              ),
-              <.FormTab(^.label := "Proposals list")(<.CustomDatagrid()())
-            )
+              )
+            ),
+            <.CustomDatagrid(
+              ^.wrapped := DataGridProps(
+                ideaId = self.state.idea.map(_.id),
+                operationId = self.state.idea.flatMap(_.operationId.toOption)
+              )
+            )()
           )
         }
       )
