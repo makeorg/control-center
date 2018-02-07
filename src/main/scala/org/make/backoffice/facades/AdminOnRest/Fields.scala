@@ -99,7 +99,6 @@ object Fields {
     lazy val reference = StringAttributeSpec("reference")
     lazy val linkType = DynamicAttributeSpec("linkType")
     lazy val target = StringAttributeSpec("target")
-    lazy val perPage = IntegerAttributeSpec("perPage")
     lazy val source = StringAttributeSpec("source")
     lazy val label = StringAttributeSpec("label")
     lazy val addLabel = BooleanAttributeSpec("addLabel")

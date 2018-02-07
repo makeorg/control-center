@@ -25,6 +25,7 @@ object IdeaList {
         displayName = "IdeaList",
         render = self => {
           <.List(
+            ^.perPage := 200,
             ^.title := "Ideas",
             ^.location := self.props.location,
             ^.resource := Resource.ideas,

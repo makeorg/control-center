@@ -147,14 +147,9 @@ trait ProposalServiceComponent {
       }
     }
 
-    def getDuplicates(proposalId: String,
-                      themeId: Option[ThemeId],
-                      operation: Option[String]): Future[Seq[SimilarResult]] = {
-      var headers: Map[String, String] = Map.empty
-      themeId.foreach(themeId => headers += client.themeIdHeader -> themeId.value)
-      operation.foreach(op    => headers += client.operationHeader -> op)
+    def getDuplicates(proposalId: String): Future[Seq[SimilarResult]] = {
       client
-        .get[js.Array[SimilarResult]](resourceName / proposalId / "duplicates", headers = headers)
+        .get[js.Array[SimilarResult]](resourceName / proposalId / "duplicates")
         .map(similarResult => similarResult.toSeq)
         .recover {
           case e =>
