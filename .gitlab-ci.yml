@@ -74,7 +74,6 @@ deploy-production:
     name: production
   only:
     - production
-  when: manual
   script:
     - >
       curl -D - -X "POST"
