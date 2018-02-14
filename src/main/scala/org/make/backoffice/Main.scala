@@ -6,6 +6,7 @@ import org.make.backoffice.components.aor.idea.IdeaList
 import org.make.backoffice.components.aor.idea.CreateIdea
 import org.make.backoffice.components.aor.idea.EditIdea
 import org.make.backoffice.components.aor.proposal.{ProposalList, ShowProposal}
+import org.make.backoffice.components.aor.tag.{TagList, ShowTag, CreateTag}
 import org.make.backoffice.components.aor.validatedProposals.ValidatedProposalList
 import org.make.backoffice.components.{Dashboard, LoginPage}
 import org.make.backoffice.facades.AdminOnRest.Admin._
@@ -32,7 +33,7 @@ object Main {
         )(),
         <.Resource(^.name := Resource.ideas, ^.listing := IdeaList(), ^.create := CreateIdea(), ^.edit := EditIdea())(),
         <.Resource(^.name := Resource.operations)(),
-        <.Resource(^.name := Resource.tags)()
+        <.Resource(^.name := Resource.tags, ^.listing := TagList(), ^.show := ShowTag(), ^.create := CreateTag())()
       ),
       dom.document.getElementById("make-backoffice")
     )
