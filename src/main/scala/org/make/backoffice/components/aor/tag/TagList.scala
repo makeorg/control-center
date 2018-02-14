@@ -3,11 +3,14 @@ package org.make.backoffice.components.aor.tag
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
+import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.facades.AdminOnRest.Datagrid._
 import org.make.backoffice.facades.AdminOnRest.Fields._
 import org.make.backoffice.facades.AdminOnRest.List._
 import org.make.backoffice.facades.AdminOnRest.ShowButton._
+import org.make.backoffice.facades.AdminOnRest.Filter._
+import org.make.backoffice.facades.AdminOnRest.Inputs._
 import org.make.client.Resource
 
 
@@ -28,7 +31,8 @@ object TagList {
             ^.sort := Map("field" -> "label", "order" -> "ASC"),
             ^.location := self.props.location,
             ^.resource := Resource.tags,
-            ^.hasCreate := true
+            ^.hasCreate := true,
+            ^.filters := tagFilters()
           )(
             <.Datagrid()(
               <.ShowButton()(),
@@ -37,4 +41,12 @@ object TagList {
           )
         }
       )
+
+  def tagFilters(): ReactElement = {
+    <.Filter(^.resource := Resource.tags)(
+      Seq(
+        <.TextInput(^.label := "Label", ^.source := "label", ^.alwaysOn := true)()
+      )
+    )
+  }
 }
