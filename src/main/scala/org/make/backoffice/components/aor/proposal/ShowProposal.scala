@@ -34,6 +34,8 @@ object ShowProposal {
             <.TextField(^.source := "id")(),
             <.TextField(^.source := "content")(),
             <.TextField(^.source := "status")(),
+            <.TextField(^.source := "language")(),
+            <.TextField(^.source := "country")(),
             <.FunctionField(^.label := "theme", ^.render := { record =>
               val proposal = record.asInstanceOf[SingleProposal]
               proposal.themeId.map { id =>
