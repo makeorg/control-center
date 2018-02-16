@@ -21,7 +21,7 @@ object RestClient extends CirceClassFormatters {
     val jsonClient = JsonServerRestClient.jsonServerRestClient(Configuration.apiUrl + "/moderation", fetchJsonCookie)
 
     resource match {
-      case "tags" => jsonClient(restVerb, resource, parameters)
+      case Resource.tags => jsonClient(restVerb, resource, parameters)
       case res if Resource.amongst(res) => Request.fetch(restVerb, resource, parameters).toJSPromise
       case unknownResource =>
         Future.failed(new ClassNotFoundException(s"Unknown resource: $unknownResource")).toJSPromise
