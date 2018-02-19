@@ -11,6 +11,7 @@ import org.make.backoffice.facades.AdminOnRest.Filter._
 import org.make.backoffice.facades.AdminOnRest.Inputs._
 import org.make.backoffice.facades.AdminOnRest.List._
 import org.make.backoffice.facades.AdminOnRest.EditButton._
+import org.make.backoffice.helpers.Configuration
 import org.make.client.Resource
 
 object IdeaList {
@@ -54,7 +55,13 @@ object IdeaList {
         <.TextInput(^.label := "Name", ^.source := "name", ^.alwaysOn := true)(),
         <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(
           <.SelectInput(^.optionText := "slug", ^.alwaysOn := false)()
-        )
+        ),
+        <.SelectInput(
+          ^.label := "Country",
+          ^.source := "country",
+          ^.alwaysOn := true,
+          ^.choices := Configuration.choicesCountryFilter
+        )()
       )
     )
   }

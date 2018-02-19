@@ -77,7 +77,8 @@ final case class ExhaustiveSearchRequest(proposalIds: Option[Seq[String]] = None
                                          status: Option[Seq[ProposalStatus]] = None,
                                          sorts: Option[Seq[SortRequest]] = None,
                                          limit: Option[Int] = None,
-                                         skip: Option[Int] = None)
+                                         skip: Option[Int] = None,
+                                         country: Option[String])
 
 object ExhaustiveSearchRequest {
 
@@ -95,8 +96,13 @@ object ExhaustiveSearchRequest {
       status = getStatusFromFilters(filters),
       sorts = getSortFromOptionalSort(sort, filters),
       limit = pagination.map(_.perPage),
-      skip = pagination.map(page => page.page * page.perPage - page.perPage)
+      skip = pagination.map(page => page.page * page.perPage - page.perPage),
+      country = getCountryFromFilters(filters)
     )
+
+  private def getCountryFromFilters(maybeFilters: Option[Seq[Filter]]): Option[String] = {
+    maybeFilters.flatMap(_.find(_.field == "country")).map(_.value.toString)
+  }
 
   private def getIdFromFilters(field: String, maybeFilters: Option[Seq[Filter]]): Option[String] = {
     maybeFilters.flatMap(_.find(_.field == field).map(_.value.toString))

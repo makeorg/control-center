@@ -31,9 +31,10 @@ trait FilterValues extends js.Object {
   def theme: js.UndefOr[String]
   def tags: js.UndefOr[js.Array[String]]
   def content: js.UndefOr[String]
-  def operation: js.UndefOr[String]
+  def operationId: js.UndefOr[String]
   def source: js.UndefOr[String]
   def question: js.UndefOr[String]
+  def country: js.UndefOr[String]
 }
 
 object ValidatedProposalList {
@@ -49,12 +50,14 @@ object ValidatedProposalList {
 
     def buildParams(filters: FilterValues, fileName: String): String = {
       var filterParams: String = s"?format=csv&filename=${fileName.split(".csv").head}"
-      filterParams = filters.theme.map(theme         => filterParams + s"&theme=$theme").getOrElse(filterParams)
-      filterParams = filters.tags.map(tags           => filterParams + s"&tags=${tags.mkString(",")}").getOrElse(filterParams)
-      filterParams = filters.content.map(content     => filterParams + s"&content=$content").getOrElse(filterParams)
-      filterParams = filters.operation.map(operation => filterParams + s"&operation=$operation").getOrElse(filterParams)
-      filterParams = filters.source.map(source       => filterParams + s"&source=$source").getOrElse(filterParams)
-      filterParams = filters.question.map(question   => filterParams + s"&question=$question").getOrElse(filterParams)
+      filterParams = filters.theme.map(theme     => filterParams + s"&theme=$theme").getOrElse(filterParams)
+      filterParams = filters.tags.map(tags       => filterParams + s"&tags=${tags.mkString(",")}").getOrElse(filterParams)
+      filterParams = filters.content.map(content => filterParams + s"&content=$content").getOrElse(filterParams)
+      filterParams =
+        filters.operationId.map(operationId        => filterParams + s"&operation=$operationId").getOrElse(filterParams)
+      filterParams = filters.source.map(source     => filterParams + s"&source=$source").getOrElse(filterParams)
+      filterParams = filters.question.map(question => filterParams + s"&question=$question").getOrElse(filterParams)
+      filterParams = filters.country.map(country   => filterParams + s"&country=$country").getOrElse(filterParams)
       filterParams
     }
 
@@ -197,6 +200,12 @@ object ValidatedProposalList {
           ^.source := "theme",
           ^.alwaysOn := false,
           ^.choices := Configuration.choicesThemeFilter
+        )(),
+        <.SelectInput(
+          ^.label := "Country",
+          ^.source := "country",
+          ^.alwaysOn := true,
+          ^.choices := Configuration.choicesCountryFilter
         )(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
         <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(

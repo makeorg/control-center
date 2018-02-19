@@ -4,6 +4,24 @@ import scala.scalajs.js
 import js.JSConverters._
 
 @js.native
+trait CountryConfiguration extends js.Object {
+  val countryCode: String
+  val defaultLanguage: String
+  val supportedLanguages: js.Array[String]
+}
+
+object CountryConfiguration {
+  def apply(countryCode: String, defaultLanguage: String, supportedLanguages: Seq[String]): CountryConfiguration =
+    js.Dynamic
+      .literal(
+        countryCode = countryCode,
+        defaultLanguage = defaultLanguage,
+        supportedLanguages = supportedLanguages.toJSArray
+      )
+      .asInstanceOf[CountryConfiguration]
+}
+
+@js.native
 trait BusinessConfig extends js.Object {
   val proposalMinLength: Int
   val proposalMaxLength: Int
@@ -13,6 +31,7 @@ trait BusinessConfig extends js.Object {
   val minProposalsPerSequence: Int
   val maxProposalsPerSequence: Int
   val reasonsForRefusal: js.Array[String]
+  val supportedCountries: js.Array[CountryConfiguration]
 }
 
 object BusinessConfig {
@@ -23,7 +42,8 @@ object BusinessConfig {
             nPendingProposalsTriggerEmailModerator: Int,
             minProposalsPerSequence: Int,
             maxProposalsPerSequence: Int,
-            reasonsForRefusal: Seq[String]): BusinessConfig =
+            reasonsForRefusal: Seq[String],
+            supportedCountries: Seq[CountryConfiguration]): BusinessConfig =
     js.Dynamic
       .literal(
         proposalMinLength = proposalMinLength,
@@ -33,7 +53,8 @@ object BusinessConfig {
         nPendingProposalsTriggerEmailModerator = nPendingProposalsTriggerEmailModerator,
         minProposalsPerSequence = minProposalsPerSequence,
         maxProposalsPerSequence = maxProposalsPerSequence,
-        reasonsForRefusal = reasonsForRefusal.toJSArray
+        reasonsForRefusal = reasonsForRefusal.toJSArray,
+        supportedCountries = supportedCountries.toJSArray
       )
       .asInstanceOf[BusinessConfig]
 }

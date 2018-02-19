@@ -13,7 +13,7 @@ import org.make.backoffice.facades.AdminOnRest.List._
 import org.make.backoffice.facades.AdminOnRest.ShowButton._
 import org.make.backoffice.facades.Choice
 import org.make.backoffice.helpers.Configuration
-import org.make.backoffice.models.Proposal
+import org.make.backoffice.models.{BusinessConfig, Country, Proposal}
 import org.make.client.Resource
 import org.make.services.proposal.{Archived, Pending, Postponed, Refused}
 
@@ -78,6 +78,7 @@ object ProposalList {
       Choice(Refused.shortName, "Refused"),
       Choice(Archived.shortName, "Archived")
     )
+
     <.Filter(^.resource := Resource.proposals)(
       Seq(
         //TODO: add the possibility to search by userId or proposalId
@@ -88,6 +89,12 @@ object ProposalList {
           ^.source := "theme",
           ^.alwaysOn := false,
           ^.choices := Configuration.choicesThemeFilter
+        )(),
+        <.SelectInput(
+          ^.label := "Country",
+          ^.source := "country",
+          ^.alwaysOn := true,
+          ^.choices := Configuration.choicesCountryFilter
         )(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
         <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(
