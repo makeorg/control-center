@@ -65,7 +65,7 @@ object ValidatedProposalList {
       event.preventDefault()
       val params: String = buildParams(self.props.wrapped.filters, self.state.fileName)
       self.setState(_.copy(open = false))
-      org.scalajs.dom.window.open(s"$apiUrl/moderation/proposals$params")
+      org.scalajs.dom.window.open(s"$apiUrl/moderation/proposals/export$params")
     }
 
     private def handleOpen(self: React.Self[ExportProps, ExportState]): (SyntheticEvent) => Unit = { event =>

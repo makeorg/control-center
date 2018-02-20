@@ -111,11 +111,15 @@ object ProposalIdeaComponent {
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState],
                 props: ProposalIdeaProps): Future[ListTotalResponse[Idea]] = {
+    val filters = Seq(
+      Filter.apply(field = "operationId", value = props.proposal.operationId),
+      Filter.apply(field = "language", value = props.proposal.language),
+      Filter.apply(field = "country", value = props.proposal.country)
+    )
+
     IdeaServiceComponent.ideaService.listIdeas(
       pagination = Some(Pagination(page = 1, perPage = 1000)),
-      filters = props.proposal.operationId.toOption.map { operation =>
-        Seq(Filter.apply(field = "operationId", value = operation))
-      }
+      filters = Some(filters)
     )
   }
 
