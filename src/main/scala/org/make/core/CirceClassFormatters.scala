@@ -183,7 +183,7 @@ trait CirceClassFormatters extends TimeInstances {
     )
 
   implicit lazy val businessConfigEncoder: Encoder[BusinessConfig] =
-    Encoder.forProduct8(
+    Encoder.forProduct9(
       "proposalMinLength",
       "proposalMaxLength",
       "themes",
@@ -191,7 +191,8 @@ trait CirceClassFormatters extends TimeInstances {
       "nPendingProposalsTriggerEmailModerator",
       "minProposalsPerSequence",
       "maxProposalsPerSequence",
-      "reasonsForRefusal"
+      "reasonsForRefusal",
+      "supportedCountries"
     )(
       businessConfig =>
         (
@@ -202,9 +203,18 @@ trait CirceClassFormatters extends TimeInstances {
           businessConfig.nPendingProposalsTriggerEmailModerator,
           businessConfig.minProposalsPerSequence,
           businessConfig.maxProposalsPerSequence,
-          businessConfig.reasonsForRefusal
+          businessConfig.reasonsForRefusal,
+          businessConfig.supportedCountries
       )
     )
+
+  implicit lazy val countryConfigEncoder: Encoder[CountryConfiguration] =
+    Encoder.forProduct3("countryCode", "defaultLanguage", "supportedLanguages")(
+      countryConfig => (countryConfig.countryCode, countryConfig.defaultLanguage, countryConfig.supportedLanguages)
+    )
+
+  implicit lazy val countryConfigDecoder: Decoder[CountryConfiguration] =
+    Decoder.forProduct3("countryCode", "defaultLanguage", "supportedLanguages")(CountryConfiguration.apply)
 
   implicit lazy val gradientColorDecoder: Decoder[GradientColor] =
     Decoder.forProduct2("from", "to")(GradientColor.apply)
@@ -225,7 +235,7 @@ trait CirceClassFormatters extends TimeInstances {
     )(Theme.apply)
 
   implicit lazy val businessConfigDecoder: Decoder[BusinessConfig] =
-    Decoder.forProduct8(
+    Decoder.forProduct9(
       "proposalMinLength",
       "proposalMaxLength",
       "themes",
@@ -233,7 +243,8 @@ trait CirceClassFormatters extends TimeInstances {
       "nPendingProposalsTriggerEmailModerator",
       "minProposalsPerSequence",
       "maxProposalsPerSequence",
-      "reasonsForRefusal"
+      "reasonsForRefusal",
+      "supportedCountries"
     )(BusinessConfig.apply)
 
   implicit lazy val operationTranslationDecoder: Decoder[OperationTranslation] =

@@ -2,7 +2,7 @@ package org.make.backoffice.helpers
 
 import io.circe.parser.parse
 import org.make.backoffice.facades.Choice
-import org.make.backoffice.models.{BusinessConfig, Tag}
+import org.make.backoffice.models.{BusinessConfig, Country, Tag}
 import org.make.core.CirceClassFormatters
 import org.scalajs.dom
 
@@ -69,5 +69,19 @@ object Configuration extends CirceClassFormatters {
         }
         .toJSArray
     }.getOrElse(Seq.empty.toJSArray)
+  }
+
+  def choicesCountryFilter: js.Array[Choice] = {
+    businessConfig
+      .map(_.supportedCountries.map { countryConfiguration =>
+        Choice(
+          countryConfiguration.countryCode,
+          Country
+            .getCountryNameByCountryCode(countryConfiguration.countryCode)
+            .getOrElse(countryConfiguration.countryCode)
+        )
+      }.toSeq)
+      .getOrElse(Seq.empty)
+      .toJSArray
   }
 }

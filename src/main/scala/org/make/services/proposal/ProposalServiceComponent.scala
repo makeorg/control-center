@@ -4,7 +4,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.make.backoffice.models._
 import org.make.client.request.{Filter, Pagination, Sort}
-import org.make.client.{ListTotalResponse, SingleResponse}
+import org.make.client.{BadRequestHttpException, ListTotalResponse, SingleResponse}
 import org.make.core.CirceClassFormatters
 import org.make.core.URI._
 import org.make.services.ApiService
@@ -29,15 +29,36 @@ trait ProposalServiceComponent {
     def proposals(pagination: Option[Pagination],
                   sort: Option[Sort],
                   filters: Option[Seq[Filter]]): Future[ListTotalResponse[Proposal]] = {
-      val request: ExhaustiveSearchRequest =
-        ExhaustiveSearchRequest.buildExhaustiveSearchRequest(pagination, sort, filters)
       client
-        .post[ProposalsResult](resourceName / "search", data = request.asJson.pretty(ApiService.printer))
-        .map(proposalsResult => ListTotalResponse.apply(proposalsResult.total, proposalsResult.results))
-        .recover {
+        .get[ProposalsResult](
+          resourceName ?
+            ("limit", pagination.map(_.perPage)) &
+            ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
+            ("sort", sort.map(_.field)) &
+            ("order", sort.map(_.order)) &
+            ("proposalIds", ApiService.getFieldValueFromFilters("proposalIds", filters)) &
+            ("themesIds", ApiService.getFieldValueFromFilters("theme", filters)) &
+            ("tagsIds", ApiService.getFieldValueFromFilters("tagsIds", filters)) &
+            ("labelsIds", ApiService.getFieldValueFromFilters("labelsIds", filters)) &
+            ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
+            ("content", ApiService.getFieldValueFromFilters("content", filters)) &
+            ("source", ApiService.getFieldValueFromFilters("source", filters)) &
+            ("location", ApiService.getFieldValueFromFilters("location", filters)) &
+            ("question", ApiService.getFieldValueFromFilters("question", filters)) &
+            ("status", ApiService.getFieldValueFromFilters("status", filters)) &
+            ("country", ApiService.getFieldValueFromFilters("country", filters))
+        )
+        .map { proposalsResult =>
+          ListTotalResponse.apply(total = proposalsResult.total, data = proposalsResult.results)
+        }
+        .recoverWith {
+          case e: BadRequestHttpException =>
+            js.Dynamic.global.console
+              .log(s"instead of listing proposals: failed cursor ${e.getMessage}")
+            Future.failed(js.JavaScriptException(js.Error(e.errors.headOption.flatMap(_.message).getOrElse(""))))
           case e =>
             js.Dynamic.global.console.log(s"instead of converting to ListTotalResponse: failed cursor $e")
-            throw e
+            Future.failed(e)
         }
     }
 
