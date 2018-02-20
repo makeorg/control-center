@@ -5,7 +5,7 @@ import scala.scalajs.js.URIUtils
 // Inspired by https://github.com/lemonlabsuk/scala-uri/blob/master/src/main/scala/com/netaporter/uri/dsl/UriDsl.scala
 class UriDsl(val uri: String) extends AnyVal {
 
-  private def urlify(unencodedUrl: String): String = URIUtils.encodeURIComponent(unencodedUrl)
+  private def urlify(unEncodedUrl: String): String = URIUtils.encodeURIComponent(unEncodedUrl)
 
   private def hasParams(uri: String) = uri.contains("?")
 

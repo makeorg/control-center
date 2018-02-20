@@ -39,7 +39,7 @@ object AuthClient extends CirceClassFormatters with ConfigurationsServiceCompone
             configurationService.getConfigurations.onComplete {
               case Success(businessConfig) =>
                 dom.window.localStorage.setItem("Configuration", businessConfig.asJson.toString)
-              case Failure(e) =>
+              case Failure(_) =>
                 g.alert("Failed to load configuration. Please refresh the page to avoid unexpected behaviours.")
             }
             Future.successful("auth_login")
