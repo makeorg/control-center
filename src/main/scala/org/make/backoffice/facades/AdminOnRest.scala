@@ -7,17 +7,20 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.{Location, Match}
 import io.github.shogowada.statictags._
-import org.make.client.{HttpClient, Response}
+import org.make.client.Response
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSImport
 import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.Promise
+import scala.scalajs.js.annotation.JSImport
 
 @js.native
 @JSImport("admin-on-rest", "default")
 object JsonServerRestClient extends js.Object {
-  def jsonServerRestClient(apiUrl: String, httpClient: js.Function2[String, js.Dictionary[String], Promise[Response]]): js.Function3[String, String, js.Object, Promise[Response]] = js.native
+  def jsonServerRestClient(
+    apiUrl: String,
+    httpClient: js.Function2[String, js.UndefOr[js.Dictionary[String]], Promise[Response]]
+  ): js.Function3[String, String, js.Object, Promise[Response]] = js.native
 }
 
 @js.native
