@@ -15,7 +15,7 @@ import org.make.backoffice.facades.Choice
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models.{BusinessConfig, Country, Proposal}
 import org.make.client.Resource
-import org.make.services.proposal.{Archived, Pending, Postponed, Refused}
+import org.make.services.proposal._
 
 import scala.scalajs.js
 
@@ -34,6 +34,7 @@ object ProposalList {
         ^.resource := Resource.proposals,
         ^.hasCreate := false,
         ^.filters := filterList(),
+        ^.filter := Map("status" -> Seq(Pending.shortName, Postponed.shortName)),
         ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
       )(
         <.Datagrid(^.rowStyle := rowStyle)(
