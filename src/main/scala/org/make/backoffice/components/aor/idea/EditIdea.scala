@@ -67,7 +67,7 @@ object EditIdea extends MakeServices {
         componentDidUpdate = (self, _, _) => {
           if (self.props.wrapped.operationId.nonEmpty)
             self.setState(_.copy(shouldUpdate = false))
-          if (self.state.shouldUpdate) {
+          if (self.state.shouldUpdate && self.props.wrapped.operationId.isDefined) {
             proposalService
               .proposals(
                 Some(Pagination(page = 1, perPage = 5000)), //todo asynchronous search
