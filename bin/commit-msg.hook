@@ -32,7 +32,7 @@ do
 	if [[ "$LINE_READ" == "2" ]]; then
 		if ! [[ $line =~ $COMMIT_BLANK_LINE_REGEXP ]]; then
 			echo -e "\x1B[31Second line if your commit message should be blank. :)"
-			echo -e "\x1B[31mLigne: $line"
+			echo -e "\x1B[31mLine: $line"
 			exit 1;
 		fi
 	fi
@@ -40,7 +40,7 @@ do
 	if [[ $LINE_READ -ge 3 ]]; then
 		if ! [[ $line =~ $COMMIT_BODY_REGEXP ]]; then
 			echo -e "\x1B[31mYour commit message should contain a body. :)"
-			echo "\x1B[31mLigne: $line"
+			echo "\x1B[31mLine: $line"
 			exit 1
 		fi
 	fi

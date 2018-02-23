@@ -62,24 +62,6 @@ trait ProposalServiceComponent {
         }
     }
 
-    def proposalsByIdea(ideaId: String): Future[ListTotalResponse[Proposal]] = {
-      val request: ExhaustiveSearchRequest =
-        ExhaustiveSearchRequest.buildExhaustiveSearchRequest(
-          Some(Pagination(page = 1, perPage = 5000)),
-          None,
-          Some(Seq(Filter("status", js.Array(Accepted))))
-        )
-      client
-        .post[ProposalsResult](resourceName / "search", data = request.asJson.pretty(ApiService.printer))
-        .map(
-          proposalsResult =>
-            ListTotalResponse(
-              total = proposalsResult.total,
-              data = proposalsResult.results.filter(proposal => proposal.ideaId.exists(id => id == ideaId))
-          )
-        )
-    }
-
     def updateProposal(proposalId: String,
                        newContent: Option[String],
                        theme: Option[ThemeId] = None,

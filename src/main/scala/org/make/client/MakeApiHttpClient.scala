@@ -37,7 +37,6 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
       "Accept" -> MediaTypes.`application/json`,
       "Content-Type" -> "application/json;charset=UTF-8"
     ) ++
-      client.customHeaders ++
       MakeApiClientHttp.getToken.map { token =>
         Map("Authorization" -> s"${token.token_type} ${token.access_token}")
       }.getOrElse(Map.empty)
@@ -45,15 +44,6 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
 
   final class DefaultMakeApiHttpClient extends HttpClient {
 
-    var customHeaders: Map[String, String] = Map.empty
-
-    val themeIdHeader: String = "x-make-theme-id"
-    val operationHeader: String = "x-make-operation"
-    val sourceHeader: String = "x-make-source"
-    val locationHeader: String = "x-make-location"
-    val questionHeader: String = "x-make-question"
-    val languageHeader: String = "x-make-language"
-    val countryHeader: String = "x-make-country"
     val retryAfterTimeout: Int = 4
 
     override def baseUrl: String = apiBaseUrl

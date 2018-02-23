@@ -51,7 +51,7 @@ object LoginPage {
                 AuthClient
                   .futureAuth(AuthClient.AUTH_LOGIN, js.Dictionary("user" -> Some(singleResponseUser.data)))
                   .onComplete {
-                    case Success(loginResponse) =>
+                    case Success(_) =>
                       self.props.history.push("/")
                     case Failure(e) =>
                       self.setState(self.state.copy(isSignIn = false, error = Some(s"failed to connect: $e")))

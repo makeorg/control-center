@@ -34,8 +34,9 @@ object GetManyReferenceRequest extends MakeServices {
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
       case Resource.proposals =>
-        val request = params.asInstanceOf[GetManyReferenceRequest]
-        proposalService.proposalsByIdea(request.id)
+        throw ResourceNotImplementedException(
+          s"Resource ${Resource.proposals} not implemented for request GetManyReferenceRequest"
+        )
       case Resource.users =>
         throw ResourceNotImplementedException(
           s"Resource ${Resource.users} not implemented for request GetManyReferenceRequest"

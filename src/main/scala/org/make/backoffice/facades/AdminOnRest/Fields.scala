@@ -14,7 +14,7 @@ import scala.scalajs.js.annotation.JSImport
 object NativeTextField extends ReactClass
 
 @js.native
-@JSImport("admine-on-rest", "BooleanField")
+@JSImport("admin-on-rest", "BooleanField")
 object NativeBooleanField extends ReactClass
 
 @js.native
