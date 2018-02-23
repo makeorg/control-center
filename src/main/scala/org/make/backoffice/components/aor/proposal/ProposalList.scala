@@ -34,7 +34,6 @@ object ProposalList {
         ^.resource := Resource.proposals,
         ^.hasCreate := false,
         ^.filters := filterList(),
-        ^.filter := Map("status" -> Seq(Pending.shortName, Postponed.shortName)),
         ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
       )(
         <.Datagrid(^.rowStyle := rowStyle)(
@@ -95,6 +94,7 @@ object ProposalList {
           ^.label := "Country",
           ^.source := "country",
           ^.alwaysOn := true,
+          ^.allowEmpty := true,
           ^.choices := Configuration.choicesCountryFilter
         )(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
