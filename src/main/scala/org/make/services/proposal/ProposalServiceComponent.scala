@@ -45,7 +45,9 @@ trait ProposalServiceComponent {
             ("source", ApiService.getFieldValueFromFilters("source", filters)) &
             ("location", ApiService.getFieldValueFromFilters("location", filters)) &
             ("question", ApiService.getFieldValueFromFilters("question", filters)) &
-            ("status", ApiService.getFieldValueFromFilters("status", filters)) &
+            ("status", ApiService
+              .getFieldValueFromFilters("status", filters)
+              .orElse(Some(s"${Pending.shortName},${Postponed.shortName}"))) &
             ("country", ApiService.getFieldValueFromFilters("country", filters))
         )
         .map { proposalsResult =>
