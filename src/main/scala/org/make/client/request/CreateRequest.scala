@@ -2,7 +2,6 @@ package org.make.client.request
 
 import org.make.backoffice.models.Idea
 import org.make.client.{MakeServices, Resource, Response}
-import sun.security.provider.certpath.OCSPResponse.SingleResponse
 
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -31,6 +30,7 @@ object CreateRequest extends MakeServices {
           language = request.data.language.toOption,
           country = request.data.country.toOption,
           operation = request.data.operationId.toOption,
+          theme = request.data.themeId.toOption,
           question = request.data.question.toOption
         )
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in CreateRequest")

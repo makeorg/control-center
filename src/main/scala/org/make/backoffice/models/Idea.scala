@@ -27,6 +27,7 @@ trait Idea extends js.Object {
   val id: String
   val name: String
   val operationId: js.UndefOr[String]
+  val themeId: js.UndefOr[String]
   val question: js.UndefOr[String]
   val country: js.UndefOr[String]
   val language: js.UndefOr[String]
@@ -41,6 +42,7 @@ object Idea {
             language: Option[String],
             country: Option[String],
             operationId: Option[OperationId],
+            themeId: Option[ThemeId],
             question: Option[String],
             createdAt: ZonedDateTime,
             updatedAt: Option[ZonedDateTime]): Idea = {
@@ -49,6 +51,7 @@ object Idea {
         id = ideaId.value,
         name = name,
         operationId = operationId.map(_.value).orUndefined,
+        themeId = themeId.map(_.value).orUndefined,
         question = question.orUndefined,
         country = country.orUndefined,
         language = language.orUndefined,
