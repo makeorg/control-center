@@ -44,7 +44,8 @@ trait ProposalServiceComponent {
         ("status", ApiService
           .getFieldValueFromFilters("status", filters)
           .orElse(Some(s"${Pending.shortName},${Postponed.shortName}"))) &
-        ("country", ApiService.getFieldValueFromFilters("country", filters))
+        ("country", ApiService.getFieldValueFromFilters("country", filters)) &
+        ("language", ApiService.getFieldValueFromFilters("language", filters))
 
       // search with keywords (=content) should not use order param to get results by relevance
       ApiService.getFieldValueFromFilters("content", filters) match {
