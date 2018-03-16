@@ -65,7 +65,8 @@ object FormValidateProposalComponent extends MakeServices {
           futureOperationTags.onComplete {
             case Success((operation, tags)) =>
               val tagsList =
-                operation.countriesConfiguration.find(cc => cc.countryCode == props.proposal.country)
+                operation.countriesConfiguration
+                  .find(cc => cc.countryCode == props.proposal.country)
                   .map(_.tagIds.flatMap(tagId => tags.find(_.id == tagId.value)))
               self.setState(_.copy(operation = Some(operation), tagsList = tagsList.map(_.toSeq).getOrElse(Seq.empty)))
             case Failure(e) => js.Dynamic.global.console.log(s"File with error: $e")
@@ -177,7 +178,7 @@ object FormValidateProposalComponent extends MakeServices {
                   )
                   .onComplete {
                     case Success(_) =>
-                      self.props.history.push("/validated_proposals")
+                      self.props.history.goBack()
                       self.setState(_.copy(errorMessage = None))
                     case Failure(_) =>
                       self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
@@ -205,7 +206,7 @@ object FormValidateProposalComponent extends MakeServices {
                   )
                   .onComplete {
                     case Success(_) =>
-                      self.props.history.push("/proposals")
+                      self.props.history.goBack()
                       self.setState(_.copy(errorMessage = None))
                     case Failure(_) =>
                       self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
@@ -278,12 +279,12 @@ object FormValidateProposalComponent extends MakeServices {
                 <.TextFieldMaterialUi(
                   ^.floatingLabelText := "Language",
                   ^.value := self.props.wrapped.proposal.language,
-                  ^.disabled :=  true
+                  ^.disabled := true
                 )(),
                 <.TextFieldMaterialUi(
                   ^.floatingLabelText := "Country",
                   ^.value := self.props.wrapped.proposal.country,
-                  ^.disabled :=  true
+                  ^.disabled := true
                 )(),
                 selectTheme,
                 selectTags,
