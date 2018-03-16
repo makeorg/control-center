@@ -214,7 +214,7 @@ object ValidatedProposalList {
         <.TextInput(^.label := "Question", ^.source := "question", ^.alwaysOn := false)(),
         <.SelectArrayInput(
           ^.label := "Tags",
-          ^.source := "tags",
+          ^.source := "tagsIds",
           ^.alwaysOn := false,
           ^.choices := Configuration.choicesTagsFilter
         )()
