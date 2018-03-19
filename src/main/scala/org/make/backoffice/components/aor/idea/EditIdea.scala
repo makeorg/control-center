@@ -307,7 +307,7 @@ object EditIdea extends MakeServices {
               ^.`match` := self.props.`match`,
               ^.editTitle := <.IdeaTitle()()
             )(
-              <.SimpleForm()(
+              <.SimpleForm(^.redirect := false)(
                 <.TextField(^.source := "id")(),
                 <.TextInput(^.source := "name", ^.options := Map("fullWidth" -> true))(),
                 <.ReferenceField(
