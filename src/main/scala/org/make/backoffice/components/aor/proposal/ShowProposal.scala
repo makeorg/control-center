@@ -30,6 +30,9 @@ object ShowProposal {
         ^.showTitle := <.ShowProposalTitle()()
       )(
         <.TabbedShowLayout()(
+          <.Tab(^.label := "Actions")(
+            <.ShowProposalComponents(^.wrapped := ShowComponentsProps(org.scalajs.dom.window.location.hash))()
+          ),
           <.Tab(^.label := "Proposal infos", ^.disabled := false)(
             <.TextField(^.source := "id")(),
             <.TextField(^.source := "content")(),
@@ -58,9 +61,6 @@ object ShowProposal {
               ^.locales := "en-EN"
             )(),
             <.TextField(^.source := "author.firstName", ^.label := "User name")()
-          ),
-          <.Tab(^.label := "Actions")(
-            <.ShowProposalComponents(^.wrapped := ShowComponentsProps(org.scalajs.dom.window.location.hash))()
           )
         )
     )
