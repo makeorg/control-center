@@ -90,7 +90,8 @@ object NewIdeaComponent {
               <.TextFieldMaterialUi(
                 ^.value := self.state.ideaName,
                 ^.onChange := handleIdeaNameEdition,
-                ^.floatingLabelText := "idea name"
+                ^.floatingLabelText := "idea name",
+                ^.fullWidth := true
               )()
             )
           )
@@ -117,10 +118,8 @@ object ProposalIdeaComponent {
       Filter.apply(field = "country", value = props.proposal.country)
     )
 
-    IdeaServiceComponent.ideaService.listIdeas(
-      pagination = Some(Pagination(page = 1, perPage = 1000)),
-      filters = Some(filters)
-    )
+    IdeaServiceComponent.ideaService
+      .listIdeas(pagination = Some(Pagination(page = 1, perPage = 1000)), filters = Some(filters))
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {
