@@ -35,7 +35,7 @@ object IdeaList {
           )(
             <.Datagrid()(
               <.EditButton()(),
-              <.TextField(^.source := "name")(),
+              <.TextField(^.source := "name", ^.sortable := false)(),
               <.ReferenceField(
                 ^.source := "operationId",
                 ^.label := "operation",

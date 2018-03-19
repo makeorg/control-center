@@ -29,27 +29,31 @@ trait ProposalServiceComponent {
     def proposals(pagination: Option[Pagination],
                   sort: Option[Sort],
                   filters: Option[Seq[Filter]]): Future[ListTotalResponse[Proposal]] = {
+
+      var getProposalUri: String = resourceName ?
+        ("limit", pagination.map(_.perPage)) &
+        ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
+        ("proposalIds", ApiService.getFieldValueFromFilters("proposalIds", filters)) &
+        ("themesIds", ApiService.getFieldValueFromFilters("theme", filters)) &
+        ("tagsIds", ApiService.getFieldValueFromFilters("tagsIds", filters)) &
+        ("labelsIds", ApiService.getFieldValueFromFilters("labelsIds", filters)) &
+        ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
+        ("source", ApiService.getFieldValueFromFilters("source", filters)) &
+        ("location", ApiService.getFieldValueFromFilters("location", filters)) &
+        ("question", ApiService.getFieldValueFromFilters("question", filters)) &
+        ("status", ApiService
+          .getFieldValueFromFilters("status", filters)
+          .orElse(Some(s"${Pending.shortName},${Postponed.shortName}"))) &
+        ("country", ApiService.getFieldValueFromFilters("country", filters))
+
+      // search with keywords (=content) should not use order param to get results by relevance
+      ApiService.getFieldValueFromFilters("content", filters) match {
+        case Some(content) if content.nonEmpty => getProposalUri = getProposalUri & ("content", Some(content))
+        case _                                 => getProposalUri = getProposalUri & ("sort", sort.map(_.field)) & ("order", sort.map(_.order))
+      }
+
       client
-        .get[ProposalsResult](
-          resourceName ?
-            ("limit", pagination.map(_.perPage)) &
-            ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
-            ("sort", sort.map(_.field)) &
-            ("order", sort.map(_.order)) &
-            ("proposalIds", ApiService.getFieldValueFromFilters("proposalIds", filters)) &
-            ("themesIds", ApiService.getFieldValueFromFilters("theme", filters)) &
-            ("tagsIds", ApiService.getFieldValueFromFilters("tagsIds", filters)) &
-            ("labelsIds", ApiService.getFieldValueFromFilters("labelsIds", filters)) &
-            ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
-            ("content", ApiService.getFieldValueFromFilters("content", filters)) &
-            ("source", ApiService.getFieldValueFromFilters("source", filters)) &
-            ("location", ApiService.getFieldValueFromFilters("location", filters)) &
-            ("question", ApiService.getFieldValueFromFilters("question", filters)) &
-            ("status", ApiService
-              .getFieldValueFromFilters("status", filters)
-              .orElse(Some(s"${Pending.shortName},${Postponed.shortName}"))) &
-            ("country", ApiService.getFieldValueFromFilters("country", filters))
-        )
+        .get[ProposalsResult](getProposalUri)
         .map { proposalsResult =>
           ListTotalResponse.apply(total = proposalsResult.total, data = proposalsResult.results)
         }
