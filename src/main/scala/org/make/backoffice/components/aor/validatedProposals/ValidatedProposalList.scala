@@ -25,6 +25,7 @@ import org.make.services.proposal.Accepted
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.scalajs.js
+import scala.scalajs.js.JSConverters.JSRichGenMap
 
 @js.native
 trait FilterValues extends js.Object {
@@ -192,7 +193,6 @@ object ValidatedProposalList {
 
   def filterList(): ReactElement = {
     <.Filter(^.resource := Resource.proposals)(
-      Seq(
         //TODO: add the possibility to search by userId or proposalId
         <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
         <.SelectInput(
@@ -212,14 +212,12 @@ object ValidatedProposalList {
           <.SelectInput(^.optionText := "slug", ^.alwaysOn := false)()
         ),
         <.TextInput(^.label := "Question", ^.source := "question", ^.alwaysOn := false)(),
-        <.SelectArrayInput(
-          ^.label := "Tags",
-          ^.source := "tagsIds",
-          ^.alwaysOn := false,
-          ^.choices := Configuration.choicesTagsFilter
-        )()
+        <.ReferenceArrayInput(^.label := "Tags", ^.source := "tagsIds",
+          ^.filterToQuery := {(searchText) => Map("label" -> searchText).toJSDictionary},
+          ^.reference := Resource.tags)(
+          <.SelectArrayInput(^.optionText := "label", ^.alwaysOn := false)()
+        )
         //TODO: add filter on: "moderator"
-      )
     )
   }
 }
