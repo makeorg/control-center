@@ -31,6 +31,7 @@ trait IdeaServiceComponent {
             ("language", ApiService.getFieldValueFromFilters("language", filters)) &
             ("country", ApiService.getFieldValueFromFilters("country", filters)) &
             ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
+            ("themeId", ApiService.getFieldValueFromFilters("themeId", filters)) &
             ("question", ApiService.getFieldValueFromFilters("question", filters))
         )
         .map { ideaResult =>
@@ -61,12 +62,14 @@ trait IdeaServiceComponent {
                    language: Option[String] = None,
                    country: Option[String] = None,
                    operation: Option[String] = None,
+                   theme: Option[String] = None,
                    question: Option[String] = None): Future[SingleResponse[Idea]] = {
       val request: CreateIdeaRequest = CreateIdeaRequest(
         name = name,
         language = language,
         country = country,
         operation = operation,
+        theme = theme,
         question = question
       )
       client

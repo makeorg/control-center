@@ -13,7 +13,7 @@ import org.make.backoffice.facades.AdminOnRest.List._
 import org.make.backoffice.facades.AdminOnRest.ShowButton._
 import org.make.backoffice.facades.Choice
 import org.make.backoffice.helpers.Configuration
-import org.make.backoffice.models.{BusinessConfig, Country, Proposal}
+import org.make.backoffice.models.Proposal
 import org.make.client.Resource
 import org.make.services.proposal._
 

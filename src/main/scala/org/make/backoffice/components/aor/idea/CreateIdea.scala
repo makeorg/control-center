@@ -9,6 +9,7 @@ import org.make.backoffice.facades.AdminOnRest.Fields._
 import org.make.backoffice.facades.AdminOnRest.Inputs._
 import org.make.backoffice.facades.AdminOnRest.SimpleForm._
 import org.make.backoffice.facades.Choice
+import org.make.backoffice.helpers.Configuration
 import org.make.client.Resource
 
 import scala.scalajs.js
@@ -48,6 +49,12 @@ object CreateIdea {
                     <.SelectInput(^.source := "language", ^.choices := languages, ^.allowEmpty := false)()
                   )
               },
+              <.SelectInput(
+                ^.label := "Theme",
+                ^.source := "themeId",
+                ^.allowEmpty := true,
+                ^.choices := Configuration.choicesThemeFilter
+              )(),
               <.ReferenceInput(
                 ^.label := "Operation",
                 ^.source := "operationId",

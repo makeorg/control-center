@@ -28,6 +28,7 @@ object NewIdeaComponent {
   case class NewIdeaProps(setProposalIdea: Option[IdeaId] => Unit,
                           setIdeas: Idea                  => Unit,
                           operation: Option[String],
+                          theme: Option[String],
                           language: Option[String],
                           country: Option[String],
                           question: Option[String])
@@ -38,6 +39,7 @@ object NewIdeaComponent {
       .createIdea(
         name = self.state.ideaName,
         operation = self.props.wrapped.operation,
+        theme = self.props.wrapped.theme,
         language = self.props.wrapped.language,
         country = self.props.wrapped.country,
         question = self.props.wrapped.question
@@ -112,11 +114,18 @@ object ProposalIdeaComponent {
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState],
                 props: ProposalIdeaProps): Future[ListTotalResponse[Idea]] = {
-    val filters = Seq(
-      Filter.apply(field = "operationId", value = props.proposal.operationId),
+    var filters = Seq(
       Filter.apply(field = "language", value = props.proposal.language),
       Filter.apply(field = "country", value = props.proposal.country)
     )
+
+    if (props.proposal.operationId.isDefined) {
+      filters +:= Filter.apply(field = "operationId", value = props.proposal.operationId)
+    }
+
+    if (props.proposal.themeId.isDefined) {
+      filters +:= Filter.apply(field = "themeId", value = props.proposal.themeId)
+    }
 
     IdeaServiceComponent.ideaService
       .listIdeas(pagination = Some(Pagination(page = 1, perPage = 1000)), filters = Some(filters))
@@ -233,7 +242,7 @@ object ProposalIdeaComponent {
                 ^.onCheck := onCheckSimilarIdea(idea.ideaId, idea.ideaName)
               )()
             }
-          }, searchNew, <.br()(), <.NewIdeaComponent(^.wrapped := NewIdeaProps(self.props.wrapped.setProposalIdea, setIdeas, self.props.wrapped.proposal.operationId.toOption, self.props.wrapped.proposal.context.language.toOption, self.props.wrapped.proposal.context.country.toOption, self.props.wrapped.proposal.context.question.toOption))())
+          }, searchNew, <.br()(), <.NewIdeaComponent(^.wrapped := NewIdeaProps(self.props.wrapped.setProposalIdea, setIdeas, self.props.wrapped.proposal.operationId.toOption, self.props.wrapped.proposal.themeId.toOption, Some(self.props.wrapped.proposal.language), Some(self.props.wrapped.proposal.country), self.props.wrapped.proposal.context.question.toOption))())
         )
       }
     )

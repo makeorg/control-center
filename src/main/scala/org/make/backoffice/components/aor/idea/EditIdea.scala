@@ -13,6 +13,7 @@ import org.make.backoffice.facades.AdminOnRest.ShowButton._
 import org.make.backoffice.facades.AdminOnRest.SimpleForm._
 import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
+import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models._
 import org.make.client.request.{Filter, Pagination}
 import org.make.client.{MakeServices, Resource}
@@ -37,7 +38,11 @@ object EditIdea extends MakeServices {
     <.h1()(self.state.idea.name)
   })
 
-  case class DataGridProps(ideaId: Option[String], operationId: Option[String])
+  case class DataGridProps(ideaId: Option[String],
+                           operationId: Option[String],
+                           themeId: Option[String],
+                           country: Option[String],
+                           language: Option[String])
   case class DataGridState(ideas: Seq[Idea] = Seq.empty,
                            proposalsIdeaList: Seq[Proposal] = Seq.empty,
                            proposalsSearchList: Seq[Proposal] = Seq.empty,
@@ -56,28 +61,27 @@ object EditIdea extends MakeServices {
       .createClass[DataGridProps, DataGridState](
         displayName = "dataGrid",
         getInitialState = _ => DataGridState(),
-        componentDidMount = self => {
-          ideaService
-            .listIdeas(Some(Pagination(page = 1, perPage = 1000)), None, None) //todo asynchronous search
-            .onComplete {
-              case Success(ideaResponse) => self.setState(_.copy(ideas = ideaResponse.data.toSeq))
-              case Failure(e)            => js.Dynamic.global.console.log(s"Failed with error $e")
-            }
-        },
         componentDidUpdate = (self, _, _) => {
-          if (self.props.wrapped.operationId.nonEmpty)
+          if (self.props.wrapped.operationId.nonEmpty || self.props.wrapped.themeId.nonEmpty)
             self.setState(_.copy(shouldUpdate = false))
-          if (self.state.shouldUpdate && self.props.wrapped.operationId.isDefined) {
+          if (self.state.shouldUpdate && (self.props.wrapped.operationId.isDefined || self.props.wrapped.themeId.isDefined)) {
+            var filters: Seq[Filter] = Seq(
+              Filter(field = "country", value = self.props.wrapped.country.getOrElse("")),
+              Filter(field = "language", value = self.props.wrapped.language.getOrElse(""))
+            )
+
+            if (self.props.wrapped.operationId.isDefined) {
+              filters :+= Filter(field = "operationId", value = self.props.wrapped.operationId.getOrElse(""))
+            }
+
+            if (self.props.wrapped.themeId.isDefined) {
+              filters :+= Filter(field = "themeId", value = self.props.wrapped.themeId.getOrElse(""))
+            }
             proposalService
               .proposals(
                 Some(Pagination(page = 1, perPage = 5000)), //todo asynchronous search
                 None,
-                Some(
-                  Seq(
-                    Filter(field = "operationId", value = self.props.wrapped.operationId.getOrElse("")),
-                    Filter(field = "status", value = js.Array(Accepted.shortName))
-                  )
-                )
+                Some(filters :+ Filter(field = "status", value = js.Array(Accepted.shortName)))
               )
               .onComplete {
                 case Success(proposals) =>
@@ -91,6 +95,13 @@ object EditIdea extends MakeServices {
                   )
                 case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
               }
+            ideaService.listIdeas(Some(Pagination(page = 1, perPage = 1000)), None, Some(filters)).onComplete {
+              case Success(ideaResponse) =>
+                self.setState(
+                  _.copy(ideas = ideaResponse.data.filterNot(_.id == self.props.wrapped.ideaId.getOrElse("")))
+                )
+              case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
+            }
           }
         },
         render = self => {
@@ -310,6 +321,12 @@ object EditIdea extends MakeServices {
               <.SimpleForm(^.redirect := false)(
                 <.TextField(^.source := "id")(),
                 <.TextInput(^.source := "name", ^.options := Map("fullWidth" -> true))(),
+                <.FunctionField(^.label := "theme", ^.render := { record =>
+                  val idea = record.asInstanceOf[Idea]
+                  idea.themeId.map { id =>
+                    Configuration.getThemeFromThemeId(id)
+                  }
+                })(),
                 <.ReferenceField(
                   ^.source := "operationId",
                   ^.label := "operation",
@@ -325,7 +342,10 @@ object EditIdea extends MakeServices {
             <.CustomDatagrid(
               ^.wrapped := DataGridProps(
                 ideaId = self.state.idea.map(_.id),
-                operationId = self.state.idea.flatMap(_.operationId.toOption)
+                operationId = self.state.idea.flatMap(_.operationId.toOption),
+                themeId = self.state.idea.flatMap(_.themeId.toOption),
+                country = self.state.idea.flatMap(_.country.toOption),
+                language = self.state.idea.flatMap(_.language.toOption)
               )
             )()
           )
