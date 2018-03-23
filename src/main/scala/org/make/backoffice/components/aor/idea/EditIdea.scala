@@ -75,7 +75,7 @@ object EditIdea extends MakeServices {
             }
 
             if (self.props.wrapped.themeId.isDefined) {
-              filters :+= Filter(field = "themeId", value = self.props.wrapped.themeId.getOrElse(""))
+              filters :+= Filter(field = "theme", value = self.props.wrapped.themeId.getOrElse(""))
             }
             proposalService
               .proposals(
@@ -205,7 +205,7 @@ object EditIdea extends MakeServices {
               ^.onUpdateInput := handleUpdateProposalInput,
               ^.onNewRequest := handleNewProposalRequest,
               ^.fullWidth := true,
-              ^.popoverProps := Map("canAutoPosition" -> true),
+              ^.popoverProps := Map("canAutoPosition" -> false),
               ^.openOnFocus := true,
               ^.filterAutoComplete := filterAutoComplete,
               ^.menuProps := Map("maxHeight" -> 400)
