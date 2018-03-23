@@ -34,7 +34,7 @@ trait ProposalServiceComponent {
         ("limit", pagination.map(_.perPage)) &
         ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
         ("proposalIds", ApiService.getFieldValueFromFilters("proposalIds", filters)) &
-        ("themesIds", ApiService.getFieldValueFromFilters("theme", filters)) &
+        ("themesIds", ApiService.getFieldValueFromFilters("themeId", filters)) &
         ("tagsIds", ApiService.getFieldValueFromFilters("tagsIds", filters)) &
         ("labelsIds", ApiService.getFieldValueFromFilters("labelsIds", filters)) &
         ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
