@@ -21,19 +21,25 @@ trait IdeaServiceComponent {
 
     def listIdeas(pagination: Option[Pagination] = None,
                   sort: Option[Sort] = None,
-                  filters: Option[Seq[Filter]] = None): Future[ListTotalResponse[Idea]] =
+                  filters: Option[Seq[Filter]] = None): Future[ListTotalResponse[Idea]] = {
+
+      var getIdeaUri: String = resourceName ?
+        ("limit", pagination.map(_.perPage)) &
+        ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
+        ("language", ApiService.getFieldValueFromFilters("language", filters)) &
+        ("country", ApiService.getFieldValueFromFilters("country", filters)) &
+        ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
+        ("themeId", ApiService.getFieldValueFromFilters("themeId", filters)) &
+        ("question", ApiService.getFieldValueFromFilters("question", filters))
+
+      // search with keywords (=name) should not use order param to get results by relevance
+      ApiService.getFieldValueFromFilters("name", filters) match {
+        case Some(content) if content.nonEmpty => getIdeaUri = getIdeaUri & ("name", Some(content))
+        case _                                 => getIdeaUri = getIdeaUri & ("sort", sort.map(_.field)) & ("order", sort.map(_.order))
+      }
+
       client
-        .get[IdeasResult](
-          resourceName ?
-            ("limit", pagination.map(_.perPage)) &
-            ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
-            ("name", ApiService.getFieldValueFromFilters("name", filters)) &
-            ("language", ApiService.getFieldValueFromFilters("language", filters)) &
-            ("country", ApiService.getFieldValueFromFilters("country", filters)) &
-            ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
-            ("themeId", ApiService.getFieldValueFromFilters("themeId", filters)) &
-            ("question", ApiService.getFieldValueFromFilters("question", filters))
-        )
+        .get[IdeasResult](getIdeaUri)
         .map { ideaResult =>
           ListTotalResponse.apply(total = ideaResult.total, data = ideaResult.results)
         }
@@ -46,6 +52,8 @@ trait IdeaServiceComponent {
             js.Dynamic.global.console.log(s"instead of converting to ListTotalResponse: failed cursor $e")
             Future.failed(e)
         }
+
+    }
 
     def getIdea(ideaId: String): Future[SingleResponse[Idea]] =
       client.get[Idea](resourceName / ideaId).map(SingleResponse.apply).recoverWith {
