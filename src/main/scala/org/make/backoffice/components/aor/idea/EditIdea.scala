@@ -75,7 +75,7 @@ object EditIdea extends MakeServices {
             }
 
             if (self.props.wrapped.themeId.isDefined) {
-              filters :+= Filter(field = "theme", value = self.props.wrapped.themeId.getOrElse(""))
+              filters :+= Filter(field = "themeId", value = self.props.wrapped.themeId.getOrElse(""))
             }
             proposalService
               .proposals(
