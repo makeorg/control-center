@@ -32,11 +32,12 @@ object IdeaList {
             ^.location := self.props.location,
             ^.resource := Resource.ideas,
             ^.hasCreate := true,
-            ^.filters := ideaFilters()
+            ^.filters := ideaFilters(),
+            ^.sort := Map("field" -> "name", "order" -> "DESC")
           )(
             <.Datagrid()(
               <.EditButton()(),
-              <.TextField(^.source := "name", ^.sortable := false)(),
+              <.TextField(^.source := "name", ^.sortable := true)(),
               <.FunctionField(^.label := "theme", ^.render := { record =>
                 val idea = record.asInstanceOf[Idea]
                 idea.themeId.map { id =>
