@@ -193,31 +193,29 @@ object ValidatedProposalList {
 
   def filterList(): ReactElement = {
     <.Filter(^.resource := Resource.proposals)(
-        //TODO: add the possibility to search by userId or proposalId
-        <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
-        <.SelectInput(
-          ^.label := "Theme",
-          ^.source := "theme",
-          ^.alwaysOn := false,
-          ^.choices := Configuration.choicesThemeFilter
-        )(),
-        <.SelectInput(
-          ^.label := "Country",
-          ^.source := "country",
-          ^.alwaysOn := true,
-          ^.choices := Configuration.choicesCountryFilter
-        )(),
-        <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
-        <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(
-          <.SelectInput(^.optionText := "slug", ^.alwaysOn := false)()
-        ),
-        <.TextInput(^.label := "Question", ^.source := "question", ^.alwaysOn := false)(),
-        <.ReferenceArrayInput(^.label := "Tags", ^.source := "tagsIds",
-          ^.filterToQuery := {(searchText) => Map("label" -> searchText).toJSDictionary},
-          ^.reference := Resource.tags)(
-          <.SelectArrayInput(^.optionText := "label", ^.alwaysOn := false)()
-        )
-        //TODO: add filter on: "moderator"
+      //TODO: add the possibility to search by userId or proposalId
+      <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
+      <.SelectInput(
+        ^.label := "Theme",
+        ^.source := "themeId",
+        ^.alwaysOn := false,
+        ^.choices := Configuration.choicesThemeFilter
+      )(),
+      <.SelectInput(
+        ^.label := "Country",
+        ^.source := "country",
+        ^.alwaysOn := true,
+        ^.choices := Configuration.choicesCountryFilter
+      )(),
+      <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
+      <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(
+        <.SelectInput(^.optionText := "slug", ^.alwaysOn := false)()
+      ),
+      <.TextInput(^.label := "Question", ^.source := "question", ^.alwaysOn := false)(),
+      <.ReferenceArrayInput(^.label := "Tags", ^.source := "tagsIds", ^.filterToQuery := { (searchText) =>
+        Map("label" -> searchText).toJSDictionary
+      }, ^.reference := Resource.tags)(<.SelectArrayInput(^.optionText := "label", ^.alwaysOn := false)())
+      //TODO: add filter on: "moderator"
     )
   }
 }

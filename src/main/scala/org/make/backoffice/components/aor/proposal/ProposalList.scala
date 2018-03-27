@@ -86,7 +86,7 @@ object ProposalList {
         <.SelectArrayInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := statusChoices)(),
         <.SelectInput(
           ^.label := "Theme",
-          ^.source := "theme",
+          ^.source := "themeId",
           ^.alwaysOn := false,
           ^.choices := Configuration.choicesThemeFilter
         )(),
