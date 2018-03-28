@@ -8,8 +8,7 @@ object Resource {
   val ideas = "ideas"
   val tags = "tags"
 
-  def amongst: String => Boolean = {
-    case `proposals` | `validatedProposals` | `users` | `operations` | `ideas` | `tags` => true
-    case _                                                                              => false
-  }
+  private val resources: Set[String] = Set(proposals, validatedProposals, users, operations, ideas, tags)
+
+  def amongst: String => Boolean = { resources.contains }
 }

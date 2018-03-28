@@ -1,6 +1,6 @@
 package org.make.client.request
 
-import org.make.client.{MakeServices, Resource, Response}
+import org.make.client.{Resource, Response}
 
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -10,7 +10,7 @@ trait DeleteRequest extends js.Object with Request {
   val id: String
 }
 
-object DeleteRequest extends MakeServices {
+object DeleteRequest {
   def apply(id: String): DeleteRequest =
     js.Dynamic.literal(id = id).asInstanceOf[DeleteRequest]
 

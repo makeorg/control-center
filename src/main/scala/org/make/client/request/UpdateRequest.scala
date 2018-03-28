@@ -1,7 +1,8 @@
 package org.make.client.request
 
 import org.make.backoffice.models.Idea
-import org.make.client.{MakeServices, Resource, Response}
+import org.make.client.{Resource, Response}
+import org.make.services.idea.IdeaService
 
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -12,7 +13,7 @@ trait UpdateRequest[ENTITY <: js.Object] extends js.Object with Request {
   val data: ENTITY
 }
 
-object UpdateRequest extends MakeServices {
+object UpdateRequest {
   def apply[ENTITY <: js.Object](id: String, data: ENTITY): UpdateRequest[ENTITY] =
     js.Dynamic.literal(id = id, data = data).asInstanceOf[UpdateRequest[ENTITY]]
 
@@ -24,7 +25,7 @@ object UpdateRequest extends MakeServices {
         )
       case Resource.ideas =>
         val request = params.asInstanceOf[UpdateRequest[Idea]]
-        ideaService.updateIdea(request.id, request.data)
+        IdeaService.updateIdea(request.id, request.data)
       case Resource.users =>
         throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request UpdateRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in UpdateRequest")

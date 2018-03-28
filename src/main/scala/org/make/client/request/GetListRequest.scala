@@ -1,6 +1,9 @@
 package org.make.client.request
 
-import org.make.client.{MakeServices, Resource, Response}
+import org.make.client.{Resource, Response}
+import org.make.services.idea.IdeaService
+import org.make.services.operation.OperationService
+import org.make.services.proposal.ProposalService
 
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -14,7 +17,7 @@ trait GetListRequest extends js.Object with Request {
   val filter: js.UndefOr[js.Dictionary[String | js.Array[String]]]
 }
 
-object GetListRequest extends MakeServices {
+object GetListRequest {
   def apply(pagination: Option[Pagination] = None,
             sort: Option[Sort] = None,
             filter: Option[Seq[Filter]] = None): GetListRequest =
@@ -26,7 +29,7 @@ object GetListRequest extends MakeServices {
     resource match {
       case Resource.proposals =>
         val request = params.asInstanceOf[GetListRequest]
-        proposalService.proposals(
+        ProposalService.proposals(
           request.pagination.toOption,
           request.sort.toOption,
           request.filter.toOption.map(_.toJSArray.map {
@@ -35,13 +38,15 @@ object GetListRequest extends MakeServices {
         )
       case Resource.ideas =>
         val request = params.asInstanceOf[GetListRequest]
-        ideaService.listIdeas(request.pagination.toOption,
+        IdeaService.listIdeas(
+          request.pagination.toOption,
           request.sort.toOption,
           request.filter.toOption.map(_.toJSArray.map {
             case (fieldName, filterValue) => Filter(fieldName, filterValue)
-          }))
+          })
+        )
       case Resource.operations =>
-        operationService.operations()
+        OperationService.operations()
       case Resource.users =>
         throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetListRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in GetListRequest")

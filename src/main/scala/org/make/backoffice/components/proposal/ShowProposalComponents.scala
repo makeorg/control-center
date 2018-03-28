@@ -9,20 +9,19 @@ import org.make.backoffice.components.RichVirtualDOMElements
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models.SingleProposal
 import org.make.client.BadRequestHttpException
-import org.make.services.proposal.ProposalServiceComponent.ProposalService
+import org.make.services.proposal.ProposalService
 import org.make.services.proposal._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 object ShowProposalComponents {
-  val proposalService: ProposalService = ProposalServiceComponent.proposalService
 
   val timer = new Timer()
   def task(self: React.Self[ShowComponentsProps, ShowComponentsState]): TimerTask = new TimerTask {
     override def run(): Unit = {
       if (org.scalajs.dom.window.location.hash == self.props.wrapped.hash) {
-        proposalService.lock(self.state.proposal.id).onComplete {
+        ProposalService.lock(self.state.proposal.id).onComplete {
           case Success(_) => self.setState(_.copy(isLocked = false))
           case Failure(badRequest: BadRequestHttpException) =>
             val moderatorName: Option[String] = badRequest.errors.find(_.field == "moderatorName").flatMap(_.message)

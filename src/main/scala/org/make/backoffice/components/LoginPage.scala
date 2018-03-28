@@ -9,8 +9,7 @@ import org.make.backoffice.facades.Configuration
 import org.make.backoffice.facades.ReactGoogleLogin._
 import org.make.backoffice.models.{Role, User}
 import org.make.client.{AuthClient, SingleResponse}
-import org.make.services.user.UserServiceComponent.UserService
-import org.make.services.user.UserServiceComponent
+import org.make.services.user.UserService
 import org.scalajs.dom.experimental.Response
 
 import scala.concurrent.Future
@@ -25,8 +24,6 @@ object LoginPage {
 
   val googleAppId: String = Configuration.googleAppId
 
-  val userService: UserService = UserServiceComponent.userService
-
   type Self = React.Self[Unit, LoginPageState]
 
   case class LoginPageState(isSignIn: Boolean, user: Option[User], error: Option[String] = None)
@@ -40,7 +37,7 @@ object LoginPage {
       getInitialState = (_) => LoginPageState(isSignIn = false, user = None, error = None),
       render = (self) => {
         def signInGoogle(response: Response): Unit = {
-          handleFutureApiResponse(userService.loginGoogle(response.asInstanceOf[GoogleAuthResponse].tokenId))
+          handleFutureApiResponse(UserService.loginGoogle(response.asInstanceOf[GoogleAuthResponse].tokenId))
         }
 
         def handleFutureApiResponse(futureUser: Future[SingleResponse[User]]): Unit = {

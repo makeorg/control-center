@@ -1,6 +1,6 @@
 package org.make.client.request
 
-import org.make.client.{MakeServices, Resource, Response}
+import org.make.client.{Resource, Response}
 
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -15,7 +15,7 @@ trait GetManyReferenceRequest extends js.Object with Request {
   val filter: js.UndefOr[Seq[Filter]]
 }
 
-object GetManyReferenceRequest extends MakeServices {
+object GetManyReferenceRequest {
   def apply(target: String,
             id: String,
             pagination: Option[Pagination] = None,

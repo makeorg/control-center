@@ -14,8 +14,8 @@ import org.make.backoffice.facades.AdminOnRest.EditButton._
 import org.make.backoffice.models._
 import org.make.client.ListTotalResponse
 import org.make.client.request.{Filter, Pagination}
-import org.make.services.idea.IdeaServiceComponent
-import org.make.services.proposal.ProposalServiceComponent
+import org.make.services.idea.IdeaService
+import org.make.services.proposal.ProposalService
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,7 +35,7 @@ object NewIdeaComponent {
   case class NewIdeaState(ideaName: String, open: Boolean = false)
 
   private def createIdea(self: React.Self[NewIdeaProps, NewIdeaState]): (SyntheticEvent) => Unit = { _ =>
-    IdeaServiceComponent.ideaService
+    IdeaService
       .createIdea(
         name = self.state.ideaName,
         operation = self.props.wrapped.operation,
@@ -127,12 +127,12 @@ object ProposalIdeaComponent {
       filters +:= Filter.apply(field = "themeId", value = props.proposal.themeId)
     }
 
-    IdeaServiceComponent.ideaService
+    IdeaService
       .listIdeas(pagination = Some(Pagination(page = 1, perPage = 1000)), filters = Some(filters))
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {
-    ProposalServiceComponent.proposalService.getDuplicates(props.proposal.id)
+    ProposalService.getDuplicates(props.proposal.id)
   }
 
   lazy val reactClass: ReactClass =
@@ -156,7 +156,7 @@ object ProposalIdeaComponent {
         self.setState(_.copy(selectedIdeaId = self.props.wrapped.proposal.ideaId.map(IdeaId(_)).toOption))
         if (self.props.wrapped.ideaName.isEmpty) {
           self.props.wrapped.proposal.ideaId.foreach { ideaId =>
-            IdeaServiceComponent.ideaService.getIdea(ideaId).onComplete {
+            IdeaService.getIdea(ideaId).onComplete {
               case Success(ideaResponse) => self.setState(_.copy(ideaName = Some(ideaResponse.data.name)))
               case Failure(e)            => js.Dynamic.global.console.log(s"Failed with error $e")
             }

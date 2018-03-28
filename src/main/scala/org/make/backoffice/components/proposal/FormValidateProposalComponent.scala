@@ -13,14 +13,17 @@ import org.make.backoffice.components.proposal.ProposalIdeaComponent.ProposalIde
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models._
-import org.make.client.MakeServices
+import org.make.services.idea.IdeaService
+import org.make.services.operation.OperationService
+import org.make.services.proposal.ProposalService
+import org.make.services.tag.TagService
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
-object FormValidateProposalComponent extends MakeServices {
+object FormValidateProposalComponent {
 
   case class FormProps(proposal: SingleProposal, action: String, isLocked: Boolean = false)
   case class FormState(content: String,
@@ -40,7 +43,7 @@ object FormValidateProposalComponent extends MakeServices {
   def setTagsFromTagIds(self: Self[FormProps, FormState], props: FormProps): Unit = {
     if (!js.isUndefined(props.proposal.tagIds)) {
       props.proposal.tagIds.foreach { tagId =>
-        tagService.tags.onComplete {
+        TagService.tags.onComplete {
           case Success(tags) =>
             self.setState(_.copy(tags = tags.find(_.id == tagId) match {
               case Some(tag) => self.state.tags :+ tag
@@ -59,8 +62,8 @@ object FormValidateProposalComponent extends MakeServices {
       case None =>
         props.proposal.operationId.toOption.foreach { operationIdValue =>
           val futureOperationTags = for {
-            operation <- operationService.getOperationById(OperationId(operationIdValue))
-            tags      <- tagService.tags
+            operation <- OperationService.getOperationById(OperationId(operationIdValue))
+            tags      <- TagService.tags
           } yield (operation, tags)
           futureOperationTags.onComplete {
             case Success((operation, tags)) =>
@@ -96,7 +99,7 @@ object FormValidateProposalComponent extends MakeServices {
             setTagsFromTagIds(self, self.props.wrapped)
             setTagsListAndOperation(self, self.props.wrapped)
             self.props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
-              ideaService.getIdea(ideaId).onComplete {
+              IdeaService.getIdea(ideaId).onComplete {
                 case Success(response) =>
                   self.setState(_.copy(ideaId = Some(IdeaId(response.data.id)), ideaName = response.data.name))
                 case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
@@ -116,7 +119,7 @@ object FormValidateProposalComponent extends MakeServices {
             setTagsFromTagIds(self, props.wrapped)
             setTagsListAndOperation(self, props.wrapped)
             props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
-              ideaService.getIdea(ideaId).onComplete {
+              IdeaService.getIdea(ideaId).onComplete {
                 case Success(response) =>
                   self.setState(_.copy(ideaId = Some(IdeaId(response.data.id)), ideaName = response.data.name))
                 case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
@@ -165,7 +168,7 @@ object FormValidateProposalComponent extends MakeServices {
                   if (self.state.content != self.props.wrapped.proposal.content) {
                     Some(self.state.content)
                   } else { None }
-                proposalService
+                ProposalService
                   .updateProposal(
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = mayBeNewContent,
@@ -192,7 +195,7 @@ object FormValidateProposalComponent extends MakeServices {
                   if (self.state.content != self.props.wrapped.proposal.content) {
                     Some(self.state.content)
                   } else { None }
-                proposalService
+                ProposalService
                   .validateProposal(
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = mayBeNewContent,

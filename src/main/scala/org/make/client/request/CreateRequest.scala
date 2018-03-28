@@ -1,7 +1,8 @@
 package org.make.client.request
 
 import org.make.backoffice.models.Idea
-import org.make.client.{MakeServices, Resource, Response}
+import org.make.client.{Resource, Response}
+import org.make.services.idea.IdeaService
 
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -11,7 +12,7 @@ trait CreateRequest[ENTITY <: js.Object] extends js.Object with Request {
   val data: ENTITY
 }
 
-object CreateRequest extends MakeServices {
+object CreateRequest {
   def apply[ENTITY <: js.Object](data: ENTITY): CreateRequest[ENTITY] =
     js.Dynamic.literal(data = data).asInstanceOf[CreateRequest[ENTITY]]
 
@@ -25,7 +26,7 @@ object CreateRequest extends MakeServices {
         throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request CreateRequest")
       case Resource.ideas =>
         val request: CreateRequest[Idea] = params.asInstanceOf[CreateRequest[Idea]]
-        ideaService.createIdea(
+        IdeaService.createIdea(
           name = request.data.name,
           language = request.data.language.toOption,
           country = request.data.country.toOption,

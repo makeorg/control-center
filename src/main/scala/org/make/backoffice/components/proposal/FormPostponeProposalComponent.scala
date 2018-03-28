@@ -8,14 +8,12 @@ import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.models.SingleProposal
-import org.make.services.proposal.ProposalServiceComponent
-import org.make.services.proposal.ProposalServiceComponent.ProposalService
+import org.make.services.proposal.ProposalService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 
 object FormPostponeProposalComponent {
-  val proposalService: ProposalService = ProposalServiceComponent.proposalService
 
   case class FormProps(proposal: SingleProposal, isLocked: Boolean = false)
   case class FormState(errorMessage: Option[String] = None, isLocked: Boolean = false)
@@ -33,7 +31,7 @@ object FormPostponeProposalComponent {
         render = { self =>
           def handleSubmitPostpone: () => Unit =
             () => {
-              proposalService
+              ProposalService
                 .postponeProposal(self.props.wrapped.proposal.id)
                 .onComplete {
                   case Success(_) =>

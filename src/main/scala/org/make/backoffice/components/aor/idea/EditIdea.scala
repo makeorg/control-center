@@ -15,16 +15,17 @@ import org.make.backoffice.facades.DataSourceConfig
 import org.make.backoffice.facades.MaterialUi._
 import org.make.backoffice.helpers.Configuration
 import org.make.backoffice.models._
+import org.make.client.Resource
 import org.make.client.request.{Filter, Pagination}
-import org.make.client.{MakeServices, Resource}
-import org.make.services.proposal.Accepted
+import org.make.services.idea.IdeaService
+import org.make.services.proposal.{Accepted, ProposalService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.scalajs.js.|
 import scala.util.{Failure, Success}
 
-object EditIdea extends MakeServices {
+object EditIdea {
 
   case class TitleState(idea: Idea)
 
@@ -77,7 +78,7 @@ object EditIdea extends MakeServices {
             if (self.props.wrapped.themeId.isDefined) {
               filters :+= Filter(field = "themeId", value = self.props.wrapped.themeId.getOrElse(""))
             }
-            proposalService
+            ProposalService
               .proposals(
                 Some(Pagination(page = 1, perPage = 5000)), //todo asynchronous search
                 None,
@@ -95,7 +96,7 @@ object EditIdea extends MakeServices {
                   )
                 case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
               }
-            ideaService.listIdeas(Some(Pagination(page = 1, perPage = 1000)), None, Some(filters)).onComplete {
+            IdeaService.listIdeas(Some(Pagination(page = 1, perPage = 1000)), None, Some(filters)).onComplete {
               case Success(ideaResponse) =>
                 self.setState(
                   _.copy(ideas = ideaResponse.data.filterNot(_.id == self.props.wrapped.ideaId.getOrElse("")))
@@ -147,7 +148,7 @@ object EditIdea extends MakeServices {
               self.state.selectedIdeaId match {
                 case Some(ideaId) =>
                   if (self.state.selectedIds.nonEmpty) {
-                    proposalService.changeProposalsIdea(ideaId, self.state.selectedIds).onComplete {
+                    ProposalService.changeProposalsIdea(ideaId, self.state.selectedIds).onComplete {
                       case Success(_) =>
                         val newProposalsList = self.state.proposalsIdeaList
                           .filterNot(proposal => self.state.selectedIds.exists(_.value == proposal.id))
@@ -172,7 +173,7 @@ object EditIdea extends MakeServices {
               case Some(proposal) =>
                 self.props.wrapped.ideaId.foreach {
                   ideaId =>
-                    proposalService
+                    ProposalService
                       .changeProposalsIdea(IdeaId(ideaId), Seq(ProposalId(proposal.id)))
                       .onComplete {
                         case Success(_) =>
@@ -305,7 +306,7 @@ object EditIdea extends MakeServices {
         displayName = "EditIdea",
         getInitialState = _ => EditState(None),
         componentDidMount = self => {
-          ideaService.getIdea(self.props.`match`.params.getOrElse("id", "")).onComplete {
+          IdeaService.getIdea(self.props.`match`.params.getOrElse("id", "")).onComplete {
             case Success(ideaResponse) => self.setState(_.copy(Some(ideaResponse.data)))
             case Failure(e)            => js.Dynamic.global.console.log(s"Failed with error: $e")
           }

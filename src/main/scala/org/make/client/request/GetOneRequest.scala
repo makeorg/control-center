@@ -1,6 +1,8 @@
 package org.make.client.request
 
-import org.make.client.{MakeServices, Resource, Response}
+import org.make.client.{Resource, Response}
+import org.make.services.idea.IdeaService
+import org.make.services.proposal.ProposalService
 
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -10,7 +12,7 @@ trait GetOneRequest extends js.Object with Request {
   val id: String
 }
 
-object GetOneRequest extends MakeServices {
+object GetOneRequest {
   def apply(id: String): GetOneRequest =
     js.Dynamic.literal(id = id).asInstanceOf[GetOneRequest]
 
@@ -18,10 +20,10 @@ object GetOneRequest extends MakeServices {
     resource match {
       case Resource.proposals =>
         val request = params.asInstanceOf[GetOneRequest]
-        proposalService.getProposalById(request.id)
+        ProposalService.getProposalById(request.id)
       case Resource.ideas =>
         val request = params.asInstanceOf[GetOneRequest]
-        ideaService.getIdea(request.id)
+        IdeaService.getIdea(request.id)
       case Resource.users =>
         throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetOneRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in GetOneRequest")

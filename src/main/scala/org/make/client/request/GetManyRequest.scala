@@ -1,17 +1,19 @@
 package org.make.client.request
 
-import org.make.client.{MakeServices, Resource, Response}
+import org.make.client.{Resource, Response}
+import org.make.services.operation.OperationService
+import org.make.services.tag.TagService
 
 import scala.concurrent.Future
 import scala.scalajs.js
-import js.JSConverters._
+import scala.scalajs.js.JSConverters._
 
 @js.native
 trait GetManyRequest extends js.Object with Request {
   val ids: js.Array[String]
 }
 
-object GetManyRequest extends MakeServices {
+object GetManyRequest {
   def apply(ids: Seq[String]): GetManyRequest =
     js.Dynamic.literal(ids = ids.toJSArray).asInstanceOf[GetManyRequest]
 
@@ -19,10 +21,10 @@ object GetManyRequest extends MakeServices {
     resource match {
       case Resource.operations =>
         val request = params.asInstanceOf[GetManyRequest]
-        operationService.getOperationByIds(request.ids)
+        OperationService.getOperationByIds(request.ids)
       case Resource.tags =>
         val request = params.asInstanceOf[GetManyRequest]
-        tagService.getTagsByIds(request.ids)
+        TagService.getTagsByIds(request.ids)
       case Resource.proposals =>
         throw ResourceNotImplementedException(
           s"Resource ${Resource.proposals} not implemented for request GetManyRequest"
