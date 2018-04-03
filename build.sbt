@@ -18,7 +18,6 @@ val scalaCssCoreVersion = "0.5.3"
 val npmReactVersion = "15.6.2"
 val npmWebpackVersion = "3.6.0"
 val npmReactRouterVersion = "4.1.2"
-val npmBulmaVersion = "0.4.4"
 val npmSassLoaderVersion = "6.0.6"
 val npmNodeSassVersion = "4.5.3"
 val npmExtractTextWebpackPluginVersion = "3.0.0"
@@ -29,11 +28,10 @@ val npmHtmlWebpackPluginVersion = "2.29.0"
 val npmWebpackMd5HashVersion = "0.0.5"
 val npmFontAwesomeVersion = "4.7.0"
 val npmFileLoaderVersion = "0.11.2"
-val npmNormalizeVersion = "7.0.0"
 val npmBootstrapVersion = "3.3.7"
-val npmAdminOnRestVersion = "1.3.4"
+val npmAdminOnRestVersion = "1.4.1"
 val npmAorDependentInput = "1.2.0"
-val npmMaterialUi = "0.19.2"
+val npmMaterialUi = "0.20.0"
 val npmReactGoogleLogin = "2.9.2"
 
 enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
@@ -58,15 +56,12 @@ Compile / npmDependencies ++= Seq(
   "react-google-login" -> npmReactGoogleLogin,
   "admin-on-rest" -> npmAdminOnRestVersion,
   "material-ui" -> npmMaterialUi,
-  "bulma" -> npmBulmaVersion,
   "font-awesome" -> npmFontAwesomeVersion,
-  "normalize-scss" -> npmNormalizeVersion,
   "bootstrap" -> npmBootstrapVersion,
   "aor-dependent-input" -> npmAorDependentInput
 )
 
 Compile / npmDevDependencies ++= Seq(
-  "ajv" -> "5.2.2",
   "sass-loader" -> npmSassLoaderVersion,
   "node-sass" -> npmNodeSassVersion,
   "extract-text-webpack-plugin" -> npmExtractTextWebpackPluginVersion,
