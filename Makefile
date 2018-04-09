@@ -22,6 +22,7 @@ help:
 	@echo "   release                        to release the application"
 	@echo "   reload-all                     to clean and start webpack dev server"
 	@echo "   start                          to start webpack dev server"
+	@echo "   package-docker-image           to build locally the docker image"
 
 clean:
 	sbt clean
@@ -33,3 +34,6 @@ reload-all: clean start
 
 start:
 	sbt fastOptJS::startWebpackDevServer ~fastOptJS
+
+package-docker-image:
+    sbt publishLocal
