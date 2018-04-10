@@ -11,6 +11,7 @@ import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
 import org.make.backoffice.facade.AdminOnRest.ShowButton._
+import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.facade.Choice
 import org.make.backoffice.util.Configuration
 import org.make.backoffice.model.Proposal
@@ -28,35 +29,38 @@ object ProposalList {
   private lazy val reactClass: ReactClass = React.createClass[ProposalListProps, Unit](
     displayName = "ProposalList",
     render = (self) =>
-      <.List(
-        ^.title := "Proposals",
-        ^.location := self.props.location,
-        ^.resource := Resource.proposals,
-        ^.hasCreate := false,
-        ^.filters := filterList(),
-        ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
-      )(
-        <.Datagrid(^.rowStyle := rowStyle)(
-          <.ShowButton()(),
-          <.TextField(^.source := "content", ^.sortable := false)(),
-          <.TextField(^.source := "status", ^.sortable := false)(),
-          <.FunctionField(^.label := "theme", ^.render := { record =>
-            val proposal = record.asInstanceOf[Proposal]
-            proposal.themeId.map { id =>
-              Configuration.getThemeFromThemeId(id)
-            }
-          })(),
-          <.ReferenceField(
-            ^.source := "operationId",
-            ^.label := "operation",
-            ^.reference := Resource.operations,
-            ^.linkType := false,
-            ^.allowEmpty := true,
-            ^.sortable := false
-          )(<.TextField(^.source := "slug")()),
-          <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
-          <.RichTextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
-          <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)()
+      <.div()(
+        <.StartModeration.empty,
+        <.List(
+          ^.title := "Proposals",
+          ^.location := self.props.location,
+          ^.resource := Resource.proposals,
+          ^.hasCreate := false,
+          ^.filters := filterList(),
+          ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
+        )(
+          <.Datagrid(^.rowStyle := rowStyle)(
+            <.ShowButton()(),
+            <.TextField(^.source := "content", ^.sortable := false)(),
+            <.TextField(^.source := "status", ^.sortable := false)(),
+            <.FunctionField(^.label := "theme", ^.render := { record =>
+              val proposal = record.asInstanceOf[Proposal]
+              proposal.themeId.map { id =>
+                Configuration.getThemeFromThemeId(id)
+              }
+            })(),
+            <.ReferenceField(
+              ^.source := "operationId",
+              ^.label := "operation",
+              ^.reference := Resource.operations,
+              ^.linkType := false,
+              ^.allowEmpty := true,
+              ^.sortable := false
+            )(<.TextField(^.source := "slug")()),
+            <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
+            <.RichTextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
+            <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)()
+          )
         )
     )
   )

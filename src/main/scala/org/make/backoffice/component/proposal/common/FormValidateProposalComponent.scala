@@ -8,15 +8,16 @@ import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, Synthetic
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
+import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.proposal.common.ProposalIdeaComponent.ProposalIdeaProps
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.util.Configuration
 import org.make.backoffice.model._
 import org.make.backoffice.service.idea.IdeaService
 import org.make.backoffice.service.operation.OperationService
 import org.make.backoffice.service.proposal.ProposalService
 import org.make.backoffice.service.tag.TagService
+import org.make.backoffice.util.Configuration
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -34,7 +35,7 @@ object FormValidateProposalComponent {
                        operation: Option[Operation] = None,
                        tags: Seq[Tag] = Seq.empty,
                        tagsList: Seq[Tag] = Seq.empty,
-                       errorMessage: Option[String] = None,
+                       errorMessage: Seq[String] = Seq.empty,
                        similarProposals: Seq[String] = Seq.empty,
                        ideaId: Option[IdeaId] = None,
                        ideaName: String = "",
@@ -66,12 +67,13 @@ object FormValidateProposalComponent {
             tags      <- TagService.tags
           } yield (operation, tags)
           futureOperationTags.onComplete {
-            case Success((operation, tags)) =>
+            case Success((Some(operation), tags)) =>
               val tagsList =
                 operation.countriesConfiguration
                   .find(cc => cc.countryCode == props.proposal.country)
                   .map(_.tagIds.flatMap(tagId => tags.find(_.id == tagId.value)))
               self.setState(_.copy(operation = Some(operation), tagsList = tagsList.map(_.toSeq).getOrElse(Seq.empty)))
+            case Success(_) => self.setState(_.copy(operation = None, tagsList = Seq.empty))
             case Failure(e) => js.Dynamic.global.console.log(s"File with error: $e")
           }
         }
@@ -113,16 +115,19 @@ object FormValidateProposalComponent {
                 theme = props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
                 isLocked = props.wrapped.isLocked,
                 similarProposals =
-                  self.props.wrapped.proposal.similarProposals.toOption.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
+                  props.wrapped.proposal.similarProposals.toOption.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
               )
             )
+            if (self.props.wrapped.proposal.id != props.wrapped.proposal.id) {
+              self.setState(_.copy(content = props.wrapped.proposal.content, tags = Seq.empty))
+            }
             setTagsFromTagIds(self, props.wrapped)
             setTagsListAndOperation(self, props.wrapped)
             props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
               IdeaService.getIdea(ideaId).onComplete {
                 case Success(response) =>
                   self.setState(_.copy(ideaId = Some(IdeaId(response.data.id)), ideaName = response.data.name))
-                case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
+                case Failure(_) => self.setState(_.copy(ideaId = None, ideaName = ""))
               }
             }
           },
@@ -182,9 +187,11 @@ object FormValidateProposalComponent {
                   .onComplete {
                     case Success(_) =>
                       self.props.history.goBack()
-                      self.setState(_.copy(errorMessage = None))
+                      self.setState(_.copy(errorMessage = Seq.empty))
+                    case Failure(BadRequestHttpException(errors)) =>
+                      self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
                     case Failure(_) =>
-                      self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
+                      self.setState(_.copy(errorMessage = Seq("Oooops, something went wrong")))
                   }
             }
 
@@ -210,9 +217,11 @@ object FormValidateProposalComponent {
                   .onComplete {
                     case Success(_) =>
                       self.props.history.goBack()
-                      self.setState(_.copy(errorMessage = None))
+                      self.setState(_.copy(errorMessage = Seq.empty))
+                    case Failure(BadRequestHttpException(errors)) =>
+                      self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
                     case Failure(_) =>
-                      self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
+                      self.setState(_.copy(errorMessage = Seq("Oooops, something went wrong")))
                   }
             }
 
@@ -221,6 +230,45 @@ object FormValidateProposalComponent {
                 handleSubmitValidate
               else
                 handleSubmitUpdate
+            }
+
+            def handleNextProposal: (SyntheticEvent) => Unit = {
+              event =>
+                event.preventDefault()
+                val mayBeNewContent =
+                  if (self.state.content != self.props.wrapped.proposal.content) {
+                    Some(self.state.content)
+                  } else { None }
+                val futureNextProposal =
+                  for {
+                    _ <- ProposalService.validateProposal(
+                      proposalId = self.props.wrapped.proposal.id,
+                      newContent = mayBeNewContent,
+                      sendNotificationEmail = self.state.notifyUser,
+                      labels = self.state.labels,
+                      theme = self.state.theme,
+                      similarProposals = self.state.similarProposals.map(ProposalId.apply),
+                      tags = self.state.tags.map(tag => TagId(tag.id)),
+                      ideaId = self.state.ideaId,
+                      operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
+                    )
+                    nextProposal <- ProposalService
+                      .nexProposalToModerate(
+                        self.props.wrapped.proposal.operationId.toOption,
+                        self.props.wrapped.proposal.themeId.toOption,
+                        Some(self.props.wrapped.proposal.country),
+                        Some(self.props.wrapped.proposal.language)
+                      )
+                  } yield nextProposal
+                futureNextProposal.onComplete {
+                  case Success(proposalResponse) =>
+                    self.props.history.push(s"/nextProposal/${proposalResponse.data.id}")
+                  case Failure(NotFoundHttpException) => self.props.history.push("/proposals")
+                  case Failure(BadRequestHttpException(errors)) =>
+                    self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
+                  case Failure(_) =>
+                    self.setState(_.copy(errorMessage = Seq("Oooops, something went wrong")))
+                }
             }
 
             val selectTheme = <.SelectField(
@@ -261,7 +309,7 @@ object FormValidateProposalComponent {
               )()
             })
 
-            val errorMessage: Option[Element] =
+            val errorMessage: Seq[Element] =
               self.state.errorMessage.map(msg => <.p()(msg))
 
             def setProposalIdea(ideaId: Option[IdeaId]): Unit = {
@@ -326,6 +374,12 @@ object FormValidateProposalComponent {
                   ^.style := Map("marginTop" -> "1em"),
                   ^.label := s"Confirm ${if (self.props.wrapped.action == "validate") "validation" else "changes"}",
                   ^.onClick := handleSubmit,
+                  ^.disabled := self.state.isLocked
+                )(),
+                <.RaisedButton(
+                  ^.style := Map("float" -> "right", "marginTop" -> "1em"),
+                  ^.label := "Next Proposal",
+                  ^.onClick := handleNextProposal,
                   ^.disabled := self.state.isLocked
                 )(),
                 errorMessage

@@ -163,6 +163,25 @@ object ProposalIdeaComponent {
           }
         }
       },
+      componentWillReceiveProps = { (self, props) =>
+        if (self.props.wrapped.proposal.id != props.wrapped.proposal.id) {
+          self.setState(
+            _.copy(
+              selectedIdeaId = None,
+              searchIdeaContent = "",
+              similarResult = Seq.empty,
+              ideaName = None,
+              isLoading = true
+            )
+          )
+          loadDuplicates(props.wrapped).onComplete {
+            case Success(similarResult) => self.setState(_.copy(similarResult = similarResult, isLoading = false))
+            case Failure(e) =>
+              self.setState(_.copy(isLoading = false))
+              scalajs.js.Dynamic.global.console.log(s"get similar failed with error $e")
+          }
+        }
+      },
       render = { self =>
         def handleUpdateInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
           self.setState(_.copy(searchIdeaContent = searchText))

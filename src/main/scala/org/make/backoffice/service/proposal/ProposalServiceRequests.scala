@@ -96,3 +96,8 @@ final case class ValidateProposalRequest(newContent: Option[String],
                                          operation: Option[OperationId])
 
 final case class PatchProposalsIdeaRequest(proposalIds: Seq[ProposalId], ideaId: IdeaId)
+
+final case class NextProposalToModerateRequest(operationId: Option[OperationId],
+                                               themeId: Option[ThemeId],
+                                               country: Option[String],
+                                               language: Option[String])

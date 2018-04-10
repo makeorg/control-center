@@ -32,14 +32,15 @@ object OperationService extends ApiService with CirceClassFormatters {
     }
   }
 
-  def getOperationById(id: OperationId, forceReload: Boolean = false): Future[Operation] = {
-    loadOperationList(forceReload).map(_.filter(_.id == id.value).head)
+  def getOperationById(id: OperationId, forceReload: Boolean = false): Future[Option[Operation]] = {
+    loadOperationList(forceReload).map(_.find(_.id == id.value))
   }
 
   def getOperationByIds(ids: js.Array[String]): Future[ListDataResponse[Operation]] = {
     if (ids.head.length != 0) {
       Future
         .traverse(ids.toSeq)(id => getOperationById(OperationId(id)))
+        .map(_.filter(_.isDefined).map(_.get))
         .map(ListDataResponse.apply)
     } else Future.successful(ListDataResponse(Seq.empty))
   }

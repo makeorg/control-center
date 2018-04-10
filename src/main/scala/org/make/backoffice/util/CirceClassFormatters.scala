@@ -224,7 +224,9 @@ trait CirceClassFormatters extends TimeInstances {
     )
 
   implicit lazy val countryConfigDecoder: Decoder[CountryConfiguration] =
-    Decoder.forProduct3("countryCode", "defaultLanguage", "supportedLanguages")(CountryConfiguration.apply)
+    Decoder.forProduct5("countryCode", "defaultLanguage", "supportedLanguages", "startDate", "endDate")(
+      CountryConfiguration.apply
+    )
 
   implicit lazy val gradientColorDecoder: Decoder[GradientColor] =
     Decoder.forProduct2("from", "to")(GradientColor.apply)
@@ -261,7 +263,7 @@ trait CirceClassFormatters extends TimeInstances {
     Decoder.forProduct2("title", "language")(OperationTranslation.apply)
 
   implicit lazy val operationCountryConfigurationDecoder: Decoder[OperationCountryConfiguration] =
-    Decoder.forProduct2("countryCode", "tagIds")(OperationCountryConfiguration.apply)
+    Decoder.forProduct4("countryCode", "tagIds", "startDate", "endDate")(OperationCountryConfiguration.apply)
 
   implicit lazy val operationActionDecoder: Decoder[OperationAction] =
     Decoder.forProduct4("date", "user", "actionType", "arguments")(OperationAction.apply)

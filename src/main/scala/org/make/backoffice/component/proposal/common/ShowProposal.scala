@@ -5,7 +5,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.component.RichVirtualDOMElements
-import org.make.backoffice.component.proposal.common.ShowProposalComponents.ShowComponentsProps
+import org.make.backoffice.component.proposal.common.ShowProposalComponents.ShowProposalComponentsProps
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Show._
 import org.make.backoffice.facade.AdminOnRest.Tab._
@@ -31,7 +31,9 @@ object ShowProposal {
       )(
         <.TabbedShowLayout()(
           <.Tab(^.label := "Actions")(
-            <.ShowProposalComponents(^.wrapped := ShowComponentsProps(org.scalajs.dom.window.location.hash))()
+            <.ShowProposalComponents(
+              ^.wrapped := ShowProposalComponentsProps(hash = org.scalajs.dom.window.location.hash, proposal = None)
+            )()
           ),
           <.Tab(^.label := "Proposal infos", ^.disabled := false)(
             <.TextField(^.source := "id")(),

@@ -173,4 +173,24 @@ object ProposalService extends ApiService with CirceClassFormatters {
     client.delete[Unit](apiEndpoint = resourceName / "similars" / proposalId, urlParams = Seq.empty, data = "")
   }
 
+  def nexProposalToModerate(operationId: Option[String],
+                            themeId: Option[String],
+                            country: Option[String],
+                            language: Option[String]): Future[SingleResponse[SingleProposal]] = {
+    val request = NextProposalToModerateRequest(
+      operationId = operationId.map(OperationId(_)),
+      themeId = themeId.map(ThemeId(_)),
+      country = country,
+      language = language
+    )
+    client
+      .post[SingleProposal](resourceName / "next", data = request.asJson.pretty(ApiService.printer))
+      .map(SingleResponse.apply)
+      .recover {
+        case e =>
+          js.Dynamic.global.console.log(s"instead of converting to SingleResponse: failed cursor $e")
+          throw e
+      }
+  }
+
 }

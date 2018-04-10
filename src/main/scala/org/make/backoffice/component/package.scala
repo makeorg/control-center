@@ -24,6 +24,7 @@ package object component {
     def NewIdeaComponent: ReactClassElementSpec = self(proposal.common.NewIdeaComponent.reactClass)
     def IdeaTitle: ReactClassElementSpec = self(idea.EditIdea.ideaTitle)
     def CustomDatagrid: ReactClassElementSpec = self(idea.EditIdea.dataGrid)
+    def StartModeration: ReactClassElementSpec = self(proposal.moderation.StartModeration.reactClass)
   }
 
   implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {

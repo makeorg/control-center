@@ -17,7 +17,7 @@ import scala.util.{Failure, Success}
 object ShowProposalComponents {
 
   val timer = new Timer()
-  def task(self: React.Self[ShowComponentsProps, ShowComponentsState]): TimerTask = new TimerTask {
+  def task(self: React.Self[ShowProposalComponentsProps, ShowProposalComponentsState]): TimerTask = new TimerTask {
     override def run(): Unit = {
       if (org.scalajs.dom.window.location.hash == self.props.wrapped.hash) {
         ProposalService.lock(self.state.proposal.id).onComplete {
@@ -33,22 +33,22 @@ object ShowProposalComponents {
     }
   }
 
-  case class ShowComponentsProps(hash: String, eventRefresh: Boolean = false)
-  case class ShowComponentsState(proposal: SingleProposal,
-                                 isLocked: Boolean = false,
-                                 moderatorName: Option[String] = None)
+  case class ShowProposalComponentsProps(hash: String, eventRefresh: Boolean = false, proposal: Option[SingleProposal])
+  case class ShowProposalComponentsState(proposal: SingleProposal,
+                                         isLocked: Boolean = false,
+                                         moderatorName: Option[String] = None)
 
-  lazy val reactClass: ReactClass = React.createClass[ShowComponentsProps, ShowComponentsState](
+  lazy val reactClass: ReactClass = React.createClass[ShowProposalComponentsProps, ShowProposalComponentsState](
     displayName = "ShowProposalComponent",
     getInitialState = { self =>
-      val proposal = self.props.native.record.asInstanceOf[SingleProposal]
-      ShowComponentsState(proposal)
+      val proposal = self.props.wrapped.proposal.getOrElse(self.props.native.record.asInstanceOf[SingleProposal])
+      ShowProposalComponentsState(proposal)
     },
     componentDidMount = { self =>
       timer.scheduleAtFixedRate(task(self), 0L, 10000L)
     },
-    componentWillUpdate = { (self, props, _) =>
-      val proposal = props.native.record.asInstanceOf[SingleProposal]
+    componentWillReceiveProps = { (self, props) =>
+      val proposal = props.wrapped.proposal.getOrElse(props.native.record.asInstanceOf[SingleProposal])
       self.setState(_.copy(proposal = proposal))
     },
     render = self =>

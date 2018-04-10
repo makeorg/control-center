@@ -38,7 +38,7 @@ case class ValidationError(field: String, message: Option[String])
 
 trait ValidationFailedHttpException extends HttpException {
   val errors: Seq[ValidationError]
-  override def getMessage: String = { errors.toString }
+  override def getMessage: String = { errors.map(_.message.getOrElse("")).toString() }
 }
 
 case class BadRequestHttpException(override val errors: Seq[ValidationError]) extends ValidationFailedHttpException

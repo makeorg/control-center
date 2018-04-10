@@ -6,7 +6,7 @@ import io.circe.{Decoder, Encoder, Json}
 import org.make.backoffice.util.JSConverters._
 
 import scala.scalajs.js
-import scala.scalajs.js.Date
+import scala.scalajs.js.{Date, UndefOr}
 import scala.scalajs.js.JSConverters._
 
 @js.native
@@ -36,11 +36,23 @@ object OperationTranslation {
 trait OperationCountryConfiguration extends js.Object with StringValue {
   val countryCode: String
   val tagIds: js.Array[TagId]
+  val startDate: UndefOr[js.Date]
+  val endDate: UndefOr[js.Date]
 }
 
 object OperationCountryConfiguration {
-  def apply(countryCode: String, tagIds: Seq[TagId]): OperationCountryConfiguration =
-    js.Dynamic.literal(countryCode = countryCode, tagIds = tagIds.toJSArray).asInstanceOf[OperationCountryConfiguration]
+  def apply(countryCode: String,
+            tagIds: Seq[TagId],
+            startDate: Option[String],
+            endDate: Option[String]): OperationCountryConfiguration =
+    js.Dynamic
+      .literal(
+        countryCode = countryCode,
+        tagIds = tagIds.toJSArray,
+        startDate = startDate.map(d => new js.Date(d)).orUndefined,
+        endDate = endDate.map(d     => new js.Date(d)).orUndefined
+      )
+      .asInstanceOf[OperationCountryConfiguration]
 }
 
 @js.native
