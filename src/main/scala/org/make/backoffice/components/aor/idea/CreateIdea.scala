@@ -8,6 +8,7 @@ import org.make.backoffice.facades.AdminOnRest.Create._
 import org.make.backoffice.facades.AdminOnRest.Fields._
 import org.make.backoffice.facades.AdminOnRest.Inputs._
 import org.make.backoffice.facades.AdminOnRest.SimpleForm._
+import org.make.backoffice.facades.AdminOnRest.required
 import org.make.backoffice.facades.Choice
 import org.make.backoffice.helpers.Configuration
 import org.make.client.Resource
@@ -41,12 +42,12 @@ object CreateIdea {
 
           <.Create(^.resource := Resource.ideas, ^.location := self.props.location)(
             <.SimpleForm()(
-              <.TextInput(^.source := "name", ^.allowEmpty := false, ^.options := Map("fullWidth" -> true))(),
-              <.SelectInput(^.source := "country", ^.choices := countryChoices, ^.allowEmpty := false)(),
+              <.TextInput(^.source := "name", ^.allowEmpty := false, ^.validate := required, ^.options := Map("fullWidth" -> true))(),
+              <.SelectInput(^.source := "country", ^.choices := countryChoices, ^.allowEmpty := false, ^.validate := required)(),
               languagesByCountry.map {
                 case (country, languages) =>
                   <.DependentInput(^.dependsOn := "country", ^.dependsValue := country)(
-                    <.SelectInput(^.source := "language", ^.choices := languages, ^.allowEmpty := false)()
+                    <.SelectInput(^.source := "language", ^.choices := languages, ^.allowEmpty := false, ^.validate := required)()
                   )
               },
               <.SelectInput(

@@ -18,7 +18,6 @@ import scala.scalajs.js.annotation.JSImport
 object NativeAdmin extends ReactClass
 
 object Admin {
-
   case class RestClientAttributeSpec(name: String) extends AttributeSpec {
     def :=(
             restClient: js.Function3[String, String, js.Object, Promise[Response]]
@@ -57,5 +56,4 @@ object Admin {
     lazy val dashboard = ReactClassAttributeSpec("dashboard")
     lazy val customReducers = CustomReducersAttributesSpec("customReducers")
   }
-
 }

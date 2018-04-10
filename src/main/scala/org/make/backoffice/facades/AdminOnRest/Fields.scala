@@ -5,6 +5,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactCl
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.statictags._
+import org.make.backoffice.facades.FunctionAttributeSpec
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
@@ -106,5 +107,6 @@ object Fields {
     lazy val style = CssAttributeSpec("style")
     lazy val elStyle = CssAttributeSpec("elStyle")
     lazy val alwaysOn = BooleanAttributeSpec("alwaysOn")
+    lazy val validate =  FunctionAttributeSpec("validate")
   }
 }
