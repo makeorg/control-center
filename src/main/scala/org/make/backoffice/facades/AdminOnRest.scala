@@ -93,6 +93,11 @@ case class ChoicesAttributeSpec(name: String) extends AttributeSpec {
     Attribute(name = name, value = value, AS_IS)
 }
 
+case class FunctionAttributeSpec(name: String) extends AttributeSpec {
+  def :=(validate: js.Function): Attribute[js.Function] =
+    Attribute(name = name, value = validate, AS_IS)
+}
+
 @js.native
 trait Choice extends js.Object {
   val id: String
