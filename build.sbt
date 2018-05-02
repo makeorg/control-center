@@ -1,4 +1,4 @@
-import java.time.{LocalDate, ZoneOffset, ZonedDateTime}
+import java.time.{ZoneOffset, ZonedDateTime}
 
 import com.typesafe.sbt.GitVersioning
 import com.typesafe.sbt.SbtGit.GitKeys
@@ -6,7 +6,7 @@ import sbt.enablePlugins
 
 organization := "org.make.backoffice"
 name := "make-backoffice"
-scalaVersion := "2.12.1"
+scalaVersion := "2.12.5"
 
 /* scala libraries version */
 val scalaJsReactVersion = "0.14.0"
@@ -18,7 +18,6 @@ val scalaCssCoreVersion = "0.5.3"
 val npmReactVersion = "15.6.2"
 val npmWebpackVersion = "3.6.0"
 val npmReactRouterVersion = "4.1.2"
-val npmBulmaVersion = "0.4.4"
 val npmSassLoaderVersion = "6.0.6"
 val npmNodeSassVersion = "4.5.3"
 val npmExtractTextWebpackPluginVersion = "3.0.0"
@@ -29,11 +28,10 @@ val npmHtmlWebpackPluginVersion = "2.29.0"
 val npmWebpackMd5HashVersion = "0.0.5"
 val npmFontAwesomeVersion = "4.7.0"
 val npmFileLoaderVersion = "0.11.2"
-val npmNormalizeVersion = "7.0.0"
 val npmBootstrapVersion = "3.3.7"
-val npmAdminOnRestVersion = "1.3.4"
+val npmAdminOnRestVersion = "1.4.1"
 val npmAorDependentInput = "1.2.0"
-val npmMaterialUi = "0.19.2"
+val npmMaterialUi = "0.20.0"
 val npmReactGoogleLogin = "2.9.2"
 
 enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
@@ -50,7 +48,7 @@ libraryDependencies ++= Seq(
   "io.circe"                     %%% "circe-scalajs"                  % circeVersion
 )
 
-npmDependencies in Compile ++= Seq(
+Compile / npmDependencies ++= Seq(
   "react" -> npmReactVersion,
   "react-dom" -> npmReactVersion,
   "react-router" -> npmReactRouterVersion,
@@ -58,15 +56,12 @@ npmDependencies in Compile ++= Seq(
   "react-google-login" -> npmReactGoogleLogin,
   "admin-on-rest" -> npmAdminOnRestVersion,
   "material-ui" -> npmMaterialUi,
-  "bulma" -> npmBulmaVersion,
   "font-awesome" -> npmFontAwesomeVersion,
-  "normalize-scss" -> npmNormalizeVersion,
   "bootstrap" -> npmBootstrapVersion,
   "aor-dependent-input" -> npmAorDependentInput
 )
 
-npmDevDependencies in Compile ++= Seq(
-  "ajv" -> "5.2.2",
+Compile / npmDevDependencies ++= Seq(
   "sass-loader" -> npmSassLoaderVersion,
   "node-sass" -> npmNodeSassVersion,
   "extract-text-webpack-plugin" -> npmExtractTextWebpackPluginVersion,
@@ -80,30 +75,34 @@ npmDevDependencies in Compile ++= Seq(
   "webpack" -> npmWebpackVersion
 )
 
-npmResolutions in Compile := {
-  (npmDependencies in Compile).value.toMap ++ (npmDevDependencies in Compile).value.toMap
+Compile / npmResolutions := {
+  (Compile / npmDependencies).value.toMap ++ (Compile / npmDevDependencies).value.toMap
 }
 
-version in webpack := npmWebpackVersion
+webpack / version := npmWebpackVersion
+
 webpackResources := {
   baseDirectory.value / "src" / "main" / "static" / "sass" ** "*.sass"
 }
 
 webpackDevServerPort := 4242
 
-webpackConfigFile in fastOptJS := Some(baseDirectory.value / "make-webpack-library.config.js")
-webpackConfigFile in fullOptJS := Some(baseDirectory.value / "make-webpack-prod.config.js")
+fastOptJS / webpackConfigFile := Some(baseDirectory.value / "make-webpack-library.config.js")
+fullOptJS / webpackConfigFile := Some(baseDirectory.value / "make-webpack-prod.config.js")
 
 webpackDevServerExtraArgs := Seq("--lazy", "--inline")
 
-webpackBundlingMode in fastOptJS := BundlingMode.LibraryOnly("makeBackoffice")
-webpackBundlingMode in fullOptJS := BundlingMode.Application
+fastOptJS / webpackBundlingMode := BundlingMode.LibraryOnly("makeBackoffice")
+fullOptJS / webpackBundlingMode := BundlingMode.Application
 
 scalacOptions ++= {
   if (System.getenv("CI_BUILD") == "true") {
     Seq("-Xelide-below", "OFF")
   } else {
-    Seq.empty
+    Seq(
+      "-deprecation",
+      "-feature"
+    )
   }
 }
 
@@ -135,8 +134,8 @@ buildVersion := {
 
 // Custome task to manage assets
 val prepareAssets = taskKey[Unit]("prepareAssets")
-prepareAssets in ThisBuild := {
-  val npmDirectory = (npmUpdate in Compile).value
+ThisBuild / prepareAssets := {
+  val npmDirectory = (Compile / npmUpdate).value
   IO.copyDirectory(baseDirectory.value / "src" / "main" / "static", npmDirectory, overwrite = true)
 
   val buildVersionFile: File = npmDirectory / "dist" / "version"
@@ -148,13 +147,15 @@ prepareAssets in ThisBuild := {
 
   streams.value.log.info("Copy assets to working directory")
 }
-fastOptJS in Compile := {
+
+Compile / fastOptJS := {
   prepareAssets.value
-  (fastOptJS in Compile).value
+  (Compile / fastOptJS).value
 }
-fullOptJS in Compile := {
+
+Compile / fullOptJS := {
   prepareAssets.value
-  (fullOptJS in Compile).value
+  (Compile / fullOptJS).value
 }
 
 gitCommitMessageHook := Some(baseDirectory.value / "bin" / "commit-msg.hook")
@@ -165,7 +166,7 @@ useYarn := true
 
 git.formattedShaVersion := git.gitHeadCommit.value map { sha => sha.take(10) }
 
-version in ThisBuild := {
+ThisBuild / version := {
   git.formattedShaVersion.value.get
 }
 
