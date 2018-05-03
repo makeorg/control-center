@@ -6,6 +6,8 @@ import scala.scalajs.js
 import js.JSConverters._
 import org.make.backoffice.util.JSConverters._
 
+import scala.scalajs.js.UndefOr
+
 @js.native
 sealed trait Gender extends js.Object {
   def shortName: String
@@ -42,8 +44,22 @@ trait Profile extends js.Object {
   val karmaLevel: js.UndefOr[Int]
   val locale: js.UndefOr[String]
   val optInNewsletter: Boolean
+  val age: UndefOr[Int]
 }
+
 object Profile {
+
+  def getAge(dateOfBirth: Option[LocalDate]): Option[Int] = {
+    dateOfBirth.map(d => {
+      val diff: Int = LocalDate.now().getYear - d.getYear
+      if (LocalDate.now().getMonthValue > d.getMonthValue) {
+        diff
+      } else {
+        diff - 1
+      }
+    })
+  }
+
   def apply(dateOfBirth: Option[LocalDate],
             avatarUrl: Option[String],
             profession: Option[String],
@@ -71,7 +87,8 @@ object Profile {
         departmentNumber = departmentNumber.orUndefined,
         karmaLevel = karmaLevel.orUndefined,
         locale = locale.orUndefined,
-        optInNewsletter = optInNewsletter
+        optInNewsletter = optInNewsletter,
+        age = getAge(dateOfBirth).orUndefined
       )
       .asInstanceOf[Profile]
 
