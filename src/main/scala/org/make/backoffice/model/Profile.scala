@@ -50,14 +50,7 @@ trait Profile extends js.Object {
 object Profile {
 
   def getAge(dateOfBirth: Option[LocalDate]): Option[Int] = {
-    dateOfBirth.map(d => {
-      val diff: Int = LocalDate.now().getYear - d.getYear
-      if (LocalDate.now().getMonthValue > d.getMonthValue) {
-        diff
-      } else {
-        diff - 1
-      }
-    })
+    dateOfBirth.map(d => LocalDate.now().getYear - d.getYear)
   }
 
   def apply(dateOfBirth: Option[LocalDate],
