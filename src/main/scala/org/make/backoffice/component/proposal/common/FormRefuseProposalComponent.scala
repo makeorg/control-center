@@ -32,7 +32,7 @@ object FormRefuseProposalComponent {
       React.createClass[FormProps, FormState](getInitialState = { _ =>
         FormState(reasons = reasons)
       }, componentWillReceiveProps = { (self, props) =>
-        self.setState(_.copy(isLocked = props.wrapped.isLocked))
+        self.setState(_.copy(isLocked = props.wrapped.isLocked, refusalReason = "Other", notifyUser = true))
       }, render = {
         self =>
           def handleReasonRefusalChange: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
@@ -42,19 +42,6 @@ object FormRefuseProposalComponent {
           def handleNotifyUserChange: (js.Object, Boolean) => Unit = { (_, checked) =>
             self.setState(_.copy(notifyUser = checked))
           }
-
-          def handleSubmitRefuse: () => Unit =
-            () => {
-              ProposalService
-                .refuseProposal(self.props.wrapped.proposal.id, Option(self.state.refusalReason), self.state.notifyUser)
-                .onComplete {
-                  case Success(_) =>
-                    self.props.history.push("/proposals")
-                    self.setState(_.copy(errorMessage = None))
-                  case Failure(_) =>
-                    self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
-                }
-            }
 
           def handleNextProposal: SyntheticEvent => Unit = {
             event =>
@@ -108,13 +95,7 @@ object FormRefuseProposalComponent {
               <.RaisedButton(
                 ^.disabled := self.state.isLocked,
                 ^.label := "Confirm refusal",
-                ^.onClick := handleSubmitRefuse
-              )(),
-              <.RaisedButton(
-                ^.style := Map("float" -> "right"),
-                ^.label := "Next Proposal",
-                ^.onClick := handleNextProposal,
-                ^.disabled := self.state.isLocked
+                ^.onClick := handleNextProposal
               )(),
               errorMessage
             )
