@@ -64,7 +64,7 @@ object ShowProposal {
             )(),
             <.TextField(^.source := "author.firstName", ^.label := "User name")(),
             <.TextField(^.source := "author.profile.age", ^.label := "User age")(),
-            <.TextField(^.source := "author.profile.departmentNumber", ^.label := "User location")()
+            <.TextField(^.source := "author.profile.postalCode", ^.label := "User location")()
           )
         )
     )
