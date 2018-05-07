@@ -40,7 +40,7 @@ trait Profile extends js.Object {
   val googleId: js.UndefOr[String]
   val gender: js.UndefOr[Gender]
   val genderName: js.UndefOr[String]
-  val departmentNumber: js.UndefOr[String]
+  val postalCode: js.UndefOr[String]
   val karmaLevel: js.UndefOr[Int]
   val locale: js.UndefOr[String]
   val optInNewsletter: Boolean
@@ -62,7 +62,7 @@ object Profile {
             googleId: Option[String],
             gender: Option[Gender],
             genderName: Option[String],
-            departmentNumber: Option[String],
+            postalCode: Option[String],
             karmaLevel: Option[Int],
             locale: Option[String],
             optInNewsletter: Boolean = false): Profile =
@@ -77,7 +77,7 @@ object Profile {
         googleId = googleId.orUndefined,
         gender = gender.orUndefined,
         genderName = genderName.orUndefined,
-        departmentNumber = departmentNumber.orUndefined,
+        postalCode = postalCode.orUndefined,
         karmaLevel = karmaLevel.orUndefined,
         locale = locale.orUndefined,
         optInNewsletter = optInNewsletter,
@@ -89,7 +89,7 @@ object Profile {
     profile.dateOfBirth.isEmpty && profile.avatarUrl.isEmpty && profile.profession.isEmpty &&
       profile.phoneNumber.isEmpty && profile.twitterId.isEmpty && profile.facebookId.isEmpty &&
       profile.googleId.isEmpty && profile.gender.isEmpty && profile.genderName.isEmpty &&
-      profile.departmentNumber.isEmpty && profile.karmaLevel.isEmpty && profile.locale.isEmpty &&
+      profile.postalCode.isEmpty && profile.karmaLevel.isEmpty && profile.locale.isEmpty &&
       !profile.optInNewsletter
 
   def parseProfile(dateOfBirth: Option[LocalDate] = None,
@@ -101,7 +101,7 @@ object Profile {
                    googleId: Option[String] = None,
                    gender: Option[Gender] = None,
                    genderName: Option[String] = None,
-                   departmentNumber: Option[String] = None,
+                   postalCode: Option[String] = None,
                    karmaLevel: Option[Int] = None,
                    locale: Option[String] = None,
                    optInNewsletter: Boolean = false): Option[Profile] = {
@@ -116,7 +116,7 @@ object Profile {
       googleId = googleId,
       gender = gender,
       genderName = genderName,
-      departmentNumber = departmentNumber,
+      postalCode = postalCode,
       karmaLevel = karmaLevel,
       locale = locale,
       optInNewsletter = optInNewsletter

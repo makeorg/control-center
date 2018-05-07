@@ -42,7 +42,7 @@ trait CirceClassFormatters extends TimeInstances {
       "googleId",
       "gender",
       "genderName",
-      "departmentNumber",
+      "postalCode",
       "karmaLevel",
       "locale",
       "optInNewsletter"
