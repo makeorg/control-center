@@ -49,7 +49,7 @@ object FormRefuseProposalComponent {
                 .refuseProposal(self.props.wrapped.proposal.id, Option(self.state.refusalReason), self.state.notifyUser)
                 .onComplete {
                   case Success(_) =>
-                    self.props.history.goBack()
+                    self.props.history.push("/proposals")
                     self.setState(_.copy(errorMessage = None))
                   case Failure(_) =>
                     self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))

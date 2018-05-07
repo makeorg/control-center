@@ -34,7 +34,7 @@ object FormPostponeProposalComponent {
                 .postponeProposal(self.props.wrapped.proposal.id)
                 .onComplete {
                   case Success(_) =>
-                    self.props.history.goBack()
+                    self.props.history.push("/proposals")
                   case Failure(_) =>
                     self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
                 }
