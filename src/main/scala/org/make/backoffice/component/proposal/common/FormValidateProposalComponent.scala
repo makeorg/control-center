@@ -132,7 +132,7 @@ object FormValidateProposalComponent {
             }
           },
           render = { self =>
-            def handleContentEdition: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
+            def handleContentEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
               val newContent: String = event.target.value.substring(0, self.state.maxLength)
               self.setState(_.copy(content = newContent))
             }
@@ -166,7 +166,7 @@ object FormValidateProposalComponent {
               self.setState(_.copy(labels = selectedLabels))
             }
 
-            def handleSubmitUpdate: (SyntheticEvent) => Unit = {
+            def handleSubmitUpdate: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
                 val mayBeNewContent =
@@ -195,7 +195,7 @@ object FormValidateProposalComponent {
                   }
             }
 
-            def handleSubmitValidate: (SyntheticEvent) => Unit = {
+            def handleSubmitValidate: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
                 val mayBeNewContent =
@@ -225,14 +225,14 @@ object FormValidateProposalComponent {
                   }
             }
 
-            def handleSubmit: (SyntheticEvent) => Unit = {
+            def handleSubmit: SyntheticEvent => Unit = {
               if (self.props.wrapped.action == "validate")
                 handleSubmitValidate
               else
                 handleSubmitUpdate
             }
 
-            def handleNextProposal: (SyntheticEvent) => Unit = {
+            def handleNextProposal: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
                 val mayBeNewContent =
