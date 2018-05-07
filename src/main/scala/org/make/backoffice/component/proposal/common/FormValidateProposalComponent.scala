@@ -216,7 +216,7 @@ object FormValidateProposalComponent {
                   )
                   .onComplete {
                     case Success(_) =>
-                      self.props.history.goBack()
+                      self.props.history.push("/proposals")
                       self.setState(_.copy(errorMessage = Seq.empty))
                     case Failure(BadRequestHttpException(errors)) =>
                       self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
