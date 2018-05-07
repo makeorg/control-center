@@ -62,7 +62,9 @@ object ShowProposal {
               ^.options := Map("weekday" -> "long", "year" -> "numeric", "month" -> "long", "day" -> "numeric"),
               ^.locales := "en-EN"
             )(),
-            <.TextField(^.source := "author.firstName", ^.label := "User name")()
+            <.TextField(^.source := "author.firstName", ^.label := "User name")(),
+            <.TextField(^.source := "author.profile.age", ^.label := "User age")(),
+            <.TextField(^.source := "author.profile.departmentNumber", ^.label := "User location")()
           )
         )
     )
