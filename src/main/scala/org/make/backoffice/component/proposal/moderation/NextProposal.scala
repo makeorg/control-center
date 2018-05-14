@@ -25,6 +25,12 @@ object NextProposal {
       getInitialState = { _ =>
         NextProposalState(None)
       },
+      componentDidMount = { self =>
+        ProposalService.getProposalById(self.props.`match`.params("id")).onComplete {
+          case Success(proposalResponse) => self.setState(_.copy(proposal = Some(proposalResponse.data)))
+          case Failure(e)                => js.Dynamic.global.console.log(e.getMessage)
+        }
+      },
       componentWillReceiveProps = { (self, props) =>
         ProposalService.getProposalById(props.`match`.params("id")).onComplete {
           case Success(proposalResponse) => self.setState(_.copy(proposal = Some(proposalResponse.data)))

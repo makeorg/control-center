@@ -195,43 +195,6 @@ object FormValidateProposalComponent {
                   }
             }
 
-            def handleSubmitValidate: SyntheticEvent => Unit = {
-              event =>
-                event.preventDefault()
-                val mayBeNewContent =
-                  if (self.state.content != self.props.wrapped.proposal.content) {
-                    Some(self.state.content)
-                  } else { None }
-                ProposalService
-                  .validateProposal(
-                    proposalId = self.props.wrapped.proposal.id,
-                    newContent = mayBeNewContent,
-                    sendNotificationEmail = self.state.notifyUser,
-                    labels = self.state.labels,
-                    theme = self.state.theme,
-                    similarProposals = self.state.similarProposals.map(ProposalId.apply),
-                    tags = self.state.tags.map(tag => TagId(tag.id)),
-                    ideaId = self.state.ideaId,
-                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
-                  )
-                  .onComplete {
-                    case Success(_) =>
-                      self.props.history.push("/proposals")
-                      self.setState(_.copy(errorMessage = Seq.empty))
-                    case Failure(BadRequestHttpException(errors)) =>
-                      self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
-                    case Failure(_) =>
-                      self.setState(_.copy(errorMessage = Seq("Oooops, something went wrong")))
-                  }
-            }
-
-            def handleSubmit: SyntheticEvent => Unit = {
-              if (self.props.wrapped.action == "validate")
-                handleSubmitValidate
-              else
-                handleSubmitUpdate
-            }
-
             def handleNextProposal: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
@@ -269,6 +232,13 @@ object FormValidateProposalComponent {
                   case Failure(_) =>
                     self.setState(_.copy(errorMessage = Seq("Oooops, something went wrong")))
                 }
+            }
+
+            def handleSubmit: SyntheticEvent => Unit = {
+              if (self.props.wrapped.action == "validate")
+                handleNextProposal
+              else
+                handleSubmitUpdate
             }
 
             val selectTheme = <.SelectField(
@@ -374,12 +344,6 @@ object FormValidateProposalComponent {
                   ^.style := Map("marginTop" -> "1em"),
                   ^.label := s"Confirm ${if (self.props.wrapped.action == "validate") "validation" else "changes"}",
                   ^.onClick := handleSubmit,
-                  ^.disabled := self.state.isLocked
-                )(),
-                <.RaisedButton(
-                  ^.style := Map("float" -> "right", "marginTop" -> "1em"),
-                  ^.label := "Next Proposal",
-                  ^.onClick := handleNextProposal,
                   ^.disabled := self.state.isLocked
                 )(),
                 errorMessage

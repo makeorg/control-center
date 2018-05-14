@@ -28,18 +28,6 @@ object FormPostponeProposalComponent {
         self.setState(_.copy(errorMessage = None, isLocked = props.wrapped.isLocked))
       }, render = {
         self =>
-          def handleSubmitPostpone: () => Unit =
-            () => {
-              ProposalService
-                .postponeProposal(self.props.wrapped.proposal.id)
-                .onComplete {
-                  case Success(_) =>
-                    self.props.history.push("/proposals")
-                  case Failure(_) =>
-                    self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
-                }
-            }
-
           def handleNextProposal: SyntheticEvent => Unit = { event =>
             event.preventDefault()
             val futureNextProposal =
@@ -70,13 +58,7 @@ object FormPostponeProposalComponent {
               <.RaisedButton(
                 ^.disabled := self.state.isLocked,
                 ^.label := "Confirm postpone",
-                ^.onClick := handleSubmitPostpone
-              )(),
-              <.RaisedButton(
-                ^.style := Map("float" -> "right"),
-                ^.label := "Next Proposal",
-                ^.onClick := handleNextProposal,
-                ^.disabled := self.state.isLocked
+                ^.onClick := handleNextProposal
               )(),
               errorMessage
             )
