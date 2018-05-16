@@ -16,6 +16,8 @@ import org.scalajs.dom
 import scala.scalajs.js
 
 object Main {
+  val defaultErrorMessage = "Oooops, something went wrong"
+
   def main(args: Array[String]): Unit = {
 
     ReactDOM.render(

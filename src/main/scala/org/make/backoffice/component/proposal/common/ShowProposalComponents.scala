@@ -16,6 +16,13 @@ import scala.util.{Failure, Success}
 
 object ShowProposalComponents {
 
+  sealed trait Context { val name: String }
+
+  object Context {
+    case object StartModeration extends Context { override val name: String = "startModeration" }
+    case object List extends Context { override val name: String = "list" }
+  }
+
   val timer = new Timer()
   def task(self: React.Self[ShowProposalComponentsProps, ShowProposalComponentsState]): TimerTask = new TimerTask {
     override def run(): Unit = {
@@ -33,7 +40,10 @@ object ShowProposalComponents {
     }
   }
 
-  case class ShowProposalComponentsProps(hash: String, eventRefresh: Boolean = false, proposal: Option[SingleProposal])
+  case class ShowProposalComponentsProps(hash: String,
+                                         eventRefresh: Boolean = false,
+                                         proposal: Option[SingleProposal],
+                                         context: Context)
   case class ShowProposalComponentsState(proposal: SingleProposal,
                                          isLocked: Boolean = false,
                                          moderatorName: Option[String] = None)
@@ -61,19 +71,23 @@ object ShowProposalComponents {
           )(),
         if (self.state.proposal.status == Accepted.shortName)
           <.FormValidateProposalComponent(
-            ^.wrapped := FormValidateProposalComponent.FormProps(self.state.proposal, "update", self.state.isLocked)
+            ^.wrapped := FormValidateProposalComponent
+              .FormProps(self.state.proposal, "update", self.state.isLocked, self.props.wrapped.context)
           )(),
         if (self.state.proposal.status == Pending.shortName)
           <.FormPostponeProposalComponent(
-            ^.wrapped := FormPostponeProposalComponent.FormProps(self.state.proposal, self.state.isLocked)
+            ^.wrapped := FormPostponeProposalComponent
+              .FormProps(self.state.proposal, self.state.isLocked, self.props.wrapped.context)
           )(),
         if (self.state.proposal.status != Refused.shortName)
           <.FormRefuseProposalComponent(
-            ^.wrapped := FormRefuseProposalComponent.FormProps(self.state.proposal, self.state.isLocked)
+            ^.wrapped := FormRefuseProposalComponent
+              .FormProps(self.state.proposal, self.state.isLocked, self.props.wrapped.context)
           )(),
         if (self.state.proposal.status != Accepted.shortName)
           <.FormValidateProposalComponent(
-            ^.wrapped := FormValidateProposalComponent.FormProps(self.state.proposal, "validate", self.state.isLocked)
+            ^.wrapped := FormValidateProposalComponent
+              .FormProps(self.state.proposal, "validate", self.state.isLocked, self.props.wrapped.context)
           )(),
         if (self.state.proposal.status == Accepted.shortName)
           <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(self.state.proposal))(),

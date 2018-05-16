@@ -5,7 +5,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.component.RichVirtualDOMElements
-import org.make.backoffice.component.proposal.common.ShowProposalComponents.ShowProposalComponentsProps
+import org.make.backoffice.component.proposal.common.ShowProposalComponents.{Context, ShowProposalComponentsProps}
 import org.make.backoffice.model.SingleProposal
 import org.make.backoffice.service.proposal.ProposalService
 import org.make.backoffice.facade.MaterialUi._
@@ -50,7 +50,8 @@ object NextProposal {
             <.ShowProposalComponents(
               ^.wrapped := ShowProposalComponentsProps(
                 hash = org.scalajs.dom.window.location.hash,
-                proposal = self.state.proposal
+                proposal = self.state.proposal,
+                context = Context.StartModeration
               )
             )()
           )

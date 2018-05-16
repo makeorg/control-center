@@ -62,7 +62,7 @@ object ValidatedProposalList {
       filterParams
     }
 
-    private def export(self: React.Self[ExportProps, ValidatedProposalListExportState]): (SyntheticEvent) => Unit = {
+    private def export(self: React.Self[ExportProps, ValidatedProposalListExportState]): SyntheticEvent => Unit = {
       event =>
         event.preventDefault()
         val params: String = buildParams(self.props.wrapped.filters, self.state.fileName)
@@ -70,18 +70,16 @@ object ValidatedProposalList {
         org.scalajs.dom.window.open(s"$apiUrl/moderation/proposals/export$params")
     }
 
-    private def handleOpen(
-      self: React.Self[ExportProps, ValidatedProposalListExportState]
-    ): (SyntheticEvent) => Unit = { event =>
-      event.preventDefault()
-      self.setState(_.copy(open = true))
+    private def handleOpen(self: React.Self[ExportProps, ValidatedProposalListExportState]): SyntheticEvent => Unit = {
+      event =>
+        event.preventDefault()
+        self.setState(_.copy(open = true))
     }
 
-    private def handleClose(
-      self: React.Self[ExportProps, ValidatedProposalListExportState]
-    ): (SyntheticEvent) => Unit = { event =>
-      event.preventDefault()
-      self.setState(_.copy(open = false))
+    private def handleClose(self: React.Self[ExportProps, ValidatedProposalListExportState]): SyntheticEvent => Unit = {
+      event =>
+        event.preventDefault()
+        self.setState(_.copy(open = false))
     }
 
     private def actionsModal(self: React.Self[ExportProps, ValidatedProposalListExportState]): Seq[ReactElement] = {
@@ -93,9 +91,9 @@ object ValidatedProposalList {
 
     lazy val reactClass: ReactClass = React.createClass[ExportProps, ValidatedProposalListExportState](
       displayName = "ValidatedProposalListExport",
-      getInitialState = (_) => ValidatedProposalListExportState(fileName = "proposals.csv"),
+      getInitialState = _ => ValidatedProposalListExportState(fileName = "proposals.csv"),
       render = { self =>
-        def handleFileNameEdition: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
+        def handleFileNameEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
           val newContent: String = event.target.value
           self.setState(_.copy(fileName = newContent))
         }
@@ -148,7 +146,7 @@ object ValidatedProposalList {
     React
       .createClass[ValidatedProposalListProps, Unit](
         displayName = "ValidatedProposalList",
-        render = { (self) =>
+        render = { self =>
           <.List(
             ^.title := "Validated proposals",
             ^.location := self.props.location,
@@ -214,15 +212,18 @@ object ValidatedProposalList {
       <.SelectInput(
         ^.label := "Country",
         ^.source := "country",
-        ^.alwaysOn := true,
+        ^.alwaysOn := false,
         ^.choices := Configuration.choicesCountryFilter
       )(),
       <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
-      <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(
-        <.SelectInput(^.optionText := "slug", ^.alwaysOn := false)()
-      ),
+      <.ReferenceInput(
+        ^.label := "Operation",
+        ^.source := "operationId",
+        ^.reference := Resource.operations,
+        ^.alwaysOn := true
+      )(<.SelectInput(^.optionText := "slug")()),
       <.TextInput(^.label := "Question", ^.source := "question", ^.alwaysOn := false)(),
-      <.ReferenceArrayInput(^.label := "Tags", ^.source := "tagsIds", ^.filterToQuery := { (searchText) =>
+      <.ReferenceArrayInput(^.label := "Tags", ^.source := "tagsIds", ^.filterToQuery := { searchText =>
         Map("label" -> searchText).toJSDictionary
       }, ^.reference := Resource.tags)(<.SelectArrayInput(^.optionText := "label", ^.alwaysOn := false)())
       //TODO: add filter on: "moderator"
