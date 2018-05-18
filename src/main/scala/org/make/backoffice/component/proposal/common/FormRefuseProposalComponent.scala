@@ -8,6 +8,8 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.client.NotFoundHttpException
+import org.make.backoffice.component.Main
+import org.make.backoffice.component.proposal.common.ShowProposalComponents.Context
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.util.Configuration
 import org.make.backoffice.model.SingleProposal
@@ -18,7 +20,7 @@ import scala.scalajs.js
 import scala.util.{Failure, Success}
 
 object FormRefuseProposalComponent {
-  case class FormProps(proposal: SingleProposal, isLocked: Boolean = false)
+  case class FormProps(proposal: SingleProposal, isLocked: Boolean = false, context: Context)
   case class FormState(reasons: Seq[String],
                        refusalReason: String = "Other",
                        notifyUser: Boolean = true,
@@ -65,8 +67,34 @@ object FormRefuseProposalComponent {
                 case Success(proposalResponse) =>
                   self.props.history.push(s"/nextProposal/${proposalResponse.data.id}")
                 case Failure(NotFoundHttpException) => self.props.history.push("/proposals")
-                case Failure(_)                     => self.setState(_.copy(errorMessage = Some("Oooops, something went wrong")))
+                case Failure(_) =>
+                  self.setState(_.copy(errorMessage = Some(Main.defaultErrorMessage)))
               }
+          }
+
+          def handleRefuse: SyntheticEvent => Unit = {
+            event =>
+              event.preventDefault()
+              ProposalService
+                .refuseProposal(
+                  proposalId = self.props.wrapped.proposal.id,
+                  refusalReason = Option(self.state.refusalReason),
+                  notifyUser = self.state.notifyUser
+                )
+                .onComplete {
+                  case Success(_) =>
+                    self.props.history.goBack()
+                  case Failure(NotFoundHttpException) => self.props.history.push("/proposals")
+                  case Failure(_) =>
+                    self.setState(_.copy(errorMessage = Some(Main.defaultErrorMessage)))
+                }
+          }
+
+          def handleSubmit: SyntheticEvent => Unit = {
+            if (self.props.wrapped.context == ShowProposalComponents.Context.StartModeration)
+              handleNextProposal
+            else
+              handleRefuse
           }
 
           val selectReasons = <.SelectField(
@@ -95,7 +123,7 @@ object FormRefuseProposalComponent {
               <.RaisedButton(
                 ^.disabled := self.state.isLocked,
                 ^.label := "Confirm refusal",
-                ^.onClick := handleNextProposal
+                ^.onClick := handleSubmit
               )(),
               errorMessage
             )

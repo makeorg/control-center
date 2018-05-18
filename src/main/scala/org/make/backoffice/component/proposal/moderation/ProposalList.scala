@@ -28,7 +28,7 @@ object ProposalList {
 
   private lazy val reactClass: ReactClass = React.createClass[ProposalListProps, Unit](
     displayName = "ProposalList",
-    render = (self) =>
+    render = self =>
       <.div()(
         <.StartModeration.empty,
         <.List(
@@ -97,14 +97,17 @@ object ProposalList {
         <.SelectInput(
           ^.label := "Country",
           ^.source := "country",
-          ^.alwaysOn := true,
+          ^.alwaysOn := false,
           ^.allowEmpty := true,
           ^.choices := Configuration.choicesCountryFilter
         )(),
         <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
-        <.ReferenceInput(^.label := "Operation", ^.source := "operationId", ^.reference := Resource.operations)(
-          <.SelectInput(^.optionText := "slug", ^.alwaysOn := false)()
-        )
+        <.ReferenceInput(
+          ^.label := "Operation",
+          ^.source := "operationId",
+          ^.reference := Resource.operations,
+          ^.alwaysOn := true
+        )(<.SelectInput(^.optionText := "slug")())
         //TODO: add filter on: "reason for refusal" and "moderator"
       )
     )

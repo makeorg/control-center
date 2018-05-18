@@ -5,7 +5,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.component.RichVirtualDOMElements
-import org.make.backoffice.component.proposal.common.ShowProposalComponents.ShowProposalComponentsProps
+import org.make.backoffice.component.proposal.common.ShowProposalComponents.{Context, ShowProposalComponentsProps}
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Show._
 import org.make.backoffice.facade.AdminOnRest.Tab._
@@ -22,7 +22,7 @@ object ShowProposal {
 
   private lazy val reactClass = React.createClass[ShowProposalProps, Unit](
     displayName = "ShowProposal",
-    render = (self) =>
+    render = self =>
       <.Show(
         ^.location := self.props.location,
         ^.resource := Resource.proposals,
@@ -32,7 +32,11 @@ object ShowProposal {
         <.TabbedShowLayout()(
           <.Tab(^.label := "Actions")(
             <.ShowProposalComponents(
-              ^.wrapped := ShowProposalComponentsProps(hash = org.scalajs.dom.window.location.hash, proposal = None)
+              ^.wrapped := ShowProposalComponentsProps(
+                hash = org.scalajs.dom.window.location.hash,
+                proposal = None,
+                context = Context.List
+              )
             )()
           ),
           <.Tab(^.label := "Proposal infos", ^.disabled := false)(

@@ -9,7 +9,7 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
-import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.{Main, RichVirtualDOMElements}
 import org.make.backoffice.component.proposal.common.ProposalIdeaComponent.ProposalIdeaProps
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
@@ -26,7 +26,10 @@ import scala.util.{Failure, Success}
 
 object FormValidateProposalComponent {
 
-  case class FormProps(proposal: SingleProposal, action: String, isLocked: Boolean = false)
+  case class FormProps(proposal: SingleProposal,
+                       action: String,
+                       isLocked: Boolean = false,
+                       context: ShowProposalComponents.Context)
   case class FormState(content: String,
                        maxLength: Int,
                        labels: Seq[String] = Seq.empty,
@@ -191,7 +194,37 @@ object FormValidateProposalComponent {
                     case Failure(BadRequestHttpException(errors)) =>
                       self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
                     case Failure(_) =>
-                      self.setState(_.copy(errorMessage = Seq("Oooops, something went wrong")))
+                      self.setState(_.copy(errorMessage = Seq(Main.defaultErrorMessage)))
+                  }
+            }
+
+            def handleSubmitValidate: SyntheticEvent => Unit = {
+              event =>
+                event.preventDefault()
+                val mayBeNewContent =
+                  if (self.state.content != self.props.wrapped.proposal.content) {
+                    Some(self.state.content)
+                  } else { None }
+                ProposalService
+                  .validateProposal(
+                    proposalId = self.props.wrapped.proposal.id,
+                    newContent = mayBeNewContent,
+                    sendNotificationEmail = self.state.notifyUser,
+                    labels = self.state.labels,
+                    theme = self.state.theme,
+                    similarProposals = self.state.similarProposals.map(ProposalId.apply),
+                    tags = self.state.tags.map(tag => TagId(tag.id)),
+                    ideaId = self.state.ideaId,
+                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
+                  )
+                  .onComplete {
+                    case Success(_) =>
+                      self.props.history.goBack()
+                      self.setState(_.copy(errorMessage = Seq.empty))
+                    case Failure(BadRequestHttpException(errors)) =>
+                      self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
+                    case Failure(_) =>
+                      self.setState(_.copy(errorMessage = Seq(Main.defaultErrorMessage)))
                   }
             }
 
@@ -230,13 +263,17 @@ object FormValidateProposalComponent {
                   case Failure(BadRequestHttpException(errors)) =>
                     self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
                   case Failure(_) =>
-                    self.setState(_.copy(errorMessage = Seq("Oooops, something went wrong")))
+                    self.setState(_.copy(errorMessage = Seq(Main.defaultErrorMessage)))
                 }
             }
 
             def handleSubmit: SyntheticEvent => Unit = {
-              if (self.props.wrapped.action == "validate")
+              if (self.props.wrapped.action == "validate" &&
+                  self.props.wrapped.context == ShowProposalComponents.Context.StartModeration)
                 handleNextProposal
+              else if (self.props.wrapped.action == "validate" &&
+                       self.props.wrapped.context == ShowProposalComponents.Context.List)
+                handleSubmitValidate
               else
                 handleSubmitUpdate
             }
