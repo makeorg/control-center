@@ -11,7 +11,7 @@ import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpExceptio
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.{Country, Operation}
 import org.make.backoffice.service.operation.OperationService
-import org.make.backoffice.service.proposal.ProposalService
+import org.make.backoffice.service.proposal.{Pending, ProposalService}
 import org.make.backoffice.util.Configuration
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -85,7 +85,14 @@ object StartModeration {
                 .proposals(
                   None,
                   None,
-                  Some(Seq(filter, Filter("country", self.state.country.getOrElse("")), Filter("language", value)))
+                  Some(
+                    Seq(
+                      filter,
+                      Filter("country", self.state.country.getOrElse("")),
+                      Filter("language", value),
+                      Filter("status", s"${Pending.shortName}")
+                    )
+                  )
                 )
                 .onComplete {
                   case Success(proposalsTotal) => self.setState(_.copy(proposalsAmount = proposalsTotal.total))
@@ -95,7 +102,7 @@ object StartModeration {
                 }
           }
 
-          def onClickStartModeration: (SyntheticEvent) => Unit = {
+          def onClickStartModeration: SyntheticEvent => Unit = {
             event =>
               event.preventDefault()
               ProposalService
