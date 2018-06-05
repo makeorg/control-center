@@ -6,13 +6,15 @@ import org.make.backoffice.model._
 
 trait CirceClassFormatters extends TimeInstances {
   implicit lazy val userDecoder: Decoder[User] =
-    Decoder.forProduct9(
+    Decoder.forProduct11(
       "userId",
       "email",
       "firstName",
       "lastName",
+      "organisationName",
       "enabled",
-      "verified",
+      "emailVerified",
+      "isOrganisation",
       "lastConnection",
       "roles",
       "profile"
@@ -114,7 +116,8 @@ trait CirceClassFormatters extends TimeInstances {
   implicit lazy val contextDecoder: Decoder[Context] =
     Decoder.forProduct4("operation", "source", "location", "question")(Context.apply)
 
-  implicit lazy val authorDecoder: Decoder[Author] = Decoder.forProduct3("firstName", "postalCode", "age")(Author.apply)
+  implicit lazy val authorDecoder: Decoder[Author] =
+    Decoder.forProduct3("firstName", "postalCode", "age")(Author.apply)
 
   implicit lazy val tagEncoder: Encoder[Tag] = Encoder.forProduct2("tagId", "label")(tag => (tag.id, tag.label))
   implicit lazy val tagDecoder: Decoder[Tag] = Decoder.forProduct2("tagId", "label")(Tag.apply)
@@ -193,12 +196,7 @@ trait CirceClassFormatters extends TimeInstances {
     )
 
   implicit lazy val businessConfigEncoder: Encoder[BusinessConfig] =
-    Encoder.forProduct4(
-      "proposalMaxLength",
-      "themes",
-      "reasonsForRefusal",
-      "supportedCountries"
-    )(
+    Encoder.forProduct4("proposalMaxLength", "themes", "reasonsForRefusal", "supportedCountries")(
       businessConfig =>
         (
           businessConfig.proposalMaxLength,
@@ -237,12 +235,7 @@ trait CirceClassFormatters extends TimeInstances {
     )(Theme.apply)
 
   implicit lazy val businessConfigDecoder: Decoder[BusinessConfig] =
-    Decoder.forProduct4(
-      "proposalMaxLength",
-      "themes",
-      "reasonsForRefusal",
-      "supportedCountries"
-    )(BusinessConfig.apply)
+    Decoder.forProduct4("proposalMaxLength", "themes", "reasonsForRefusal", "supportedCountries")(BusinessConfig.apply)
 
   implicit lazy val operationTranslationDecoder: Decoder[OperationTranslation] =
     Decoder.forProduct2("title", "language")(OperationTranslation.apply)

@@ -21,19 +21,20 @@ object Role {
   val roleModerator = Role("ROLE_MODERATOR")
   val rolePolitical = Role("ROLE_POLITICAL")
   val roleCitizen = Role("ROLE_CITIZEN")
+  val roleActor = Role("ROLE_ACTOR")
 
   val roles: Map[String, Role] = Map(
     roleAdmin.shortName -> roleAdmin,
     roleModerator.shortName -> roleModerator,
     rolePolitical.shortName -> rolePolitical,
-    roleCitizen.shortName -> roleCitizen
+    roleCitizen.shortName -> roleCitizen,
+    roleActor.shortName -> roleActor
   )
 
   def matchRole(role: String): Option[Role] = {
     val maybeRole = roles.get(role)
     maybeRole
   }
-
 }
 
 @js.native
@@ -42,19 +43,24 @@ trait User extends js.Object {
   val email: String
   val firstName: js.UndefOr[String]
   val lastName: js.UndefOr[String]
+  val organisationName: js.UndefOr[String]
   val enabled: Boolean
-  val verified: Boolean
+  val emailVerified: Boolean
+  val isOrganisation: Boolean
   val lastConnection: Date
   val roles: js.Array[Role]
   val profile: js.UndefOr[Profile]
 }
+
 object User {
   def apply(userId: UserId,
             email: String,
             firstName: Option[String],
             lastName: Option[String],
+            organisationName: Option[String],
             enabled: Boolean,
-            verified: Boolean,
+            emailVerified: Boolean,
+            isOrganisation: Boolean,
             lastConnection: ZonedDateTime,
             roles: Seq[Role],
             profile: Option[Profile]): User =
@@ -64,8 +70,10 @@ object User {
         email = email,
         firstName = firstName.orUndefined,
         lastName = lastName.orUndefined,
+        organisationName = organisationName.orUndefined,
         enabled = enabled,
-        verified = verified,
+        emailVerified = emailVerified,
+        isOrganisation = isOrganisation,
         lastConnection = lastConnection.toJSDate, // Date.parse(lastConnection.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)),
         roles = roles.toJSArray,
         profile = profile.orUndefined

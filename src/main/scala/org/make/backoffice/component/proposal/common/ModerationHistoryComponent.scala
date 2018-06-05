@@ -71,7 +71,7 @@ object ModerationHistoryComponent {
           <.TableRow(^.key := s"${event.date}-${event.actionType}")(
             <.TableRowColumn()(new Date(event.date.toString.toLong).toUTCString()),
             <.TableRowColumn()(<.div()(explicitAction(event.actionType, event.arguments, proposal.content))),
-            <.TableRowColumn()(event.user.map(_.firstName).getOrElse("-"))
+            <.TableRowColumn()(event.user.map(user => user.firstName.orElse(user.organisationName)).getOrElse("-"))
           )
         })
         .getOrElse(
