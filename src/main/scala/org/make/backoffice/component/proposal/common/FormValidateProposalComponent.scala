@@ -146,8 +146,11 @@ object FormValidateProposalComponent {
             }
 
             def handleTagChange: (js.Object, js.UndefOr[Int], js.Array[String]) => Unit = { (_, _, values) =>
-              val tags: Seq[Tag] = values.toSeq.map { value =>
-                self.state.tagsList.find(tag => tag.label == value).getOrElse(Tag(TagId(""), ""))
+              val tags: Seq[Tag] = values.toSeq.flatMap { value =>
+                self.state.tagsList.find(tag => tag.label == value) match {
+                  case Some(tag) => Seq(tag)
+                  case _         => Seq.empty
+                }
               }
               self.setState(_.copy(tags = tags))
             }
