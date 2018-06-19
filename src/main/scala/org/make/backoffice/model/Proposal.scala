@@ -124,7 +124,7 @@ object Proposal {
             country: String,
             language: String,
             themeId: Option[ThemeId],
-            tags: Seq[Tag],
+            tags: Seq[IndexedTag],
             ideaId: Option[IdeaId],
             operationId: Option[OperationId]): Proposal = {
     js.Dynamic

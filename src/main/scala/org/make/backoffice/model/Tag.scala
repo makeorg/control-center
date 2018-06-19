@@ -68,6 +68,18 @@ object Tag {
 }
 
 @js.native
+trait IndexedTag extends js.Object {
+  val id: String
+  val label: String
+  val display: Boolean
+}
+
+object IndexedTag {
+  def apply(tagId: TagId, label: String, display: Boolean): IndexedTag =
+    js.Dynamic.literal(id = tagId.value, label = label, display = display).asInstanceOf[IndexedTag]
+}
+
+@js.native
 trait TagId extends js.Object with StringValue {
   override val value: String
 }
