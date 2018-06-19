@@ -4,7 +4,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMAttributes.Type.
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.statictags.{Attribute, StringAttributeSpec}
+import io.github.shogowada.statictags.{Attribute, BooleanAttributeSpec, StringAttributeSpec}
 import org.make.backoffice.facade.{ElementAttributeSpec, LocationAttributeSpec, MatchAttributeSpec}
 
 import scala.scalajs.js
@@ -25,6 +25,7 @@ object Show {
     lazy val location = LocationAttributeSpec("location")
     lazy val `match` = MatchAttributeSpec("match")
     lazy val showTitle = ElementAttributeSpec("title")
+    lazy val hasEdit = BooleanAttributeSpec("hasEdit")
   }
 }
 

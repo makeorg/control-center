@@ -3,7 +3,7 @@ package org.make.backoffice.facade.AdminOnRest
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.statictags.StringAttributeSpec
+import io.github.shogowada.statictags.{BooleanAttributeSpec, StringAttributeSpec}
 import org.make.backoffice.facade.AdminOnRest.ShowButton.RecordAttributeSpec
 import org.make.backoffice.facade.{ElementAttributeSpec, LocationAttributeSpec, MatchAttributeSpec}
 
@@ -25,6 +25,7 @@ object Edit {
     lazy val resource = StringAttributeSpec("resource")
     lazy val location = LocationAttributeSpec("location")
     lazy val `match` = MatchAttributeSpec("match")
+    lazy val hasList = BooleanAttributeSpec("hasList")
   }
 }
 

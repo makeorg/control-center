@@ -16,9 +16,12 @@ object ShowTag {
 
   private lazy val reactClass = React.createClass[ShowTagProps, Unit](
     displayName = "ShowTag",
-    render = (self) =>
-      <.Show(^.location := self.props.location, ^.resource := Resource.tags, ^.`match` := self.props.`match`)(
-        <.SimpleShowLayout()(<.TextField(^.source := "label")())
-    )
+    render = self =>
+      <.Show(
+        ^.location := self.props.location,
+        ^.resource := Resource.tags,
+        ^.`match` := self.props.`match`,
+        ^.hasEdit := true
+      )(<.SimpleShowLayout()(<.TextField(^.source := "label")()))
   )
 }

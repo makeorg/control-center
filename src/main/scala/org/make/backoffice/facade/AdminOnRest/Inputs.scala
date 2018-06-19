@@ -38,6 +38,10 @@ object NativeSelectArrayInput extends ReactClass
 @JSImport("aor-dependent-input", "DependentInput")
 object NativeDependentInput extends ReactClass
 
+@js.native
+@JSImport("admin-on-rest", "NumberInput")
+object NativeNumberInput extends ReactClass
+
 object Inputs {
   implicit class InputsVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val TextInput: ReactClassElementSpec = elements(NativeTextInput)
@@ -47,6 +51,7 @@ object Inputs {
     lazy val SelectInput: ReactClassElementSpec = elements(NativeSelectInput)
     lazy val SelectArrayInput: ReactClassElementSpec = elements(NativeSelectArrayInput)
     lazy val DependentInput: ReactClassElementSpec = elements(NativeDependentInput)
+    lazy val NumberInput: ReactClassElementSpec = elements(NativeNumberInput)
   }
 
   implicit class InputsVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
