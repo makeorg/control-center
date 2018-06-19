@@ -16,18 +16,18 @@ val scalaCssCoreVersion = "0.5.3"
 
 /* Npm versions */
 val npmReactVersion = "15.6.2"
-val npmWebpackVersion = "3.6.0"
+val npmWebpackVersion = "4.12.0"
 val npmReactRouterVersion = "4.1.2"
-val npmSassLoaderVersion = "6.0.6"
-val npmNodeSassVersion = "4.5.3"
-val npmExtractTextWebpackPluginVersion = "3.0.0"
-val npmCssLoaderVersion = "0.28.4"
-val npmStyleLoaderVersion = "0.18.2"
-val npmCleanWebpackPluginVersion = "0.1.16"
-val npmHtmlWebpackPluginVersion = "2.29.0"
-val npmWebpackMd5HashVersion = "0.0.5"
+val npmSassLoaderVersion = "7.0.3"
+val npmNodeSassVersion = "4.9.0"
+val npmExtractTextWebpackPluginVersion = "v4.0.0-beta.0"
+val npmCssLoaderVersion = "0.28.11"
+val npmStyleLoaderVersion = "0.21.0"
+val npmCleanWebpackPluginVersion = "0.1.19"
+val npmHtmlWebpackPluginVersion = "3.2.0"
+val npmWebpackMd5HashVersion = "0.0.6"
 val npmFontAwesomeVersion = "4.7.0"
-val npmFileLoaderVersion = "0.11.2"
+val npmFileLoaderVersion = "1.1.11"
 val npmBootstrapVersion = "3.3.7"
 val npmAdminOnRestVersion = "1.4.1"
 val npmAorDependentInput = "1.2.0"
@@ -71,7 +71,8 @@ Compile / npmDevDependencies ++= Seq(
   "html-webpack-plugin" -> npmHtmlWebpackPluginVersion,
   "webpack-md5-hash" -> npmWebpackMd5HashVersion,
   "file-loader" -> npmFileLoaderVersion,
-  "webpack-dev-server" -> "2.8.2",
+  "webpack-dev-server" -> "3.1.4",
+  "uglifyjs-webpack-plugin" -> "1.2.5",
   "webpack" -> npmWebpackVersion
 )
 
