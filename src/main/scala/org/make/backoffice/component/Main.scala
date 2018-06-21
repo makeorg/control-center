@@ -39,7 +39,8 @@ object Main {
         )(),
         <.Resource(^.name := Resource.ideas, ^.listing := IdeaList(), ^.create := CreateIdea(), ^.edit := EditIdea())(),
         <.Resource(^.name := Resource.operations)(),
-        <.Resource(^.name := Resource.tags, ^.listing := TagList(), ^.show := ShowTag(), ^.create := CreateTag())()
+        <.Resource(^.name := Resource.tags, ^.listing := TagList(), ^.show := ShowTag(), ^.create := CreateTag())(),
+        <.Resource(^.name := Resource.tagType)()
       ),
       dom.document.getElementById("make-backoffice")
     )

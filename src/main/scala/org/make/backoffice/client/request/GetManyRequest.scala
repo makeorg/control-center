@@ -2,7 +2,6 @@ package org.make.backoffice.client.request
 
 import org.make.backoffice.client.{Resource, Response}
 import org.make.backoffice.service.operation.OperationService
-import org.make.backoffice.service.tag.TagService
 
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -22,9 +21,6 @@ object GetManyRequest {
       case Resource.operations =>
         val request = params.asInstanceOf[GetManyRequest]
         OperationService.getOperationByIds(request.ids)
-      case Resource.tags =>
-        val request = params.asInstanceOf[GetManyRequest]
-        TagService.getTagsByIds(request.ids)
       case Resource.proposals =>
         throw ResourceNotImplementedException(
           s"Resource ${Resource.proposals} not implemented for request GetManyRequest"
