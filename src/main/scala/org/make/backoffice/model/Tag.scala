@@ -68,6 +68,58 @@ object Tag {
 }
 
 @js.native
+trait TagResponse extends js.Object {
+  val id: String
+  val label: String
+  val display: String
+  val tagTypeId: String
+  val weight: Float
+  val operationId: js.UndefOr[String]
+  val themeId: js.UndefOr[String]
+  val country: String
+  val language: String
+}
+
+object TagResponse {
+  def apply(id: TagId,
+            label: String,
+            display: String,
+            tagTypeId: TagTypeId,
+            weight: Float,
+            operationId: Option[OperationId],
+            themeId: Option[ThemeId],
+            country: String,
+            language: String): TagResponse =
+    js.Dynamic
+      .literal(
+        id = id.value,
+        label = label,
+        display = display,
+        tagTypeId = tagTypeId.value,
+        weight = weight,
+        operationId = operationId.map(_.value).orUndefined,
+        themeId = themeId.map(_.value).orUndefined,
+        country = country,
+        language = language
+      )
+      .asInstanceOf[TagResponse]
+
+  def toTag(tagResponse: TagResponse): Tag = {
+    Tag(
+      tagId = TagId(tagResponse.id),
+      label = tagResponse.label,
+      display = tagResponse.display,
+      tagTypeId = TagTypeId(tagResponse.tagTypeId),
+      weight = tagResponse.weight,
+      operationId = tagResponse.operationId.toOption.map(OperationId(_)),
+      themeId = tagResponse.themeId.toOption.map(ThemeId(_)),
+      country = tagResponse.country,
+      language = tagResponse.language
+    )
+  }
+}
+
+@js.native
 trait IndexedTag extends js.Object {
   val id: String
   val label: String

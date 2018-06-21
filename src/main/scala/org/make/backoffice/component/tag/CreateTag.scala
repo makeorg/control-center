@@ -12,8 +12,11 @@ import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
 import org.make.backoffice.facade.AdminOnRest.Toolbar._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
+import org.make.backoffice.facade.Choice
 import org.make.backoffice.facades.AdminOnRest.required
 import org.make.backoffice.util.Configuration
+
+import scala.scalajs.js
 
 object CreateTag {
   case class CreateTagProps() extends RouterProps
@@ -31,6 +34,10 @@ object CreateTag {
       .createClass[CreateTagProps, Unit](
         displayName = "CreateTag",
         render = self => {
+
+          def tagDisplayChoice: js.Array[Choice] = {
+            js.Array(Choice("INHERIT", "Inherit"), Choice("HIDDEN", "Hidden"), Choice("DISPLAYED", "Displayed"))
+          }
 
           <.Create(^.resource := Resource.tags, ^.location := self.props.location, ^.hasList := true)(
             <.SimpleForm(^.toolbar := toolbar)(
@@ -74,7 +81,14 @@ object CreateTag {
                 ^.source := "operationId",
                 ^.reference := Resource.operations,
                 ^.allowEmpty := true
-              )(<.SelectInput(^.optionText := "slug")())
+              )(<.SelectInput(^.optionText := "slug")()),
+              <.SelectInput(
+                ^.label := "Display",
+                ^.source := "display",
+                ^.allowEmpty := true,
+                ^.choices := tagDisplayChoice
+              )(),
+              <.NumberInput(^.source := "weight", ^.allowEmpty := true)()
             )
           )
         }

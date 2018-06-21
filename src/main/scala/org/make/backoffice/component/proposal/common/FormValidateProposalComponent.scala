@@ -309,7 +309,7 @@ object FormValidateProposalComponent {
               ^.valueSelect := self.state.tags.map(_.label),
               ^.onChangeMultipleSelect := handleTagChange,
               ^.fullWidth := true
-            )(self.state.tagsList.map { tag =>
+            )(self.state.tagsList.sortWith(_.weight > _.weight).map { tag =>
               <.MenuItem(
                 ^.key := tag.id,
                 ^.insetChildren := true,

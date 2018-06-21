@@ -8,7 +8,7 @@ import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
 import org.make.backoffice.component.proposal.common.ShowProposal
 import org.make.backoffice.component.proposal.moderation.{NextProposal, ProposalList}
 import org.make.backoffice.component.proposal.validated.ValidatedProposalList
-import org.make.backoffice.component.tag.{CreateTag, EditTag, ShowTag, TagList}
+import org.make.backoffice.component.tag.{CreateTag, EditTag, TagList}
 import org.make.backoffice.facade.AdminOnRest.Admin._
 import org.make.backoffice.facade.AdminOnRest.Resource._
 import org.scalajs.dom
@@ -39,13 +39,7 @@ object Main {
         )(),
         <.Resource(^.name := Resource.ideas, ^.listing := IdeaList(), ^.create := CreateIdea(), ^.edit := EditIdea())(),
         <.Resource(^.name := Resource.operations)(),
-        <.Resource(
-          ^.name := Resource.tags,
-          ^.listing := TagList(),
-          ^.show := ShowTag(),
-          ^.create := CreateTag(),
-          ^.edit := EditTag()
-        )(),
+        <.Resource(^.name := Resource.tags, ^.listing := TagList(), ^.create := CreateTag(), ^.edit := EditTag())(),
         <.Resource(^.name := Resource.tagType)()
       ),
       dom.document.getElementById("make-backoffice")

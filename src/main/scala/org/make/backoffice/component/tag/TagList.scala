@@ -7,11 +7,11 @@ import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
+import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
-import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.model.Tag
 import org.make.backoffice.util.Configuration
 
@@ -36,7 +36,7 @@ object TagList {
             ^.filters := tagFilters()
           )(
             <.Datagrid()(
-              <.ShowButton()(),
+              <.EditButton()(),
               <.TextField(^.source := "label")(),
               <.FunctionField(^.label := "theme", ^.render := { record =>
                 val tag = record.asInstanceOf[Tag]
@@ -52,7 +52,7 @@ object TagList {
                 ^.allowEmpty := true,
                 ^.sortable := false
               )(<.TextField(^.source := "slug")()),
-              <.TextField(^.source := "country")(),
+              <.TextField(^.source := "country", ^.sortable := false)(),
               <.ReferenceField(
                 ^.source := "tagTypeId",
                 ^.label := "Tag Type",
@@ -60,7 +60,8 @@ object TagList {
                 ^.linkType := false,
                 ^.allowEmpty := true,
                 ^.sortable := false
-              )(<.TextField(^.source := "label")())
+              )(<.TextField(^.source := "label")()),
+              <.NumberField(^.source := "weight")()
             )
           )
         }
@@ -74,7 +75,26 @@ object TagList {
         ^.source := "tagTypeId",
         ^.reference := Resource.tagType,
         ^.alwaysOn := true
-      )(<.SelectInput(^.optionText := "label")())
+      )(<.SelectInput(^.optionText := "label")()),
+      <.SelectInput(
+        ^.label := "Theme",
+        ^.source := "themeId",
+        ^.alwaysOn := true,
+        ^.allowEmpty := true,
+        ^.choices := Configuration.choicesThemeFilter
+      )(),
+      <.ReferenceInput(
+        ^.label := "Operation",
+        ^.source := "operationId",
+        ^.reference := Resource.operations,
+        ^.alwaysOn := true
+      )(<.SelectInput(^.optionText := "slug")()),
+      <.SelectInput(
+        ^.label := "Country",
+        ^.source := "country",
+        ^.alwaysOn := true,
+        ^.choices := Configuration.choicesCountryFilter
+      )()
     )
   }
 }
