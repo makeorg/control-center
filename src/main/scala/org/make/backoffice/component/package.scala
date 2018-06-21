@@ -23,6 +23,7 @@ package object component {
     def ExportComponent: ReactClassElementSpec = self(ValidatedProposalList.ExportComponent.reactClass)
     def NewIdeaComponent: ReactClassElementSpec = self(proposal.common.NewIdeaComponent.reactClass)
     def IdeaTitle: ReactClassElementSpec = self(idea.EditIdea.ideaTitle)
+    def TagTitle: ReactClassElementSpec = self(tag.EditTag.tagTitle)
     def CustomDatagrid: ReactClassElementSpec = self(idea.EditIdea.dataGrid)
     def StartModeration: ReactClassElementSpec = self(proposal.moderation.StartModeration.reactClass)
   }
