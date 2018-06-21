@@ -5,13 +5,15 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
+import org.make.backoffice.client.Resource
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
 import org.make.backoffice.facade.AdminOnRest.Fields._
-import org.make.backoffice.facade.AdminOnRest.List._
-import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
-import org.make.backoffice.client.Resource
+import org.make.backoffice.facade.AdminOnRest.List._
+import org.make.backoffice.facade.AdminOnRest.ShowButton._
+import org.make.backoffice.model.Tag
+import org.make.backoffice.util.Configuration
 
 object TagList {
 
@@ -32,13 +34,47 @@ object TagList {
             ^.resource := Resource.tags,
             ^.hasCreate := true,
             ^.filters := tagFilters()
-          )(<.Datagrid()(<.ShowButton()(), <.TextField(^.source := "label")()))
+          )(
+            <.Datagrid()(
+              <.ShowButton()(),
+              <.TextField(^.source := "label")(),
+              <.FunctionField(^.label := "theme", ^.render := { record =>
+                val tag = record.asInstanceOf[Tag]
+                tag.themeId.map { id =>
+                  Configuration.getThemeFromThemeId(id)
+                }
+              })(),
+              <.ReferenceField(
+                ^.source := "operationId",
+                ^.label := "operation",
+                ^.reference := Resource.operations,
+                ^.linkType := false,
+                ^.allowEmpty := true,
+                ^.sortable := false
+              )(<.TextField(^.source := "slug")()),
+              <.TextField(^.source := "country")(),
+              <.ReferenceField(
+                ^.source := "tagTypeId",
+                ^.label := "Tag Type",
+                ^.reference := Resource.tagType,
+                ^.linkType := false,
+                ^.allowEmpty := true,
+                ^.sortable := false
+              )(<.TextField(^.source := "label")())
+            )
+          )
         }
       )
 
   def tagFilters(): ReactElement = {
     <.Filter(^.resource := Resource.tags)(
-      Seq(<.TextInput(^.label := "Label", ^.source := "label", ^.alwaysOn := true)())
+      Seq(<.TextInput(^.label := "Label", ^.source := "label", ^.alwaysOn := true)()),
+      <.ReferenceInput(
+        ^.label := "Tag Type",
+        ^.source := "tagTypeId",
+        ^.reference := Resource.tagType,
+        ^.alwaysOn := true
+      )(<.SelectInput(^.optionText := "label")())
     )
   }
 }
