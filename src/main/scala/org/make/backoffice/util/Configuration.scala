@@ -2,7 +2,7 @@ package org.make.backoffice.util
 
 import io.circe.parser.parse
 import org.make.backoffice.facade.Choice
-import org.make.backoffice.model.{BusinessConfig, Country, Tag}
+import org.make.backoffice.model.{BusinessConfig, Country, Language, Tag}
 import org.scalajs.dom
 
 import scala.scalajs.js
@@ -72,15 +72,29 @@ object Configuration extends CirceClassFormatters {
 
   def choicesCountryFilter: js.Array[Choice] = {
     businessConfig
-      .map(_.supportedCountries.map { countryConfiguration =>
+      .map(_.supportedCountries.map { supportedCountry =>
         Choice(
-          countryConfiguration.countryCode,
+          supportedCountry.countryCode,
           Country
-            .getCountryNameByCountryCode(countryConfiguration.countryCode)
-            .getOrElse(countryConfiguration.countryCode)
+            .getCountryNameByCountryCode(supportedCountry.countryCode)
+            .getOrElse(supportedCountry.countryCode)
         )
       }.toSeq)
       .getOrElse(Seq.empty)
       .toJSArray
+  }
+
+  def choiceLanguageFilter: Map[String, js.Array[Choice]] = {
+    businessConfig
+      .map(_.supportedCountries.map { supportedCountry =>
+        supportedCountry.countryCode -> supportedCountry.supportedLanguages.map(
+          supportedLanguage =>
+            Choice(
+              supportedLanguage,
+              Language.getLanguageNameFromLanguageCode(supportedLanguage).getOrElse(supportedLanguage)
+          )
+        )
+      }.toMap)
+      .getOrElse(Map.empty)
   }
 }

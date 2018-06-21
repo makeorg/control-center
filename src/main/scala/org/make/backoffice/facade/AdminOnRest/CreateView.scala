@@ -4,7 +4,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMAttributes.Type.
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.statictags.{Attribute, AttributeSpec, StringAttributeSpec}
+import io.github.shogowada.statictags.{Attribute, AttributeSpec, BooleanAttributeSpec, StringAttributeSpec}
 import org.make.backoffice.facade.{ElementAttributeSpec, LocationAttributeSpec}
 
 import scala.scalajs.js
@@ -21,6 +21,7 @@ object Create {
   implicit class CreateVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val title = StringAttributeSpec("title")
     lazy val actions = ElementAttributeSpec("actions")
+    lazy val hasList = BooleanAttributeSpec("hasList")
     lazy val resource = StringAttributeSpec("resource")
     lazy val location = LocationAttributeSpec("location")
   }
@@ -36,29 +37,13 @@ object SimpleForm {
   }
 
   implicit class SimpleFormVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
-    lazy val redirect = new RedirectAttributeSpec
+    lazy val redirect = RedirectAttributeSpec("redirect")
+    lazy val toolbar = ElementAttributeSpec("toolbar")
   }
 
-  class RedirectAttributeSpec extends AttributeSpec {
-    override val name: String = "redirect"
-    def :=(value: RedirectType): Attribute[String] = Attribute[String](name = name, value = value.name)
+  case class RedirectAttributeSpec(name: String) extends AttributeSpec {
+    def :=(value: String): Attribute[String] = Attribute[String](name = name, value = value)
     def :=(value: Boolean): Attribute[Boolean] = Attribute[Boolean](name = name, value = value, valueType = AS_IS)
-  }
-
-  sealed trait RedirectType {
-    def name: String
-  }
-
-  object RedirectType {
-    case object Edit extends RedirectType {
-      override def name: String = "edit"
-    }
-    case object List extends RedirectType {
-      override def name: String = "list"
-    }
-    case object Show extends RedirectType {
-      override def name: String = "show"
-    }
   }
 
 }
