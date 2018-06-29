@@ -20,12 +20,15 @@
 
 package org.make.backoffice.component.proposal.validated
 
-import io.github.shogowada.scalajs.reactjs.React
+import io.github.shogowada.scalajs.reactjs.React.Props
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
+import io.github.shogowada.scalajs.reactjs.redux.Redux.Dispatch
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
+import io.github.shogowada.scalajs.reactjs.{redux, React}
+import org.make.backoffice.client.Resource
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.proposal.validated.ValidatedProposalList.ExportComponent.ExportProps
 import org.make.backoffice.facade.AdminOnRest.Button._
@@ -35,17 +38,19 @@ import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
 import org.make.backoffice.facade.AdminOnRest.ShowButton._
+import org.make.backoffice.facade.Choice
 import org.make.backoffice.facade.Configuration.apiUrl
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.facade.React._
-import org.make.backoffice.util.Configuration
-import org.make.backoffice.model.Proposal
-import org.make.backoffice.client.Resource
+import org.make.backoffice.model.{AppState, Proposal}
 import org.make.backoffice.service.proposal.Accepted
+import org.make.backoffice.service.tag.TagService
+import org.make.backoffice.util.Configuration
 import org.scalajs.dom.raw.HTMLInputElement
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters.JSRichGenMap
+import scala.util.{Failure, Success}
 
 @js.native
 trait FilterValues extends js.Object {
@@ -60,9 +65,16 @@ trait FilterValues extends js.Object {
 
 object ValidatedProposalList {
 
-  case class ValidatedProposalListProps() extends RouterProps
+  case class ValidatedProposalListProps(filters: Map[String, String]) extends RouterProps
 
-  def apply(): ReactClass = reactClass
+  lazy val ProposalListContainer: ReactClass =
+    redux.ReactRedux.connectAdvanced(selectorFactory)(reactClass)
+
+  def selectorFactory: Dispatch => (AppState, Props[Unit]) => ValidatedProposalListProps =
+    (_: Dispatch) =>
+      (state: AppState, _: Props[Unit]) => {
+        ValidatedProposalListProps(filters = state.admin.resources.proposals.list.params.filter.toMap)
+    }
 
   object ExportComponent {
 
@@ -162,17 +174,47 @@ object ValidatedProposalList {
         )
   }
 
+  case class ValidatedProposalListState(tagChoices: Seq[Choice])
+
   private lazy val reactClass: ReactClass =
     React
-      .createClass[ValidatedProposalListProps, Unit](
+      .createClass[ValidatedProposalListProps, ValidatedProposalListState](
         displayName = "ValidatedProposalList",
+        getInitialState = { _ =>
+          ValidatedProposalListState(Seq.empty)
+        },
+        componentDidMount = { self =>
+          val operationIdFilter: Option[String] = self.props.wrapped.filters.get("operationId")
+          val themeIdFilter: Option[String] = self.props.wrapped.filters.get("themeId")
+          val countryFilter: Option[String] = self.props.wrapped.filters.get("country")
+          val languageFilter: Option[String] = self.props.wrapped.filters.get("language")
+          TagService.tags(operationIdFilter, themeIdFilter, countryFilter, languageFilter).onComplete {
+            case Success(tags) => self.setState(_.copy(tags.map(tag => Choice(tag.id, tag.label))))
+            case Failure(_)    => self.setState(_.copy(Seq.empty))
+          }
+        },
+        componentWillReceiveProps = { (self, props) =>
+          if (self.props.wrapped.filters != props.wrapped.filters) {
+            val operationIdFilter: Option[String] = props.wrapped.filters.get("operationId")
+            val themeIdFilter: Option[String] = props.wrapped.filters.get("themeId")
+            val countryFilter: Option[String] = props.wrapped.filters.get("country")
+            val languageFilter: Option[String] = props.wrapped.filters.get("language")
+            TagService.tags(operationIdFilter, themeIdFilter, countryFilter, languageFilter).onComplete {
+              case Success(tags) => self.setState(_.copy(tags.map(tag => Choice(tag.id, tag.label))))
+              case Failure(_)    => self.setState(_.copy(Seq.empty))
+            }
+          }
+        },
+        shouldComponentUpdate = { (self, _, state) =>
+          self.state.tagChoices != state.tagChoices
+        },
         render = { self =>
           <.List(
             ^.title := "Validated proposals",
             ^.location := self.props.location,
             ^.resource := Resource.proposals,
             ^.hasCreate := false,
-            ^.filters := filterList(),
+            ^.filters := filterList(self.state.tagChoices),
             ^.filter := Map("status" -> Seq(Accepted.shortName)),
             ^.actions := <.ActionComponent()(),
             ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
@@ -219,9 +261,12 @@ object ValidatedProposalList {
         }
       )
 
-  def filterList(): ReactElement = {
+  def filterAutoComplete: (String, String) => Boolean = (searchText, key) => {
+    key.indexOf(searchText) != -1
+  }
+
+  def filterList(tagChoices: Seq[Choice]): ReactElement = {
     <.Filter(^.resource := Resource.proposals)(
-      //TODO: add the possibility to search by userId or proposalId
       <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
       <.SelectInput(
         ^.label := "Theme",
@@ -243,10 +288,13 @@ object ValidatedProposalList {
         ^.alwaysOn := true
       )(<.SelectInput(^.optionText := "slug")()),
       <.TextInput(^.label := "Question", ^.source := "question", ^.alwaysOn := false)(),
-      <.ReferenceArrayInput(^.label := "Tags", ^.source := "tagsIds", ^.filterToQuery := { searchText =>
-        Map("label" -> searchText).toJSDictionary
-      }, ^.reference := Resource.tags)(<.SelectArrayInput(^.optionText := "label", ^.alwaysOn := false)())
-      //TODO: add filter on: "moderator"
+      <.SelectInput(
+        ^.label := "Tags",
+        ^.source := "tagsIds",
+        ^.choices := tagChoices,
+        ^.alwaysOn := true,
+        ^.allowEmpty := true
+      )()
     )
   }
 }

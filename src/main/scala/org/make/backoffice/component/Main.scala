@@ -54,7 +54,7 @@ object Main {
         <.Resource(^.name := Resource.proposals, ^.listing := ProposalList(), ^.show := ShowProposal())(),
         <.Resource(
           ^.name := Resource.validatedProposals,
-          ^.listing := ValidatedProposalList(),
+          ^.listing := ValidatedProposalList.ProposalListContainer,
           ^.show := ShowProposal()
         )(),
         <.Resource(^.name := Resource.ideas, ^.listing := IdeaList(), ^.create := CreateIdea(), ^.edit := EditIdea())(),
