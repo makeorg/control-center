@@ -120,7 +120,10 @@ trait CirceClassFormatters extends TimeInstances {
     Decoder.forProduct3("firstName", "postalCode", "age")(Author.apply)
 
   implicit lazy val tagTypeDecoder: Decoder[TagType] =
-    Decoder.forProduct3("tagTypeId", "label", "display")(TagType.apply)
+    Decoder.forProduct4("tagTypeId", "label", "display", "weight")(TagType.apply)
+
+  implicit lazy val tagTypeResponseDecoder: Decoder[TagTypeResponse] =
+    Decoder.forProduct4("id", "label", "display", "weight")(TagTypeResponse.apply)
 
   implicit lazy val tagEncoder: Encoder[Tag] = Encoder.forProduct9(
     "tagId",
