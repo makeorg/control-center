@@ -22,11 +22,38 @@ trait TagType extends js.Object {
   val tagTypeId: String
   val label: String
   val display: String
+  val weight: Float
 }
 
 object TagType {
-  def apply(tagTypeId: TagTypeId, label: String, display: String): TagType =
-    js.Dynamic.literal(tagTypeId = tagTypeId.value, label = label, display = display).asInstanceOf[TagType]
+  def apply(tagTypeId: TagTypeId, label: String, display: String, weight: Float): TagType =
+    js.Dynamic
+      .literal(tagTypeId = tagTypeId.value, label = label, display = display, weight = weight)
+      .asInstanceOf[TagType]
+}
+
+@js.native
+trait TagTypeResponse extends js.Object {
+  val id: String
+  val label: String
+  val display: String
+  val weight: Float
+}
+
+object TagTypeResponse {
+  def apply(id: TagTypeId, label: String, display: String, weight: Float): TagTypeResponse =
+    js.Dynamic
+      .literal(id = id.value, label = label, display = display, weight = weight)
+      .asInstanceOf[TagTypeResponse]
+
+  def toTagType(tagTypeResponse: TagTypeResponse): TagType = {
+    TagType(
+      tagTypeId = TagTypeId(tagTypeResponse.id),
+      label = tagTypeResponse.label,
+      display = tagTypeResponse.display,
+      weight = tagTypeResponse.weight
+    )
+  }
 }
 
 @js.native

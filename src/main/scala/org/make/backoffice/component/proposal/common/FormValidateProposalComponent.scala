@@ -17,6 +17,7 @@ import org.make.backoffice.service.idea.IdeaService
 import org.make.backoffice.service.operation.OperationService
 import org.make.backoffice.service.proposal.ProposalService
 import org.make.backoffice.service.tag.TagService
+import org.make.backoffice.service.tag.TagTypeService
 import org.make.backoffice.util.Configuration
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -36,6 +37,7 @@ object FormValidateProposalComponent {
                        notifyUser: Boolean = true,
                        theme: Option[ThemeId] = None,
                        operation: Option[Operation] = None,
+                       tagTypes: Seq[TagType] = Seq.empty,
                        tags: Seq[Tag] = Seq.empty,
                        tagsList: Seq[Tag] = Seq.empty,
                        errorMessage: Seq[String] = Seq.empty,
@@ -47,7 +49,7 @@ object FormValidateProposalComponent {
   def setTagsFromTagIds(self: Self[FormProps, FormState], props: FormProps): Unit = {
     if (!js.isUndefined(props.proposal.tagIds)) {
       props.proposal.tagIds.foreach { tagId =>
-        TagService.tags.onComplete {
+        TagService.tags().onComplete {
           case Success(tags) =>
             self.setState(_.copy(tags = tags.find(_.id == tagId) match {
               case Some(tag) => self.state.tags :+ tag
@@ -62,20 +64,21 @@ object FormValidateProposalComponent {
   def setTagsListAndOperation(self: Self[FormProps, FormState], props: FormProps): Unit = {
     props.proposal.themeId.toOption match {
       case Some(themeId) =>
-        self.setState(_.copy(tagsList = Configuration.getTagsFromThemeId(themeId)))
+        TagTypeService.tagTypes.onComplete {
+          case Success(tagTypes) =>
+            self.setState(_.copy(tagsList = Configuration.getTagsFromThemeId(themeId), tagTypes = tagTypes))
+          case Failure(_) => self.setState(_.copy(tagsList = Configuration.getTagsFromThemeId(themeId)))
+        }
       case None =>
         props.proposal.operationId.toOption.foreach { operationIdValue =>
           val futureOperationTags = for {
             operation <- OperationService.getOperationById(OperationId(operationIdValue))
-            tags      <- TagService.tags
-          } yield (operation, tags)
+            tagTypes  <- TagTypeService.tagTypes
+            tags      <- TagService.tags(operation.map(_.id))
+          } yield (operation, tagTypes, tags)
           futureOperationTags.onComplete {
-            case Success((Some(operation), tags)) =>
-              val tagsList =
-                operation.countriesConfiguration
-                  .find(cc => cc.countryCode == props.proposal.country)
-                  .map(_.tagIds.flatMap(tagId => tags.find(_.id == tagId.value)))
-              self.setState(_.copy(operation = Some(operation), tagsList = tagsList.map(_.toSeq).getOrElse(Seq.empty)))
+            case Success((Some(operation), tagTypes, tags)) =>
+              self.setState(_.copy(operation = Some(operation), tagsList = tags, tagTypes = tagTypes))
             case Success(_) => self.setState(_.copy(operation = None, tagsList = Seq.empty))
             case Failure(e) => js.Dynamic.global.console.log(s"File with error: $e")
           }
@@ -301,6 +304,20 @@ object FormValidateProposalComponent {
               }
             })
 
+            val tagsGroupByTagType: Map[TagType, Seq[Tag]] = {
+              self.state.tagsList
+                .groupBy[String](_.tagTypeId)
+                .flatMap {
+                  case (tagTypeId, tags) => self.state.tagTypes.find(_.tagTypeId == tagTypeId).map(_ -> tags)
+                }
+                .toSeq
+                .sortBy {
+                  case (tagType, _) => tagType.weight
+                }
+                .reverse
+                .toMap
+            }
+
             val selectTags = <.SelectField(
               ^.disabled := self.state.theme.isEmpty && self.state.operation.isEmpty,
               ^.multiple := true,
@@ -309,14 +326,26 @@ object FormValidateProposalComponent {
               ^.valueSelect := self.state.tags.map(_.label),
               ^.onChangeMultipleSelect := handleTagChange,
               ^.fullWidth := true
-            )(self.state.tagsList.sortWith(_.weight > _.weight).map { tag =>
-              <.MenuItem(
-                ^.key := tag.id,
-                ^.insetChildren := true,
-                ^.checked := self.state.tags.contains(tag),
-                ^.value := tag.label,
-                ^.primaryText := tag.label
-              )()
+            )(tagsGroupByTagType.map {
+              case (tagType, tags) =>
+                Seq(
+                  <.MenuItem(
+                    ^.key := tagType.tagTypeId,
+                    ^.insetChildren := false,
+                    ^.checked := false,
+                    ^.value := tagType.label,
+                    ^.primaryText := tagType.label
+                  )(),
+                  tags.sortWith(_.weight > _.weight).map { tag =>
+                    <.MenuItem(
+                      ^.key := tag.id,
+                      ^.insetChildren := true,
+                      ^.checked := self.state.tags.contains(tag),
+                      ^.value := tag.label,
+                      ^.primaryText := tag.label
+                    )()
+                  }
+                )
             })
 
             val errorMessage: Seq[Element] =
