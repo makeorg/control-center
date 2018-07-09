@@ -42,3 +42,7 @@ Known Issues
 *Fix*: 
 - remove `~/node_modules`
 - restart launch process
+
+### License
+
+This project is licenced under the GNU GPL license version 3 or later. See the [license](LICENSE.md)
