@@ -80,8 +80,13 @@ trait CirceClassFormatters extends TimeInstances {
       }
     )
 
+  implicit lazy val scoresDecoder: Decoder[Scores] =
+    Decoder.forProduct7("boost", "engagement", "adhesion", "realistic", "topScore", "controversy", "rejection")(
+      Scores.apply
+    )
+
   implicit lazy val proposalDecoder: Decoder[Proposal] =
-    Decoder.forProduct18(
+    Decoder.forProduct19(
       "id",
       "userId",
       "content",
@@ -90,6 +95,7 @@ trait CirceClassFormatters extends TimeInstances {
       "createdAt",
       "updatedAt",
       "votes",
+      "scores",
       "context",
       "trending",
       "labels",

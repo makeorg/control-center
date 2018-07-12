@@ -60,6 +60,8 @@ libraryDependencies ++= Seq(
   "org.scala-js"                 %%% "scalajs-dom"                    % scalajsDomVersion,
   "io.github.shogowada"          %%% "scalajs-reactjs"                % scalaJsReactVersion, // For react facade
   "io.github.shogowada"          %%% "scalajs-reactjs-router-dom"     % scalaJsReactVersion, // Optional. For react-router-dom facade
+  "io.github.shogowada"          %%% "scalajs-reactjs-redux"          % scalaJsReactVersion,
+  "io.github.shogowada"          %%% "scalajs-reactjs-redux-devtools" % scalaJsReactVersion,
   "com.github.japgolly.scalacss" %%% "core"                           % scalaCssCoreVersion,
   "io.circe"                     %%% "circe-core"                     % circeVersion,
   "io.circe"                     %%% "circe-java8"                    % circeVersion,

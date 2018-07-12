@@ -94,7 +94,7 @@ object FormValidateProposalComponent {
           val futureOperationTags = for {
             operation <- OperationService.getOperationById(OperationId(operationIdValue))
             tagTypes  <- TagTypeService.tagTypes
-            tags      <- TagService.tags(operation.map(_.id))
+            tags      <- TagService.tags(operationId = operation.map(_.id))
           } yield (operation, tagTypes, tags)
           futureOperationTags.onComplete {
             case Success((Some(operation), tagTypes, tags)) =>
