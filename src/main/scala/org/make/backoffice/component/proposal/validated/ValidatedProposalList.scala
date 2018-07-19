@@ -76,6 +76,91 @@ object ValidatedProposalList {
         ValidatedProposalListProps(filters = state.admin.resources.proposals.list.params.filter.toMap)
     }
 
+  case class ValidatedProposalListState(tagChoices: Seq[Choice])
+
+  private lazy val reactClass: ReactClass =
+    React
+      .createClass[ValidatedProposalListProps, ValidatedProposalListState](
+        displayName = "ValidatedProposalList",
+        getInitialState = { _ =>
+          ValidatedProposalListState(Seq.empty)
+        },
+        componentDidMount = { self =>
+          val operationIdFilter: Option[String] = self.props.wrapped.filters.get("operationId")
+          val themeIdFilter: Option[String] = self.props.wrapped.filters.get("themeId")
+          val countryFilter: Option[String] = self.props.wrapped.filters.get("country")
+          val languageFilter: Option[String] = self.props.wrapped.filters.get("language")
+          TagService.tags(operationIdFilter, themeIdFilter, countryFilter, languageFilter).onComplete {
+            case Success(tags) => self.setState(_.copy(tags.map(tag => Choice(tag.id, tag.label))))
+            case Failure(_)    => self.setState(_.copy(Seq.empty))
+          }
+        },
+        componentWillReceiveProps = { (self, props) =>
+          if (self.props.wrapped.filters != props.wrapped.filters) {
+            val operationIdFilter: Option[String] = props.wrapped.filters.get("operationId")
+            val themeIdFilter: Option[String] = props.wrapped.filters.get("themeId")
+            val countryFilter: Option[String] = props.wrapped.filters.get("country")
+            val languageFilter: Option[String] = props.wrapped.filters.get("language")
+            TagService.tags(operationIdFilter, themeIdFilter, countryFilter, languageFilter).onComplete {
+              case Success(tags) => self.setState(_.copy(tags.map(tag => Choice(tag.id, tag.label))))
+              case Failure(_)    => self.setState(_.copy(Seq.empty))
+            }
+          }
+        },
+        render = { self =>
+          <.List(
+            ^.title := "Validated proposals",
+            ^.location := self.props.location,
+            ^.resource := Resource.proposals,
+            ^.hasCreate := false,
+            ^.filters := filterList(self.state.tagChoices),
+            ^.filter := Map("status" -> Seq(Accepted.shortName)),
+            ^.actions := <.ActionComponent()(),
+            ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
+          )(
+            <.Datagrid()(
+              <.ShowButton()(),
+              <.TextField(^.source := "content")(),
+              <.FunctionField(^.label := "theme", ^.render := { record =>
+                val proposal = record.asInstanceOf[Proposal]
+                proposal.themeId.map { id =>
+                  Configuration.getThemeFromThemeId(id)
+                }
+              })(),
+              <.ReferenceField(
+                ^.source := "operationId",
+                ^.label := "operation",
+                ^.reference := Resource.operations,
+                ^.linkType := false,
+                ^.allowEmpty := true,
+                ^.sortable := false
+              )(<.TextField(^.source := "slug")()),
+              <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
+              <.RichTextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
+              <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
+              <.TextField(^.source := "status", ^.sortable := false)(),
+              <.ReferenceArrayField(^.label := "Tags", ^.reference := Resource.tags, ^.source := "tagIds")(
+                <.SingleFieldList()(<.ChipField(^.source := "label")())
+              ),
+              <.FunctionField(^.label := "labels", ^.sortable := false, ^.render := { record =>
+                val proposal = record.asInstanceOf[Proposal]
+                proposal.labels.mkString(", ")
+              })(),
+              <.FunctionField(^.label := "Votes", ^.sortable := false, ^.render := { record =>
+                Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
+              })(),
+              <.FunctionField(^.label := "Agreement rate", ^.sortable := false, ^.render := { record =>
+                s"${Proposal.voteRate(record.asInstanceOf[Proposal].votes, "agree")}%"
+              })(),
+              <.FunctionField(^.label := "Emergence rate", ^.sortable := false, ^.render := { record =>
+                Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
+              })()
+            )
+          )
+        }
+      )
+
+
   object ExportComponent {
 
     case class ValidatedProposalListExportState(fileName: String, open: Boolean = false)
@@ -155,111 +240,24 @@ object ValidatedProposalList {
     lazy val reactClass: ReactClass =
       React
         .createClass[React.Props[Unit], Unit](
-          displayName = "ValidatedProposalListAction",
-          render = { self =>
-            <.CardActions()(
-              <.ExportComponent(^.wrapped := ExportProps(self.props.native.filterValues.asInstanceOf[FilterValues]))(),
-              cloneElement(
-                self.props.native.filters.asInstanceOf[ReactClass],
-                js.Dynamic.literal(
-                  "showFilter" -> self.props.native.showFilter,
-                  "displayedFilters" -> self.props.native.displayedFilters,
-                  "filterValues" -> self.props.native.filterValues,
-                  "context" -> "button"
-                )
-              ),
-              <.RefreshButton()()
-            )
-          }
-        )
-  }
-
-  case class ValidatedProposalListState(tagChoices: Seq[Choice])
-
-  private lazy val reactClass: ReactClass =
-    React
-      .createClass[ValidatedProposalListProps, ValidatedProposalListState](
-        displayName = "ValidatedProposalList",
-        getInitialState = { _ =>
-          ValidatedProposalListState(Seq.empty)
-        },
-        componentDidMount = { self =>
-          val operationIdFilter: Option[String] = self.props.wrapped.filters.get("operationId")
-          val themeIdFilter: Option[String] = self.props.wrapped.filters.get("themeId")
-          val countryFilter: Option[String] = self.props.wrapped.filters.get("country")
-          val languageFilter: Option[String] = self.props.wrapped.filters.get("language")
-          TagService.tags(operationIdFilter, themeIdFilter, countryFilter, languageFilter).onComplete {
-            case Success(tags) => self.setState(_.copy(tags.map(tag => Choice(tag.id, tag.label))))
-            case Failure(_)    => self.setState(_.copy(Seq.empty))
-          }
-        },
-        componentWillReceiveProps = { (self, props) =>
-          if (self.props.wrapped.filters != props.wrapped.filters) {
-            val operationIdFilter: Option[String] = props.wrapped.filters.get("operationId")
-            val themeIdFilter: Option[String] = props.wrapped.filters.get("themeId")
-            val countryFilter: Option[String] = props.wrapped.filters.get("country")
-            val languageFilter: Option[String] = props.wrapped.filters.get("language")
-            TagService.tags(operationIdFilter, themeIdFilter, countryFilter, languageFilter).onComplete {
-              case Success(tags) => self.setState(_.copy(tags.map(tag => Choice(tag.id, tag.label))))
-              case Failure(_)    => self.setState(_.copy(Seq.empty))
-            }
-          }
-        },
-        shouldComponentUpdate = { (self, _, state) =>
-          self.state.tagChoices != state.tagChoices
-        },
+        displayName = "ValidatedProposalListAction",
         render = { self =>
-          <.List(
-            ^.title := "Validated proposals",
-            ^.location := self.props.location,
-            ^.resource := Resource.proposals,
-            ^.hasCreate := false,
-            ^.filters := filterList(self.state.tagChoices),
-            ^.filter := Map("status" -> Seq(Accepted.shortName)),
-            ^.actions := <.ActionComponent()(),
-            ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
-          )(
-            <.Datagrid()(
-              <.ShowButton()(),
-              <.TextField(^.source := "content")(),
-              <.FunctionField(^.label := "theme", ^.render := { record =>
-                val proposal = record.asInstanceOf[Proposal]
-                proposal.themeId.map { id =>
-                  Configuration.getThemeFromThemeId(id)
-                }
-              })(),
-              <.ReferenceField(
-                ^.source := "operationId",
-                ^.label := "operation",
-                ^.reference := Resource.operations,
-                ^.linkType := false,
-                ^.allowEmpty := true,
-                ^.sortable := false
-              )(<.TextField(^.source := "slug")()),
-              <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
-              <.RichTextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
-              <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
-              <.TextField(^.source := "status", ^.sortable := false)(),
-              <.ReferenceArrayField(^.label := "Tags", ^.reference := Resource.tags, ^.source := "tagIds")(
-                <.SingleFieldList()(<.ChipField(^.source := "label")())
-              ),
-              <.FunctionField(^.label := "labels", ^.sortable := false, ^.render := { record =>
-                val proposal = record.asInstanceOf[Proposal]
-                proposal.labels.mkString(", ")
-              })(),
-              <.FunctionField(^.label := "Votes", ^.sortable := false, ^.render := { record =>
-                Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
-              })(),
-              <.FunctionField(^.label := "Agreement rate", ^.sortable := false, ^.render := { record =>
-                s"${Proposal.voteRate(record.asInstanceOf[Proposal].votes, "agree")}%"
-              })(),
-              <.FunctionField(^.label := "Emergence rate", ^.sortable := false, ^.render := { record =>
-                Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
-              })()
-            )
+          <.CardActions()(
+            <.ExportComponent(^.wrapped := ExportProps(self.props.native.filterValues.asInstanceOf[FilterValues]))(),
+            cloneElement(
+              self.props.native.filters.asInstanceOf[ReactClass],
+              js.Dynamic.literal(
+                "showFilter" -> self.props.native.showFilter,
+                "displayedFilters" -> self.props.native.displayedFilters,
+                "filterValues" -> self.props.native.filterValues,
+                "context" -> "button"
+              )
+            ),
+            <.RefreshButton()()
           )
         }
       )
+  }
 
   def filterAutoComplete: (String, String) => Boolean = (searchText, key) => {
     key.indexOf(searchText) != -1
