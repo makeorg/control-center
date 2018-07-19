@@ -324,7 +324,7 @@ object FormValidateProposalComponent {
               }
             })
 
-            val tagsGroupByTagType: Map[TagType, Seq[Tag]] = {
+            val tagsGroupByTagType: Seq[(TagType, Seq[Tag])] = {
               self.state.tagsList
                 .groupBy[String](_.tagTypeId)
                 .flatMap {
@@ -332,10 +332,8 @@ object FormValidateProposalComponent {
                 }
                 .toSeq
                 .sortBy {
-                  case (tagType, _) => tagType.weight
+                  case (tagType, _) => tagType.weight * -1
                 }
-                .reverse
-                .toMap
             }
 
             val selectTags = <.SelectField(
@@ -356,7 +354,7 @@ object FormValidateProposalComponent {
                     ^.value := tagType.label,
                     ^.primaryText := tagType.label
                   )(),
-                  tags.sortWith(_.weight > _.weight).map { tag =>
+                  tags.sortBy(_.weight * -1).map { tag =>
                     <.MenuItem(
                       ^.key := tag.id,
                       ^.insetChildren := true,
