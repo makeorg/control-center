@@ -42,9 +42,9 @@ import org.make.backoffice.facade.Choice
 import org.make.backoffice.facade.Configuration.apiUrl
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.facade.React._
-import org.make.backoffice.model.{AppState, Proposal}
+import org.make.backoffice.model.{AppState, Proposal, Tag, TagType}
 import org.make.backoffice.service.proposal.Accepted
-import org.make.backoffice.service.tag.TagService
+import org.make.backoffice.service.tag.{TagService, TagTypeService}
 import org.make.backoffice.util.Configuration
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -76,14 +76,14 @@ object ValidatedProposalList {
         ValidatedProposalListProps(filters = state.admin.resources.proposals.list.params.filter.toMap)
     }
 
-  case class ValidatedProposalListState(tagChoices: Seq[Choice])
+  case class ValidatedProposalListState(tags: Seq[Tag], tagTypes: Seq[TagType])
 
   private lazy val reactClass: ReactClass =
     React
       .createClass[ValidatedProposalListProps, ValidatedProposalListState](
         displayName = "ValidatedProposalList",
         getInitialState = { _ =>
-          ValidatedProposalListState(Seq.empty)
+          ValidatedProposalListState(Seq.empty, Seq.empty)
         },
         componentDidMount = { self =>
           val operationIdFilter: Option[String] = self.props.wrapped.filters.get("operationId")
@@ -91,8 +91,14 @@ object ValidatedProposalList {
           val countryFilter: Option[String] = self.props.wrapped.filters.get("country")
           val languageFilter: Option[String] = self.props.wrapped.filters.get("language")
           TagService.tags(operationIdFilter, themeIdFilter, countryFilter, languageFilter).onComplete {
-            case Success(tags) => self.setState(_.copy(tags.map(tag => Choice(tag.id, tag.label))))
-            case Failure(_)    => self.setState(_.copy(Seq.empty))
+            case Success(tags) =>
+              self.setState(_.copy(tags = tags))
+            case Failure(_) => self.setState(_.copy(tags = Seq.empty))
+          }
+          TagTypeService.tagTypes.onComplete {
+            case Success(tagTypes) =>
+              self.setState(_.copy(tagTypes = tagTypes))
+            case Failure(_) => self.setState(_.copy(tagTypes = Seq.empty))
           }
         },
         componentWillReceiveProps = { (self, props) =>
@@ -102,18 +108,42 @@ object ValidatedProposalList {
             val countryFilter: Option[String] = props.wrapped.filters.get("country")
             val languageFilter: Option[String] = props.wrapped.filters.get("language")
             TagService.tags(operationIdFilter, themeIdFilter, countryFilter, languageFilter).onComplete {
-              case Success(tags) => self.setState(_.copy(tags.map(tag => Choice(tag.id, tag.label))))
+              case Success(tags) => self.setState(_.copy(tags = tags))
               case Failure(_)    => self.setState(_.copy(Seq.empty))
+            }
+            TagTypeService.tagTypes.onComplete {
+              case Success(tagTypes) =>
+                self.setState(_.copy(tagTypes = tagTypes))
+              case Failure(_) => self.setState(_.copy(tagTypes = Seq.empty))
             }
           }
         },
         render = { self =>
+          val tagsGroupByTagType: Seq[(TagType, Seq[Tag])] = {
+            self.state.tags
+              .groupBy[String](_.tagTypeId)
+              .flatMap {
+                case (tagTypeId, tags) => self.state.tagTypes.find(_.tagTypeId == tagTypeId).map(_ -> tags)
+              }
+              .toSeq
+              .sortBy {
+                case (tagType, _) => -1 * tagType.weight
+              }
+          }
+
+          val tagChoices = tagsGroupByTagType.flatMap {
+            case (tagType, tags) =>
+              Choice(tagType.tagTypeId, tagType.label) +: tags.sortBy(-1 * _.weight).map { tag =>
+                Choice(tag.id, s"\u00A0\u00A0\u00A0\u00A0\u00A0${tag.label}")
+              }
+          }
+
           <.List(
             ^.title := "Validated proposals",
             ^.location := self.props.location,
             ^.resource := Resource.proposals,
             ^.hasCreate := false,
-            ^.filters := filterList(self.state.tagChoices),
+            ^.filters := filterList(tagChoices),
             ^.filter := Map("status" -> Seq(Accepted.shortName)),
             ^.actions := <.ActionComponent()(),
             ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
@@ -159,7 +189,6 @@ object ValidatedProposalList {
           )
         }
       )
-
 
   object ExportComponent {
 
@@ -240,23 +269,23 @@ object ValidatedProposalList {
     lazy val reactClass: ReactClass =
       React
         .createClass[React.Props[Unit], Unit](
-        displayName = "ValidatedProposalListAction",
-        render = { self =>
-          <.CardActions()(
-            <.ExportComponent(^.wrapped := ExportProps(self.props.native.filterValues.asInstanceOf[FilterValues]))(),
-            cloneElement(
-              self.props.native.filters.asInstanceOf[ReactClass],
-              js.Dynamic.literal(
-                "showFilter" -> self.props.native.showFilter,
-                "displayedFilters" -> self.props.native.displayedFilters,
-                "filterValues" -> self.props.native.filterValues,
-                "context" -> "button"
-              )
-            ),
-            <.RefreshButton()()
-          )
-        }
-      )
+          displayName = "ValidatedProposalListAction",
+          render = { self =>
+            <.CardActions()(
+              <.ExportComponent(^.wrapped := ExportProps(self.props.native.filterValues.asInstanceOf[FilterValues]))(),
+              cloneElement(
+                self.props.native.filters.asInstanceOf[ReactClass],
+                js.Dynamic.literal(
+                  "showFilter" -> self.props.native.showFilter,
+                  "displayedFilters" -> self.props.native.displayedFilters,
+                  "filterValues" -> self.props.native.filterValues,
+                  "context" -> "button"
+                )
+              ),
+              <.RefreshButton()()
+            )
+          }
+        )
   }
 
   def filterAutoComplete: (String, String) => Boolean = (searchText, key) => {
