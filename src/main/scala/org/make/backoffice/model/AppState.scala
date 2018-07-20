@@ -25,6 +25,9 @@ import scala.scalajs.js
 @js.native
 trait Params extends js.Object {
   val filter: js.Dictionary[String]
+  val page: js.Object
+  val sort: String
+  val order: String
 }
 
 @js.native
