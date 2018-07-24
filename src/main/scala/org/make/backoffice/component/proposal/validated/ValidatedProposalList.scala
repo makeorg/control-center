@@ -65,7 +65,8 @@ trait FilterValues extends js.Object {
 
 object ValidatedProposalList {
 
-  case class ValidatedProposalListProps(filters: Map[String, String]) extends RouterProps
+  case class ValidatedProposalListProps(filters: Map[String, String], page: js.Object, sort: String, order: String)
+      extends RouterProps
 
   lazy val ProposalListContainer: ReactClass =
     redux.ReactRedux.connectAdvanced(selectorFactory)(reactClass)
@@ -73,7 +74,12 @@ object ValidatedProposalList {
   def selectorFactory: Dispatch => (AppState, Props[Unit]) => ValidatedProposalListProps =
     (_: Dispatch) =>
       (state: AppState, _: Props[Unit]) => {
-        ValidatedProposalListProps(filters = state.admin.resources.proposals.list.params.filter.toMap)
+        ValidatedProposalListProps(
+          filters = state.admin.resources.proposals.list.params.filter.toMap,
+          page = state.admin.resources.proposals.list.params.page,
+          sort = state.admin.resources.proposals.list.params.sort,
+          order = state.admin.resources.proposals.list.params.order
+        )
     }
 
   case class ValidatedProposalListState(tags: Seq[Tag], tagTypes: Seq[TagType])
@@ -117,6 +123,10 @@ object ValidatedProposalList {
               case Failure(_) => self.setState(_.copy(tagTypes = Seq.empty))
             }
           }
+        },
+        shouldComponentUpdate = { (self, props, state) =>
+          self.state.tags != state.tags || self.props.wrapped.page != props.wrapped.page ||
+          self.props.wrapped.order != props.wrapped.order || self.props.wrapped.sort != props.wrapped.sort
         },
         render = { self =>
           val tagsGroupByTagType: Seq[(TagType, Seq[Tag])] = {
