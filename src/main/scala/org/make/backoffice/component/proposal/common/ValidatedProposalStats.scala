@@ -47,7 +47,7 @@ object ValidatedProposalStats {
         render = { self =>
           def displayQualificationsStats(vote: Vote): Seq[Element] = {
             vote.qualifications.map { qualification =>
-              <.p()(s"${qualification.key}: ${Proposal.qualificationRate(vote.qualifications, qualification.key)}% (${Proposal
+              <.p()(s"${qualification.key}: ${Proposal.qualificationRate(vote, qualification.key)}% (${Proposal
                 .qualificationFromKey(vote.qualifications, qualification.key)})")
             }
           }

@@ -59,12 +59,21 @@ object ShowProposal {
               )
             )()
           ),
-          <.Tab(^.label := "Proposal infos", ^.disabled := false)(
+          <.Tab(^.label := "Infos", ^.disabled := false)(
             <.TextField(^.source := "id")(),
-            <.TextField(^.source := "content")(),
+            <.FunctionField(^.label := "User name", ^.render := { record =>
+              val proposal = record.asInstanceOf[SingleProposal]
+              proposal.author.firstName.getOrElse(proposal.author.organisationName.getOrElse("")).toString
+            })(),
+            <.TextField(^.source := "author.profile.age", ^.label := "User age")(),
+            <.TextField(^.source := "author.profile.postalCode", ^.label := "User location")(),
+          <.DateField(
+            ^.source := "createdAt",
+            ^.label := "date",
+            ^.options := Map("weekday" -> "long", "year" -> "numeric", "month" -> "long", "day" -> "numeric"),
+            ^.locales := "en-EN"
+          )(),
             <.TextField(^.source := "status")(),
-            <.TextField(^.source := "language")(),
-            <.TextField(^.source := "country")(),
             <.FunctionField(^.label := "theme", ^.render := { record =>
               val proposal = record.asInstanceOf[SingleProposal]
               proposal.themeId.map { id =>
@@ -78,22 +87,26 @@ object ShowProposal {
               ^.linkType := false,
               ^.allowEmpty := true
             )(<.TextField(^.source := "slug")()),
+            <.TextField(^.source := "language")(),
+            <.TextField(^.source := "country")(),
             <.TextField(^.source := "context.source", ^.label := "source")(),
-            <.TextField(^.source := "context.question", ^.label := "question")(),
-            <.DateField(
-              ^.source := "createdAt",
-              ^.label := "date",
-              ^.options := Map("weekday" -> "long", "year" -> "numeric", "month" -> "long", "day" -> "numeric"),
-              ^.locales := "en-EN"
-            )(),
-            <.FunctionField(^.label := "User name", ^.render := { record =>
-              val proposal = record.asInstanceOf[SingleProposal]
-              proposal.author.firstName.getOrElse(proposal.author.organisationName.getOrElse("")).toString
-            })(),
-            <.TextField(^.source := "author.profile.age", ^.label := "User age")(),
-            <.TextField(^.source := "author.profile.postalCode", ^.label := "User location")()
-          )
+            <.TextField(^.source := "context.question", ^.label := "question")()
+          ),
+        <.Tab(^.label := "Stats", ^.disabled := false)(
+          <.FunctionField(^.label := "Stats", ^.render := { record =>
+            val proposal = record.asInstanceOf[SingleProposal]
+            <.StatsValidatedProposal(
+              ^.wrapped := ValidatedProposalStats.ValidatedProposalStatsProps(proposal)
+            )()
+          })(),
+        ),
+        <.Tab(^.label := "History", ^.disabled := false)(
+          <.FunctionField(^.label := "History", ^.render := { record =>
+            val proposal = record.asInstanceOf[SingleProposal]
+            <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(proposal))(),
+          })()
         )
+      )
     )
   )
 }

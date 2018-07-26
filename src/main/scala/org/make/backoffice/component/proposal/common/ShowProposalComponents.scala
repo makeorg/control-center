@@ -83,12 +83,6 @@ object ShowProposalComponents {
     },
     render = self =>
       <.div()(
-        if (self.state.proposal.status == Refused.shortName)
-          <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(self.state.proposal))(),
-        if (self.state.proposal.status == Accepted.shortName)
-          <.StatsValidatedProposal(
-            ^.wrapped := ValidatedProposalStats.ValidatedProposalStatsProps(self.state.proposal)
-          )(),
         if (self.state.proposal.status == Accepted.shortName)
           <.FormValidateProposalComponent(
             ^.wrapped := FormValidateProposalComponent
@@ -109,8 +103,6 @@ object ShowProposalComponents {
             ^.wrapped := FormValidateProposalComponent
               .FormProps(self.state.proposal, "validate", self.state.isLocked, self.props.wrapped.context)
           )(),
-        if (self.state.proposal.status == Accepted.shortName)
-          <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(self.state.proposal))(),
         if (self.state.isLocked)
           <.Snackbar(^.open := self.state.isLocked, ^.message := {
             self.state.moderatorName match {

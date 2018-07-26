@@ -241,13 +241,9 @@ object Proposal {
       .getOrElse(0)
   }
 
-  def qualificationRate(qualifications: Seq[Qualification], key: String): Int = {
-    qualifications
-      .find(_.key == key)
-      .map { qualification =>
-        formatToPercent(qualification.count, totalQualifications(qualifications))
-      }
-      .getOrElse(0)
+  def qualificationRate(vote: Vote, key: String): Int = {
+    val qualificationCount = qualificationFromKey(vote.qualifications, key)
+    formatToPercent(qualificationCount, vote.count)
   }
 }
 
