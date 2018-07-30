@@ -53,7 +53,7 @@ object IdeaList {
             ^.resource := Resource.ideas,
             ^.hasCreate := true,
             ^.filters := ideaFilters(),
-            ^.sort := Map("field" -> "name", "order" -> "DESC")
+            ^.sort := Map("field" -> "name", "order" -> "ASC")
           )(
             <.Datagrid()(
               <.EditButton()(),
