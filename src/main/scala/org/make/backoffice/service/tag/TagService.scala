@@ -36,8 +36,8 @@ object TagService extends ApiService with CirceClassFormatters {
 
   def tags(operationId: Option[String] = None,
            themeId: Option[String] = None,
-           country: Option[String] = None,
-           language: Option[String] = None): Future[Seq[Tag]] =
+           country: String,
+           language: String): Future[Seq[Tag]] =
     client
       .get[Seq[TagResponse]](
         resourceName ? ("operationId", operationId) & ("themeId", themeId) & ("country", country) & ("language", language)

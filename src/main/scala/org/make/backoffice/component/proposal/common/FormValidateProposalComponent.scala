@@ -69,7 +69,7 @@ object FormValidateProposalComponent {
   def setTagsFromTagIds(self: Self[FormProps, FormState], props: FormProps): Unit = {
     if (!js.isUndefined(props.proposal.tagIds)) {
       props.proposal.tagIds.foreach { tagId =>
-        TagService.tags().onComplete {
+        TagService.tags(country = props.proposal.country, language = props.proposal.language).onComplete {
           case Success(tags) =>
             self.setState(_.copy(tags = tags.find(_.id == tagId) match {
               case Some(tag) => self.state.tags :+ tag
@@ -94,7 +94,11 @@ object FormValidateProposalComponent {
           val futureOperationTags = for {
             operation <- OperationService.getOperationById(OperationId(operationIdValue))
             tagTypes  <- TagTypeService.tagTypes
-            tags      <- TagService.tags(operationId = operation.map(_.id))
+            tags <- TagService.tags(
+              operationId = operation.map(_.id),
+              country = props.proposal.country,
+              language = props.proposal.language
+            )
           } yield (operation, tagTypes, tags)
           futureOperationTags.onComplete {
             case Success((Some(operation), tagTypes, tags)) =>
