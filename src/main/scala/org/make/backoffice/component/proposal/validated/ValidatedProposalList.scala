@@ -96,11 +96,13 @@ object ValidatedProposalList {
           val themeIdFilter: Option[String] = self.props.wrapped.filters.get("themeId")
           val countryFilter: Option[String] = self.props.wrapped.filters.get("country")
           val languageFilter: Option[String] = self.props.wrapped.filters.get("language")
-          TagService.tags(operationIdFilter, themeIdFilter, countryFilter, languageFilter).onComplete {
-            case Success(tags) =>
-              self.setState(_.copy(tags = tags))
-            case Failure(_) => self.setState(_.copy(tags = Seq.empty))
-          }
+          TagService
+            .tags(operationIdFilter, themeIdFilter, countryFilter.getOrElse("FR"), languageFilter.getOrElse("fr"))
+            .onComplete {
+              case Success(tags) =>
+                self.setState(_.copy(tags = tags))
+              case Failure(_) => self.setState(_.copy(tags = Seq.empty))
+            }
           TagTypeService.tagTypes.onComplete {
             case Success(tagTypes) =>
               self.setState(_.copy(tagTypes = tagTypes))
@@ -113,10 +115,12 @@ object ValidatedProposalList {
             val themeIdFilter: Option[String] = props.wrapped.filters.get("themeId")
             val countryFilter: Option[String] = props.wrapped.filters.get("country")
             val languageFilter: Option[String] = props.wrapped.filters.get("language")
-            TagService.tags(operationIdFilter, themeIdFilter, countryFilter, languageFilter).onComplete {
-              case Success(tags) => self.setState(_.copy(tags = tags))
-              case Failure(_)    => self.setState(_.copy(Seq.empty))
-            }
+            TagService
+              .tags(operationIdFilter, themeIdFilter, countryFilter.getOrElse("FR"), languageFilter.getOrElse("fr"))
+              .onComplete {
+                case Success(tags) => self.setState(_.copy(tags = tags))
+                case Failure(_)    => self.setState(_.copy(Seq.empty))
+              }
             TagTypeService.tagTypes.onComplete {
               case Success(tagTypes) =>
                 self.setState(_.copy(tagTypes = tagTypes))
