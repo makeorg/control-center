@@ -83,8 +83,9 @@ object EditIdea {
         displayName = "dataGrid",
         getInitialState = _ => DataGridState(),
         componentDidUpdate = (self, _, _) => {
-          if (self.props.wrapped.operationId.nonEmpty || self.props.wrapped.themeId.nonEmpty)
+          if (self.props.wrapped.operationId.nonEmpty || self.props.wrapped.themeId.nonEmpty) {
             self.setState(_.copy(shouldUpdate = false))
+          }
           if (self.state.shouldUpdate && (self.props.wrapped.operationId.isDefined || self.props.wrapped.themeId.isDefined)) {
             var filters: Seq[Filter] = Seq(
               Filter(field = "country", value = self.props.wrapped.country.getOrElse("")),
@@ -126,7 +127,7 @@ object EditIdea {
           }
         },
         render = self => {
-          def onRowSelection(ids: Seq[String]): js.Function1[js.Array[Int] | String, Unit] = (rowNumber) => {
+          def onRowSelection(ids: Seq[String]): js.Function1[js.Array[Int] | String, Unit] = rowNumber => {
             var selectedIds: Seq[String] = Seq.empty
             (rowNumber: Any) match {
               case rows: js.Array[_] if rows.nonEmpty => selectedIds = rows.map(n => ids(n.asInstanceOf[Int])).toSeq
@@ -158,11 +159,11 @@ object EditIdea {
             key.indexOf(searchText) != -1
           }
 
-          def onSnackbarClose: (String) => Unit = (_) => {
+          def onSnackbarClose: String => Unit = _ => {
             self.setState(_.copy(snackbarUpdateOkOpen = false, snackbarKoOpen = false, snackbarAddOkOpen = false))
           }
 
-          def onClickChangeIdea: (SyntheticEvent) => Unit = {
+          def onClickChangeIdea: SyntheticEvent => Unit = {
             event =>
               event.preventDefault()
               self.state.selectedIdeaId match {
@@ -187,7 +188,7 @@ object EditIdea {
               }
           }
 
-          def onClickAddProposal: (SyntheticEvent) => Unit = (event) => {
+          def onClickAddProposal: SyntheticEvent => Unit = event => {
             event.preventDefault()
             self.state.selectedProposalToAdd match {
               case Some(proposal) =>
@@ -360,7 +361,7 @@ object EditIdea {
                 <.TextField(^.source := "question")()
               )
             ),
-            <.CustomDatagrid(
+            <.CustomIdeaDatagrid(
               ^.wrapped := DataGridProps(
                 ideaId = self.state.idea.map(_.id),
                 operationId = self.state.idea.flatMap(_.operationId.toOption),

@@ -23,7 +23,6 @@ package org.make.backoffice.service.tag
 import org.make.backoffice.model.{Tag, TagResponse}
 import org.make.backoffice.model.TagResponse._
 import org.make.backoffice.service.ApiService
-import org.make.backoffice.util.uri._
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
 
@@ -48,4 +47,12 @@ object TagService extends ApiService with CirceClassFormatters {
           js.Dynamic.global.console.log(s"instead of converting to Tag: failed cursor $e")
           throw e
       }
+
+  def getTag(tagId: String): Future[Tag] = {
+    client.get[TagResponse](resourceName / tagId).map(toTag).recover {
+      case e =>
+        js.Dynamic.global.console.log(s"instead of converting to Tag: failed cursor $e")
+        throw e
+    }
+  }
 }
