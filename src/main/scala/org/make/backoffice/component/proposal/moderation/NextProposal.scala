@@ -32,6 +32,7 @@ import org.make.backoffice.facade.MaterialUi._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
+import scala.scalajs.js.UndefOr
 import scala.util.{Failure, Success}
 
 object NextProposal {
@@ -65,8 +66,17 @@ object NextProposal {
       },
       render = { self =>
         if (self.state.proposal.nonEmpty) {
+          val propContent: Option[String] = self.state.proposal.map(_.content)
+          val propFirstName: Option[String] = self.state.proposal.flatMap(_.author.firstName.toOption)
+          val propAge: Option[Int] = self.state.proposal.flatMap(_.author.profile.toOption.flatMap(_.age.toOption))
+          val title = (propContent, propFirstName, propAge) match  {
+            case (Some(content), Some(firstName), Some(age)) => s"$content, $firstName ($age)"
+            case (Some(content), Some(firstName), _) => s"$content, $firstName"
+            case (Some(content), _, _) => content
+            case (_, _, _) => ""
+          }
           <.div()(
-            <.Card()(<.CardTitle(^.title := self.state.proposal.map(_.content).getOrElse(""))()),
+            <.Card()(<.CardTitle(^.title := title)()),
             <.ShowProposalComponents(
               ^.wrapped := ShowProposalComponentsProps(
                 hash = org.scalajs.dom.window.location.hash,
