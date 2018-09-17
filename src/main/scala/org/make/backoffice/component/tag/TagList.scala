@@ -53,7 +53,8 @@ object TagList {
             ^.location := self.props.location,
             ^.resource := Resource.tags,
             ^.hasCreate := true,
-            ^.filters := tagFilters()
+            ^.filters := tagFilters(),
+            ^.filter := Map("language" -> Seq("fr"), "country" -> Seq("FR"))
           )(
             <.Datagrid()(
               <.EditButton()(),
