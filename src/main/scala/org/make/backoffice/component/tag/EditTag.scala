@@ -169,44 +169,110 @@ object EditTag {
             self.setState(_.copy(snackbarUpdateOkOpen = false, snackbarKoOpen = false, snackbarAddOkOpen = false))
           }
 
-          def onClickChangeTag: SyntheticEvent => Unit = {
-            event =>
-              event.preventDefault()
-              self.state.selectedTagId match {
-                case Some(tagId) =>
-                  self.state.selectedIds.foreach {
-                    proposalId =>
+          sealed trait UpdateTag
+          case object AddTag extends UpdateTag
+          case object ChangeTag extends UpdateTag
+          case object RemoveTag extends UpdateTag
+
+          def updateTag(updateMode: UpdateTag, tagId: TagId): Unit = {
+            self.state.selectedIds.foreach {
+              proposalId =>
+                ProposalService
+                  .getProposalById(proposalId.value)
+                  .flatMap {
+                    proposal =>
+                      val tags = updateMode match {
+                        case AddTag => proposal.data.tagIds.toSeq.map(TagId(_)) :+ tagId
+                        case RemoveTag =>
+                          proposal.data.tagIds.toSeq
+                            .filterNot(_ == self.props.wrapped.tagId.getOrElse(""))
+                            .map(TagId(_))
+                        case ChangeTag =>
+                          (proposal.data.tagIds.toSeq
+                            .filterNot(_ == self.props.wrapped.tagId.getOrElse("")) :+ tagId.value).distinct
+                            .map(TagId(_))
+                      }
                       ProposalService
-                        .getProposalById(proposalId.value)
-                        .flatMap { proposal =>
-                          ProposalService
-                            .updateProposal(
-                              proposalId.value,
-                              newContent = None,
-                              tags = Seq(tagId),
-                              labels = proposal.data.labels.toSeq,
-                              theme = self.props.wrapped.themeId.map(ThemeId(_)),
-                              operationId = self.props.wrapped.operationId.map(OperationId(_)),
-                              ideaId = proposal.data.ideaId.toOption.map(IdeaId(_))
-                            )
-                        }
-                        .onComplete {
-                          case Success(_) =>
-                            val newProposalsList = self.state.proposalsTagList
-                              .filterNot(proposal => self.state.selectedIds.exists(_.value == proposal.id))
-                            self.setState(
-                              _.copy(
-                                proposalsTagList = newProposalsList,
-                                selectedIds = Seq.empty,
-                                searchTagContent = "",
-                                snackbarUpdateOkOpen = true
-                              )
-                            )
-                          case Failure(_) => self.setState(_.copy(snackbarKoOpen = true))
-                        }
+                        .updateProposal(
+                          proposalId.value,
+                          newContent = None,
+                          tags = tags,
+                          labels = proposal.data.labels.toSeq,
+                          theme = self.props.wrapped.themeId.map(ThemeId(_)),
+                          operationId = self.props.wrapped.operationId.map(OperationId(_)),
+                          ideaId = proposal.data.ideaId.toOption.map(IdeaId(_))
+                        )
                   }
-                case None =>
-              }
+                  .onComplete {
+                    case Success(_) =>
+                      val newProposalsList =
+                        updateMode match {
+                          case RemoveTag | ChangeTag =>
+                            self.state.proposalsTagList
+                              .filterNot(proposal => self.state.selectedIds.exists(_.value == proposal.id))
+                          case AddTag => self.state.proposalsTagList
+                        }
+                      self.setState(
+                        _.copy(
+                          proposalsTagList = newProposalsList,
+                          selectedIds = Seq.empty,
+                          searchTagContent = "",
+                          snackbarUpdateOkOpen = true
+                        )
+                      )
+                    case Failure(_) => self.setState(_.copy(snackbarKoOpen = true))
+                  }
+            }
+          }
+
+          def removeTag(): Unit = {
+            self.state.selectedIds.foreach {
+              proposalId =>
+                ProposalService
+                  .getProposalById(proposalId.value)
+                  .flatMap {
+                    proposal =>
+                      ProposalService
+                        .updateProposal(
+                          proposalId.value,
+                          newContent = None,
+                          tags = proposal.data.tagIds.toSeq
+                            .filterNot(_ == self.props.wrapped.tagId.getOrElse(""))
+                            .map(TagId(_)),
+                          labels = proposal.data.labels.toSeq,
+                          theme = self.props.wrapped.themeId.map(ThemeId(_)),
+                          operationId = self.props.wrapped.operationId.map(OperationId(_)),
+                          ideaId = proposal.data.ideaId.toOption.map(IdeaId(_))
+                        )
+                  }
+                  .onComplete {
+                    case Success(_) =>
+                      val newProposalsList =
+                        self.state.proposalsTagList
+                          .filterNot(proposal => self.state.selectedIds.exists(_.value == proposal.id))
+                      self.setState(
+                        _.copy(
+                          proposalsTagList = newProposalsList,
+                          selectedIds = Seq.empty,
+                          searchTagContent = "",
+                          snackbarUpdateOkOpen = true
+                        )
+                      )
+                    case Failure(_) => self.setState(_.copy(snackbarKoOpen = true))
+                  }
+            }
+          }
+
+          def onClickUpdateTag(updateMode: UpdateTag): SyntheticEvent => Unit = { event =>
+            event.preventDefault()
+            self.state.selectedTagId match {
+              case Some(tagId) => updateTag(updateMode, tagId)
+              case None =>
+                updateMode match {
+                  case RemoveTag => removeTag()
+                  case _         =>
+                }
+            }
           }
 
           def onClickAddProposal: SyntheticEvent => Unit = event => {
@@ -219,7 +285,7 @@ object EditTag {
                       .updateProposal(
                         proposal.id,
                         newContent = None,
-                        tags = Seq(TagId(tagId)),
+                        tags = (proposal.tagIds.toSeq :+ tagId).map(TagId(_)),
                         labels = proposal.labels.toSeq,
                         theme = self.props.wrapped.themeId.map(ThemeId(_)),
                         operationId = self.props.wrapped.operationId.map(OperationId(_)),
@@ -297,6 +363,12 @@ object EditTag {
                     )
                   })
                 ),
+                <.FlatButton(
+                  ^.fullWidth := true,
+                  ^.label := "Remove tag",
+                  ^.secondary := true,
+                  ^.onClick := onClickUpdateTag(RemoveTag)
+                )(),
                 <.br()(),
                 <.AutoComplete(
                   ^.id := "search-proposal-tag",
@@ -312,12 +384,28 @@ object EditTag {
                   ^.filterAutoComplete := filterAutoComplete,
                   ^.menuProps := Map("maxHeight" -> 400)
                 )(),
-                <.FlatButton(
-                  ^.fullWidth := true,
-                  ^.label := "Change tag",
-                  ^.secondary := true,
-                  ^.onClick := onClickChangeTag
-                )(),
+                <.div(
+                  ^.style := Map(
+                    "display" -> "flex",
+                    "align-items" -> "flex-start",
+                    "justify-content" -> "space-around"
+                  )
+                )(
+                  <.FlatButton(
+                    ^.style := Map("min-width" -> "50%"),
+                    ^.fullWidth := true,
+                    ^.label := "Replace tag",
+                    ^.secondary := true,
+                    ^.onClick := onClickUpdateTag(ChangeTag)
+                  )(),
+                  <.FlatButton(
+                    ^.style := Map("min-width" -> "50%"),
+                    ^.fullWidth := true,
+                    ^.label := "Add tag",
+                    ^.secondary := true,
+                    ^.onClick := onClickUpdateTag(AddTag)
+                  )()
+                ),
                 <.Snackbar(
                   ^.open := self.state.snackbarUpdateOkOpen,
                   ^.message := "Proposal(s) updated successfully",
