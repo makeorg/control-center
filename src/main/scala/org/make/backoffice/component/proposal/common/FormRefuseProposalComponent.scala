@@ -40,19 +40,19 @@ import scala.scalajs.js
 import scala.util.{Failure, Success}
 
 object FormRefuseProposalComponent {
-  case class FormProps(proposal: SingleProposal, isLocked: Boolean = false, context: Context)
-  case class FormState(reasons: Seq[String],
-                       refusalReason: String = "Other",
-                       notifyUser: Boolean = true,
-                       errorMessage: Option[String] = None,
-                       isLocked: Boolean = false)
+  case class FormRefuseProposalProps(proposal: SingleProposal, isLocked: Boolean = false, context: Context)
+  case class FormRefuseProposalState(reasons: Seq[String],
+                                     refusalReason: String = "Other",
+                                     notifyUser: Boolean = true,
+                                     errorMessage: Option[String] = None,
+                                     isLocked: Boolean = false)
 
   val reasons: Seq[String] = Configuration.getReasonsForRefusal
 
   lazy val reactClass: ReactClass =
     WithRouter(
-      React.createClass[FormProps, FormState](getInitialState = { _ =>
-        FormState(reasons = reasons)
+      React.createClass[FormRefuseProposalProps, FormRefuseProposalState](getInitialState = { _ =>
+        FormRefuseProposalState(reasons = reasons)
       }, componentWillReceiveProps = { (self, props) =>
         self.setState(_.copy(isLocked = props.wrapped.isLocked, refusalReason = "Other", notifyUser = true))
       }, render = {
@@ -111,10 +111,11 @@ object FormRefuseProposalComponent {
           }
 
           def handleSubmit: SyntheticEvent => Unit = {
-            if (self.props.wrapped.context == ShowProposalComponents.Context.StartModeration)
+            if (self.props.wrapped.context == ShowProposalComponents.Context.StartModeration) {
               handleNextProposal
-            else
+            } else {
               handleRefuse
+            }
           }
 
           val selectReasons = <.SelectField(
@@ -131,7 +132,7 @@ object FormRefuseProposalComponent {
             self.state.errorMessage.map(msg => <.p()(msg))
 
           <.Card(^.style := Map("marginTop" -> "1em"))(
-            <.CardTitle(^.title := "I want to refuse that proposal")(),
+            <.CardTitle(^.title := "I want to refuse this proposal")(),
             <.CardActions()(
               selectReasons,
               <.Checkbox(

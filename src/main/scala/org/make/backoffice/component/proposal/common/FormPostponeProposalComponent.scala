@@ -39,36 +39,40 @@ import scala.util.{Failure, Success}
 
 object FormPostponeProposalComponent {
 
-  case class FormProps(proposal: SingleProposal, isLocked: Boolean = false, context: Context)
-  case class FormState(errorMessage: Option[String] = None, isLocked: Boolean = false)
+  case class FormPostponeProposalProps(proposal: SingleProposal, isLocked: Boolean = false, context: Context)
+  case class FormPostponeProposalState(errorMessage: Option[String] = None, isLocked: Boolean = false)
 
   lazy val reactClass: ReactClass =
     WithRouter(
-      React.createClass[FormProps, FormState](displayName = "FormPostponeProposalComponent", getInitialState = { _ =>
-        FormState()
-      }, componentWillReceiveProps = { (self, props) =>
-        self.setState(_.copy(errorMessage = None, isLocked = props.wrapped.isLocked))
-      }, render = {
-        self =>
-          def handleNextProposal: SyntheticEvent => Unit = { event =>
-            event.preventDefault()
-            val futureNextProposal =
-              for {
-                _ <- ProposalService.postponeProposal(proposalId = self.props.wrapped.proposal.id)
-                nextProposal <- ProposalService
-                  .nexProposalToModerate(
-                    self.props.wrapped.proposal.operationId.toOption,
-                    self.props.wrapped.proposal.themeId.toOption,
-                    Some(self.props.wrapped.proposal.country),
-                    Some(self.props.wrapped.proposal.language)
-                  )
-              } yield nextProposal
-            futureNextProposal.onComplete {
-              case Success(proposalResponse) =>
-                self.props.history.push(s"/nextProposal/${proposalResponse.data.id}")
-              case Failure(NotFoundHttpException) => self.props.history.push("/proposals")
-              case Failure(_)                     => self.setState(_.copy(errorMessage = Some(Main.defaultErrorMessage)))
-            }
+      React.createClass[FormPostponeProposalProps, FormPostponeProposalState](
+        displayName = "FormPostponeProposalComponent",
+        getInitialState = { _ =>
+          FormPostponeProposalState()
+        },
+        componentWillReceiveProps = { (self, props) =>
+          self.setState(_.copy(errorMessage = None, isLocked = props.wrapped.isLocked))
+        },
+        render = { self =>
+          def handleNextProposal: SyntheticEvent => Unit = {
+            event =>
+              event.preventDefault()
+              val futureNextProposal =
+                for {
+                  _ <- ProposalService.postponeProposal(proposalId = self.props.wrapped.proposal.id)
+                  nextProposal <- ProposalService
+                    .nexProposalToModerate(
+                      self.props.wrapped.proposal.operationId.toOption,
+                      self.props.wrapped.proposal.themeId.toOption,
+                      Some(self.props.wrapped.proposal.country),
+                      Some(self.props.wrapped.proposal.language)
+                    )
+                } yield nextProposal
+              futureNextProposal.onComplete {
+                case Success(proposalResponse) =>
+                  self.props.history.push(s"/nextProposal/${proposalResponse.data.id}")
+                case Failure(NotFoundHttpException) => self.props.history.push("/proposals")
+                case Failure(_)                     => self.setState(_.copy(errorMessage = Some(Main.defaultErrorMessage)))
+              }
           }
 
           def handlePostpone: SyntheticEvent => Unit = { event =>
@@ -92,7 +96,7 @@ object FormPostponeProposalComponent {
             self.state.errorMessage.map(msg => <.p()(msg))
 
           <.Card(^.style := Map("marginTop" -> "1em"))(
-            <.CardTitle(^.title := "I want to postpone that proposal")(),
+            <.CardTitle(^.title := "I want to postpone this proposal")(),
             <.CardActions()(
               <.RaisedButton(
                 ^.disabled := self.state.isLocked,
@@ -102,7 +106,8 @@ object FormPostponeProposalComponent {
               errorMessage
             )
           )
-      })
+        }
+      )
     )
 
 }
