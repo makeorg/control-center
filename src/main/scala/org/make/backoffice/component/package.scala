@@ -32,6 +32,8 @@ package object component {
     def ShowProposalComponents: ReactClassElementSpec = self(proposal.common.ShowProposalComponents.reactClass)
     def FormRefuseProposalComponent: ReactClassElementSpec =
       self(proposal.common.FormRefuseProposalComponent.reactClass)
+    def FormEnrichProposalComponent: ReactClassElementSpec =
+      self(proposal.common.FormEnrichProposalComponent.reactClass)
     def FormValidateProposalComponent: ReactClassElementSpec =
       self(proposal.common.FormValidateProposalComponent.reactClass)
     def FormPostponeProposalComponent: ReactClassElementSpec =

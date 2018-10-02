@@ -121,7 +121,7 @@ object ProposalService extends ApiService with CirceClassFormatters {
                        sendNotificationEmail: Boolean,
                        theme: Option[ThemeId] = None,
                        labels: Seq[String] = Seq.empty,
-                       tags: Seq[TagId] = Seq(TagId("default-tag")),
+                       tags: Seq[TagId] = Seq.empty,
                        similarProposals: Seq[ProposalId] = Seq.empty,
                        ideaId: Option[IdeaId] = None,
                        operationId: Option[OperationId] = None): Future[SingleProposal] = {

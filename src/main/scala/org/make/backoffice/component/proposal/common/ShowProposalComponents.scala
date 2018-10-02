@@ -29,6 +29,10 @@ import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.SingleProposal
 import org.make.backoffice.client.BadRequestHttpException
+import org.make.backoffice.component.proposal.common.FormEnrichProposalComponent.FormEnrichProposalProps
+import org.make.backoffice.component.proposal.common.FormPostponeProposalComponent.FormPostponeProposalProps
+import org.make.backoffice.component.proposal.common.FormRefuseProposalComponent.FormRefuseProposalProps
+import org.make.backoffice.component.proposal.common.FormValidateProposalComponent.FormValidateProposalProps
 import org.make.backoffice.service.proposal.{ProposalService, _}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -84,24 +88,39 @@ object ShowProposalComponents {
     render = self =>
       <.div()(
         if (self.state.proposal.status == Accepted.shortName)
-          <.FormValidateProposalComponent(
-            ^.wrapped := FormValidateProposalComponent
-              .FormProps(self.state.proposal, "update", self.state.isLocked, self.props.wrapped.context)
-          )(),
-        if (self.state.proposal.status == Pending.shortName)
-          <.FormPostponeProposalComponent(
-            ^.wrapped := FormPostponeProposalComponent
-              .FormProps(self.state.proposal, self.state.isLocked, self.props.wrapped.context)
-          )(),
-        if (self.state.proposal.status != Refused.shortName)
-          <.FormRefuseProposalComponent(
-            ^.wrapped := FormRefuseProposalComponent
-              .FormProps(self.state.proposal, self.state.isLocked, self.props.wrapped.context)
+          <.FormEnrichProposalComponent(
+            ^.wrapped := FormEnrichProposalProps(
+              self.state.proposal,
+              "enrich",
+              self.state.isLocked,
+              self.props.wrapped.context
+            )
           )(),
         if (self.state.proposal.status != Accepted.shortName)
           <.FormValidateProposalComponent(
-            ^.wrapped := FormValidateProposalComponent
-              .FormProps(self.state.proposal, "validate", self.state.isLocked, self.props.wrapped.context)
+            ^.wrapped := FormValidateProposalProps(
+              self.state.proposal,
+              "validate",
+              self.state.isLocked,
+              self.props.wrapped.context
+            )
+          )(),
+        if (self.state.proposal.status != Refused.shortName)
+          <.FormRefuseProposalComponent(
+            ^.wrapped := FormRefuseProposalProps(self.state.proposal, self.state.isLocked, self.props.wrapped.context)
+          )(),
+        if (self.state.proposal.status == Pending.shortName)
+          <.FormPostponeProposalComponent(
+            ^.wrapped := FormPostponeProposalProps(self.state.proposal, self.state.isLocked, self.props.wrapped.context)
+          )(),
+        if (self.state.proposal.status != Accepted.shortName)
+          <.FormEnrichProposalComponent(
+            ^.wrapped := FormEnrichProposalProps(
+              self.state.proposal,
+              "validate",
+              self.state.isLocked,
+              self.props.wrapped.context
+            )
           )(),
         if (self.state.isLocked)
           <.Snackbar(^.open := self.state.isLocked, ^.message := {
