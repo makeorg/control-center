@@ -86,6 +86,7 @@ object Inputs {
     lazy val choices = ChoicesAttributeSpec("choices")
     lazy val dependsOn = StringAttributeSpec("dependsOn")
     lazy val dependsValue = StringAttributeSpec("value")
+    lazy val defaultValue = StringAttributeSpec("defaultValue")
     lazy val resolve = StringAttributeSpec("resolve")
     lazy val optionText = StringAttributeSpec("optionText")
     lazy val filterToQuery = FilterToQueryAttributeSpec("filterToQuery")

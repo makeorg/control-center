@@ -54,7 +54,7 @@ object TagList {
             ^.resource := Resource.tags,
             ^.hasCreate := true,
             ^.filters := tagFilters(),
-            ^.filter := Map("language" -> Seq("fr"), "country" -> Seq("FR"))
+            ^.filter := Map("language" -> "fr", "country" -> "FR")
           )(
             <.Datagrid()(
               <.EditButton()(),

@@ -18,7 +18,7 @@
  *
  */
 
-package org.make.backoffice.facades.AdminOnRest
+package org.make.backoffice.facade.AdminOnRest
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport

@@ -89,8 +89,8 @@ case class MapIntAttributeSpec(name: String) extends AttributeSpec {
 }
 
 case class MapArrayAttributeSpec(name: String) extends AttributeSpec {
-  def :=(map: Map[String, Seq[String]]): Attribute[js.Dictionary[js.Array[String]]] =
-    Attribute(name = name, value = map.map { case (key, value) => key -> value.toJSArray }.toJSDictionary, AS_IS)
+  def :=(map: Map[String, js.Any]): Attribute[js.Dictionary[js.Any]] =
+    Attribute(name = name, value = map.toJSDictionary, AS_IS)
 }
 
 case class MatchAttributeSpec(name: String) extends AttributeSpec {

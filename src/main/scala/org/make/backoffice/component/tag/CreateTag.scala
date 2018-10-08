@@ -32,8 +32,8 @@ import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
 import org.make.backoffice.facade.AdminOnRest.Toolbar._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
+import org.make.backoffice.facade.AdminOnRest.required
 import org.make.backoffice.facade.Choice
-import org.make.backoffice.facades.AdminOnRest.required
 import org.make.backoffice.util.Configuration
 
 import scala.scalajs.js
