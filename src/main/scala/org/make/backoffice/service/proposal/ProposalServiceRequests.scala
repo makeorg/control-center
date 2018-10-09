@@ -120,4 +120,7 @@ final case class PatchProposalsIdeaRequest(proposalIds: Seq[ProposalId], ideaId:
 final case class NextProposalToModerateRequest(operationId: Option[OperationId],
                                                themeId: Option[ThemeId],
                                                country: Option[String],
-                                               language: Option[String])
+                                               language: Option[String],
+                                               toEnrich: Boolean,
+                                               minVotesCount: Option[Int],
+                                               minScore: Option[Double])

@@ -35,6 +35,9 @@ object UserService extends ApiService with CirceClassFormatters {
 
   override val resourceName: String = "user"
 
+  def me: Future[Option[User]] =
+    client.get[User](resourceName / "me").map(Option.apply).recoverWith { case e => Future.failed(e) }
+
   def getUserById(id: String): Future[Option[User]] =
     client.get[User](resourceName / id).map(Option.apply).recover { case _: Exception => None }
 

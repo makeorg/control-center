@@ -25,6 +25,7 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.facade.ViewTitle._
+import org.make.backoffice.service.user.UserService
 
 object Dashboard {
 
@@ -33,6 +34,15 @@ object Dashboard {
   private lazy val reactClass =
     React.createClass[Unit, Unit](
       displayName = "Dashboard",
-      render = (_) => <.Card()(<.ViewTitle(^.title := "Dashboard")())
+      componentDidMount = _ => UserService.me,
+      render = _ => {
+        <.div()(
+          <.Card()(<.ViewTitle(^.title := "Dashboard")()),
+          <.br.empty,
+          <.StartModeration.empty,
+          <.br.empty,
+          <.StartEnrich.empty
+        )
+      }
     )
 }

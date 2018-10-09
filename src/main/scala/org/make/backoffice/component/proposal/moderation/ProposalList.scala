@@ -50,7 +50,6 @@ object ProposalList {
     displayName = "ProposalList",
     render = self =>
       <.div()(
-        <.StartModeration.empty,
         <.List(
           ^.title := "Proposals",
           ^.location := self.props.location,
