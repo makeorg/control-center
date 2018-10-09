@@ -47,7 +47,7 @@ object GetListRequest {
 
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
-      case Resource.proposals =>
+      case res if res == Resource.proposals || res == Resource.toEnrichProposals =>
         val request = params.asInstanceOf[GetListRequest]
         ProposalService.proposals(
           request.pagination.toOption,

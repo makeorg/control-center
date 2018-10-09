@@ -158,7 +158,7 @@ object ValidatedProposalList {
             ^.resource := Resource.proposals,
             ^.hasCreate := false,
             ^.filters := filterList(tagChoices),
-            ^.filter := Map("status" -> Seq(Accepted.shortName)),
+            ^.filter := Map("status" -> Accepted.shortName),
             ^.actions := <.ActionComponent()(),
             ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
           )(

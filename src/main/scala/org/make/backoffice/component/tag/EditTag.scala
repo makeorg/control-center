@@ -33,9 +33,9 @@ import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
+import org.make.backoffice.facade.AdminOnRest.required
 import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.facades.AdminOnRest.required
 import org.make.backoffice.model._
 import org.make.backoffice.service.proposal.{Accepted, ProposalService}
 import org.make.backoffice.service.tag.TagService
