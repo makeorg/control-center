@@ -25,7 +25,8 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.redux.Redux.Dispatch
-import io.github.shogowada.scalajs.reactjs.router.RouterProps
+import io.github.shogowada.scalajs.reactjs.router.WithRouter
+import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.{redux, React}
 import org.make.backoffice.client.Resource
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
@@ -34,45 +35,33 @@ import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
 import org.make.backoffice.facade.AdminOnRest.ShowButton._
-import org.make.backoffice.facade.AdminOnRest.{AOR_Pagination, AOR_Sort, Action}
 import org.make.backoffice.model.{AppState, Proposal}
 import org.make.backoffice.service.proposal._
-import org.make.backoffice.util.Configuration
+import org.make.backoffice.util.{Configuration, QueryString}
+import org.make.backoffice.util.uri._
 
 object ToEnrichProposalList {
 
-  case class ToEnrichProposalListProps(reloadFilters: () => Unit) extends RouterProps
-
-  def selectorFactory: Dispatch => (AppState, Props[Unit]) => ToEnrichProposalListProps =
-    (dispatch: Dispatch) =>
-      (_: AppState, _: Props[Unit]) => {
-
-        def reloadFilters = () => {
-          dispatch(Action.`AOR/FETCH_CANCEL`)
-          dispatch(
-            Action.`AOR/CRUD_GET_LIST`(
-              pagination = Some(AOR_Pagination()),
-              sort = Some(AOR_Sort(field = "createdAt", order = "DESC")),
-              filter = Map(
-                "status" -> "Accepted",
-                "toEnrich" -> true,
-                "minVotesCount" -> Configuration.toEnrichMinVotesCount,
-                "minScore" -> Configuration.toEnrichMinScore
-              )
-            )
+  //TODO: fix: should do 1 call instead of 3.
+  def selectorFactory: Dispatch => (AppState, Props[Unit]) => Unit =
+    (_: Dispatch) =>
+      (_: AppState, props: Props[Unit]) => {
+        val params = QueryString.parse(props.location.search)
+        if (params.isEmpty) {
+          props.history.push(
+            s"""?filter={"minVotesCount"%3A"${Configuration.toEnrichMinVotesCount}"%2C"minScore"%3A"${Configuration.toEnrichMinScore}"}"""
+              & ("page", 1)
+              & ("perPage", 10)
+              & ("sort", "createdAt")
+              & ("order", "DESC")
           )
-          ()
         }
-        ToEnrichProposalListProps(reloadFilters = reloadFilters)
     }
 
-  def apply(): ReactClass = redux.ReactRedux.connectAdvanced(selectorFactory)(reactClass)
+  def apply(): ReactClass = WithRouter(redux.ReactRedux.connectAdvanced(selectorFactory)(reactClass))
 
-  private lazy val reactClass: ReactClass = React.createClass[ToEnrichProposalListProps, Unit](
+  private lazy val reactClass: ReactClass = React.createClass[Unit, Unit](
     displayName = "ToEnrichProposalList",
-    componentDidMount = self => {
-      self.props.wrapped.reloadFilters()
-    },
     render = self =>
       <.div()(
         <.List(
@@ -113,6 +102,7 @@ object ToEnrichProposalList {
   def filterList(): ReactElement = {
     <.Filter(^.resource := Resource.proposals)(
       Seq(
+        <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
         <.TextInput(
           ^.label := "Minimum votes count",
           ^.source := "minVotesCount",
@@ -124,7 +114,20 @@ object ToEnrichProposalList {
           ^.source := "minScore",
           ^.alwaysOn := true,
           ^.defaultValue := s"${Configuration.toEnrichMinScore}"
-        )()
+        )(),
+        <.SelectInput(
+          ^.label := "Country",
+          ^.source := "country",
+          ^.alwaysOn := false,
+          ^.allowEmpty := true,
+          ^.choices := Configuration.choicesCountryFilter
+        )(),
+        <.ReferenceInput(
+          ^.label := "Operation",
+          ^.source := "operationId",
+          ^.reference := Resource.operations,
+          ^.alwaysOn := true
+        )(<.SelectInput(^.optionText := "slug")())
       )
     )
   }
