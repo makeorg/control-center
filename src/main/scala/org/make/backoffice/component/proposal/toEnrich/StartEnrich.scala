@@ -18,7 +18,7 @@
  *
  */
 
-package org.make.backoffice.component.proposal.moderation
+package org.make.backoffice.component.proposal.toEnrich
 
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
@@ -31,7 +31,7 @@ import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpExceptio
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.{Country, Operation}
 import org.make.backoffice.service.operation.OperationService
-import org.make.backoffice.service.proposal.{Pending, ProposalService}
+import org.make.backoffice.service.proposal.{Accepted, ProposalService}
 import org.make.backoffice.util.Configuration
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,25 +39,24 @@ import scala.concurrent.Future
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
-object StartModeration {
+object StartEnrich {
 
-  final case class StartModerationProps() extends RouterProps
-  final case class StartModerationState(operationId: Option[String],
-                                        themeId: Option[String],
-                                        country: Option[String],
-                                        language: Option[String],
-                                        operations: Seq[Operation],
-                                        countriesList: Seq[String],
-                                        languagesList: Seq[String],
-                                        snackbarOpen: Boolean = false,
-                                        errorMessage: String = "",
-                                        proposalsAmount: Int = 0)
+  final case class StartEnrichProps() extends RouterProps
+  final case class StartEnrichState(operationId: Option[String],
+                                    themeId: Option[String],
+                                    country: Option[String],
+                                    language: Option[String],
+                                    operations: Seq[Operation],
+                                    countriesList: Seq[String],
+                                    languagesList: Seq[String],
+                                    snackbarOpen: Boolean = false,
+                                    errorMessage: String = "",
+                                    proposalsAmount: Int = 0)
 
   val reactClass: ReactClass =
     WithRouter(
-      React.createClass[StartModerationProps, StartModerationState](displayName = "StartModeration", getInitialState = {
-        _ =>
-          StartModerationState(None, None, None, None, Seq.empty, Seq.empty, Seq.empty)
+      React.createClass[StartEnrichProps, StartEnrichState](displayName = "StartEnrich", getInitialState = { _ =>
+        StartEnrichState(None, None, None, None, Seq.empty, Seq.empty, Seq.empty)
       }, componentWillMount = { self =>
         loadOperationsAndCounts.onComplete {
           case Success(operations) => self.setState(_.copy(operations = operations))
@@ -110,7 +109,10 @@ object StartModeration {
                       filter,
                       Filter("country", self.state.country.getOrElse("")),
                       Filter("language", value),
-                      Filter("status", s"${Pending.shortName}")
+                      Filter("status", s"${Accepted.shortName}"),
+                      Filter("toEnrich", true),
+                      Filter("minVotesCount", Configuration.toEnrichMinVotesCount),
+                      Filter("minScore", Configuration.toEnrichMinScore)
                     )
                   )
                 )
@@ -131,9 +133,9 @@ object StartModeration {
                   self.state.themeId,
                   self.state.country,
                   self.state.language,
-                  toEnrich = false,
-                  minVotesCount = None,
-                  minScore = None
+                  toEnrich = true,
+                  minVotesCount = Some(Configuration.toEnrichMinVotesCount),
+                  minScore = Some(Configuration.toEnrichMinScore)
                 )
                 .onComplete {
                   case Success(proposal) => self.props.history.push(s"/nextProposal/${proposal.data.id}")
@@ -147,8 +149,8 @@ object StartModeration {
           }
 
           <.Card()(
-            <.CardTitle(^.title := "Proposals Moderation")(),
-            <.CardHeader(^.title := self.state.proposalsAmount.toString + " proposals to moderate")(),
+            <.CardTitle(^.title := "Proposals Enrichment")(),
+            <.CardHeader(^.title := self.state.proposalsAmount.toString + " proposals to enrich")(),
             <.SelectField(
               ^.style := Map("margin" -> "0 1em"),
               ^.floatingLabelText := "Operation",
@@ -186,7 +188,7 @@ object StartModeration {
               <.MenuItem(^.key := language, ^.value := language, ^.primaryText := language)()
             }),
             <.CardActions()(
-              <.RaisedButton(^.label := "Start Moderation", ^.primary := true, ^.onClick := onClickStartModeration)()
+              <.RaisedButton(^.label := "Start Enrichment", ^.primary := true, ^.onClick := onClickStartModeration)()
             ),
             <.Snackbar(
               ^.open := self.state.snackbarOpen,

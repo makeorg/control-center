@@ -196,15 +196,21 @@ object ProposalService extends ApiService with CirceClassFormatters {
     client.delete[Unit](apiEndpoint = resourceName / "similars" / proposalId, urlParams = Seq.empty, data = "")
   }
 
-  def nexProposalToModerate(operationId: Option[String],
-                            themeId: Option[String],
-                            country: Option[String],
-                            language: Option[String]): Future[SingleResponse[SingleProposal]] = {
+  def nextProposalToModerate(operationId: Option[String],
+                             themeId: Option[String],
+                             country: Option[String],
+                             language: Option[String],
+                             toEnrich: Boolean,
+                             minVotesCount: Option[Int],
+                             minScore: Option[Double]): Future[SingleResponse[SingleProposal]] = {
     val request = NextProposalToModerateRequest(
       operationId = operationId.map(OperationId(_)),
       themeId = themeId.map(ThemeId(_)),
       country = country,
-      language = language
+      language = language,
+      toEnrich = toEnrich,
+      minVotesCount = minVotesCount,
+      minScore = minScore
     )
     client
       .post[SingleProposal](resourceName / "next", data = request.asJson.pretty(ApiService.printer))

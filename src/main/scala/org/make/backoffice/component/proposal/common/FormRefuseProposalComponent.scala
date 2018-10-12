@@ -31,9 +31,9 @@ import org.make.backoffice.client.NotFoundHttpException
 import org.make.backoffice.component.Main
 import org.make.backoffice.component.proposal.common.ShowProposalComponents.Context
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.util.Configuration
 import org.make.backoffice.model.SingleProposal
 import org.make.backoffice.service.proposal.ProposalService
+import org.make.backoffice.util.Configuration
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -76,11 +76,14 @@ object FormRefuseProposalComponent {
                     notifyUser = self.state.notifyUser
                   )
                   nextProposal <- ProposalService
-                    .nexProposalToModerate(
+                    .nextProposalToModerate(
                       self.props.wrapped.proposal.operationId.toOption,
                       self.props.wrapped.proposal.themeId.toOption,
                       Some(self.props.wrapped.proposal.country),
-                      Some(self.props.wrapped.proposal.language)
+                      Some(self.props.wrapped.proposal.language),
+                      toEnrich = false,
+                      minVotesCount = None,
+                      minScore = None
                     )
                 } yield nextProposal
               futureNextProposal.onComplete {

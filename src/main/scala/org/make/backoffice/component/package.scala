@@ -49,6 +49,7 @@ package object component {
     def CustomIdeaDatagrid: ReactClassElementSpec = self(idea.EditIdea.dataGrid)
     def CustomTagDatagrid: ReactClassElementSpec = self(tag.EditTag.dataGrid)
     def StartModeration: ReactClassElementSpec = self(proposal.moderation.StartModeration.reactClass)
+    def StartEnrich: ReactClassElementSpec = self(proposal.toEnrich.StartEnrich.reactClass)
   }
 
   implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {

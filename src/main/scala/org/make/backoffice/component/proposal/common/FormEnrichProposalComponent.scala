@@ -276,11 +276,14 @@ object FormEnrichProposalComponent {
                       operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
                     )
                     nextProposal <- ProposalService
-                      .nexProposalToModerate(
+                      .nextProposalToModerate(
                         self.props.wrapped.proposal.operationId.toOption,
                         self.props.wrapped.proposal.themeId.toOption,
                         Some(self.props.wrapped.proposal.country),
-                        Some(self.props.wrapped.proposal.language)
+                        Some(self.props.wrapped.proposal.language),
+                        toEnrich = true,
+                        minVotesCount = Some(Configuration.toEnrichMinVotesCount),
+                        minScore = Some(Configuration.toEnrichMinScore)
                       )
                   } yield nextProposal
                 futureNextProposal.onComplete {
@@ -356,7 +359,7 @@ object FormEnrichProposalComponent {
             }
 
             <.Card(^.style := Map("marginTop" -> "1em"))(
-              <.CardTitle(^.title := s"I want to enrich and ${self.props.wrapped.action} this proposal")(),
+              <.CardTitle(^.title := s"I want to ${self.props.wrapped.action} this proposal")(),
               <.CardActions()(
                 <.TextFieldMaterialUi(
                   ^.floatingLabelText := "Proposal content",

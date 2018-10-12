@@ -123,11 +123,14 @@ object FormValidateProposalComponent {
                       operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
                     )
                     nextProposal <- ProposalService
-                      .nexProposalToModerate(
+                      .nextProposalToModerate(
                         self.props.wrapped.proposal.operationId.toOption,
                         self.props.wrapped.proposal.themeId.toOption,
                         Some(self.props.wrapped.proposal.country),
-                        Some(self.props.wrapped.proposal.language)
+                        Some(self.props.wrapped.proposal.language),
+                        toEnrich = false,
+                        minVotesCount = None,
+                        minScore = None
                       )
                   } yield nextProposal
                 futureNextProposal.onComplete {
