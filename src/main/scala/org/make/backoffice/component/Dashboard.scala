@@ -21,20 +21,28 @@
 package org.make.backoffice.component
 
 import io.github.shogowada.scalajs.reactjs.React
-import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
+import io.github.shogowada.scalajs.reactjs.classes.ReactClass
+import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.facade.ViewTitle._
 import org.make.backoffice.service.user.UserService
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 object Dashboard {
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass =
-    React.createClass[Unit, Unit](
+    React.createClass[RouterProps, Unit](
       displayName = "Dashboard",
-      componentDidMount = _ => UserService.me,
+      componentDidMount = self =>
+        UserService.me.onComplete {
+          case Success(_) =>
+          case Failure(_) => self.props.history.push("/login")
+      },
       render = _ => {
         <.div()(
           <.Card()(<.ViewTitle(^.title := "Dashboard")()),

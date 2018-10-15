@@ -225,36 +225,6 @@ object FormEnrichProposalComponent {
                   }
             }
 
-            def handleSubmitValidate: SyntheticEvent => Unit = {
-              event =>
-                event.preventDefault()
-                val mayBeNewContent =
-                  if (self.state.content != self.props.wrapped.proposal.content) {
-                    Some(self.state.content)
-                  } else { None }
-                ProposalService
-                  .validateProposal(
-                    proposalId = self.props.wrapped.proposal.id,
-                    newContent = mayBeNewContent,
-                    sendNotificationEmail = self.state.notifyUser,
-                    labels = self.state.labels,
-                    theme = self.state.theme,
-                    similarProposals = self.state.similarProposals.map(ProposalId.apply),
-                    tags = self.state.tags.map(tag => TagId(tag.id)),
-                    ideaId = self.state.ideaId,
-                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
-                  )
-                  .onComplete {
-                    case Success(_) =>
-                      self.props.history.goBack()
-                      self.setState(_.copy(errorMessage = Seq.empty))
-                    case Failure(BadRequestHttpException(errors)) =>
-                      self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
-                    case Failure(_) =>
-                      self.setState(_.copy(errorMessage = Seq(Main.defaultErrorMessage)))
-                  }
-            }
-
             def handleNextProposal: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
@@ -264,14 +234,13 @@ object FormEnrichProposalComponent {
                   } else { None }
                 val futureNextProposal =
                   for {
-                    _ <- ProposalService.validateProposal(
+                    _ <- ProposalService.updateProposal(
                       proposalId = self.props.wrapped.proposal.id,
                       newContent = mayBeNewContent,
-                      sendNotificationEmail = self.state.notifyUser,
                       labels = self.state.labels,
                       theme = self.state.theme,
-                      similarProposals = self.state.similarProposals.map(ProposalId.apply),
                       tags = self.state.tags.map(tag => TagId(tag.id)),
+                      similarProposals = self.state.similarProposals.map(ProposalId.apply),
                       ideaId = self.state.ideaId,
                       operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
                     )
@@ -298,12 +267,9 @@ object FormEnrichProposalComponent {
             }
 
             def handleSubmit: SyntheticEvent => Unit = {
-              if (self.props.wrapped.action == "validate" &&
+              if (self.props.wrapped.action == "enrich" &&
                   self.props.wrapped.context == ShowProposalComponents.Context.StartModeration) {
                 handleNextProposal
-              } else if (self.props.wrapped.action == "validate" &&
-                         self.props.wrapped.context == ShowProposalComponents.Context.List) {
-                handleSubmitValidate
               } else {
                 handleSubmitUpdate
               }
