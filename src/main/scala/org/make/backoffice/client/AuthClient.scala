@@ -80,15 +80,8 @@ object AuthClient extends CirceClassFormatters with ConfigurationsServiceCompone
         }
       case AUTH_CHECK =>
         dom.window.localStorage.getItem(AUTHENTICATION_KEY) match {
-          case "true" =>
-            parameters match {
-              case UnauthorizedHttpException =>
-                Future.failed(new Error("Rejected AUTH_ERROR for UnauthorizedHttpException"))
-              case ForbiddenHttpException =>
-                Future.failed(new Error("Rejected AUTH_ERROR for ForbiddenHttpException"))
-              case _ => Future.successful("auth_check")
-            }
-          case _ => Future.failed(new Error("auth_check"))
+          case "true" => Future.successful("auth_check")
+          case _      => Future.failed(new Error("auth_check"))
         }
 
       case _ =>
