@@ -122,5 +122,5 @@ final case class NextProposalToModerateRequest(operationId: Option[OperationId],
                                                country: Option[String],
                                                language: Option[String],
                                                toEnrich: Boolean,
-                                               minVotesCount: Option[Int],
-                                               minScore: Option[Double])
+                                               minVotesCount: Option[String],
+                                               minScore: Option[String])

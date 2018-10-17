@@ -46,6 +46,8 @@ object StartEnrich {
                                     themeId: Option[String],
                                     country: Option[String],
                                     language: Option[String],
+                                    minVotesCount: Option[String],
+                                    toEnrichMinScore: Option[String],
                                     operations: Seq[Operation],
                                     countriesList: Seq[String],
                                     languagesList: Seq[String],
@@ -56,7 +58,7 @@ object StartEnrich {
   val reactClass: ReactClass =
     WithRouter(
       React.createClass[StartEnrichProps, StartEnrichState](displayName = "StartEnrich", getInitialState = { _ =>
-        StartEnrichState(None, None, None, None, Seq.empty, Seq.empty, Seq.empty)
+        StartEnrichState(None, None, None, None, None, None, Seq.empty, Seq.empty, Seq.empty)
       }, componentWillMount = { self =>
         loadOperationsAndCounts.onComplete {
           case Success(operations) => self.setState(_.copy(operations = operations))
@@ -111,8 +113,8 @@ object StartEnrich {
                       Filter("language", value),
                       Filter("status", s"${Accepted.shortName}"),
                       Filter("toEnrich", true),
-                      Filter("minVotesCount", Configuration.toEnrichMinVotesCount),
-                      Filter("minScore", Configuration.toEnrichMinScore)
+                      Filter("minVotesCount", self.state.minVotesCount.getOrElse(Configuration.toEnrichMinVotesCount)),
+                      Filter("minScore", self.state.toEnrichMinScore.getOrElse(Configuration.toEnrichMinScore))
                     )
                   )
                 )
@@ -122,6 +124,14 @@ object StartEnrich {
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "No proposal found"))
                   case Failure(_) => self.setState(_.copy(snackbarOpen = true, errorMessage = "Internal Error"))
                 }
+          }
+
+          def onChangeMinVotesCount: (js.Object, String) => Unit = { (_, value) =>
+            self.setState(_.copy(minVotesCount = Some(value)))
+          }
+
+          def onChangeMinScore: (js.Object, String) => Unit = { (_, value) =>
+            self.setState(_.copy(toEnrichMinScore = Some(value)))
           }
 
           def onClickStartModeration: SyntheticEvent => Unit = {
@@ -134,8 +144,8 @@ object StartEnrich {
                   self.state.country,
                   self.state.language,
                   toEnrich = true,
-                  minVotesCount = Some(Configuration.toEnrichMinVotesCount),
-                  minScore = Some(Configuration.toEnrichMinScore)
+                  minVotesCount = self.state.minVotesCount.orElse(Some(Configuration.toEnrichMinVotesCount)),
+                  minScore = self.state.toEnrichMinScore.orElse(Some(Configuration.toEnrichMinScore))
                 )
                 .onComplete {
                   case Success(proposal) => self.props.history.push(s"/nextProposal/${proposal.data.id}")
@@ -151,6 +161,19 @@ object StartEnrich {
           <.Card()(
             <.CardTitle(^.title := "Proposals Enrichment")(),
             <.CardHeader(^.title := self.state.proposalsAmount.toString + " proposals to enrich")(),
+            <.TextFieldMaterialUi(
+              ^.style := Map("margin" -> "0 1em"),
+              ^.floatingLabelText := "Minimum votes count",
+              ^.value := self.state.minVotesCount.getOrElse(Configuration.toEnrichMinVotesCount),
+              ^.onChangeTextField := onChangeMinVotesCount
+            )(),
+            <.TextFieldMaterialUi(
+              ^.style := Map("margin" -> "0 1em"),
+              ^.floatingLabelText := "Minimum score",
+              ^.value := self.state.toEnrichMinScore.getOrElse(Configuration.toEnrichMinScore),
+              ^.onChangeTextField := onChangeMinScore
+            )(),
+            <.br.empty,
             <.SelectField(
               ^.style := Map("margin" -> "0 1em"),
               ^.floatingLabelText := "Operation",

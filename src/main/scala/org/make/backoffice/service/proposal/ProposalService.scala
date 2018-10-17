@@ -201,8 +201,8 @@ object ProposalService extends ApiService with CirceClassFormatters {
                              country: Option[String],
                              language: Option[String],
                              toEnrich: Boolean,
-                             minVotesCount: Option[Int],
-                             minScore: Option[Double]): Future[SingleResponse[SingleProposal]] = {
+                             minVotesCount: Option[String],
+                             minScore: Option[String]): Future[SingleResponse[SingleProposal]] = {
     val request = NextProposalToModerateRequest(
       operationId = operationId.map(OperationId(_)),
       themeId = themeId.map(ThemeId(_)),
