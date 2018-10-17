@@ -55,7 +55,9 @@ object ShowProposal {
               ^.wrapped := ShowProposalComponentsProps(
                 hash = org.scalajs.dom.window.location.hash,
                 proposal = None,
-                context = Context.List
+                context = Context.List,
+                minVotesCount = None,
+                toEnrichMinScore = None
               )
             )()
           ),
@@ -67,12 +69,12 @@ object ShowProposal {
             })(),
             <.TextField(^.source := "author.profile.age", ^.label := "User age")(),
             <.TextField(^.source := "author.profile.postalCode", ^.label := "User location")(),
-          <.DateField(
-            ^.source := "createdAt",
-            ^.label := "date",
-            ^.options := Map("weekday" -> "long", "year" -> "numeric", "month" -> "long", "day" -> "numeric"),
-            ^.locales := "en-EN"
-          )(),
+            <.DateField(
+              ^.source := "createdAt",
+              ^.label := "date",
+              ^.options := Map("weekday" -> "long", "year" -> "numeric", "month" -> "long", "day" -> "numeric"),
+              ^.locales := "en-EN"
+            )(),
             <.TextField(^.source := "status")(),
             <.FunctionField(^.label := "theme", ^.render := { record =>
               val proposal = record.asInstanceOf[SingleProposal]
@@ -92,21 +94,15 @@ object ShowProposal {
             <.TextField(^.source := "context.source", ^.label := "source")(),
             <.TextField(^.source := "context.question", ^.label := "question")()
           ),
-        <.Tab(^.label := "Stats", ^.disabled := false)(
-          <.FunctionField(^.label := "Stats", ^.render := { record =>
+          <.Tab(^.label := "Stats", ^.disabled := false)(<.FunctionField(^.label := "Stats", ^.render := { record =>
             val proposal = record.asInstanceOf[SingleProposal]
-            <.StatsValidatedProposal(
-              ^.wrapped := ValidatedProposalStats.ValidatedProposalStatsProps(proposal)
-            )()
-          })(),
-        ),
-        <.Tab(^.label := "History", ^.disabled := false)(
-          <.FunctionField(^.label := "History", ^.render := { record =>
+            <.StatsValidatedProposal(^.wrapped := ValidatedProposalStats.ValidatedProposalStatsProps(proposal))()
+          })()),
+          <.Tab(^.label := "History", ^.disabled := false)(<.FunctionField(^.label := "History", ^.render := { record =>
             val proposal = record.asInstanceOf[SingleProposal]
-            <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(proposal))(),
-          })()
+            <.ModerationHistoryComponent(^.wrapped := ModerationHistoryComponent.HistoryProps(proposal))()
+          })())
         )
-      )
     )
   )
 }

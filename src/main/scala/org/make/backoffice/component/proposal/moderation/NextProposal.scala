@@ -26,36 +26,54 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.proposal.common.ShowProposalComponents.{Context, ShowProposalComponentsProps}
+import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.SingleProposal
 import org.make.backoffice.service.proposal.ProposalService
-import org.make.backoffice.facade.MaterialUi._
+import org.make.backoffice.util.{Configuration, QueryString}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
-import scala.scalajs.js.UndefOr
 import scala.util.{Failure, Success}
 
 object NextProposal {
 
   final case class NextProposalProps() extends RouterProps
-  final case class NextProposalState(proposal: Option[SingleProposal])
+  final case class NextProposalState(proposal: Option[SingleProposal],
+                                     minVotesCount: Option[String],
+                                     toEnrichMinScore: Option[String])
 
   lazy val reactClass: ReactClass =
     React.createClass[NextProposalProps, NextProposalState](
       displayName = "NextProposal",
       getInitialState = { _ =>
-        NextProposalState(None)
+        NextProposalState(None, None, None)
       },
       componentDidMount = { self =>
+        val params = QueryString.parse(self.props.location.search)
         ProposalService.getProposalById(self.props.`match`.params("id")).onComplete {
-          case Success(proposalResponse) => self.setState(_.copy(proposal = Some(proposalResponse.data)))
-          case Failure(e)                => js.Dynamic.global.console.log(e.getMessage)
+          case Success(proposalResponse) =>
+            self.setState(
+              _.copy(
+                proposal = Some(proposalResponse.data),
+                minVotesCount = Some(params.getOrElse("minVotesCount", Configuration.toEnrichMinVotesCount)),
+                toEnrichMinScore = Some(params.getOrElse("minScore", Configuration.toEnrichMinScore))
+              )
+            )
+          case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
         }
       },
       componentWillReceiveProps = { (self, props) =>
+        val params = QueryString.parse(self.props.location.search)
         ProposalService.getProposalById(props.`match`.params("id")).onComplete {
-          case Success(proposalResponse) => self.setState(_.copy(proposal = Some(proposalResponse.data)))
-          case Failure(e)                => js.Dynamic.global.console.log(e.getMessage)
+          case Success(proposalResponse) =>
+            self.setState(
+              _.copy(
+                proposal = Some(proposalResponse.data),
+                minVotesCount = Some(params.getOrElse("minVotesCount", Configuration.toEnrichMinVotesCount)),
+                toEnrichMinScore = Some(params.getOrElse("minScore", Configuration.toEnrichMinScore))
+              )
+            )
+          case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
         }
       },
       shouldComponentUpdate = { (_, props, state) =>
@@ -69,11 +87,11 @@ object NextProposal {
           val propContent: Option[String] = self.state.proposal.map(_.content)
           val propFirstName: Option[String] = self.state.proposal.flatMap(_.author.firstName.toOption)
           val propAge: Option[Int] = self.state.proposal.flatMap(_.author.profile.toOption.flatMap(_.age.toOption))
-          val title = (propContent, propFirstName, propAge) match  {
+          val title = (propContent, propFirstName, propAge) match {
             case (Some(content), Some(firstName), Some(age)) => s"$content, $firstName ($age)"
-            case (Some(content), Some(firstName), _) => s"$content, $firstName"
-            case (Some(content), _, _) => content
-            case (_, _, _) => ""
+            case (Some(content), Some(firstName), _)         => s"$content, $firstName"
+            case (Some(content), _, _)                       => content
+            case (_, _, _)                                   => ""
           }
           <.div()(
             <.Card()(<.CardTitle(^.title := title)()),
@@ -81,6 +99,8 @@ object NextProposal {
               ^.wrapped := ShowProposalComponentsProps(
                 hash = org.scalajs.dom.window.location.hash,
                 proposal = self.state.proposal,
+                minVotesCount = self.state.minVotesCount,
+                toEnrichMinScore = self.state.toEnrichMinScore,
                 context = Context.StartModeration
               )
             )()
