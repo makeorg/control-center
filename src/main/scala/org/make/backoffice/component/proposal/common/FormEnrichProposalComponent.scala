@@ -48,6 +48,8 @@ import scala.util.{Failure, Success}
 object FormEnrichProposalComponent {
 
   case class FormEnrichProposalProps(proposal: SingleProposal,
+                                     minVotesCount: Option[String],
+                                     toEnrichMinScore: Option[String],
                                      action: String,
                                      isLocked: Boolean = false,
                                      context: ShowProposalComponents.Context)
@@ -228,6 +230,8 @@ object FormEnrichProposalComponent {
             def handleNextProposal: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
+                val minVotesCount = self.props.wrapped.minVotesCount.getOrElse(Configuration.toEnrichMinVotesCount)
+                val minScore = self.props.wrapped.toEnrichMinScore.getOrElse(Configuration.toEnrichMinScore)
                 val mayBeNewContent =
                   if (self.state.content != self.props.wrapped.proposal.content) {
                     Some(self.state.content)
@@ -251,13 +255,15 @@ object FormEnrichProposalComponent {
                         Some(self.props.wrapped.proposal.country),
                         Some(self.props.wrapped.proposal.language),
                         toEnrich = true,
-                        minVotesCount = Some(Configuration.toEnrichMinVotesCount),
-                        minScore = Some(Configuration.toEnrichMinScore)
+                        minVotesCount = Some(minVotesCount),
+                        minScore = Some(minScore)
                       )
                   } yield nextProposal
                 futureNextProposal.onComplete {
                   case Success(proposalResponse) =>
-                    self.props.history.push(s"/nextProposal/${proposalResponse.data.id}")
+                    self.props.history.push(
+                      s"/nextProposal/${proposalResponse.data.id}?minVotesCount=$minVotesCount&minScore=$minScore"
+                    )
                   case Failure(NotFoundHttpException) => self.props.history.push("/proposals")
                   case Failure(BadRequestHttpException(errors)) =>
                     self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))

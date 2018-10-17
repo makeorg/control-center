@@ -67,6 +67,8 @@ object ShowProposalComponents {
   case class ShowProposalComponentsProps(hash: String,
                                          eventRefresh: Boolean = false,
                                          proposal: Option[SingleProposal],
+                                         minVotesCount: Option[String],
+                                         toEnrichMinScore: Option[String],
                                          context: Context)
   case class ShowProposalComponentsState(proposal: SingleProposal,
                                          isLocked: Boolean = false,
@@ -91,6 +93,8 @@ object ShowProposalComponents {
           <.FormEnrichProposalComponent(
             ^.wrapped := FormEnrichProposalProps(
               self.state.proposal,
+              self.props.wrapped.minVotesCount,
+              self.props.wrapped.toEnrichMinScore,
               "enrich",
               self.state.isLocked,
               self.props.wrapped.context
@@ -117,6 +121,8 @@ object ShowProposalComponents {
           <.FormEnrichProposalComponent(
             ^.wrapped := FormEnrichProposalProps(
               self.state.proposal,
+              self.props.wrapped.minVotesCount,
+              self.props.wrapped.toEnrichMinScore,
               "validate",
               self.state.isLocked,
               self.props.wrapped.context

@@ -136,6 +136,8 @@ object StartEnrich {
 
           def onClickStartModeration: SyntheticEvent => Unit = {
             event =>
+              val minVotesCount = self.state.minVotesCount.getOrElse(Configuration.toEnrichMinVotesCount)
+              val minScore = self.state.toEnrichMinScore.getOrElse(Configuration.toEnrichMinScore)
               event.preventDefault()
               ProposalService
                 .nextProposalToModerate(
@@ -144,11 +146,13 @@ object StartEnrich {
                   self.state.country,
                   self.state.language,
                   toEnrich = true,
-                  minVotesCount = self.state.minVotesCount.orElse(Some(Configuration.toEnrichMinVotesCount)),
-                  minScore = self.state.toEnrichMinScore.orElse(Some(Configuration.toEnrichMinScore))
+                  minVotesCount = Some(minVotesCount),
+                  minScore = Some(minScore)
                 )
                 .onComplete {
-                  case Success(proposal) => self.props.history.push(s"/nextProposal/${proposal.data.id}")
+                  case Success(proposal) =>
+                    self.props.history
+                      .push(s"/nextProposal/${proposal.data.id}?minVotesCount=$minVotesCount&minScore=$minScore")
                   case Failure(NotFoundHttpException) =>
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "No proposal found"))
                   case Failure(BadRequestHttpException(_)) =>
