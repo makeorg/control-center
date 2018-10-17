@@ -148,6 +148,7 @@ object MaterialUi {
   type OnRowSelection = js.Function1[js.Array[Int] | String, Unit]
   type OnChangeMultipleSelect = js.Function3[js.Object, js.UndefOr[Int], js.Array[String], Unit]
   type OnChangeSelect = js.Function3[js.Object, js.UndefOr[Int], String, Unit]
+  type OnChangeTextField = js.Function2[js.Object, String, Unit]
   type FilterAutoComplete = js.Function2[String, String, Boolean]
   type BaseFunction0 = js.Function0[Unit]
   type OnNewRequest = js.Function2[js.Object, Int, Unit]
@@ -177,6 +178,11 @@ object MaterialUi {
 
   case class OnChangeSelectAttributeSpec(name: String) extends AttributeSpec {
     def :=(element: OnChangeSelect): Attribute[OnChangeSelect] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
+  case class OnChangeTextFieldAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: OnChangeTextField): Attribute[OnChangeTextField] =
       Attribute(name = name, value = element, AS_IS)
   }
 
@@ -307,6 +313,7 @@ object MaterialUi {
     lazy val onCellHoverExit = OnRowColumnAttributeSpec("onCellHoverExit")
     lazy val onChangeMultipleSelect = OnChangeMultipleSelectAttributeSpec("onChange")
     lazy val onChangeSelect = OnChangeSelectAttributeSpec("onChange")
+    lazy val onChangeTextField = OnChangeTextFieldAttributeSpec("onChange")
     lazy val onCheck = OnCheckAttributeSpec("onCheck")
     lazy val onClose = BaseFunction0AttributeSpec("onClose")
     lazy val onNewRequest = OnNewRequestAttributeSpec("onNewRequest")
