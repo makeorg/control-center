@@ -24,6 +24,7 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
+import org.make.backoffice.component.proposal.moderation.DailyProposalCount.DailyProposalCountProps
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.facade.ViewTitle._
 import org.make.backoffice.service.user.UserService
@@ -47,9 +48,17 @@ object Dashboard {
         <.div()(
           <.Card()(<.ViewTitle(^.title := "Dashboard")()),
           <.br.empty,
-          <.StartModeration.empty,
+          <.div(^.className := "cards", ^.style := Map("display" -> "flex"))(
+            <.div(^.className := "card", ^.style := Map("flex" -> "1"))(
+              <.DailyProposalCount(^.wrapped := DailyProposalCountProps("aines"))()
+            ),
+            <.div(^.className := "card", ^.style := Map("flex" -> "3"))(<.StartModeration.empty)
+          ),
           <.br.empty,
-          <.StartEnrich.empty
+          <.StartEnrich.empty,
+          <.style()(
+            "@media screen and (max-width: 600px) {.cards {flex-direction: column;}} .card > div {height: 100%} .card {margin: .5%}"
+          )
         )
       }
     )
