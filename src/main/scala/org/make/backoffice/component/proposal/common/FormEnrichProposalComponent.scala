@@ -35,7 +35,7 @@ import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.idea.IdeaService
 import org.make.backoffice.service.operation.OperationService
-import org.make.backoffice.service.proposal.ProposalService
+import org.make.backoffice.service.proposal.{Pending, ProposalService}
 import org.make.backoffice.service.tag.TagService
 import org.make.backoffice.service.tag.TagTypeService
 import org.make.backoffice.util.Configuration
@@ -227,6 +227,32 @@ object FormEnrichProposalComponent {
                   }
             }
 
+            def handleSubmitValidate: SyntheticEvent => Unit = {
+              event =>
+                event.preventDefault()
+                val maybeNewContent =
+                  if (self.state.content != self.props.wrapped.proposal.content) {
+                    Some(self.state.content)
+                  } else { None }
+                ProposalService
+                  .validateProposal(
+                    proposalId = self.props.wrapped.proposal.id,
+                    newContent = maybeNewContent,
+                    sendNotificationEmail = self.state.notifyUser,
+                    theme = self.props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
+                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
+                  )
+                  .onComplete {
+                    case Success(_) =>
+                      self.props.history.goBack()
+                      self.setState(_.copy(errorMessage = Seq.empty))
+                    case Failure(BadRequestHttpException(errors)) =>
+                      self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
+                    case Failure(_) =>
+                      self.setState(_.copy(errorMessage = Seq(Main.defaultErrorMessage)))
+                  }
+            }
+
             def handleNextProposal: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
@@ -276,6 +302,8 @@ object FormEnrichProposalComponent {
               if (self.props.wrapped.action == "enrich" &&
                   self.props.wrapped.context == ShowProposalComponents.Context.StartModeration) {
                 handleNextProposal
+              } else if (self.props.wrapped.proposal.status == Pending.shortName) {
+                handleSubmitValidate
               } else {
                 handleSubmitUpdate
               }
