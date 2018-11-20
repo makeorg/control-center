@@ -53,6 +53,8 @@ val npmAdminOnRestVersion = "1.4.1"
 val npmAorDependentInput = "1.2.0"
 val npmMaterialUi = "0.20.0"
 val npmReactGoogleLogin = "2.9.2"
+val npmReactReduxVersion = "5.0.3"
+val npmReduxVersion = "3.6.0"
 
 enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
 
@@ -80,7 +82,10 @@ Compile / npmDependencies ++= Seq(
   "material-ui" -> npmMaterialUi,
   "font-awesome" -> npmFontAwesomeVersion,
   "bootstrap" -> npmBootstrapVersion,
-  "aor-dependent-input" -> npmAorDependentInput
+  "aor-dependent-input" -> npmAorDependentInput,
+  "react-redux" -> npmReactReduxVersion,
+  "redux" -> npmReduxVersion,
+  "redux-form" -> "7.4.2"
 )
 
 Compile / npmDevDependencies ++= Seq(
