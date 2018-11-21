@@ -240,7 +240,9 @@ object FormEnrichProposalComponent {
                     newContent = maybeNewContent,
                     sendNotificationEmail = self.state.notifyUser,
                     theme = self.props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
-                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
+                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply),
+                    tags = self.state.tags.map(tag => TagId(tag.id)),
+                    ideaId = self.state.ideaId
                   )
                   .onComplete {
                     case Success(_) =>
