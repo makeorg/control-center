@@ -44,7 +44,7 @@ object Main {
     ReactDOM.render(
       <.Admin(
         ^.title := "Backoffice",
-        ^.loginPage := LoginPage(),
+        ^.loginPage := LoginPage(org.scalajs.dom.window.location.hash),
         ^.customRoutes := js.Array(
           <.Route(^.path := "/nextProposal/:id", ^.exact := true, ^.component := NextProposal.reactClass)()
         ),

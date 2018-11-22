@@ -48,11 +48,11 @@ object LoginPage {
 
   case class LoginPageState(isSignIn: Boolean, user: Option[User], error: Option[String] = None)
 
-  def apply(): ReactClass = reactClass
+  def apply(baseUrl: String): ReactClass = reactClass(baseUrl)
 
   def onFailureResponse: (Response) => Unit = (_) => {}
 
-  lazy val reactClass = WithRouter(
+  def reactClass(baseUrl: String) = WithRouter(
     React.createClass[Unit, LoginPageState](
       displayName = "LoginPage",
       getInitialState = (_) => LoginPageState(isSignIn = false, user = None, error = None),
@@ -70,7 +70,16 @@ object LoginPage {
                   .futureAuth(AuthClient.AUTH_LOGIN, js.Dictionary("user" -> Some(singleResponseUser.data)))
                   .onComplete {
                     case Success(_) =>
-                      self.props.history.push("/")
+                      val resolbedHash = {
+                        if (baseUrl.contains("/login")) {
+                          "/"
+                        } else if (baseUrl.startsWith("#")) {
+                          baseUrl.substring(1)
+                        } else {
+                          baseUrl
+                        }
+                      }
+                      self.props.history.push(resolbedHash)
                     case Failure(e) =>
                       self.setState(self.state.copy(isSignIn = false, error = Some(s"failed to connect: $e")))
                       self.props.history.push("/login")
