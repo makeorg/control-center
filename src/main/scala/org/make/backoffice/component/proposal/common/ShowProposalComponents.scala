@@ -109,6 +109,15 @@ object ShowProposalComponents {
               self.props.wrapped.context
             )
           )(),
+        if (self.state.proposal.status == Accepted.shortName)
+          <.FormValidateProposalComponent(
+            ^.wrapped := FormValidateProposalProps(
+              self.state.proposal,
+              "update",
+              self.state.isLocked,
+              self.props.wrapped.context
+            )
+          )(),
         if (self.state.proposal.status != Refused.shortName)
           <.FormRefuseProposalComponent(
             ^.wrapped := FormRefuseProposalProps(self.state.proposal, self.state.isLocked, self.props.wrapped.context)
