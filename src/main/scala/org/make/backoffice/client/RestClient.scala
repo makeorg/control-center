@@ -44,6 +44,7 @@ object RestClient extends CirceClassFormatters {
     resource match {
       case Resource.tags                => jsonClient(restVerb, resource, parameters)
       case Resource.tagType             => jsonClient(restVerb, resource, parameters)
+      case Resource.organisations       => jsonClient(restVerb, resource, parameters)
       case res if Resource.amongst(res) => Request.fetch(restVerb, resource, parameters).toJSPromise
       case unknownResource =>
         Future.failed(new ClassNotFoundException(s"Unknown resource: $unknownResource")).toJSPromise

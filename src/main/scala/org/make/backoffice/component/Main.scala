@@ -25,6 +25,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.router.Router._
 import org.make.backoffice.client.{AuthClient, Resource, RestClient}
 import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
+import org.make.backoffice.component.organisation.{CreateOrganisation, EditOrganisation, OrganisationList}
 import org.make.backoffice.component.proposal.common.ShowProposal
 import org.make.backoffice.component.proposal.moderation.{NextProposal, ProposalList}
 import org.make.backoffice.component.proposal.toEnrich.ToEnrichProposalList
@@ -66,7 +67,13 @@ object Main {
         <.Resource(^.name := Resource.ideas, ^.listing := IdeaList(), ^.create := CreateIdea(), ^.edit := EditIdea())(),
         <.Resource(^.name := Resource.operations)(),
         <.Resource(^.name := Resource.tags, ^.listing := TagList(), ^.create := CreateTag(), ^.edit := EditTag())(),
-        <.Resource(^.name := Resource.tagType)()
+        <.Resource(^.name := Resource.tagType)(),
+        <.Resource(
+          ^.name := Resource.organisations,
+          ^.listing := OrganisationList(),
+          ^.edit := EditOrganisation(),
+          ^.create := CreateOrganisation()
+        )()
       ),
       dom.document.getElementById("make-backoffice")
     )
