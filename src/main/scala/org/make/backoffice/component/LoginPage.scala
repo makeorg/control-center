@@ -70,7 +70,7 @@ object LoginPage {
                   .futureAuth(AuthClient.AUTH_LOGIN, js.Dictionary("user" -> Some(singleResponseUser.data)))
                   .onComplete {
                     case Success(_) =>
-                      val resolbedHash = {
+                      val resolvedHash = {
                         if (baseUrl.contains("/login")) {
                           "/"
                         } else if (baseUrl.startsWith("#")) {
@@ -79,7 +79,7 @@ object LoginPage {
                           baseUrl
                         }
                       }
-                      self.props.history.push(resolbedHash)
+                      self.props.history.push(resolvedHash)
                     case Failure(e) =>
                       self.setState(self.state.copy(isSignIn = false, error = Some(s"failed to connect: $e")))
                       self.props.history.push("/login")

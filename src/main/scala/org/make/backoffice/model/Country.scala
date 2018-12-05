@@ -21,7 +21,7 @@
 package org.make.backoffice.model
 
 object Country {
-  private val mapping = Map("FR" -> "France", "IT" -> "Italy", "GB" -> "United Kingdom")
+  private val mapping = Map("FR" -> "France", "IT" -> "Italy", "GB" -> "United Kingdom", "DE" -> "Germany")
   def getCountryNameByCountryCode(countryCode: String): Option[String] = {
     mapping.get(countryCode)
   }
