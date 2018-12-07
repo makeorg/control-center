@@ -57,7 +57,7 @@ object ProposalService extends ApiService with CirceClassFormatters {
       ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
       ("source", ApiService.getFieldValueFromFilters("source", filters)) &
       ("location", ApiService.getFieldValueFromFilters("location", filters)) &
-      ("question", ApiService.getFieldValueFromFilters("question", filters)) &
+      ("questionId", ApiService.getFieldValueFromFilters("questionId", filters)) &
       ("status", ApiService
         .getFieldValueFromFilters("status", filters)
         .orElse(Some(s"${Pending.shortName},${Postponed.shortName}"))) &
