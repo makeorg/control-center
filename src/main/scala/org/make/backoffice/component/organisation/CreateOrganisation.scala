@@ -68,16 +68,8 @@ object CreateOrganisation {
                 ^.options := Map("fullWidth" -> true)
               )(),
               <.TextInput(^.source := "password", ^.options := Map("fullWidth" -> true))(),
-              <.TextInput(
-                ^.label := "avatar url",
-                ^.source := "profile.avatarUrl",
-                ^.options := Map("fullWidth" -> true)
-              )(),
-              <.TextInput(
-                ^.label := "Description",
-                ^.source := "profile.description",
-                ^.options := Map("fullWidth" -> true)
-              )(),
+              <.TextInput(^.label := "avatar url", ^.source := "avatarUrl", ^.options := Map("fullWidth" -> true))(),
+              <.TextInput(^.label := "Description", ^.source := "description", ^.options := Map("fullWidth" -> true))(),
               <.SelectInput(
                 ^.source := "country",
                 ^.choices := Configuration.choicesCountryFilter,
