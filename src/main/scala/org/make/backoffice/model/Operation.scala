@@ -82,7 +82,6 @@ trait Operation extends js.Object {
   val slug: String
   val translations: js.Array[OperationTranslation]
   val defaultLanguage: String
-  val sequenceLandingId: String
   val createdAt: js.UndefOr[Date]
   val updatedAt: js.UndefOr[Date]
   val events: js.Array[OperationAction]
@@ -95,7 +94,6 @@ object Operation {
             slug: String,
             translations: Seq[OperationTranslation] = Seq.empty,
             defaultLanguage: String,
-            sequenceLandingId: String,
             createdAt: Option[ZonedDateTime],
             updatedAt: Option[ZonedDateTime],
             events: Seq[OperationAction],
@@ -107,7 +105,6 @@ object Operation {
         slug = slug,
         translations = translations.toJSArray,
         defaultLanguage = defaultLanguage,
-        sequenceLandingId = sequenceLandingId,
         createdAt = createdAt.orUndefined.map(_.toJSDate),
         updatedAt = updatedAt.orUndefined.map(_.toJSDate),
         events = events.toJSArray,

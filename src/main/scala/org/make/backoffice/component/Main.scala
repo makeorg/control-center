@@ -73,7 +73,8 @@ object Main {
           ^.listing := OrganisationList(),
           ^.edit := EditOrganisation(),
           ^.create := CreateOrganisation()
-        )()
+        )(),
+        <.Resource(^.name := Resource.questions)()
       ),
       dom.document.getElementById("make-backoffice")
     )

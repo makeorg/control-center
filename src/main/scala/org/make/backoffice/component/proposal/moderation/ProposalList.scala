@@ -25,18 +25,17 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
+import org.make.backoffice.client.Resource
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
 import org.make.backoffice.facade.AdminOnRest.ShowButton._
-import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.facade.Choice
-import org.make.backoffice.util.Configuration
 import org.make.backoffice.model.Proposal
-import org.make.backoffice.client.Resource
 import org.make.backoffice.service.proposal._
+import org.make.backoffice.util.Configuration
 
 import scala.scalajs.js
 
