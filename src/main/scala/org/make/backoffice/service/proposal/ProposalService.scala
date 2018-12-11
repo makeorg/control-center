@@ -65,8 +65,7 @@ object ProposalService extends ApiService with CirceClassFormatters {
       ("language", ApiService.getFieldValueFromFilters("language", filters)) &
       ("toEnrich", ApiService.getFieldValueFromFilters("toEnrich", filters)) &
       ("minVotesCount", ApiService.getFieldValueFromFilters("minVotesCount", filters)) &
-      ("minScore", ApiService.getFieldValueFromFilters("minScore", filters)) &
-      ("createdBefore", ApiService.getFieldValueFromFilters("createdBefore", filters))
+      ("minScore", ApiService.getFieldValueFromFilters("minScore", filters))
 
     // search with keywords (=content) should not use order param to get results by relevance
     ApiService.getFieldValueFromFilters("content", filters) match {
