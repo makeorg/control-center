@@ -315,27 +315,21 @@ object ValidatedProposalList {
         ^.alwaysOn := false,
         ^.choices := Configuration.choicesThemeFilter
       )(),
-      <.SelectInput(
-        ^.label := "Country",
-        ^.source := "country",
-        ^.alwaysOn := false,
-        ^.choices := Configuration.choicesCountryFilter
-      )(),
       <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
-      <.ReferenceInput(
-        ^.label := "Operation",
-        ^.source := "operationId",
-        ^.reference := Resource.operations,
-        ^.alwaysOn := true
-      )(<.SelectInput(^.optionText := "slug")()),
-      <.TextInput(^.label := "Question", ^.source := "question", ^.alwaysOn := false)(),
       <.SelectInput(
         ^.label := "Tags",
         ^.source := "tagsIds",
         ^.choices := tagChoices,
         ^.alwaysOn := true,
         ^.allowEmpty := true
-      )()
+      )(),
+      <.ReferenceInput(
+        ^.label := "Question",
+        ^.source := "questionId",
+        ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+        ^.reference := Resource.questions,
+        ^.alwaysOn := true
+      )(<.SelectInput(^.optionText := "slug")())
     )
   }
 }
