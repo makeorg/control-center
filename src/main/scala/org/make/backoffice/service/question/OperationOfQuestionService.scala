@@ -19,7 +19,9 @@
  */
 
 package org.make.backoffice.service.question
-import org.make.backoffice.model.Question
+import java.time.LocalDate
+
+import org.make.backoffice.model.{OperationId, Question}
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
@@ -28,13 +30,15 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
 
-object QuestionService extends ApiService with CirceClassFormatters {
+object OperationOfQuestionService extends ApiService with CirceClassFormatters {
 
-  override val resourceName: String = "moderation/questions"
+  override val resourceName: String = "moderation/operations-of-questions"
 
-  def questions(question: Option[String], country: Option[String], language: Option[String]): Future[Seq[Question]] = {
+  def operationsOfQuestions(questionId: Option[String],
+                            operationId: Option[OperationId],
+                            openAt: Option[LocalDate]): Future[Seq[Question]] = {
     client
-      .get[Seq[Question]](resourceName ? ("question", question) & ("country", country) & ("language", language))
+      .get[Seq[Question]](resourceName ? ("questionId", questionId) & ("operationId", operationId) & ("openAt", openAt))
       .recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of converting to Question: failed cursor $e")
