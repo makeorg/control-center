@@ -115,17 +115,11 @@ object ToEnrichProposalList {
           ^.alwaysOn := true,
           ^.defaultValue := s"${Configuration.toEnrichMinScore}"
         )(),
-        <.SelectInput(
-          ^.label := "Country",
-          ^.source := "country",
-          ^.alwaysOn := false,
-          ^.allowEmpty := true,
-          ^.choices := Configuration.choicesCountryFilter
-        )(),
         <.ReferenceInput(
-          ^.label := "Operation",
-          ^.source := "operationId",
-          ^.reference := Resource.operations,
+          ^.label := "Question",
+          ^.source := "questionId",
+          ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+          ^.reference := Resource.questions,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")())
       )

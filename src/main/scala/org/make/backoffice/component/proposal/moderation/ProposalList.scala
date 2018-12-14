@@ -106,26 +106,14 @@ object ProposalList {
         //TODO: add the possibility to search by userId or proposalId
         <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
         <.SelectArrayInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := statusChoices)(),
-        <.SelectInput(
-          ^.label := "Theme",
-          ^.source := "themeId",
-          ^.alwaysOn := false,
-          ^.choices := Configuration.choicesThemeFilter
-        )(),
-        <.SelectInput(
-          ^.label := "Country",
-          ^.source := "country",
-          ^.alwaysOn := false,
-          ^.allowEmpty := true,
-          ^.choices := Configuration.choicesCountryFilter
-        )(),
-        <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
         <.ReferenceInput(
-          ^.label := "Operation",
-          ^.source := "operationId",
-          ^.reference := Resource.operations,
+          ^.label := "Question",
+          ^.source := "questionId",
+          ^.reference := Resource.questions,
+          ^.sort := Map("field" -> "slug", "order" -> "ASC"),
           ^.alwaysOn := true
-        )(<.SelectInput(^.optionText := "slug")())
+        )(<.SelectInput(^.optionText := "slug")()),
+        <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
         //TODO: add filter on: "reason for refusal" and "moderator"
       )
     )
