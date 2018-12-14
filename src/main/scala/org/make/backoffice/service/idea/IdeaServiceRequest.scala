@@ -20,11 +20,6 @@
 
 package org.make.backoffice.service.idea
 
-final case class CreateIdeaRequest(name: String,
-                                   language: Option[String],
-                                   country: Option[String],
-                                   operation: Option[String],
-                                   theme: Option[String],
-                                   question: Option[String])
+final case class CreateIdeaRequest(name: String, questionId: Option[String])
 
 final case class UpdateIdeaRequest(name: String)

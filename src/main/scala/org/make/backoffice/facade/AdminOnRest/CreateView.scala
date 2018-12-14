@@ -25,7 +25,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactCl
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.statictags.{Attribute, AttributeSpec, BooleanAttributeSpec, StringAttributeSpec}
-import org.make.backoffice.facade.{ElementAttributeSpec, LocationAttributeSpec}
+import org.make.backoffice.facade.{ElementAttributeSpec, LocationAttributeSpec, MapStringAttributeSpec}
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
@@ -59,6 +59,7 @@ object SimpleForm {
   implicit class SimpleFormVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val redirect = RedirectAttributeSpec("redirect")
     lazy val toolbar = ElementAttributeSpec("toolbar")
+    lazy val sort = MapStringAttributeSpec("sort")
   }
 
   case class RedirectAttributeSpec(name: String) extends AttributeSpec {

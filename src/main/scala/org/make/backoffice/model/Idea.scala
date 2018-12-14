@@ -45,11 +45,7 @@ object IdeaId {
 trait Idea extends js.Object {
   val id: String
   val name: String
-  val operationId: js.UndefOr[String]
-  val themeId: js.UndefOr[String]
-  val question: js.UndefOr[String]
-  val country: js.UndefOr[String]
-  val language: js.UndefOr[String]
+  val questionId: js.UndefOr[String]
   val createdAt: Date
   val updatedAt: js.UndefOr[Date]
 
@@ -58,22 +54,14 @@ trait Idea extends js.Object {
 object Idea {
   def apply(ideaId: IdeaId,
             name: String,
-            language: Option[String],
-            country: Option[String],
-            operationId: Option[OperationId],
-            themeId: Option[ThemeId],
-            question: Option[String],
+            questionId: Option[QuestionId],
             createdAt: ZonedDateTime,
             updatedAt: Option[ZonedDateTime]): Idea = {
     js.Dynamic
       .literal(
         id = ideaId.value,
         name = name,
-        operationId = operationId.map(_.value).orUndefined,
-        themeId = themeId.map(_.value).orUndefined,
-        question = question.orUndefined,
-        country = country.orUndefined,
-        language = language.orUndefined,
+        questionId = questionId.map(_.value).orUndefined,
         createdAt = createdAt.toJSDate,
         updatedAt = updatedAt.map(_.toJSDate).orUndefined
       )

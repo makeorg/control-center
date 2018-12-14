@@ -343,33 +343,15 @@ object EditIdea {
               <.SimpleForm(^.redirect := false)(
                 <.TextField(^.source := "id")(),
                 <.TextInput(^.source := "name", ^.options := Map("fullWidth" -> true))(),
-                <.FunctionField(^.label := "theme", ^.render := { record =>
-                  val idea = record.asInstanceOf[Idea]
-                  idea.themeId.map { id =>
-                    Configuration.getThemeFromThemeId(id)
-                  }
-                })(),
                 <.ReferenceField(
-                  ^.source := "operationId",
-                  ^.label := "operation",
-                  ^.reference := Resource.operations,
+                  ^.source := "questionId",
+                  ^.label := "question",
+                  ^.reference := Resource.questions,
                   ^.linkType := false,
                   ^.allowEmpty := true
                 )(<.TextField(^.source := "slug")()),
-                <.TextField(^.source := "country")(),
-                <.TextField(^.source := "language")(),
-                <.TextField(^.source := "question")()
               )
-            ),
-            <.CustomIdeaDatagrid(
-              ^.wrapped := DataGridProps(
-                ideaId = self.state.idea.map(_.id),
-                operationId = self.state.idea.flatMap(_.operationId.toOption),
-                themeId = self.state.idea.flatMap(_.themeId.toOption),
-                country = self.state.idea.flatMap(_.country.toOption),
-                language = self.state.idea.flatMap(_.language.toOption)
-              )
-            )()
+            )
           )
         }
       )

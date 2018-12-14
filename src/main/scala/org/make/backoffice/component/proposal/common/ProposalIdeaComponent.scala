@@ -26,14 +26,14 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
+import org.make.backoffice.client.ListTotalResponse
+import org.make.backoffice.client.request.{Filter, Pagination}
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.proposal.common.NewIdeaComponent.NewIdeaProps
 import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
-import org.make.backoffice.client.ListTotalResponse
-import org.make.backoffice.client.request.{Filter, Pagination}
 import org.make.backoffice.service.idea.IdeaService
 import org.make.backoffice.service.proposal.ProposalService
 import org.scalajs.dom.raw.HTMLInputElement
@@ -45,25 +45,12 @@ import scala.util.{Failure, Success}
 
 object NewIdeaComponent {
 
-  case class NewIdeaProps(setProposalIdea: Option[IdeaId] => Unit,
-                          setIdeas: Idea                  => Unit,
-                          operation: Option[String],
-                          theme: Option[String],
-                          language: Option[String],
-                          country: Option[String],
-                          question: Option[String])
+  case class NewIdeaProps(setProposalIdea: Option[IdeaId] => Unit, setIdeas: Idea => Unit, questionId: Option[String])
   case class NewIdeaState(ideaName: String, open: Boolean = false)
 
-  private def createIdea(self: React.Self[NewIdeaProps, NewIdeaState]): (SyntheticEvent) => Unit = { _ =>
+  private def createIdea(self: React.Self[NewIdeaProps, NewIdeaState]): SyntheticEvent => Unit = { _ =>
     IdeaService
-      .createIdea(
-        name = self.state.ideaName,
-        operation = self.props.wrapped.operation,
-        theme = self.props.wrapped.theme,
-        language = self.props.wrapped.language,
-        country = self.props.wrapped.country,
-        question = self.props.wrapped.question
-      )
+      .createIdea(name = self.state.ideaName, questionId = self.props.wrapped.questionId)
       .onComplete {
         case Success(ideaResponse) =>
           self.props.wrapped.setProposalIdea(Some(IdeaId(ideaResponse.data.id)))
@@ -73,12 +60,12 @@ object NewIdeaComponent {
       }
   }
 
-  private def handleOpen(self: React.Self[NewIdeaProps, NewIdeaState]): (SyntheticEvent) => Unit = { event =>
+  private def handleOpen(self: React.Self[NewIdeaProps, NewIdeaState]): SyntheticEvent => Unit = { event =>
     event.preventDefault()
     self.setState(_.copy(open = true))
   }
 
-  private def handleClose(self: React.Self[NewIdeaProps, NewIdeaState]): (SyntheticEvent) => Unit = { event =>
+  private def handleClose(self: React.Self[NewIdeaProps, NewIdeaState]): SyntheticEvent => Unit = { event =>
     event.preventDefault()
     self.setState(_.copy(open = false))
   }
@@ -94,9 +81,9 @@ object NewIdeaComponent {
     React
       .createClass[NewIdeaProps, NewIdeaState](
         displayName = "NewIdea",
-        getInitialState = (_) => NewIdeaState(ideaName = "new_idea"),
+        getInitialState = _ => NewIdeaState(ideaName = "new_idea"),
         render = { self =>
-          def handleIdeaNameEdition: (FormSyntheticEvent[HTMLInputElement]) => Unit = { event =>
+          def handleIdeaNameEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val newContent: String = event.target.value
             self.setState(_.copy(ideaName = newContent))
           }
@@ -161,7 +148,7 @@ object ProposalIdeaComponent {
       getInitialState = { _ =>
         ProposalIdeaState(Seq.empty, None, "", Seq.empty, Seq.empty, None)
       },
-      componentDidMount = { (self) =>
+      componentDidMount = { self =>
         loadIdeas(self, self.props.wrapped).onComplete {
           case Success(listIdeas) =>
             self.setState(_.copy(ideas = listIdeas.data.toSeq, foundProposalIdeas = listIdeas.data.toSeq))
@@ -260,6 +247,18 @@ object ProposalIdeaComponent {
             self.setState(_.copy(searchIdeaContent = ""))
           }
 
+        val similarResultsElement = if (self.state.isLoading) {
+          <.CircularProgress()()
+        } else {
+          self.state.similarResult.map { idea =>
+            <.Checkbox(
+              ^.label := idea.ideaName,
+              ^.checked := self.state.selectedIdeaId.exists(_.value == idea.ideaId),
+              ^.onCheck := onCheckSimilarIdea(idea.ideaId, idea.ideaName)
+            )()
+          }
+        }
+
         <.Card(^.style := Map("marginTop" -> "1em"))(
           <.CardTitle(^.title := "Idea", ^.subtitle := self.state.ideaName.getOrElse(self.props.wrapped.ideaName))(),
           if (self.state.selectedIdeaId.isDefined) {
@@ -271,17 +270,19 @@ object ProposalIdeaComponent {
               )()
             )
           },
-          <.CardActions()(<.h4()("Similar ideas:"), if (self.state.isLoading) {
-            <.CircularProgress()()
-          } else {
-            self.state.similarResult.map { idea =>
-              <.Checkbox(
-                ^.label := idea.ideaName,
-                ^.checked := self.state.selectedIdeaId.exists(_.value == idea.ideaId),
-                ^.onCheck := onCheckSimilarIdea(idea.ideaId, idea.ideaName)
-              )()
-            }
-          }, searchNew, <.br()(), <.NewIdeaComponent(^.wrapped := NewIdeaProps(self.props.wrapped.setProposalIdea, setIdeas, self.props.wrapped.proposal.operationId.toOption, self.props.wrapped.proposal.themeId.toOption, Some(self.props.wrapped.proposal.language), Some(self.props.wrapped.proposal.country), self.props.wrapped.proposal.context.question.toOption))())
+          <.CardActions()(
+            <.h4()("Similar ideas:"),
+            similarResultsElement,
+            searchNew,
+            <.br()(),
+            <.NewIdeaComponent(
+              ^.wrapped := NewIdeaProps(
+                self.props.wrapped.setProposalIdea,
+                setIdeas,
+                self.props.wrapped.proposal.context.question.toOption
+              )
+            )()
+          )
         )
       }
     )
