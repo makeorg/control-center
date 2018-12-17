@@ -77,10 +77,7 @@ object FormRefuseProposalComponent {
                   )
                   nextProposal <- ProposalService
                     .nextProposalToModerate(
-                      self.props.wrapped.proposal.operationId.toOption,
-                      self.props.wrapped.proposal.themeId.toOption,
-                      Some(self.props.wrapped.proposal.country),
-                      Some(self.props.wrapped.proposal.language),
+                      self.props.wrapped.proposal.questionId.toOption,
                       toEnrich = false,
                       minVotesCount = None,
                       minScore = None

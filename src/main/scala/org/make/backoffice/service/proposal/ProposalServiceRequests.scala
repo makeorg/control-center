@@ -117,10 +117,7 @@ final case class ValidateProposalRequest(newContent: Option[String],
 
 final case class PatchProposalsIdeaRequest(proposalIds: Seq[ProposalId], ideaId: IdeaId)
 
-final case class NextProposalToModerateRequest(operationId: Option[OperationId],
-                                               themeId: Option[ThemeId],
-                                               country: Option[String],
-                                               language: Option[String],
+final case class NextProposalToModerateRequest(questionId: Option[QuestionId],
                                                toEnrich: Boolean,
                                                minVotesCount: Option[String],
                                                minScore: Option[String])

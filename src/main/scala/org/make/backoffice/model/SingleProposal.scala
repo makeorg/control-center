@@ -114,6 +114,7 @@ trait SingleProposal extends js.Object {
   val ideaId: js.UndefOr[String]
   val ideaProposals: js.Array[Proposal]
   val operationId: js.UndefOr[String]
+  val questionId: js.UndefOr[String]
 }
 
 object SingleProposal {
@@ -136,7 +137,8 @@ object SingleProposal {
             similarProposals: Option[Seq[ProposalId]],
             ideaId: Option[IdeaId],
             ideaProposals: Seq[Proposal],
-            operationId: Option[OperationId]): SingleProposal =
+            operationId: Option[OperationId],
+            questionId: Option[QuestionId]): SingleProposal =
     js.Dynamic
       .literal(
         id = proposalId.value,
@@ -158,7 +160,8 @@ object SingleProposal {
         similarProposals = similarProposals.map(_.toJSArray).orUndefined,
         ideaId = ideaId.map(_.value).orUndefined,
         ideaProposals = ideaProposals.toJSArray,
-        operationId = operationId.map(_.value).orUndefined
+        operationId = operationId.map(_.value).orUndefined,
+        questionId = questionId.map(_.value).orUndefined
       )
       .asInstanceOf[SingleProposal]
 }

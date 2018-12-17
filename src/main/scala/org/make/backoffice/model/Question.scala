@@ -22,7 +22,6 @@ package org.make.backoffice.model
 import io.circe.{Decoder, Encoder, Json}
 
 import scala.scalajs.js
-import js.JSConverters._
 
 @js.native
 trait QuestionId extends js.Object with StringValue {
@@ -40,13 +39,12 @@ object QuestionId {
 trait Question extends js.Object {
   val id: String
   val question: String
-  val country: String
-  val language: String
+  val slug: String
 }
 
 object Question {
-  def apply(questionId: QuestionId, question: String, country: String, language: String): Question =
+  def apply(questionId: QuestionId, question: String, slug: String): Question =
     js.Dynamic
-      .literal(id = questionId.value, question = question, country = country, language = language)
+      .literal(id = questionId.value, question = question, slug = slug)
       .asInstanceOf[Question]
 }
