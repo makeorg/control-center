@@ -25,8 +25,8 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.redux.Redux.Dispatch
-import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
+import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.scalajs.reactjs.{redux, React}
 import org.make.backoffice.client.Resource
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
@@ -35,10 +35,10 @@ import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
 import org.make.backoffice.facade.AdminOnRest.ShowButton._
-import org.make.backoffice.model.{AppState, Proposal}
+import org.make.backoffice.model.AppState
 import org.make.backoffice.service.proposal._
-import org.make.backoffice.util.{Configuration, QueryString}
 import org.make.backoffice.util.uri._
+import org.make.backoffice.util.{Configuration, QueryString}
 
 object ToEnrichProposalList {
 
