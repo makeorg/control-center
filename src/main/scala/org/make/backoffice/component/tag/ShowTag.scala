@@ -42,6 +42,18 @@ object ShowTag {
         ^.resource := Resource.tags,
         ^.`match` := self.props.`match`,
         ^.hasEdit := true
-      )(<.SimpleShowLayout()(<.TextField(^.source := "label")()))
+      )(
+        <.SimpleShowLayout()(
+          <.TextField(^.source := "label")(),
+          <.TextField(^.source := "display")(),
+          <.ReferenceField(^.label := "Tag Type", ^.source := "tagTypeId", ^.reference := Resource.tagType)(
+            <.TextField(^.source := "label")()
+          ),
+          <.ReferenceField(^.label := "Question", ^.source := "questionId", ^.reference := Resource.questions)(
+            <.TextField(^.source := "slug")()
+          ),
+          <.NumberField(^.source := "weight")()
+        )
+    )
   )
 }

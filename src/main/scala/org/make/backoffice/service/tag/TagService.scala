@@ -20,8 +20,7 @@
 
 package org.make.backoffice.service.tag
 
-import org.make.backoffice.model.{Tag, TagResponse}
-import org.make.backoffice.model.TagResponse._
+import org.make.backoffice.model.Tag
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
@@ -33,15 +32,9 @@ import scala.scalajs.js
 object TagService extends ApiService with CirceClassFormatters {
   override val resourceName: String = "moderation/tags"
 
-  def tags(operationId: Option[String] = None,
-           themeId: Option[String] = None,
-           country: String,
-           language: String): Future[Seq[Tag]] =
+  def tags(questionId: Option[String] = None): Future[Seq[Tag]] =
     client
-      .get[Seq[TagResponse]](
-        resourceName ? ("operationId", operationId) & ("themeId", themeId) & ("country", country) & ("language", language)
-      )
-      .map(tags => tags.map(toTag))
+      .get[Seq[Tag]](resourceName ? ("questionId", questionId))
       .recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of converting to Tag: failed cursor $e")
@@ -49,7 +42,7 @@ object TagService extends ApiService with CirceClassFormatters {
       }
 
   def getTag(tagId: String): Future[Tag] = {
-    client.get[TagResponse](resourceName / tagId).map(toTag).recover {
+    client.get[Tag](resourceName / tagId).recover {
       case e =>
         js.Dynamic.global.console.log(s"instead of converting to Tag: failed cursor $e")
         throw e

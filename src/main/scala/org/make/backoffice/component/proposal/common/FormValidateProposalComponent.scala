@@ -92,8 +92,7 @@ object FormValidateProposalComponent {
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = maybeNewContent,
                     sendNotificationEmail = self.state.notifyUser,
-                    theme = self.props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
-                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
+                    questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
                   )
                   .onComplete {
                     case Success(_) =>
@@ -117,8 +116,7 @@ object FormValidateProposalComponent {
                   .updateProposal(
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = maybeNewContent,
-                    theme = self.props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
-                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
+                    questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
                   )
                   .onComplete {
                     case Success(_) =>
@@ -144,8 +142,7 @@ object FormValidateProposalComponent {
                       proposalId = self.props.wrapped.proposal.id,
                       newContent = maybeNewContent,
                       sendNotificationEmail = self.state.notifyUser,
-                      theme = self.props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
-                      operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
+                      questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
                     )
                     nextProposal <- ProposalService
                       .nextProposalToModerate(

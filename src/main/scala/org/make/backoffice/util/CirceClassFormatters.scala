@@ -146,59 +146,15 @@ trait CirceClassFormatters extends TimeInstances {
     Decoder.forProduct3("firstName", "postalCode", "age")(Author.apply)
 
   implicit lazy val tagTypeDecoder: Decoder[TagType] =
-    Decoder.forProduct4("tagTypeId", "label", "display", "weight")(TagType.apply)
+    Decoder.forProduct4("id", "label", "display", "weight")(TagType.apply)
 
-  implicit lazy val tagTypeResponseDecoder: Decoder[TagTypeResponse] =
-    Decoder.forProduct4("id", "label", "display", "weight")(TagTypeResponse.apply)
-
-  implicit lazy val tagEncoder: Encoder[Tag] = Encoder.forProduct9(
-    "tagId",
-    "label",
-    "display",
-    "tagTypeId",
-    "weight",
-    "operationId",
-    "themeId",
-    "country",
-    "language"
-  )(
-    tag =>
-      (
-        tag.id,
-        tag.label,
-        tag.display,
-        tag.tagTypeId,
-        tag.weight,
-        tag.operationId.toOption,
-        tag.themeId.toOption,
-        tag.country,
-        tag.language
+  implicit lazy val tagEncoder: Encoder[Tag] =
+    Encoder.forProduct6("id", "label", "display", "tagTypeId", "weight", "questionId")(
+      tag => (tag.id, tag.label, tag.display, tag.tagTypeId, tag.weight, tag.questionId.toOption)
     )
-  )
 
-  implicit lazy val tagDecoder: Decoder[Tag] = Decoder.forProduct9(
-    "tagId",
-    "label",
-    "display",
-    "tagTypeId",
-    "weight",
-    "operationId",
-    "themeId",
-    "country",
-    "language"
-  )(Tag.apply)
-
-  implicit lazy val tagResponseDecoder: Decoder[TagResponse] = Decoder.forProduct9(
-    "id",
-    "label",
-    "display",
-    "tagTypeId",
-    "weight",
-    "operationId",
-    "themeId",
-    "country",
-    "language"
-  )(TagResponse.apply)
+  implicit lazy val tagDecoder: Decoder[Tag] =
+    Decoder.forProduct6("id", "label", "display", "tagTypeId", "weight", "questionId")(Tag.apply)
 
   implicit lazy val indexedTagDecoder: Decoder[IndexedTag] =
     Decoder.forProduct3("tagId", "label", "display")(IndexedTag.apply)
@@ -319,27 +275,8 @@ trait CirceClassFormatters extends TimeInstances {
   implicit lazy val businessConfigDecoder: Decoder[BusinessConfig] =
     Decoder.forProduct4("proposalMaxLength", "themes", "reasonsForRefusal", "supportedCountries")(BusinessConfig.apply)
 
-  implicit lazy val operationTranslationDecoder: Decoder[OperationTranslation] =
-    Decoder.forProduct2("title", "language")(OperationTranslation.apply)
-
-  implicit lazy val operationCountryConfigurationDecoder: Decoder[OperationCountryConfiguration] =
-    Decoder.forProduct4("countryCode", "tagIds", "startDate", "endDate")(OperationCountryConfiguration.apply)
-
-  implicit lazy val operationActionDecoder: Decoder[OperationAction] =
-    Decoder.forProduct4("date", "user", "actionType", "arguments")(OperationAction.apply)
-
   implicit lazy val operationDecoder: Decoder[Operation] =
-    Decoder.forProduct9(
-      "operationId",
-      "status",
-      "slug",
-      "translations",
-      "defaultLanguage",
-      "createdAt",
-      "updatedAt",
-      "events",
-      "countriesConfiguration"
-    )(Operation.apply)
+    Decoder.forProduct6("operationId", "status", "slug", "defaultLanguage", "createdAt", "updatedAt")(Operation.apply)
 
   implicit lazy val questionDecoder: Decoder[Question] =
     Decoder.forProduct3("questionId", "question", "questionSlug")(Question.apply)

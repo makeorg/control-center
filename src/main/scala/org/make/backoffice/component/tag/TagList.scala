@@ -32,8 +32,6 @@ import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
-import org.make.backoffice.model.Tag
-import org.make.backoffice.util.Configuration
 
 object TagList {
 
@@ -59,16 +57,10 @@ object TagList {
             <.Datagrid()(
               <.EditButton()(),
               <.TextField(^.source := "label")(),
-              <.FunctionField(^.label := "theme", ^.render := { record =>
-                val tag = record.asInstanceOf[Tag]
-                tag.themeId.map { id =>
-                  Configuration.getThemeFromThemeId(id)
-                }
-              })(),
               <.ReferenceField(
-                ^.source := "operationId",
-                ^.label := "operation",
-                ^.reference := Resource.operations,
+                ^.source := "questionId",
+                ^.label := "question",
+                ^.reference := Resource.questions,
                 ^.linkType := false,
                 ^.allowEmpty := true,
                 ^.sortable := false
@@ -90,32 +82,19 @@ object TagList {
 
   def tagFilters(): ReactElement = {
     <.Filter(^.resource := Resource.tags)(
-      Seq(<.TextInput(^.label := "Label", ^.source := "label", ^.alwaysOn := true)()),
+      <.TextInput(^.label := "Label", ^.source := "label", ^.alwaysOn := true)(),
       <.ReferenceInput(
         ^.label := "Tag Type",
         ^.source := "tagTypeId",
         ^.reference := Resource.tagType,
         ^.alwaysOn := true
       )(<.SelectInput(^.optionText := "label")()),
-      <.SelectInput(
-        ^.label := "Theme",
-        ^.source := "themeId",
-        ^.alwaysOn := true,
-        ^.allowEmpty := true,
-        ^.choices := Configuration.choicesThemeFilter
-      )(),
       <.ReferenceInput(
-        ^.label := "Operation",
-        ^.source := "operationId",
-        ^.reference := Resource.operations,
+        ^.label := "Question",
+        ^.source := "questionId",
+        ^.reference := Resource.questions,
         ^.alwaysOn := true
-      )(<.SelectInput(^.optionText := "slug")()),
-      <.SelectInput(
-        ^.label := "Country",
-        ^.source := "country",
-        ^.alwaysOn := true,
-        ^.choices := Configuration.choicesCountryFilter
-      )()
+      )(<.SelectInput(^.optionText := "slug")())
     )
   }
 }
