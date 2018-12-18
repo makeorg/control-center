@@ -41,8 +41,6 @@ package object component {
     def ModerationHistoryComponent: ReactClassElementSpec = self(proposal.common.ModerationHistoryComponent.reactClass)
     def ProposalIdeaComponent: ReactClassElementSpec = self(proposal.common.ProposalIdeaComponent.reactClass)
     def StatsValidatedProposal: ReactClassElementSpec = self(proposal.common.ValidatedProposalStats.reactClass)
-    def ActionComponent: ReactClassElementSpec = self(ValidatedProposalList.Action.reactClass)
-    def ExportComponent: ReactClassElementSpec = self(ValidatedProposalList.ExportComponent.reactClass)
     def NewIdeaComponent: ReactClassElementSpec = self(proposal.common.NewIdeaComponent.reactClass)
     def IdeaTitle: ReactClassElementSpec = self(idea.EditIdea.ideaTitle)
     def TagTitle: ReactClassElementSpec = self(tag.EditTag.tagTitle)

@@ -26,7 +26,6 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.util.Configuration
 import org.make.backoffice.model.SingleProposal
 
 import scala.scalajs.js
@@ -44,14 +43,6 @@ object ModerationHistoryComponent {
         "Accepted with:",
         <.ul()(
           <.li()(s"content: $content"),
-          <.li()({
-            val theme: String =
-              arguments
-                .get("theme")
-                .map(themeId => Configuration.getThemeFromThemeId(themeId))
-                .getOrElse("no theme provided")
-            s"theme: $theme"
-          }),
           <.li()(s"tags: ${arguments.getOrElse("tags", "no tags provided")}"),
           <.li()(s"labels: ${arguments.getOrElse("labels", "no labels provided")}"),
           <.li()(s"idea: ${arguments.getOrElse("idea", "no idea provided")}")
@@ -61,14 +52,6 @@ object ModerationHistoryComponent {
         "Update with:",
         <.ul()(
           <.li()(s"content: $content"),
-          <.li()({
-            val theme: String =
-              arguments
-                .get("theme")
-                .map(themeId => Configuration.getThemeFromThemeId(themeId))
-                .getOrElse("no theme provided")
-            s"theme: $theme"
-          }),
           <.li()(s"tags: ${arguments.getOrElse("tags", "no tags provided")}"),
           <.li()(s"labels: ${arguments.getOrElse("labels", "no labels provided")}"),
           <.li()(s"idea: ${arguments.getOrElse("idea", "no idea provided")}")

@@ -77,22 +77,15 @@ object ToEnrichProposalList {
             <.ShowButton()(),
             <.TextField(^.source := "content", ^.sortable := false)(),
             <.TextField(^.source := "status", ^.sortable := false)(),
-            <.FunctionField(^.label := "theme", ^.render := { record =>
-              val proposal = record.asInstanceOf[Proposal]
-              proposal.themeId.map { id =>
-                Configuration.getThemeFromThemeId(id)
-              }
-            })(),
             <.ReferenceField(
-              ^.source := "operationId",
-              ^.label := "operation",
-              ^.reference := Resource.operations,
+              ^.source := "questionId",
+              ^.label := "question",
+              ^.reference := Resource.questions,
               ^.linkType := false,
               ^.allowEmpty := true,
               ^.sortable := false
             )(<.TextField(^.source := "slug")()),
             <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
-            <.RichTextField(^.source := "context.question", ^.label := "question", ^.sortable := false)(),
             <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)()
           )
         )

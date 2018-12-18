@@ -30,7 +30,6 @@ import scala.scalajs.js.JSConverters._
 
 @js.native
 trait RequestContext extends js.Object {
-  val currentTheme: js.UndefOr[ThemeId]
   val requestId: String
   val sessionId: String
   val externalId: String
@@ -43,8 +42,7 @@ trait RequestContext extends js.Object {
 }
 
 object RequestContext {
-  def apply(currentTheme: Option[ThemeId],
-            requestId: String,
+  def apply(requestId: String,
             sessionId: String,
             externalId: String,
             country: Option[String],
@@ -55,7 +53,6 @@ object RequestContext {
             question: Option[String]): RequestContext =
     js.Dynamic
       .literal(
-        currentTheme = currentTheme.orUndefined,
         requestId = requestId,
         sessionId = sessionId,
         externalId = externalId,
@@ -99,7 +96,6 @@ trait SingleProposal extends js.Object {
   val content: String
   val author: User
   val labels: js.Array[String]
-  val themeId: js.UndefOr[String]
   val status: String
   val refusalReason: js.UndefOr[String]
   val tagIds: js.Array[String]
@@ -123,7 +119,6 @@ object SingleProposal {
             content: String,
             author: User,
             labels: Seq[String],
-            theme: Option[ThemeId],
             status: String,
             refusalReason: Option[String],
             tags: Seq[String],
@@ -146,7 +141,6 @@ object SingleProposal {
         content = content,
         author = author,
         labels = labels.toJSArray,
-        themeId = theme.map(_.value).orUndefined,
         status = status,
         refusalReason = refusalReason.orUndefined,
         tagIds = tags.toJSArray,

@@ -102,10 +102,10 @@ trait CirceClassFormatters extends TimeInstances {
       "author",
       "country",
       "language",
-      "themeId",
       "tags",
       "ideaId",
-      "operationId"
+      "operationId",
+      "toEnrich"
     )(Proposal.apply)
 
   implicit lazy val ideaDecoder: Decoder[Idea] =
@@ -150,13 +150,12 @@ trait CirceClassFormatters extends TimeInstances {
     Decoder.forProduct3("tagId", "label", "display")(IndexedTag.apply)
 
   implicit lazy val singleProposalDecoder: Decoder[SingleProposal] =
-    Decoder.forProduct21(
+    Decoder.forProduct20(
       "proposalId",
       "slug",
       "content",
       "author",
       "labels",
-      "theme",
       "status",
       "refusalReason",
       "tags",
@@ -178,8 +177,7 @@ trait CirceClassFormatters extends TimeInstances {
     Decoder.forProduct4("date", "user", "actionType", "arguments")(ProposalAction.apply)
 
   implicit lazy val requestContextDecoder: Decoder[RequestContext] =
-    Decoder.forProduct10(
-      "currentTheme",
+    Decoder.forProduct9(
       "requestId",
       "sessionId",
       "externalId",
@@ -191,79 +189,24 @@ trait CirceClassFormatters extends TimeInstances {
       "question"
     )(RequestContext.apply)
 
-  implicit lazy val gradientColorEncoder: Encoder[GradientColor] =
-    Encoder.forProduct2("from", "to")(gradientColor => (gradientColor.from, gradientColor.to))
-
-  implicit lazy val themeTranslationEncoder: Encoder[ThemeTranslation] =
-    Encoder.forProduct3("slug", "title", "language")(
-      themeTranslation => (themeTranslation.slug, themeTranslation.title, themeTranslation.language)
+  implicit lazy val countryConfigDecoder: Decoder[CountryConfiguration] =
+    Decoder.forProduct5("countryCode", "defaultLanguage", "supportedLanguages", "startDate", "endDate")(
+      CountryConfiguration.apply
     )
 
-  implicit lazy val themeEncoder: Encoder[Theme] =
-    Encoder.forProduct8(
-      "themeId",
-      "translations",
-      "actionsCount",
-      "proposalsCount",
-      "country",
-      "color",
-      "gradient",
-      "tags"
-    )(
-      theme =>
-        (
-          theme.themeId,
-          theme.translations,
-          theme.actionsCount,
-          theme.proposalsCount,
-          theme.country,
-          theme.color,
-          theme.gradient.toOption,
-          theme.tags
-      )
-    )
+  implicit lazy val businessConfigDecoder: Decoder[BusinessConfig] =
+    Decoder.forProduct3("proposalMaxLength", "reasonsForRefusal", "supportedCountries")(BusinessConfig.apply)
 
   implicit lazy val businessConfigEncoder: Encoder[BusinessConfig] =
-    Encoder.forProduct4("proposalMaxLength", "themes", "reasonsForRefusal", "supportedCountries")(
+    Encoder.forProduct3("proposalMaxLength", "reasonsForRefusal", "supportedCountries")(
       businessConfig =>
-        (
-          businessConfig.proposalMaxLength,
-          businessConfig.themes,
-          businessConfig.reasonsForRefusal,
-          businessConfig.supportedCountries
-      )
+        (businessConfig.proposalMaxLength, businessConfig.reasonsForRefusal, businessConfig.supportedCountries)
     )
 
   implicit lazy val countryConfigEncoder: Encoder[CountryConfiguration] =
     Encoder.forProduct3("countryCode", "defaultLanguage", "supportedLanguages")(
       countryConfig => (countryConfig.countryCode, countryConfig.defaultLanguage, countryConfig.supportedLanguages)
     )
-
-  implicit lazy val countryConfigDecoder: Decoder[CountryConfiguration] =
-    Decoder.forProduct5("countryCode", "defaultLanguage", "supportedLanguages", "startDate", "endDate")(
-      CountryConfiguration.apply
-    )
-
-  implicit lazy val gradientColorDecoder: Decoder[GradientColor] =
-    Decoder.forProduct2("from", "to")(GradientColor.apply)
-
-  implicit lazy val themeTranslationDecoder: Decoder[ThemeTranslation] =
-    Decoder.forProduct3("slug", "title", "language")(ThemeTranslation.apply)
-
-  implicit lazy val themeDecoder: Decoder[Theme] =
-    Decoder.forProduct8(
-      "themeId",
-      "translations",
-      "actionsCount",
-      "proposalsCount",
-      "country",
-      "color",
-      "gradient",
-      "tags"
-    )(Theme.apply)
-
-  implicit lazy val businessConfigDecoder: Decoder[BusinessConfig] =
-    Decoder.forProduct4("proposalMaxLength", "themes", "reasonsForRefusal", "supportedCountries")(BusinessConfig.apply)
 
   implicit lazy val operationDecoder: Decoder[Operation] =
     Decoder.forProduct6("operationId", "status", "slug", "defaultLanguage", "createdAt", "updatedAt")(Operation.apply)

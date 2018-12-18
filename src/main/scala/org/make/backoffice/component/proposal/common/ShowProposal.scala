@@ -76,23 +76,16 @@ object ShowProposal {
               ^.locales := "en-EN"
             )(),
             <.TextField(^.source := "status")(),
-            <.FunctionField(^.label := "theme", ^.render := { record =>
-              val proposal = record.asInstanceOf[SingleProposal]
-              proposal.themeId.map { id =>
-                Configuration.getThemeFromThemeId(id)
-              }
-            })(),
             <.ReferenceField(
-              ^.source := "operationId",
-              ^.label := "operation",
-              ^.reference := Resource.operations,
+              ^.source := "questionId",
+              ^.label := "question",
+              ^.reference := Resource.questions,
               ^.linkType := false,
               ^.allowEmpty := true
             )(<.TextField(^.source := "slug")()),
             <.TextField(^.source := "language")(),
             <.TextField(^.source := "country")(),
-            <.TextField(^.source := "context.source", ^.label := "source")(),
-            <.TextField(^.source := "context.question", ^.label := "question")()
+            <.TextField(^.source := "context.source", ^.label := "source")()
           ),
           <.Tab(^.label := "Stats", ^.disabled := false)(<.FunctionField(^.label := "Stats", ^.render := { record =>
             val proposal = record.asInstanceOf[SingleProposal]
