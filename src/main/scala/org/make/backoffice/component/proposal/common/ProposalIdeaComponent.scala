@@ -121,21 +121,12 @@ object ProposalIdeaComponent {
 
   def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState],
                 props: ProposalIdeaProps): Future[ListTotalResponse[Idea]] = {
-    var filters = Seq(
-      Filter.apply(field = "language", value = props.proposal.language),
-      Filter.apply(field = "country", value = props.proposal.country)
-    )
-
-    if (props.proposal.operationId.isDefined) {
-      filters +:= Filter.apply(field = "operationId", value = props.proposal.operationId)
-    }
-
-    if (props.proposal.themeId.isDefined) {
-      filters +:= Filter.apply(field = "themeId", value = props.proposal.themeId)
-    }
 
     IdeaService
-      .listIdeas(pagination = Some(Pagination(page = 1, perPage = 1000)), filters = Some(filters))
+      .listIdeas(
+        pagination = Some(Pagination(page = 1, perPage = 1000)),
+        filters = Some(Seq(Filter(field = "questionId", value = props.proposal.questionId)))
+      )
   }
 
   def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {
@@ -279,7 +270,7 @@ object ProposalIdeaComponent {
               ^.wrapped := NewIdeaProps(
                 self.props.wrapped.setProposalIdea,
                 setIdeas,
-                self.props.wrapped.proposal.context.question.toOption
+                self.props.wrapped.proposal.questionId.toOption
               )
             )()
           )

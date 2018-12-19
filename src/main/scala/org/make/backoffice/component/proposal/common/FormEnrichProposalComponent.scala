@@ -55,7 +55,6 @@ object FormEnrichProposalComponent {
                                      maxLength: Int,
                                      labels: Seq[String] = Seq.empty,
                                      notifyUser: Boolean = true,
-                                     theme: Option[ThemeId] = None,
                                      operation: Option[Operation] = None,
                                      tagTypes: Seq[TagType] = Seq.empty,
                                      tags: Seq[Tag] = Seq.empty,
@@ -109,7 +108,6 @@ object FormEnrichProposalComponent {
               maxLength =
                 Configuration.businessConfig.map(_.proposalMaxLength).getOrElse(Configuration.defaultProposalMaxLength),
               labels = self.props.wrapped.proposal.labels,
-              theme = self.props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
               isLocked = self.props.wrapped.isLocked,
               similarProposals =
                 self.props.wrapped.proposal.similarProposals.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
@@ -130,7 +128,6 @@ object FormEnrichProposalComponent {
             self.setState(
               _.copy(
                 labels = props.wrapped.proposal.labels,
-                theme = props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
                 isLocked = props.wrapped.isLocked,
                 similarProposals =
                   props.wrapped.proposal.similarProposals.toOption.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)

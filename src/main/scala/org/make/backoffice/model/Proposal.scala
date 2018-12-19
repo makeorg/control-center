@@ -155,10 +155,10 @@ trait Proposal extends js.Object {
   val author: Author
   val country: String
   val language: String
-  val themeId: js.UndefOr[String]
   val tagIds: js.Array[String]
   val ideaId: js.UndefOr[String]
   val operationId: js.UndefOr[String]
+  val toEnrich: Boolean
 }
 
 object Proposal {
@@ -177,10 +177,10 @@ object Proposal {
             author: Author,
             country: String,
             language: String,
-            themeId: Option[ThemeId],
             tags: Seq[IndexedTag],
             ideaId: Option[IdeaId],
-            operationId: Option[OperationId]): Proposal = {
+            operationId: Option[OperationId],
+            toEnrich: Boolean): Proposal = {
     js.Dynamic
       .literal(
         id = id.value,
@@ -198,10 +198,10 @@ object Proposal {
         author = author,
         country = country,
         language = language,
-        themeId = themeId.map(_.value).orUndefined,
         tagIds = tags.map(_.id).toJSArray,
         ideaId = ideaId.map(_.value).orUndefined,
-        operationId = operationId.map(_.value).orUndefined
+        operationId = operationId.map(_.value).orUndefined,
+        toEnrich = toEnrich
       )
       .asInstanceOf[Proposal]
   }

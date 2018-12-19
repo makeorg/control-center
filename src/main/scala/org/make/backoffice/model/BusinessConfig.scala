@@ -53,20 +53,17 @@ object CountryConfiguration {
 @js.native
 trait BusinessConfig extends js.Object {
   val proposalMaxLength: Int
-  val themes: js.Array[Theme]
   val reasonsForRefusal: js.Array[String]
   val supportedCountries: js.Array[CountryConfiguration]
 }
 
 object BusinessConfig {
   def apply(proposalMaxLength: Int,
-            themes: Seq[Theme],
             reasonsForRefusal: Seq[String],
             supportedCountries: Seq[CountryConfiguration]): BusinessConfig =
     js.Dynamic
       .literal(
         proposalMaxLength = proposalMaxLength,
-        themes = themes.toJSArray,
         reasonsForRefusal = reasonsForRefusal.toJSArray,
         supportedCountries = supportedCountries.toJSArray
       )
