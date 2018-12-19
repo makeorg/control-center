@@ -53,7 +53,6 @@ object ProposalService extends ApiService with CirceClassFormatters {
       ("proposalIds", ApiService.getFieldValueFromFilters("proposalIds", filters)) &
       ("themesIds", ApiService.getFieldValueFromFilters("themeId", filters)) &
       ("tagsIds", ApiService.getFieldValueFromFilters("tagsIds", filters)) &
-      ("labelsIds", ApiService.getFieldValueFromFilters("labelsIds", filters)) &
       ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
       ("source", ApiService.getFieldValueFromFilters("source", filters)) &
       ("location", ApiService.getFieldValueFromFilters("location", filters)) &
@@ -92,14 +91,12 @@ object ProposalService extends ApiService with CirceClassFormatters {
 
   def updateProposal(proposalId: String,
                      newContent: Option[String],
-                     labels: Seq[String] = Seq.empty,
                      tags: Seq[TagId] = Seq(TagId("default-tag")),
                      similarProposals: Seq[ProposalId] = Seq.empty,
                      ideaId: Option[IdeaId] = None,
                      questionId: Option[QuestionId] = None): Future[SingleProposal] = {
     val request: UpdateProposalRequest = UpdateProposalRequest(
       newContent = newContent,
-      labels = labels,
       tags = tags,
       similarProposals = similarProposals,
       idea = ideaId,
@@ -121,7 +118,6 @@ object ProposalService extends ApiService with CirceClassFormatters {
   def validateProposal(proposalId: String,
                        newContent: Option[String],
                        sendNotificationEmail: Boolean,
-                       labels: Seq[String] = Seq.empty,
                        tags: Seq[TagId] = Seq.empty,
                        similarProposals: Seq[ProposalId] = Seq.empty,
                        ideaId: Option[IdeaId] = None,
@@ -129,7 +125,6 @@ object ProposalService extends ApiService with CirceClassFormatters {
     val request: ValidateProposalRequest = ValidateProposalRequest(
       newContent = newContent,
       sendNotificationEmail = sendNotificationEmail,
-      labels = labels,
       tags = tags,
       similarProposals = similarProposals,
       idea = ideaId,

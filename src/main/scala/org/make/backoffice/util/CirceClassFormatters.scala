@@ -177,23 +177,7 @@ trait CirceClassFormatters extends TimeInstances {
     )(RequestContext.apply)
 
   implicit lazy val countryConfigDecoder: Decoder[CountryConfiguration] =
-    Decoder.forProduct5("countryCode", "defaultLanguage", "supportedLanguages", "startDate", "endDate")(
-      CountryConfiguration.apply
-    )
-
-  implicit lazy val businessConfigDecoder: Decoder[BusinessConfig] =
-    Decoder.forProduct3("proposalMaxLength", "reasonsForRefusal", "supportedCountries")(BusinessConfig.apply)
-
-  implicit lazy val businessConfigEncoder: Encoder[BusinessConfig] =
-    Encoder.forProduct3("proposalMaxLength", "reasonsForRefusal", "supportedCountries")(
-      businessConfig =>
-        (businessConfig.proposalMaxLength, businessConfig.reasonsForRefusal, businessConfig.supportedCountries)
-    )
-
-  implicit lazy val countryConfigEncoder: Encoder[CountryConfiguration] =
-    Encoder.forProduct3("countryCode", "defaultLanguage", "supportedLanguages")(
-      countryConfig => (countryConfig.countryCode, countryConfig.defaultLanguage, countryConfig.supportedLanguages)
-    )
+    Decoder.forProduct3("countryCode", "defaultLanguage", "supportedLanguages")(CountryConfiguration.apply)
 
   implicit lazy val operationDecoder: Decoder[Operation] =
     Decoder.forProduct6("operationId", "status", "slug", "defaultLanguage", "createdAt", "updatedAt")(Operation.apply)

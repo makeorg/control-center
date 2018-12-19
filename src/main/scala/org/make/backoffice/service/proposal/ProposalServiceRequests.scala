@@ -97,7 +97,6 @@ final case class ExhaustiveSearchRequest(proposalIds: Option[Seq[String]] = None
                                          country: Option[String])
 
 final case class UpdateProposalRequest(newContent: Option[String],
-                                       labels: Seq[String],
                                        tags: Seq[TagId],
                                        similarProposals: Seq[ProposalId],
                                        idea: Option[IdeaId],
@@ -107,7 +106,6 @@ final case class RefuseProposalRequest(sendNotificationEmail: Boolean, refusalRe
 
 final case class ValidateProposalRequest(newContent: Option[String],
                                          sendNotificationEmail: Boolean,
-                                         labels: Seq[String],
                                          tags: Seq[TagId],
                                          similarProposals: Seq[ProposalId],
                                          idea: Option[IdeaId],

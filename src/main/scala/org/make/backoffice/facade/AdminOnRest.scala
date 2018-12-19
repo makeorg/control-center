@@ -53,6 +53,10 @@ object FetchJson extends js.Object {
 @JSImport("admin-on-rest", "ViewTitle")
 object NativeViewTitle extends ReactClass
 
+@js.native
+@JSImport("admin-on-rest/lib/mui/auth/Login.js", JSImport.Default)
+object NativeLogin extends ReactClass
+
 object ViewTitle {
   implicit class ViewTitleVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val ViewTitle: ReactClassElementSpec = elements(NativeViewTitle)
@@ -60,6 +64,16 @@ object ViewTitle {
 
   implicit class ViewTitleVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val title = StringAttributeSpec("title")
+  }
+}
+
+object Login {
+  implicit class LoginVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val Login: ReactClassElementSpec = elements(NativeLogin)
+  }
+
+  implicit class LoginVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val location = StringAttributeSpec("location")
   }
 }
 

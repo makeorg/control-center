@@ -132,7 +132,7 @@ object ShowProposalComponents {
               self.state.proposal,
               self.props.wrapped.minVotesCount,
               self.props.wrapped.toEnrichMinScore,
-              "validate",
+              "enrich",
               self.state.isLocked,
               self.props.wrapped.context
             )

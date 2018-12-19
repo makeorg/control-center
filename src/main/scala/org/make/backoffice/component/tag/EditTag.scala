@@ -176,7 +176,6 @@ object EditTag {
                           proposalId.value,
                           newContent = None,
                           tags = tags,
-                          labels = proposal.data.labels.toSeq,
                           questionId = self.props.wrapped.questionId.map(QuestionId(_)),
                           ideaId = proposal.data.ideaId.toOption.map(IdeaId(_))
                         )
@@ -216,7 +215,6 @@ object EditTag {
                         tags = proposal.data.tagIds.toSeq
                           .filterNot(_ == self.props.wrapped.tagId.getOrElse(""))
                           .map(TagId(_)),
-                        labels = proposal.data.labels.toSeq,
                         questionId = self.props.wrapped.questionId.map(QuestionId(_)),
                         ideaId = proposal.data.ideaId.toOption.map(IdeaId(_))
                       )

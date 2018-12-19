@@ -20,13 +20,10 @@
 
 package org.make.backoffice.util
 
-import io.circe.parser.parse
 import org.make.backoffice.facade.Choice
-import org.make.backoffice.model.{BusinessConfig, Country, Language}
-import org.scalajs.dom
+import org.make.backoffice.model.{Country, Language, _}
 
 import scala.scalajs.js
-import scala.scalajs.js.Dynamic.{global => g}
 import scala.scalajs.js.JSConverters._
 
 object Configuration extends CirceClassFormatters {
@@ -34,49 +31,48 @@ object Configuration extends CirceClassFormatters {
   val toEnrichMinScore = "1.3"
   val toEnrichMinVotesCount = "200"
 
-  val defaultProposalMaxLength: Int = 256
+  val proposalMaxLength: Int = 140
   val defaultLanguage: String = "fr"
+  val supportedCountries: Seq[CountryConfiguration] = Seq(
+    CountryConfiguration(countryCode = "FR", defaultLanguage = "fr", supportedLanguages = Seq("fr")),
+    CountryConfiguration(countryCode = "IT", defaultLanguage = "it", supportedLanguages = Seq("it")),
+    CountryConfiguration(countryCode = "GB", defaultLanguage = "en", supportedLanguages = Seq("en")),
+    CountryConfiguration(countryCode = "DE", defaultLanguage = "de", supportedLanguages = Seq("de"))
+  )
+  val reasonsForRefusal: Seq[String] =
+    Seq(
+      "Incomprehensible",
+      "Off-topic",
+      "Partisan",
+      "Legal",
+      "Advertising",
+      "MultipleIdeas",
+      "InvalidLanguage",
+      "Rudeness",
+      "Test",
+      "Other"
+    )
 
-  def businessConfig: Option[BusinessConfig] =
-    parse(dom.window.localStorage.getItem("Configuration")).flatMap(_.as[BusinessConfig]) match {
-      case Right(bc) =>
-        Some(bc)
-      case Left(error) =>
-        g.console.log(error.getMessage)
-        None
-    }
-
-  def getReasonsForRefusal: Seq[String] = {
-    businessConfig.map { bc =>
-      bc.reasonsForRefusal.toSeq
-    }.getOrElse(Seq.empty)
+  def choicesCountry: js.Array[Choice] = {
+    supportedCountries.map { supportedCountry =>
+      Choice(
+        supportedCountry.countryCode,
+        Country
+          .getCountryNameByCountryCode(supportedCountry.countryCode)
+          .getOrElse(supportedCountry.countryCode)
+      )
+    }.toJSArray
   }
 
-  def choicesCountryFilter: js.Array[Choice] = {
-    businessConfig
-      .map(_.supportedCountries.map { supportedCountry =>
-        Choice(
-          supportedCountry.countryCode,
-          Country
-            .getCountryNameByCountryCode(supportedCountry.countryCode)
-            .getOrElse(supportedCountry.countryCode)
+  def choiceLanguage: Map[String, js.Array[Choice]] = {
+    supportedCountries.map { supportedCountry =>
+      supportedCountry.countryCode -> supportedCountry.supportedLanguages.map(
+        supportedLanguage =>
+          Choice(
+            supportedLanguage,
+            Language.getLanguageNameFromLanguageCode(supportedLanguage).getOrElse(supportedLanguage)
         )
-      }.toSeq)
-      .getOrElse(Seq.empty)
-      .toJSArray
-  }
-
-  def choiceLanguageFilter: Map[String, js.Array[Choice]] = {
-    businessConfig
-      .map(_.supportedCountries.map { supportedCountry =>
-        supportedCountry.countryCode -> supportedCountry.supportedLanguages.map(
-          supportedLanguage =>
-            Choice(
-              supportedLanguage,
-              Language.getLanguageNameFromLanguageCode(supportedLanguage).getOrElse(supportedLanguage)
-          )
-        )
-      }.toMap)
-      .getOrElse(Map.empty)
+      )
+    }.toMap
   }
 }

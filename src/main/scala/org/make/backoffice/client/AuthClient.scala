@@ -20,23 +20,18 @@
 
 package org.make.backoffice.client
 
-import io.circe.syntax._
-import org.make.backoffice.facade.Configuration
+import org.make.backoffice.model.Role
+import org.make.backoffice.service.user.UserService
 import org.make.backoffice.util.CirceClassFormatters
-import org.make.backoffice.model.User
-import org.make.backoffice.service.technical.ConfigurationsServiceComponent
 import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
-import scala.scalajs.js.Dynamic.{global => g}
 import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.Promise
-import scala.util.{Failure, Success}
 
-object AuthClient extends CirceClassFormatters with ConfigurationsServiceComponent {
-  override def apiBaseUrl: String = Configuration.apiUrl
+object AuthClient extends CirceClassFormatters {
 
   val AUTH_LOGIN = "AUTH_LOGIN"
   val AUTH_LOGOUT = "AUTH_LOGOUT"
@@ -53,24 +48,23 @@ object AuthClient extends CirceClassFormatters with ConfigurationsServiceCompone
     `type` match {
       case AUTH_LOGIN =>
         val loginParameters = parameters.asInstanceOf[LoginParameters]
-        loginParameters.user match {
-          case Some(_) =>
-            dom.window.localStorage.setItem(AUTHENTICATION_KEY, "true")
-            configurationService.getConfigurations.onComplete {
-              case Success(businessConfig) =>
-                dom.window.localStorage.setItem("Configuration", businessConfig.asJson.toString)
-              case Failure(_) =>
-                g.alert("Failed to load configuration. Please refresh the page to avoid unexpected behaviours.")
-            }
+        UserService.login(loginParameters.username, loginParameters.password).flatMap { user =>
+          if (user.roles.contains(Role.roleAdmin) || user.roles.contains(Role.roleModerator)) {
+            dom.window.localStorage
+              .setItem(AUTHENTICATION_KEY, MakeApiClientHttp.getToken.map(_.access_token).getOrElse(""))
             Future.successful("auth_login")
-          case None =>
-            dom.window.localStorage.setItem(AUTHENTICATION_KEY, "false")
-            Future.failed(new Error("auth_login"))
+          } else {
+            MakeApiClientHttp.removeToken()
+            Future.failed(new Error("Failed to connect: you don't have the right role"))
+          }
         }
       case AUTH_LOGOUT =>
-        dom.window.localStorage.setItem(AUTHENTICATION_KEY, "false")
+        dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
+        MakeApiClientHttp.removeToken()
         Future.successful("auth_logout")
       case AUTH_ERROR =>
+        dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
+        MakeApiClientHttp.removeToken()
         parameters match {
           case UnauthorizedHttpException =>
             Future.failed(new Error("Rejected AUTH_ERROR for UnauthorizedHttpException"))
@@ -79,21 +73,25 @@ object AuthClient extends CirceClassFormatters with ConfigurationsServiceCompone
           case _ => Future.successful("auth_error")
         }
       case AUTH_CHECK =>
-        dom.window.localStorage.getItem(AUTHENTICATION_KEY) match {
-          case "true" => Future.successful("auth_check")
-          case _      => Future.failed(new Error("auth_check"))
+        if (MakeApiClientHttp.getToken
+              .map(_.access_token)
+              .contains(dom.window.localStorage.getItem(AUTHENTICATION_KEY))) {
+          Future.successful("auth_check")
+        } else {
+          dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
+          MakeApiClientHttp.removeToken()
+          Future.failed(new Error("auth_check"))
         }
-
       case _ =>
-        dom.window.localStorage.getItem(AUTHENTICATION_KEY) match {
-          case "true" => Future.successful("auth_check")
-          case _      => Future.failed(new Error("auth_check"))
-        }
+        dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
+        MakeApiClientHttp.removeToken()
+        Future.failed(new Error("unknown type"))
     }
   }
 }
 
 @js.native
 trait LoginParameters extends js.Object {
-  val user: Option[User]
+  val username: String
+  val password: String
 }

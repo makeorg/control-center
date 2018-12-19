@@ -53,7 +53,6 @@ object FormEnrichProposalComponent {
                                      context: ShowProposalComponents.Context)
   case class FormEnrichProposalState(content: String,
                                      maxLength: Int,
-                                     labels: Seq[String] = Seq.empty,
                                      notifyUser: Boolean = true,
                                      operation: Option[Operation] = None,
                                      tagTypes: Seq[TagType] = Seq.empty,
@@ -105,9 +104,7 @@ object FormEnrichProposalComponent {
           getInitialState = { self =>
             FormEnrichProposalState(
               content = self.props.wrapped.proposal.content,
-              maxLength =
-                Configuration.businessConfig.map(_.proposalMaxLength).getOrElse(Configuration.defaultProposalMaxLength),
-              labels = self.props.wrapped.proposal.labels,
+              maxLength = Configuration.proposalMaxLength,
               isLocked = self.props.wrapped.isLocked,
               similarProposals =
                 self.props.wrapped.proposal.similarProposals.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
@@ -127,7 +124,6 @@ object FormEnrichProposalComponent {
           componentWillReceiveProps = { (self, props) =>
             self.setState(
               _.copy(
-                labels = props.wrapped.proposal.labels,
                 isLocked = props.wrapped.isLocked,
                 similarProposals =
                   props.wrapped.proposal.similarProposals.toOption.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
@@ -166,19 +162,6 @@ object FormEnrichProposalComponent {
               self.setState(_.copy(notifyUser = checked))
             }
 
-            def handleLabelSelection: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = { (event, _) =>
-              val label: String = event.target.value
-              val selectedLabels: Seq[String] = {
-                if (self.state.labels.contains(label)) {
-                  self.state.labels.filter(_ != label)
-                } else {
-                  self.state.labels :+ label
-                }
-              }
-
-              self.setState(_.copy(labels = selectedLabels))
-            }
-
             def handleSubmitUpdate: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
@@ -190,7 +173,6 @@ object FormEnrichProposalComponent {
                   .updateProposal(
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = mayBeNewContent,
-                    labels = self.state.labels,
                     tags = self.state.tags.map(tag => TagId(tag.id)),
                     similarProposals = self.state.similarProposals.map(ProposalId.apply),
                     ideaId = self.state.ideaId,
@@ -248,7 +230,6 @@ object FormEnrichProposalComponent {
                     _ <- ProposalService.updateProposal(
                       proposalId = self.props.wrapped.proposal.id,
                       newContent = mayBeNewContent,
-                      labels = self.state.labels,
                       tags = self.state.tags.map(tag => TagId(tag.id)),
                       similarProposals = self.state.similarProposals.map(ProposalId.apply),
                       ideaId = self.state.ideaId,
@@ -352,27 +333,6 @@ object FormEnrichProposalComponent {
                   ^.label := "Notify user",
                   ^.checked := self.state.notifyUser && self.props.wrapped.action == "validate",
                   ^.onCheck := handleNotifyUserChange,
-                  ^.style := Map("maxWidth" -> "25em")
-                )(),
-                <.Checkbox(
-                  ^.label := "Local",
-                  ^.value := Label.Local.name,
-                  ^.checked := self.state.labels.contains(Label.Local.name),
-                  ^.onCheck := handleLabelSelection,
-                  ^.style := Map("maxWidth" -> "25em")
-                )(),
-                <.Checkbox(
-                  ^.label := "Action",
-                  ^.value := Label.Action.name,
-                  ^.checked := self.state.labels.contains(Label.Action.name),
-                  ^.onCheck := handleLabelSelection,
-                  ^.style := Map("maxWidth" -> "25em")
-                )(),
-                <.Checkbox(
-                  ^.label := "Star",
-                  ^.value := Label.Star.name,
-                  ^.checked := self.state.labels.contains(Label.Star.name),
-                  ^.onCheck := handleLabelSelection,
                   ^.style := Map("maxWidth" -> "25em")
                 )(),
                 <.ProposalIdeaComponent(
