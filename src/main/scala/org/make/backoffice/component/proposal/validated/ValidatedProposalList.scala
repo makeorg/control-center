@@ -92,12 +92,9 @@ object ValidatedProposalList {
           ValidatedProposalListState(Seq.empty, Seq.empty)
         },
         componentDidMount = { self =>
-          val operationIdFilter: Option[String] = self.props.wrapped.filters.get("operationId")
-          val themeIdFilter: Option[String] = self.props.wrapped.filters.get("themeId")
-          val countryFilter: Option[String] = self.props.wrapped.filters.get("country")
-          val languageFilter: Option[String] = self.props.wrapped.filters.get("language")
+          val questionIdFilter: Option[String] = self.props.wrapped.filters.get("questionId")
           TagService
-            .tags(operationIdFilter, themeIdFilter, countryFilter.getOrElse("FR"), languageFilter.getOrElse("fr"))
+            .tags(questionIdFilter)
             .onComplete {
               case Success(tags) =>
                 self.setState(_.copy(tags = tags))
@@ -111,12 +108,9 @@ object ValidatedProposalList {
         },
         componentWillReceiveProps = { (self, props) =>
           if (self.props.wrapped.filters != props.wrapped.filters) {
-            val operationIdFilter: Option[String] = props.wrapped.filters.get("operationId")
-            val themeIdFilter: Option[String] = props.wrapped.filters.get("themeId")
-            val countryFilter: Option[String] = props.wrapped.filters.get("country")
-            val languageFilter: Option[String] = props.wrapped.filters.get("language")
+            val questionIdFilter: Option[String] = props.wrapped.filters.get("questionId")
             TagService
-              .tags(operationIdFilter, themeIdFilter, countryFilter.getOrElse("FR"), languageFilter.getOrElse("fr"))
+              .tags(questionIdFilter)
               .onComplete {
                 case Success(tags) => self.setState(_.copy(tags = tags))
                 case Failure(_)    => self.setState(_.copy(Seq.empty))
@@ -137,7 +131,7 @@ object ValidatedProposalList {
             self.state.tags
               .groupBy[String](_.tagTypeId)
               .flatMap {
-                case (tagTypeId, tags) => self.state.tagTypes.find(_.tagTypeId == tagTypeId).map(_ -> tags)
+                case (tagTypeId, tags) => self.state.tagTypes.find(_.id == tagTypeId).map(_ -> tags)
               }
               .toSeq
               .sortBy {
@@ -147,7 +141,7 @@ object ValidatedProposalList {
 
           val tagChoices = tagsGroupByTagType.flatMap {
             case (tagType, tags) =>
-              Choice(tagType.tagTypeId, tagType.label) +: tags.sortBy(-1 * _.weight).map { tag =>
+              Choice(tagType.id, tagType.label) +: tags.sortBy(-1 * _.weight).map { tag =>
                 Choice(tag.id, s"\u00A0\u00A0\u00A0\u00A0\u00A0${tag.label}")
               }
           }
@@ -309,12 +303,6 @@ object ValidatedProposalList {
   def filterList(tagChoices: Seq[Choice]): ReactElement = {
     <.Filter(^.resource := Resource.proposals)(
       <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
-      <.SelectInput(
-        ^.label := "Theme",
-        ^.source := "themeId",
-        ^.alwaysOn := false,
-        ^.choices := Configuration.choicesThemeFilter
-      )(),
       <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
       <.SelectInput(
         ^.label := "Tags",

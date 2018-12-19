@@ -29,15 +29,13 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
-import org.make.backoffice.component.{Main, RichVirtualDOMElements}
 import org.make.backoffice.component.proposal.common.ProposalIdeaComponent.ProposalIdeaProps
+import org.make.backoffice.component.{Main, RichVirtualDOMElements}
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.idea.IdeaService
-import org.make.backoffice.service.operation.OperationService
 import org.make.backoffice.service.proposal.{Pending, ProposalService}
-import org.make.backoffice.service.tag.TagService
-import org.make.backoffice.service.tag.TagTypeService
+import org.make.backoffice.service.tag.{TagService, TagTypeService}
 import org.make.backoffice.util.Configuration
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -72,7 +70,7 @@ object FormEnrichProposalComponent {
                         props: FormEnrichProposalProps): Unit = {
     if (!js.isUndefined(props.proposal.tagIds)) {
       props.proposal.tagIds.foreach { tagId =>
-        TagService.tags(country = props.proposal.country, language = props.proposal.language).onComplete {
+        TagService.tags(questionId = props.proposal.questionId.toOption).onComplete {
           case Success(tags) =>
             self.setState(_.copy(tags = tags.find(_.id == tagId) match {
               case Some(tag) => self.state.tags :+ tag
@@ -84,33 +82,19 @@ object FormEnrichProposalComponent {
     }
   }
 
-  def setTagsListAndOperation(self: Self[FormEnrichProposalProps, FormEnrichProposalState],
-                              props: FormEnrichProposalProps): Unit = {
-    props.proposal.themeId.toOption match {
-      case Some(themeId) =>
-        TagTypeService.tagTypes.onComplete {
-          case Success(tagTypes) =>
-            self.setState(_.copy(tagsList = Configuration.getTagsFromThemeId(themeId), tagTypes = tagTypes))
-          case Failure(_) => self.setState(_.copy(tagsList = Configuration.getTagsFromThemeId(themeId)))
-        }
-      case None =>
-        props.proposal.operationId.toOption.foreach { operationIdValue =>
-          val futureOperationTags = for {
-            operation <- OperationService.getOperationById(OperationId(operationIdValue))
-            tagTypes  <- TagTypeService.tagTypes
-            tags <- TagService.tags(
-              operationId = operation.map(_.id),
-              country = props.proposal.country,
-              language = props.proposal.language
-            )
-          } yield (operation, tagTypes, tags)
-          futureOperationTags.onComplete {
-            case Success((Some(operation), tagTypes, tags)) =>
-              self.setState(_.copy(operation = Some(operation), tagsList = tags, tagTypes = tagTypes))
-            case Success(_) => self.setState(_.copy(operation = None, tagsList = Seq.empty))
-            case Failure(e) => js.Dynamic.global.console.log(s"File with error: $e")
-          }
-        }
+  def setTagsList(self: Self[FormEnrichProposalProps, FormEnrichProposalState],
+                  props: FormEnrichProposalProps): Unit = {
+    props.proposal.questionId.toOption.foreach { questionIdValue =>
+      val futureTags = for {
+        tagTypes <- TagTypeService.tagTypes
+        tags     <- TagService.tags(questionId = Some(questionIdValue))
+      } yield (tagTypes, tags)
+      futureTags.onComplete {
+        case Success((tagTypes, tags)) =>
+          self.setState(_.copy(tagsList = tags, tagTypes = tagTypes))
+        case Success(_) => self.setState(_.copy(tagsList = Seq.empty))
+        case Failure(e) => js.Dynamic.global.console.log(s"File with error: $e")
+      }
     }
   }
 
@@ -133,7 +117,7 @@ object FormEnrichProposalComponent {
           },
           componentDidMount = self => {
             setTagsFromTagIds(self, self.props.wrapped)
-            setTagsListAndOperation(self, self.props.wrapped)
+            setTagsList(self, self.props.wrapped)
             self.props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
               IdeaService.getIdea(ideaId).onComplete {
                 case Success(response) =>
@@ -156,7 +140,7 @@ object FormEnrichProposalComponent {
               self.setState(_.copy(content = props.wrapped.proposal.content, tags = Seq.empty))
             }
             setTagsFromTagIds(self, props.wrapped)
-            setTagsListAndOperation(self, props.wrapped)
+            setTagsList(self, props.wrapped)
             props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
               IdeaService.getIdea(ideaId).onComplete {
                 case Success(response) =>
@@ -210,11 +194,10 @@ object FormEnrichProposalComponent {
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = mayBeNewContent,
                     labels = self.state.labels,
-                    theme = self.state.theme,
                     tags = self.state.tags.map(tag => TagId(tag.id)),
                     similarProposals = self.state.similarProposals.map(ProposalId.apply),
                     ideaId = self.state.ideaId,
-                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
+                    questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
                   )
                   .onComplete {
                     case Success(_) =>
@@ -239,8 +222,7 @@ object FormEnrichProposalComponent {
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = maybeNewContent,
                     sendNotificationEmail = self.state.notifyUser,
-                    theme = self.props.wrapped.proposal.themeId.toOption.map(ThemeId(_)),
-                    operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply),
+                    questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
                     tags = self.state.tags.map(tag => TagId(tag.id)),
                     ideaId = self.state.ideaId
                   )
@@ -270,11 +252,10 @@ object FormEnrichProposalComponent {
                       proposalId = self.props.wrapped.proposal.id,
                       newContent = mayBeNewContent,
                       labels = self.state.labels,
-                      theme = self.state.theme,
                       tags = self.state.tags.map(tag => TagId(tag.id)),
                       similarProposals = self.state.similarProposals.map(ProposalId.apply),
                       ideaId = self.state.ideaId,
-                      operationId = self.props.wrapped.proposal.operationId.toOption.map(OperationId.apply)
+                      questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
                     )
                     nextProposal <- ProposalService
                       .nextProposalToModerate(
@@ -312,7 +293,7 @@ object FormEnrichProposalComponent {
               self.state.tagsList
                 .groupBy[String](_.tagTypeId)
                 .flatMap {
-                  case (tagTypeId, tags) => self.state.tagTypes.find(_.tagTypeId == tagTypeId).map(_ -> tags)
+                  case (tagTypeId, tags) => self.state.tagTypes.find(_.id == tagTypeId).map(_ -> tags)
                 }
                 .toSeq
                 .sortBy {
@@ -321,7 +302,7 @@ object FormEnrichProposalComponent {
             }
 
             val selectTags = <.SelectField(
-              ^.disabled := self.state.theme.isEmpty && self.state.operation.isEmpty,
+              ^.disabled := self.state.tagsList.isEmpty,
               ^.multiple := true,
               ^.floatingLabelText := "Tags",
               ^.floatingLabelFixed := true,
@@ -332,7 +313,7 @@ object FormEnrichProposalComponent {
               case (tagType, tags) =>
                 Seq(
                   <.MenuItem(
-                    ^.key := tagType.tagTypeId,
+                    ^.key := tagType.id,
                     ^.insetChildren := false,
                     ^.checked := false,
                     ^.value := tagType.label,

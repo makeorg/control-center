@@ -67,39 +67,16 @@ object CreateTag {
                 ^.allowEmpty := false,
                 ^.options := Map("fullWidth" -> true)
               )(),
-              <.SelectInput(
-                ^.source := "country",
-                ^.choices := Configuration.choicesCountryFilter,
-                ^.allowEmpty := false,
-                ^.validate := required
-              )(),
-              Configuration.choiceLanguageFilter.map {
-                case (country, languages) =>
-                  <.DependentInput(^.dependsOn := "country", ^.dependsValue := country)(
-                    <.SelectInput(
-                      ^.source := "language",
-                      ^.choices := languages,
-                      ^.allowEmpty := false,
-                      ^.validate := required
-                    )()
-                  )
-              },
               <.ReferenceInput(
                 ^.label := "Tag Type",
                 ^.source := "tagTypeId",
                 ^.reference := Resource.tagType,
                 ^.allowEmpty := false
               )(<.SelectInput(^.optionText := "label")()),
-              <.SelectInput(
-                ^.label := "Theme",
-                ^.source := "themeId",
-                ^.allowEmpty := true,
-                ^.choices := Configuration.choicesThemeFilter
-              )(),
               <.ReferenceInput(
-                ^.label := "Operation",
-                ^.source := "operationId",
-                ^.reference := Resource.operations,
+                ^.label := "Question",
+                ^.source := "questionId",
+                ^.reference := Resource.questions,
                 ^.allowEmpty := true
               )(<.SelectInput(^.optionText := "slug")()),
               <.SelectInput(

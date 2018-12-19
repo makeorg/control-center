@@ -20,8 +20,7 @@
 
 package org.make.backoffice.service.tag
 
-import org.make.backoffice.model.TagTypeResponse.toTagType
-import org.make.backoffice.model.{TagType, TagTypeResponse}
+import org.make.backoffice.model.TagType
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 
@@ -34,8 +33,7 @@ object TagTypeService extends ApiService with CirceClassFormatters {
 
   def tagTypes: Future[Seq[TagType]] =
     client
-      .get[Seq[TagTypeResponse]](s"$resourceName")
-      .map(tagTypes => tagTypes.map(toTagType))
+      .get[Seq[TagType]](s"$resourceName")
       .recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of converting to TagType: failed cursor $e")

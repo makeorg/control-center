@@ -39,7 +39,6 @@ import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.proposal.{Accepted, ProposalService}
 import org.make.backoffice.service.tag.TagService
-import org.make.backoffice.util.Configuration
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -60,11 +59,7 @@ object EditTag {
     <.h1()(self.state.tag.label)
   })
 
-  case class DataGridProps(tagId: Option[String],
-                           operationId: Option[String],
-                           themeId: Option[String],
-                           country: Option[String],
-                           language: Option[String])
+  case class DataGridProps(tagId: Option[String], questionId: Option[String])
   case class DataGridState(tags: Seq[Tag] = Seq.empty,
                            proposalsTagList: Seq[Proposal] = Seq.empty,
                            proposalsSearchList: Seq[Proposal] = Seq.empty,
@@ -84,27 +79,16 @@ object EditTag {
         displayName = "dataGrid",
         getInitialState = _ => DataGridState(),
         componentDidUpdate = (self, _, _) => {
-          if (self.props.wrapped.operationId.nonEmpty || self.props.wrapped.themeId.nonEmpty) {
+          if (self.props.wrapped.questionId.nonEmpty) {
             self.setState(_.copy(shouldUpdate = false))
           }
-          if (self.state.shouldUpdate && (self.props.wrapped.operationId.isDefined || self.props.wrapped.themeId.isDefined)) {
-            var filters: Seq[Filter] = Seq(
-              Filter(field = "country", value = self.props.wrapped.country.getOrElse("")),
-              Filter(field = "language", value = self.props.wrapped.language.getOrElse(""))
-            )
-
-            if (self.props.wrapped.operationId.isDefined) {
-              filters :+= Filter(field = "operationId", value = self.props.wrapped.operationId.getOrElse(""))
-            }
-
-            if (self.props.wrapped.themeId.isDefined) {
-              filters :+= Filter(field = "themeId", value = self.props.wrapped.themeId.getOrElse(""))
-            }
+          if (self.state.shouldUpdate && self.props.wrapped.questionId.isDefined) {
+            val filter = Filter(field = "questionId", value = self.props.wrapped.questionId.getOrElse(""))
             ProposalService
               .proposals(
                 Some(Pagination(page = 1, perPage = 5000)), //todo asynchronous search
                 None,
-                Some(filters :+ Filter(field = "status", value = js.Array(Accepted.shortName)))
+                Some(Seq(filter, Filter(field = "status", value = js.Array(Accepted.shortName))))
               )
               .onComplete {
                 case Success(proposals) =>
@@ -119,12 +103,7 @@ object EditTag {
                 case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
               }
             TagService
-              .tags(
-                self.props.wrapped.operationId,
-                self.props.wrapped.themeId,
-                self.props.wrapped.country.getOrElse("FR"),
-                self.props.wrapped.language.getOrElse("fr")
-              )
+              .tags(self.props.wrapped.questionId)
               .onComplete {
                 case Success(tagsList) =>
                   self.setState(_.copy(tags = tagsList.filterNot(_.id == self.props.wrapped.tagId.getOrElse(""))))
@@ -198,8 +177,7 @@ object EditTag {
                           newContent = None,
                           tags = tags,
                           labels = proposal.data.labels.toSeq,
-                          theme = self.props.wrapped.themeId.map(ThemeId(_)),
-                          operationId = self.props.wrapped.operationId.map(OperationId(_)),
+                          questionId = self.props.wrapped.questionId.map(QuestionId(_)),
                           ideaId = proposal.data.ideaId.toOption.map(IdeaId(_))
                         )
                   }
@@ -230,20 +208,18 @@ object EditTag {
               proposalId =>
                 ProposalService
                   .getProposalById(proposalId.value)
-                  .flatMap {
-                    proposal =>
-                      ProposalService
-                        .updateProposal(
-                          proposalId.value,
-                          newContent = None,
-                          tags = proposal.data.tagIds.toSeq
-                            .filterNot(_ == self.props.wrapped.tagId.getOrElse(""))
-                            .map(TagId(_)),
-                          labels = proposal.data.labels.toSeq,
-                          theme = self.props.wrapped.themeId.map(ThemeId(_)),
-                          operationId = self.props.wrapped.operationId.map(OperationId(_)),
-                          ideaId = proposal.data.ideaId.toOption.map(IdeaId(_))
-                        )
+                  .flatMap { proposal =>
+                    ProposalService
+                      .updateProposal(
+                        proposalId.value,
+                        newContent = None,
+                        tags = proposal.data.tagIds.toSeq
+                          .filterNot(_ == self.props.wrapped.tagId.getOrElse(""))
+                          .map(TagId(_)),
+                        labels = proposal.data.labels.toSeq,
+                        questionId = self.props.wrapped.questionId.map(QuestionId(_)),
+                        ideaId = proposal.data.ideaId.toOption.map(IdeaId(_))
+                      )
                   }
                   .onComplete {
                     case Success(_) =>
@@ -287,8 +263,7 @@ object EditTag {
                         newContent = None,
                         tags = (proposal.tagIds.toSeq :+ tagId).map(TagId(_)),
                         labels = proposal.labels.toSeq,
-                        theme = self.props.wrapped.themeId.map(ThemeId(_)),
-                        operationId = self.props.wrapped.operationId.map(OperationId(_)),
+                        questionId = self.props.wrapped.questionId.map(QuestionId(_)),
                         ideaId = proposal.ideaId.toOption.map(IdeaId(_))
                       )
                       .onComplete {
@@ -465,39 +440,16 @@ object EditTag {
                   ^.allowEmpty := false,
                   ^.options := Map("fullWidth" -> true)
                 )(),
-                <.SelectInput(
-                  ^.source := "country",
-                  ^.choices := Configuration.choicesCountryFilter,
-                  ^.allowEmpty := false,
-                  ^.validate := required
-                )(),
-                Configuration.choiceLanguageFilter.map {
-                  case (country, languages) =>
-                    <.DependentInput(^.dependsOn := "country", ^.dependsValue := country)(
-                      <.SelectInput(
-                        ^.source := "language",
-                        ^.choices := languages,
-                        ^.allowEmpty := false,
-                        ^.validate := required
-                      )()
-                    )
-                },
                 <.ReferenceInput(
                   ^.label := "Tag Type",
                   ^.source := "tagTypeId",
                   ^.reference := Resource.tagType,
                   ^.allowEmpty := false
                 )(<.SelectInput(^.optionText := "label")()),
-                <.SelectInput(
-                  ^.label := "Theme",
-                  ^.source := "themeId",
-                  ^.allowEmpty := true,
-                  ^.choices := Configuration.choicesThemeFilter
-                )(),
                 <.ReferenceInput(
-                  ^.label := "Operation",
-                  ^.source := "operationId",
-                  ^.reference := Resource.operations,
+                  ^.label := "Question",
+                  ^.source := "questionId",
+                  ^.reference := Resource.questions,
                   ^.allowEmpty := true
                 )(<.SelectInput(^.optionText := "slug")()),
                 <.NumberInput(^.source := "weight", ^.validate := required, ^.allowEmpty := false)()
@@ -506,10 +458,7 @@ object EditTag {
             <.CustomTagDatagrid(
               ^.wrapped := DataGridProps(
                 tagId = self.state.tag.map(_.id),
-                operationId = self.state.tag.flatMap(_.operationId.toOption),
-                themeId = self.state.tag.flatMap(_.themeId.toOption),
-                country = self.state.tag.map(_.country),
-                language = self.state.tag.map(_.language)
+                questionId = self.state.tag.flatMap(_.questionId.toOption)
               )
             )()
           )

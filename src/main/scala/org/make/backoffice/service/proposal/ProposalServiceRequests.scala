@@ -97,23 +97,21 @@ final case class ExhaustiveSearchRequest(proposalIds: Option[Seq[String]] = None
                                          country: Option[String])
 
 final case class UpdateProposalRequest(newContent: Option[String],
-                                       theme: Option[ThemeId],
                                        labels: Seq[String],
                                        tags: Seq[TagId],
                                        similarProposals: Seq[ProposalId],
                                        idea: Option[IdeaId],
-                                       operation: Option[OperationId])
+                                       questionId: Option[QuestionId])
 
 final case class RefuseProposalRequest(sendNotificationEmail: Boolean, refusalReason: Option[String])
 
 final case class ValidateProposalRequest(newContent: Option[String],
                                          sendNotificationEmail: Boolean,
-                                         theme: Option[ThemeId],
                                          labels: Seq[String],
                                          tags: Seq[TagId],
                                          similarProposals: Seq[ProposalId],
                                          idea: Option[IdeaId],
-                                         operation: Option[OperationId])
+                                         questionId: Option[QuestionId])
 
 final case class PatchProposalsIdeaRequest(proposalIds: Seq[ProposalId], ideaId: IdeaId)
 
