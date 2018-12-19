@@ -30,11 +30,6 @@ import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
 import org.make.backoffice.facade.AdminOnRest.required
-import org.make.backoffice.facade.Choice
-import org.make.backoffice.util.Configuration
-
-import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
 
 object CreateIdea {
 
@@ -46,19 +41,7 @@ object CreateIdea {
     React
       .createClass[CreateProps, Unit](
         displayName = "CreateIdea",
-        render = (self) => {
-
-          // toDo: get from configuration when available
-          val countryChoices: js.Array[Choice] = Seq(
-            Choice(id = "FR", name = "France"),
-            Choice(id = "IT", name = "Italy"),
-            Choice(id = "GB", name = "United Kingdom")
-          ).toJSArray
-          val languagesByCountry: Map[String, js.Array[Choice]] = Map(
-            "FR" -> Seq(Choice(id = "fr", name = "French")).toJSArray,
-            "IT" -> Seq(Choice(id = "it", name = "Italian")).toJSArray,
-            "GB" -> Seq(Choice(id = "en", name = "English")).toJSArray
-          )
+        render = self => {
 
           <.Create(^.resource := Resource.ideas, ^.location := self.props.location)(
             <.SimpleForm()(
@@ -68,36 +51,13 @@ object CreateIdea {
                 ^.validate := required,
                 ^.options := Map("fullWidth" -> true)
               )(),
-              <.SelectInput(
-                ^.source := "country",
-                ^.choices := countryChoices,
-                ^.allowEmpty := false,
-                ^.validate := required
-              )(),
-              languagesByCountry.map {
-                case (country, languages) =>
-                  <.DependentInput(^.dependsOn := "country", ^.dependsValue := country)(
-                    <.SelectInput(
-                      ^.source := "language",
-                      ^.choices := languages,
-                      ^.allowEmpty := false,
-                      ^.validate := required
-                    )()
-                  )
-              },
-              <.SelectInput(
-                ^.label := "Theme",
-                ^.source := "themeId",
-                ^.allowEmpty := true,
-                ^.choices := Configuration.choicesThemeFilter
-              )(),
               <.ReferenceInput(
-                ^.label := "Operation",
-                ^.source := "operationId",
-                ^.reference := Resource.operations,
+                ^.label := "Question",
+                ^.source := "questionId",
+                ^.reference := Resource.questions,
+                ^.sort := Map("field" -> "slug", "order" -> "ASC"),
                 ^.allowEmpty := true
-              )(<.SelectInput(^.optionText := "slug")()),
-              <.TextInput(^.source := "question", ^.options := Map("fullWidth" -> true))()
+              )(<.SelectInput(^.optionText := "slug")())
             )
           )
         }

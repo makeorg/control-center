@@ -43,11 +43,7 @@ object IdeaService extends ApiService with CirceClassFormatters {
     var getIdeaUri: String = resourceName ?
       ("limit", pagination.map(_.perPage)) &
       ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
-      ("language", ApiService.getFieldValueFromFilters("language", filters)) &
-      ("country", ApiService.getFieldValueFromFilters("country", filters)) &
-      ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
-      ("themeId", ApiService.getFieldValueFromFilters("themeId", filters)) &
-      ("question", ApiService.getFieldValueFromFilters("question", filters))
+      ("questionId", ApiService.getFieldValueFromFilters("questionId", filters))
 
     // search with keywords (=name) should not use order param to get results by relevance
     ApiService.getFieldValueFromFilters("name", filters) match {
@@ -83,20 +79,8 @@ object IdeaService extends ApiService with CirceClassFormatters {
         Future.failed(e)
     }
 
-  def createIdea(name: String,
-                 language: Option[String] = None,
-                 country: Option[String] = None,
-                 operation: Option[String] = None,
-                 theme: Option[String] = None,
-                 question: Option[String] = None): Future[SingleResponse[Idea]] = {
-    val request: CreateIdeaRequest = CreateIdeaRequest(
-      name = name,
-      language = language,
-      country = country,
-      operation = operation,
-      theme = theme,
-      question = question
-    )
+  def createIdea(name: String, questionId: Option[String] = None): Future[SingleResponse[Idea]] = {
+    val request: CreateIdeaRequest = CreateIdeaRequest(name = name, questionId = questionId)
     client
       .post[Idea](resourceName, data = request.asJson.pretty(ApiService.printer))
       .map(SingleResponse.apply)

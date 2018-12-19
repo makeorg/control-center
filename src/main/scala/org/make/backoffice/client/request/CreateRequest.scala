@@ -46,14 +46,7 @@ object CreateRequest {
         throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request CreateRequest")
       case Resource.ideas =>
         val request: CreateRequest[Idea] = params.asInstanceOf[CreateRequest[Idea]]
-        IdeaService.createIdea(
-          name = request.data.name,
-          language = request.data.language.toOption,
-          country = request.data.country.toOption,
-          operation = request.data.operationId.toOption,
-          theme = request.data.themeId.toOption,
-          question = request.data.question.toOption
-        )
+        IdeaService.createIdea(name = request.data.name, questionId = request.data.questionId.toOption)
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in CreateRequest")
     }
   }

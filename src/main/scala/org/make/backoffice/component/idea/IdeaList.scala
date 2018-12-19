@@ -58,16 +58,10 @@ object IdeaList {
             <.Datagrid()(
               <.EditButton()(),
               <.TextField(^.source := "name", ^.sortable := true)(),
-              <.FunctionField(^.label := "theme", ^.render := { record =>
-                val idea = record.asInstanceOf[Idea]
-                idea.themeId.map { id =>
-                  Configuration.getThemeFromThemeId(id)
-                }
-              })(),
               <.ReferenceField(
-                ^.source := "operationId",
-                ^.label := "operation",
-                ^.reference := Resource.operations,
+                ^.source := "questionId",
+                ^.label := "question",
+                ^.reference := Resource.questions,
                 ^.linkType := false,
                 ^.allowEmpty := true,
                 ^.sortable := false
@@ -81,27 +75,13 @@ object IdeaList {
     <.Filter(^.resource := Resource.ideas)(
       Seq(
         <.TextInput(^.label := "Name", ^.source := "name", ^.alwaysOn := true)(),
-        <.SelectInput(
-          ^.label := "Theme",
-          ^.source := "themeId",
-          ^.alwaysOn := true,
-          ^.allowEmpty := true,
-          ^.choices := Configuration.choicesThemeFilter
-        )(),
         <.ReferenceInput(
-          ^.label := "Operation",
-          ^.source := "operationId",
-          ^.reference := Resource.operations,
-          ^.alwaysOn := true,
-          ^.allowEmpty := true
+          ^.label := "Question",
+          ^.source := "questionId",
+          ^.reference := Resource.questions,
+          ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+          ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")()),
-        <.SelectInput(
-          ^.label := "Country",
-          ^.source := "country",
-          ^.alwaysOn := true,
-          ^.allowEmpty := true,
-          ^.choices := Configuration.choicesCountryFilter
-        )()
       )
     )
   }
