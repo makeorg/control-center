@@ -25,6 +25,8 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.SyntheticEvent
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
+import org.make.backoffice.client.Resource
+import org.make.backoffice.client.request.{Filter, Pagination}
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.facade.AdminOnRest.Edit._
 import org.make.backoffice.facade.AdminOnRest.Fields._
@@ -33,10 +35,7 @@ import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
 import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.util.Configuration
 import org.make.backoffice.model._
-import org.make.backoffice.client.Resource
-import org.make.backoffice.client.request.{Filter, Pagination}
 import org.make.backoffice.service.idea.IdeaService
 import org.make.backoffice.service.proposal.{Accepted, ProposalService}
 

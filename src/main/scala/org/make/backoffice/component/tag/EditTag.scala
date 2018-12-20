@@ -262,7 +262,6 @@ object EditTag {
                         proposal.id,
                         newContent = None,
                         tags = (proposal.tagIds.toSeq :+ tagId).map(TagId(_)),
-                        labels = proposal.labels.toSeq,
                         questionId = self.props.wrapped.questionId.map(QuestionId(_)),
                         ideaId = proposal.ideaId.toOption.map(IdeaId(_))
                       )

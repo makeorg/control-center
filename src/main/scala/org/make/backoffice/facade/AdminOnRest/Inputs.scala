@@ -62,6 +62,10 @@ object NativeDependentInput extends ReactClass
 @JSImport("admin-on-rest", "NumberInput")
 object NativeNumberInput extends ReactClass
 
+@js.native
+@JSImport("admin-on-rest", "NullableBooleanInput")
+object NativeNullableBooleanInput extends ReactClass
+
 object Inputs {
   implicit class InputsVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val TextInput: ReactClassElementSpec = elements(NativeTextInput)
@@ -72,6 +76,7 @@ object Inputs {
     lazy val SelectArrayInput: ReactClassElementSpec = elements(NativeSelectArrayInput)
     lazy val DependentInput: ReactClassElementSpec = elements(NativeDependentInput)
     lazy val NumberInput: ReactClassElementSpec = elements(NativeNumberInput)
+    lazy val NullableBooleanInput: ReactClassElementSpec = elements(NativeNullableBooleanInput)
   }
 
   implicit class InputsVirtualDOMAttributes(attributes: VirtualDOMAttributes) {

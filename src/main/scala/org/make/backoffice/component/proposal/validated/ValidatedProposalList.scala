@@ -170,10 +170,6 @@ object ValidatedProposalList {
               <.ReferenceArrayField(^.label := "Tags", ^.reference := Resource.tags, ^.source := "tagIds")(
                 <.SingleFieldList()(<.ChipField(^.source := "label")())
               ),
-              <.FunctionField(^.label := "labels", ^.sortable := false, ^.render := { record =>
-                val proposal = record.asInstanceOf[Proposal]
-                proposal.labels.mkString(", ")
-              })(),
               <.FunctionField(^.label := "Votes", ^.sortable := false, ^.render := { record =>
                 Proposal.totalVotes(record.asInstanceOf[Proposal].votes)
               })(),
@@ -205,7 +201,8 @@ object ValidatedProposalList {
         ^.sort := Map("field" -> "slug", "order" -> "ASC"),
         ^.reference := Resource.questions,
         ^.alwaysOn := true
-      )(<.SelectInput(^.optionText := "slug")())
+      )(<.SelectInput(^.optionText := "slug")()),
+      <.NullableBooleanInput(^.label := "Initital Proposal", ^.source := "initialProposal", ^.alwaysOn := true)()
     )
   }
 }

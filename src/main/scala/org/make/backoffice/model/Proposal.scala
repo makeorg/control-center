@@ -70,29 +70,6 @@ object Vote {
 }
 
 @js.native
-trait Context extends js.Object {
-  val operation: js.UndefOr[String]
-  val source: js.UndefOr[String]
-  val location: js.UndefOr[String]
-  val question: js.UndefOr[String]
-}
-
-object Context {
-  def apply(operation: Option[String],
-            source: Option[String],
-            location: Option[String],
-            question: Option[String]): Context =
-    js.Dynamic
-      .literal(
-        operation = operation.orUndefined,
-        source = source.orUndefined,
-        location = location.orUndefined,
-        question = question.orUndefined
-      )
-      .asInstanceOf[Context]
-}
-
-@js.native
 trait Author extends js.Object {
   val firstName: js.UndefOr[String]
   val postalCode: js.UndefOr[String]
@@ -107,38 +84,6 @@ object Author {
 }
 
 @js.native
-trait Scores extends js.Object {
-  val boost: Double
-  val engagement: Double
-  val adhesion: Double
-  val realistic: Double
-  val topScore: Double
-  val controversy: Double
-  val rejection: Double
-}
-
-object Scores {
-  def apply(boost: Double,
-            engagement: Double,
-            adhesion: Double,
-            realistic: Double,
-            topScore: Double,
-            controversy: Double,
-            rejection: Double): Scores =
-    js.Dynamic
-      .literal(
-        boost = boost,
-        engagement = engagement,
-        adhesion = adhesion,
-        realistic = realistic,
-        topScore = topScore,
-        controversy = controversy,
-        rejection = rejection
-      )
-      .asInstanceOf[Scores]
-}
-
-@js.native
 trait Proposal extends js.Object {
   val id: String
   val userId: String
@@ -148,17 +93,12 @@ trait Proposal extends js.Object {
   val createdAt: Date
   val updatedAt: js.UndefOr[Date]
   val votes: js.Array[Vote]
-  val scores: Scores
-  val context: Context
-  val trending: js.UndefOr[String]
-  val labels: js.Array[String]
   val author: Author
-  val country: String
-  val language: String
   val tagIds: js.Array[String]
   val ideaId: js.UndefOr[String]
-  val operationId: js.UndefOr[String]
+  val questionId: js.UndefOr[String]
   val toEnrich: Boolean
+  val initialProposal: Boolean
 }
 
 object Proposal {
@@ -170,17 +110,12 @@ object Proposal {
             createdAt: ZonedDateTime,
             updatedAt: Option[ZonedDateTime],
             votes: Seq[Vote],
-            scores: Scores,
-            context: Context,
-            trending: Option[String],
-            labels: Seq[String],
             author: Author,
-            country: String,
-            language: String,
             tags: Seq[IndexedTag],
             ideaId: Option[IdeaId],
-            operationId: Option[OperationId],
-            toEnrich: Boolean): Proposal = {
+            questionId: Option[QuestionId],
+            toEnrich: Boolean,
+            initialProposal: Boolean): Proposal = {
     js.Dynamic
       .literal(
         id = id.value,
@@ -191,17 +126,12 @@ object Proposal {
         createdAt = createdAt.toJSDate,
         updatedAt = updatedAt.map(_.toJSDate).orUndefined,
         votes = votes.toJSArray,
-        scores = scores,
-        context = context,
-        trending = trending.orUndefined,
-        labels = labels.toJSArray,
         author = author,
-        country = country,
-        language = language,
         tagIds = tags.map(_.id).toJSArray,
         ideaId = ideaId.map(_.value).orUndefined,
-        operationId = operationId.map(_.value).orUndefined,
-        toEnrich = toEnrich
+        questionId = questionId.map(_.value).orUndefined,
+        toEnrich = toEnrich,
+        initialProposal = initialProposal
       )
       .asInstanceOf[Proposal]
   }
