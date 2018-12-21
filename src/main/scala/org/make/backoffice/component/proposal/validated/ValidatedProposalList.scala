@@ -84,13 +84,17 @@ object ValidatedProposalList {
         },
         componentDidMount = { self =>
           val questionIdFilter: Option[String] = self.props.wrapped.filters.get("questionId")
-          TagService
-            .tags(questionIdFilter)
-            .onComplete {
-              case Success(tags) =>
-                self.setState(_.copy(tags = tags))
-              case Failure(_) => self.setState(_.copy(tags = Seq.empty))
-            }
+          if (questionIdFilter.nonEmpty) {
+            TagService
+              .tags(questionIdFilter)
+              .onComplete {
+                case Success(tags) =>
+                  self.setState(_.copy(tags = tags))
+                case Failure(_) => self.setState(_.copy(tags = Seq.empty))
+              }
+          } else {
+            self.setState(_.copy(tags = Seq.empty))
+          }
           TagTypeService.tagTypes.onComplete {
             case Success(tagTypes) =>
               self.setState(_.copy(tagTypes = tagTypes))
@@ -100,12 +104,16 @@ object ValidatedProposalList {
         componentWillReceiveProps = { (self, props) =>
           if (self.props.wrapped.filters != props.wrapped.filters) {
             val questionIdFilter: Option[String] = props.wrapped.filters.get("questionId")
-            TagService
-              .tags(questionIdFilter)
-              .onComplete {
-                case Success(tags) => self.setState(_.copy(tags = tags))
-                case Failure(_)    => self.setState(_.copy(Seq.empty))
-              }
+            if (questionIdFilter.nonEmpty) {
+              TagService
+                .tags(questionIdFilter)
+                .onComplete {
+                  case Success(tags) => self.setState(_.copy(tags = tags))
+                  case Failure(_)    => self.setState(_.copy(Seq.empty))
+                }
+            } else {
+              self.setState(_.copy(tags = Seq.empty))
+            }
             TagTypeService.tagTypes.onComplete {
               case Success(tagTypes) =>
                 self.setState(_.copy(tagTypes = tagTypes))
@@ -142,7 +150,7 @@ object ValidatedProposalList {
             ^.location := self.props.location,
             ^.resource := Resource.proposals,
             ^.hasCreate := false,
-            ^.filters := filterList(tagChoices),
+            ^.filters := filterList(tagChoices, self.props.wrapped.filters.get("questionId").isDefined),
             ^.filter := Map("status" -> Accepted.shortName),
             ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
           )(
@@ -184,23 +192,27 @@ object ValidatedProposalList {
         }
       )
 
-  def filterList(tagChoices: Seq[Choice]): ReactElement = {
+  def filterList(tagChoices: Seq[Choice], isQuestionSelected: Boolean): ReactElement = {
     <.Filter(^.resource := Resource.proposals)(
       <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
       <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
-      <.SelectInput(
-        ^.label := "Tags",
-        ^.source := "tagsIds",
-        ^.choices := tagChoices,
-        ^.alwaysOn := true,
-        ^.allowEmpty := true
-      )(),
+      if (isQuestionSelected) {
+        <.SelectInput(
+          ^.label := "Tags",
+          ^.source := "tagsIds",
+          ^.choices := tagChoices,
+          ^.alwaysOn := true,
+          ^.allowEmpty := true
+        )()
+      },
       <.ReferenceInput(
         ^.label := "Question",
         ^.source := "questionId",
         ^.sort := Map("field" -> "slug", "order" -> "ASC"),
         ^.reference := Resource.questions,
-        ^.alwaysOn := true
+        ^.alwaysOn := true,
+        ^.perPage := 100,
+        ^.allowEmpty := true
       )(<.SelectInput(^.optionText := "slug")()),
       <.NullableBooleanInput(^.label := "Initital Proposal", ^.source := "initialProposal", ^.alwaysOn := true)()
     )

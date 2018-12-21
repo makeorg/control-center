@@ -93,6 +93,7 @@ object TagList {
         ^.label := "Question",
         ^.source := "questionId",
         ^.reference := Resource.questions,
+        ^.perPage := 100,
         ^.alwaysOn := true
       )(<.SelectInput(^.optionText := "slug")())
     )

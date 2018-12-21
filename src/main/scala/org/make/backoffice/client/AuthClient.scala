@@ -63,12 +63,14 @@ object AuthClient extends CirceClassFormatters {
         MakeApiClientHttp.removeToken()
         Future.successful("auth_logout")
       case AUTH_ERROR =>
-        dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
-        MakeApiClientHttp.removeToken()
         parameters match {
           case UnauthorizedHttpException =>
+            dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
+            MakeApiClientHttp.removeToken()
             Future.failed(new Error("Rejected AUTH_ERROR for UnauthorizedHttpException"))
           case ForbiddenHttpException =>
+            dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
+            MakeApiClientHttp.removeToken()
             Future.failed(new Error("Rejected AUTH_ERROR for ForbiddenHttpException"))
           case _ => Future.successful("auth_error")
         }
