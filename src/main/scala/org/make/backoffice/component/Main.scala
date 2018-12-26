@@ -25,6 +25,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.router.Router._
 import org.make.backoffice.client.{AuthClient, Resource, RestClient}
 import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
+import org.make.backoffice.component.moderator.{CreateModerator, EditModerator, ModeratorList}
 import org.make.backoffice.component.organisation.{CreateOrganisation, EditOrganisation, OrganisationList}
 import org.make.backoffice.component.proposal.common.ShowProposal
 import org.make.backoffice.component.proposal.moderation.{NextProposal, ProposalList}
@@ -73,6 +74,12 @@ object Main {
           ^.listing := OrganisationList(),
           ^.edit := EditOrganisation(),
           ^.create := CreateOrganisation()
+        )(),
+        <.Resource(
+          ^.name := Resource.moderators,
+          ^.listing := ModeratorList(),
+          ^.edit := EditModerator(),
+          ^.create := CreateModerator()
         )(),
         <.Resource(^.name := Resource.questions)()
       ),

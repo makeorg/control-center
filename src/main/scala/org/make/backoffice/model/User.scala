@@ -102,6 +102,15 @@ object User {
 }
 
 @js.native
+trait Moderator extends js.Object {
+  val id: UserId
+  val email: String
+  val firstName: js.UndefOr[String]
+  val roles: js.Array[String]
+  val country: String
+}
+
+@js.native
 trait UserId extends js.Object with StringValue
 object UserId {
   def apply(value: String): UserId = js.Dynamic.literal(value = value).asInstanceOf[UserId]
