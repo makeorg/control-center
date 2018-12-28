@@ -184,6 +184,25 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
       }
     }
 
+    def authenticate(username: String, password: String): Future[Boolean] = {
+      if (MakeApiClientHttp.isAuthenticated) {
+        Future.successful(true)
+      } else {
+        askForAccessToken(username, password)
+      }
+    }
+
+    private def askForAccessToken(username: String, password: String): Future[Boolean] = {
+      post[Token](
+        "oauth" / "make_access_token",
+        data = "".paramsToString(js.Array("username" -> username, "password" -> password, "grant_type" -> "password")),
+        headers = Map("Content-Type" -> MediaTypes.`application/x-www-form-urlencoded`)
+      ).map { newToken =>
+        MakeApiClientHttp.setToken(Option(newToken))
+        MakeApiClientHttp.isAuthenticated
+      }
+    }
+
     private def askForAccessTokenSocial(provider: String,
                                         token: String)(implicit decoder: Decoder[Token]): Future[Boolean] = {
       post[Token](

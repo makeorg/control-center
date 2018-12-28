@@ -25,20 +25,22 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
+import org.make.backoffice.client.{AuthClient, MakeApiClientHttp}
+import org.make.backoffice.client.AuthClient.AUTHENTICATION_KEY
 import org.make.backoffice.facade.Configuration
+import org.make.backoffice.facade.Login._
 import org.make.backoffice.facade.ReactGoogleLogin._
 import org.make.backoffice.model.{Role, User}
-import org.make.backoffice.client.{AuthClient, SingleResponse}
 import org.make.backoffice.service.user.UserService
+import org.scalajs.dom
 import org.scalajs.dom.experimental.Response
-
-import scala.concurrent.Future
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
-import scala.scalajs.js
-import scala.util.{Failure, Success}
 import scalacss.DevDefaults._
 import scalacss.internal.StyleA
 import scalacss.internal.mutable.StyleSheet
+
+import scala.concurrent.Future
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import scala.util.{Failure, Success}
 
 object LoginPage {
 
@@ -50,46 +52,39 @@ object LoginPage {
 
   def apply(baseUrl: String): ReactClass = reactClass(baseUrl)
 
-  def onFailureResponse: (Response) => Unit = (_) => {}
+  def onFailureResponse: Response => Unit = _ => {}
 
   def reactClass(baseUrl: String) = WithRouter(
     React.createClass[Unit, LoginPageState](
       displayName = "LoginPage",
-      getInitialState = (_) => LoginPageState(isSignIn = false, user = None, error = None),
-      render = (self) => {
+      getInitialState = _ => LoginPageState(isSignIn = false, user = None, error = None),
+      render = self => {
         def signInGoogle(response: Response): Unit = {
           handleFutureApiResponse(UserService.loginGoogle(response.asInstanceOf[GoogleAuthResponse].tokenId))
         }
 
-        def handleFutureApiResponse(futureUser: Future[SingleResponse[User]]): Unit = {
+        def handleFutureApiResponse(futureUser: Future[User]): Unit = {
           futureUser.onComplete {
-            case Success(singleResponseUser) =>
-              val user = singleResponseUser.data
+            case Success(user) =>
               if (user.roles.contains(Role.roleAdmin) || user.roles.contains(Role.roleModerator)) {
-                AuthClient
-                  .futureAuth(AuthClient.AUTH_LOGIN, js.Dictionary("user" -> Some(singleResponseUser.data)))
-                  .onComplete {
-                    case Success(_) =>
-                      val resolvedHash = {
-                        if (baseUrl.contains("/login")) {
-                          "/"
-                        } else if (baseUrl.startsWith("#")) {
-                          baseUrl.substring(1)
-                        } else {
-                          baseUrl
-                        }
-                      }
-                      self.props.history.push(resolvedHash)
-                    case Failure(e) =>
-                      self.setState(self.state.copy(isSignIn = false, error = Some(s"failed to connect: $e")))
-                      self.props.history.push("/login")
+                dom.window.localStorage
+                  .setItem(AUTHENTICATION_KEY, MakeApiClientHttp.getToken.map(_.access_token).getOrElse(""))
+                val resolvedHash = {
+                  if (baseUrl.contains("/login")) {
+                    "/"
+                  } else if (baseUrl.startsWith("#")) {
+                    baseUrl.substring(1)
+                  } else {
+                    baseUrl
                   }
+                }
+                self.props.history.push(resolvedHash)
               } else {
                 self.setState(
                   self.state.copy(
                     isSignIn = false,
                     user = None,
-                    error = Some(s"failed to connect: You don't have the right role")
+                    error = Some("failed to connect: You don't have the right role")
                   )
                 )
               }
@@ -114,6 +109,7 @@ object LoginPage {
             <.span(^.className := LoginPageStyles.signInButtonText.htmlClass)("Sign in with Google")
           ),
           <.div()(self.state.error.getOrElse("")),
+          <.Login(^.location := baseUrl)(),
           <.style()(LoginPageStyles.render[String])
         )
       }
@@ -128,13 +124,12 @@ object LoginPageStyles extends StyleSheet.Inline {
   val container: StyleA = style(
     display.flex,
     flexDirection.column,
-    minHeight(100.vh),
-    alignItems.center,
+    alignItems.initial,
     justifyContent.center,
     backgroundColor(rgb(0, 188, 212))
   )
 
   val signInButton: StyleA = style(addClassNames("btn", "btn-danger"))
   val signInButtonText: StyleA = style(marginLeft(10.px))
-  val googlePlus: StyleA = style(addClassNames("fa", "fa-google-plus"))
+  val googlePlus: StyleA = style(addClassNames("fa", "fa-google"))
 }

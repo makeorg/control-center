@@ -23,7 +23,6 @@ package org.make.backoffice
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.statictags.{Attribute, SpaceSeparatedStringAttributeSpec}
-import org.make.backoffice.component.proposal.validated.ValidatedProposalList
 import scalacss.DevDefaults._
 
 package object component {

@@ -72,11 +72,11 @@ object CreateOrganisation {
               <.TextInput(^.label := "Description", ^.source := "description", ^.options := Map("fullWidth" -> true))(),
               <.SelectInput(
                 ^.source := "country",
-                ^.choices := Configuration.choicesCountryFilter,
+                ^.choices := Configuration.choicesCountry,
                 ^.allowEmpty := false,
                 ^.validate := required
               )(),
-              Configuration.choiceLanguageFilter.map {
+              Configuration.choiceLanguage.map {
                 case (country, languages) =>
                   <.DependentInput(^.dependsOn := "country", ^.dependsValue := country)(
                     <.SelectInput(

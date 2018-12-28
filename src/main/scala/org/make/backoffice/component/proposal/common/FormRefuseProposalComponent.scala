@@ -47,7 +47,7 @@ object FormRefuseProposalComponent {
                                      errorMessage: Option[String] = None,
                                      isLocked: Boolean = false)
 
-  val reasons: Seq[String] = Configuration.getReasonsForRefusal
+  val reasons: Seq[String] = Configuration.reasonsForRefusal
 
   lazy val reactClass: ReactClass =
     WithRouter(

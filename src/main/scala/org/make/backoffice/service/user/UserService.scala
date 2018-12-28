@@ -21,10 +21,9 @@
 package org.make.backoffice.service.user
 
 import org.make.backoffice.model.User
-import org.make.backoffice.client.SingleResponse
+import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
-import org.make.backoffice.service.ApiService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -41,9 +40,16 @@ object UserService extends ApiService with CirceClassFormatters {
   def getUserById(id: String): Future[Option[User]] =
     client.get[User](resourceName / id).map(Option.apply).recover { case _: Exception => None }
 
-  def loginGoogle(token: String): Future[SingleResponse[User]] = {
+  def loginGoogle(token: String): Future[User] = {
     client.authenticateSocial("google", token).flatMap {
-      case true  => client.get[User](resourceName / "me").map(SingleResponse.apply)
+      case true  => client.get[User](resourceName / "me")
+      case false => throw NoTokenException()
+    }
+  }
+
+  def login(username: String, password: String): Future[User] = {
+    client.authenticate(username, password).flatMap {
+      case true  => client.get[User](resourceName / "me")
       case false => throw NoTokenException()
     }
   }

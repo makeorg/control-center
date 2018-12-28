@@ -59,8 +59,7 @@ object FormValidateProposalComponent {
           getInitialState = { self =>
             FormValidateProposalState(
               content = self.props.wrapped.proposal.content,
-              maxLength =
-                Configuration.businessConfig.map(_.proposalMaxLength).getOrElse(Configuration.defaultProposalMaxLength),
+              maxLength = Configuration.proposalMaxLength,
               isLocked = self.props.wrapped.isLocked
             )
           },
