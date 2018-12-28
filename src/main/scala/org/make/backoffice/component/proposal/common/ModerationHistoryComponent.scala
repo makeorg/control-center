@@ -44,7 +44,6 @@ object ModerationHistoryComponent {
         <.ul()(
           <.li()(s"content: $content"),
           <.li()(s"tags: ${arguments.getOrElse("tags", "no tags provided")}"),
-          <.li()(s"labels: ${arguments.getOrElse("labels", "no labels provided")}"),
           <.li()(s"idea: ${arguments.getOrElse("idea", "no idea provided")}")
         )
       ),
@@ -53,7 +52,6 @@ object ModerationHistoryComponent {
         <.ul()(
           <.li()(s"content: $content"),
           <.li()(s"tags: ${arguments.getOrElse("tags", "no tags provided")}"),
-          <.li()(s"labels: ${arguments.getOrElse("labels", "no labels provided")}"),
           <.li()(s"idea: ${arguments.getOrElse("idea", "no idea provided")}")
         )
       ),

@@ -95,7 +95,6 @@ trait SingleProposal extends js.Object {
   val slug: String
   val content: String
   val author: User
-  val labels: js.Array[String]
   val status: String
   val refusalReason: js.UndefOr[String]
   val tagIds: js.Array[String]
@@ -118,7 +117,6 @@ object SingleProposal {
             slug: String,
             content: String,
             author: User,
-            labels: Seq[String],
             status: String,
             refusalReason: Option[String],
             tags: Seq[String],
@@ -140,7 +138,6 @@ object SingleProposal {
         slug = slug,
         content = content,
         author = author,
-        labels = labels.toJSArray,
         status = status,
         refusalReason = refusalReason.orUndefined,
         tagIds = tags.toJSArray,

@@ -209,6 +209,7 @@ object ProposalIdeaComponent {
 
         val searchNew: ReactElement =
           <.AutoComplete(
+            ^.floatingLabelText := "search",
             ^.id := "search-proposal-idea",
             ^.hintText := "Search idea",
             ^.dataSource := self.state.foundProposalIdeas,
@@ -224,47 +225,26 @@ object ProposalIdeaComponent {
             ^.menuProps := Map("maxHeight" -> 400)
           )()
 
-        def onCheckSimilarIdea(ideaId: String,
-                               ideaName: String): (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit =
-          (_, isChecked) => {
-            if (isChecked) {
-              self.setState(_.copy(selectedIdeaId = Some(IdeaId(ideaId)), ideaName = Some(ideaName)))
-              self.props.wrapped.setProposalIdea(Some(IdeaId(ideaId)))
-            } else {
-              self.setState(_.copy(selectedIdeaId = None, ideaName = None))
-              self.props.wrapped.setProposalIdea(self.props.wrapped.proposal.ideaId.map(IdeaId(_)).toOption)
-            }
-
-            self.setState(_.copy(searchIdeaContent = ""))
-          }
-
-        val similarResultsElement = if (self.state.isLoading) {
-          <.CircularProgress()()
-        } else {
-          self.state.similarResult.map { idea =>
-            <.Checkbox(
-              ^.label := idea.ideaName,
-              ^.checked := self.state.selectedIdeaId.exists(_.value == idea.ideaId),
-              ^.onCheck := onCheckSimilarIdea(idea.ideaId, idea.ideaName)
-            )()
-          }
-        }
-
         <.Card(^.style := Map("marginTop" -> "1em"))(
-          <.CardTitle(^.title := "Idea", ^.subtitle := self.state.ideaName.getOrElse(self.props.wrapped.ideaName))(),
-          if (self.state.selectedIdeaId.isDefined) {
-            <.CardActions()(
-              <.EditButton(
-                ^.label := "Edit Idea",
-                ^.basePath := "/ideas",
-                ^.record := js.Dynamic.literal("id" -> self.state.selectedIdeaId.map(_.value).getOrElse("").toString)
-              )()
-            )
-          },
+          <.CardTitle(^.title := "Idea")(),
+          <.CardText()(
+            <.TextFieldMaterialUi(
+              ^.value := self.state.ideaName.getOrElse(self.props.wrapped.ideaName),
+              ^.readonly := true,
+              ^.disabled := true
+            )(),
+            if (self.state.selectedIdeaId.isDefined) {
+              <.CardActions(^.style := Map("float" -> "left"))(
+                <.EditButton(
+                  ^.label := "Edit Idea",
+                  ^.basePath := "/ideas",
+                  ^.record := js.Dynamic.literal("id" -> self.state.selectedIdeaId.map(_.value).getOrElse("").toString)
+                )()
+              )
+            }
+          ),
           <.CardActions()(
-            <.h4()("Similar ideas:"),
-            similarResultsElement,
-            searchNew,
+            <.CardActions()(searchNew),
             <.br()(),
             <.NewIdeaComponent(
               ^.wrapped := NewIdeaProps(

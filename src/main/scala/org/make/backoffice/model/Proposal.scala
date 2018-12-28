@@ -97,7 +97,7 @@ trait Proposal extends js.Object {
   val tagIds: js.Array[String]
   val ideaId: js.UndefOr[String]
   val questionId: js.UndefOr[String]
-  val toEnrich: Boolean
+  val toEnrich: js.UndefOr[Boolean]
   val initialProposal: Boolean
 }
 
@@ -114,7 +114,7 @@ object Proposal {
             tags: Seq[IndexedTag],
             ideaId: Option[IdeaId],
             questionId: Option[QuestionId],
-            toEnrich: Boolean,
+            toEnrich: Option[Boolean],
             initialProposal: Boolean): Proposal = {
     js.Dynamic
       .literal(
@@ -130,7 +130,7 @@ object Proposal {
         tagIds = tags.map(_.id).toJSArray,
         ideaId = ideaId.map(_.value).orUndefined,
         questionId = questionId.map(_.value).orUndefined,
-        toEnrich = toEnrich,
+        toEnrich = toEnrich.orUndefined,
         initialProposal = initialProposal
       )
       .asInstanceOf[Proposal]
