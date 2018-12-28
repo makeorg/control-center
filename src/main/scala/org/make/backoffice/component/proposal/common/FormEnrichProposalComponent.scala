@@ -31,6 +31,7 @@ import io.github.shogowada.statictags.Element
 import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
 import org.make.backoffice.component.proposal.common.ProposalIdeaComponent.ProposalIdeaProps
 import org.make.backoffice.component.{Main, RichVirtualDOMElements}
+import org.make.backoffice.facade.AdminOnRest.Fields.FieldsVirtualDOMElements
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.idea.IdeaService
@@ -59,10 +60,10 @@ object FormEnrichProposalComponent {
                                      tags: Seq[Tag] = Seq.empty,
                                      tagsList: Seq[Tag] = Seq.empty,
                                      errorMessage: Seq[String] = Seq.empty,
-                                     similarProposals: Seq[String] = Seq.empty,
                                      ideaId: Option[IdeaId] = None,
                                      ideaName: String = "",
-                                     isLocked: Boolean = false)
+                                     isLocked: Boolean = false,
+                                     tagListLoaded: Boolean = false)
 
   def setTagsFromTagIds(self: Self[FormEnrichProposalProps, FormEnrichProposalState],
                         props: FormEnrichProposalProps): Unit = {
@@ -89,8 +90,8 @@ object FormEnrichProposalComponent {
       } yield (tagTypes, tags)
       futureTags.onComplete {
         case Success((tagTypes, tags)) =>
-          self.setState(_.copy(tagsList = tags, tagTypes = tagTypes))
-        case Success(_) => self.setState(_.copy(tagsList = Seq.empty))
+          self.setState(_.copy(tagsList = tags, tagTypes = tagTypes, tagListLoaded = true))
+        case Success(_) => self.setState(_.copy(tagsList = Seq.empty, tagListLoaded = true))
         case Failure(e) => js.Dynamic.global.console.log(s"File with error: $e")
       }
     }
@@ -106,8 +107,6 @@ object FormEnrichProposalComponent {
               content = self.props.wrapped.proposal.content,
               maxLength = Configuration.proposalMaxLength,
               isLocked = self.props.wrapped.isLocked,
-              similarProposals =
-                self.props.wrapped.proposal.similarProposals.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
             )
           },
           componentDidMount = self => {
@@ -122,13 +121,7 @@ object FormEnrichProposalComponent {
             }
           },
           componentWillReceiveProps = { (self, props) =>
-            self.setState(
-              _.copy(
-                isLocked = props.wrapped.isLocked,
-                similarProposals =
-                  props.wrapped.proposal.similarProposals.toOption.map(_.toSeq.map(_.value)).getOrElse(Seq.empty)
-              )
-            )
+            self.setState(_.copy(isLocked = props.wrapped.isLocked))
             if (self.props.wrapped.proposal.id != props.wrapped.proposal.id) {
               self.setState(_.copy(content = props.wrapped.proposal.content, tags = Seq.empty))
             }
@@ -148,14 +141,21 @@ object FormEnrichProposalComponent {
               self.setState(_.copy(content = newContent))
             }
 
-            def handleTagChange: (js.Object, js.UndefOr[Int], js.Array[String]) => Unit = { (_, _, values) =>
-              val tags: Seq[Tag] = values.toSeq.flatMap { value =>
-                self.state.tagsList.find(tag => tag.label == value) match {
-                  case Some(tag) => Seq(tag)
-                  case _         => Seq.empty
+            def handleTagChange: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = { (event, _) =>
+              val tag: String = event.target.value
+
+              val selectedTags: Seq[Tag] = {
+                if (self.state.tags.map(_.id).contains(tag)) {
+                  self.state.tags.filter(_.id != tag)
+                } else {
+                  self.state.tagsList.find(_.id == tag) match {
+                    case Some(value) => self.state.tags :+ value
+                    case _           => self.state.tags
+                  }
                 }
               }
-              self.setState(_.copy(tags = tags))
+
+              self.setState(_.copy(tags = selectedTags))
             }
 
             def handleNotifyUserChange: (js.Object, Boolean) => Unit = { (_, checked) =>
@@ -174,7 +174,6 @@ object FormEnrichProposalComponent {
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = mayBeNewContent,
                     tags = self.state.tags.map(tag => TagId(tag.id)),
-                    similarProposals = self.state.similarProposals.map(ProposalId.apply),
                     ideaId = self.state.ideaId,
                     questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
                   )
@@ -231,7 +230,6 @@ object FormEnrichProposalComponent {
                       proposalId = self.props.wrapped.proposal.id,
                       newContent = mayBeNewContent,
                       tags = self.state.tags.map(tag => TagId(tag.id)),
-                      similarProposals = self.state.similarProposals.map(ProposalId.apply),
                       ideaId = self.state.ideaId,
                       questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
                     )
@@ -267,47 +265,29 @@ object FormEnrichProposalComponent {
               }
             }
 
-            val tagsGroupByTagType: Seq[(TagType, Seq[Tag])] = {
-              self.state.tagsList
-                .groupBy[String](_.tagTypeId)
-                .flatMap {
-                  case (tagTypeId, tags) => self.state.tagTypes.find(_.id == tagTypeId).map(_ -> tags)
-                }
-                .toSeq
-                .sortBy {
-                  case (tagType, _) => tagType.weight * -1
-                }
-            }
+            val groupedTagsWithTagType: Map[String, (Option[TagType], Seq[Tag])] =
+              self.state.tagsList.groupBy[String](_.tagTypeId).map {
+                case (tagTypeId, tags) => (tagTypeId, (self.state.tagTypes.find(_.id == tagTypeId), tags))
+              }
+            val groupedTagsWithTagTypeOrdered: Seq[(String, (Option[TagType], Seq[Tag]))] =
+              groupedTagsWithTagType.toSeq.sortBy {
+                case (_, (tagType, _)) => -1 * tagType.map(_.weight).getOrElse(2000.toFloat)
+              }
 
-            val selectTags = <.SelectField(
-              ^.disabled := self.state.tagsList.isEmpty,
-              ^.multiple := true,
-              ^.floatingLabelText := "Tags",
-              ^.floatingLabelFixed := true,
-              ^.valueSelect := self.state.tags.map(_.label),
-              ^.onChangeMultipleSelect := handleTagChange,
-              ^.fullWidth := true
-            )(tagsGroupByTagType.map {
-              case (tagType, tags) =>
-                Seq(
-                  <.MenuItem(
-                    ^.key := tagType.id,
-                    ^.insetChildren := false,
-                    ^.checked := false,
-                    ^.value := tagType.label,
-                    ^.primaryText := tagType.label
-                  )(),
-                  tags.sortBy(_.weight * -1).map { tag =>
-                    <.MenuItem(
+            val checkboxTags: Seq[Element] = groupedTagsWithTagTypeOrdered.map {
+              case (_, (maybeTagType, tags)) =>
+                <.div(^.style := Map("maxWidth" -> "25em"))(
+                  Seq(<.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))(), tags.map { tag =>
+                    <.Checkbox(
                       ^.key := tag.id,
-                      ^.insetChildren := true,
-                      ^.checked := self.state.tags.contains(tag),
-                      ^.value := tag.label,
-                      ^.primaryText := tag.label
+                      ^.checked := self.state.tags.exists(_.id == tag.id),
+                      ^.value := tag.id,
+                      ^.label := tag.label,
+                      ^.onCheck := handleTagChange
                     )()
-                  }
+                  })
                 )
-            })
+            }
 
             val errorMessage: Seq[Element] =
               self.state.errorMessage.map(msg => <.p()(msg))
@@ -319,25 +299,39 @@ object FormEnrichProposalComponent {
             <.Card(^.style := Map("marginTop" -> "1em"))(
               <.CardTitle(^.title := s"I want to ${self.props.wrapped.action} this proposal")(),
               <.CardActions()(
-                <.TextFieldMaterialUi(
-                  ^.floatingLabelText := "Proposal content",
-                  ^.value := self.state.content,
-                  ^.onChange := handleContentEdition,
-                  ^.fullWidth := true
-                )(),
-                <.span()(s"${self.state.content.length}/${self.state.maxLength}"),
-                <.br()(),
-                selectTags,
-                <.Checkbox(
-                  ^.disabled := self.props.wrapped.action == "update",
-                  ^.label := "Notify user",
-                  ^.checked := self.state.notifyUser && self.props.wrapped.action == "validate",
-                  ^.onCheck := handleNotifyUserChange,
-                  ^.style := Map("maxWidth" -> "25em")
-                )(),
+                <.Card(^.style := Map("marginTop" -> "1em"))(
+                  <.CardActions()(
+                    <.TextFieldMaterialUi(
+                      ^.floatingLabelText := "Proposal content",
+                      ^.value := self.state.content,
+                      ^.onChange := handleContentEdition,
+                      ^.fullWidth := true
+                    )(),
+                    <.span()(s"${self.state.content.length}/${self.state.maxLength}"),
+                  )
+                ),
+                <.Card(^.style := Map("marginTop" -> "1em"))(
+                  <.CardTitle(^.title := "Tags")(),
+                  <.CardActions()(<.div(^.style := Map("display" -> "flex"))(if (self.state.tagListLoaded) {
+                    checkboxTags
+                  } else {
+                    <.CircularProgress()()
+                  }))
+                ),
                 <.ProposalIdeaComponent(
                   ^.wrapped := ProposalIdeaProps(self.props.wrapped.proposal, setProposalIdea, self.state.ideaName)
                 )(),
+                <.Card(^.style := Map("marginTop" -> "1em"))(
+                  <.CardActions()(
+                    <.Checkbox(
+                      ^.disabled := self.props.wrapped.action == "update",
+                      ^.label := "Notify user",
+                      ^.checked := self.state.notifyUser && self.props.wrapped.action == "validate",
+                      ^.onCheck := handleNotifyUserChange,
+                      ^.style := Map("maxWidth" -> "25em")
+                    )()
+                  )
+                ),
                 <.RaisedButton(
                   ^.style := Map("marginTop" -> "1em"),
                   ^.label := s"Confirm ${if (self.props.wrapped.action == "validate") "validation" else "changes"}",

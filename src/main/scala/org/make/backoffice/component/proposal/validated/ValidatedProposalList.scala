@@ -161,7 +161,7 @@ object ValidatedProposalList {
               <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
               <.FunctionField(^.label := "status", ^.sortable := false, ^.render := { record =>
                 val proposal = record.asInstanceOf[Proposal]
-                if (proposal.toEnrich) {
+                if (proposal.toEnrich.getOrElse(true)) {
                   "Accepted"
                 } else {
                   "Enriched"

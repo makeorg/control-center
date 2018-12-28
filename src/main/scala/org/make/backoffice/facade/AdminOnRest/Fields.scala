@@ -25,7 +25,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactCl
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.statictags._
-import org.make.backoffice.facade.FunctionAttributeSpec
+import org.make.backoffice.facade.{ChoicesAttributeSpec, FunctionAttributeSpec}
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
@@ -86,6 +86,10 @@ object NativeUrlField extends ReactClass
 @JSImport("admin-on-rest", "SingleFieldList")
 object NativeSingleFieldList extends ReactClass
 
+@js.native
+@JSImport("admin-on-rest", "FieldTitle")
+object NativeFieldTitle extends ReactClass
+
 object Fields {
 
   case class RenderRecordAttributeSpec(name: String) extends AttributeSpec {
@@ -108,6 +112,7 @@ object Fields {
     lazy val RichTextField: ReactClassElementSpec = elements(NativeRichTextField)
     lazy val UrlField: ReactClassElementSpec = elements(NativeUrlField)
     lazy val SingleFieldList: ReactClassElementSpec = elements(NativeSingleFieldList)
+    lazy val FieldTitle: ReactClassElementSpec = elements(NativeFieldTitle)
   }
 
   implicit class FieldsVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
