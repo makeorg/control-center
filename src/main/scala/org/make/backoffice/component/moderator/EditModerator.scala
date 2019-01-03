@@ -18,7 +18,7 @@
  *
  */
 
-package org.make.backoffice.component.organisation
+package org.make.backoffice.component.moderator
 
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
@@ -30,42 +30,71 @@ import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
 import org.make.backoffice.facade.AdminOnRest.required
+import org.make.backoffice.facade.Choice
+import org.make.backoffice.model.Role
 
-object EditOrganisation {
+import org.make.backoffice.util.Configuration
 
-  case class EditOrganisationProps() extends RouterProps
+object EditModerator {
+
+  case class EditModeratorProps() extends RouterProps
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass =
     React
-      .createClass[EditOrganisationProps, Unit](
-        displayName = "EditOrganisation",
+      .createClass[EditModeratorProps, Unit](
+        displayName = "EditModerator",
         render = self => {
+
+          val rolesChoice: Seq[Choice] =
+            Role.roles.values.map(role => Choice(id = role.shortName, name = role.shortName)).toSeq
+
           <.Edit(
-            ^.resource := Resource.organisations,
+            ^.resource := Resource.moderators,
             ^.location := self.props.location,
             ^.`match` := self.props.`match`,
             ^.hasList := true
           )(
             <.SimpleForm()(
               <.TextInput(
-                ^.label := "organisation name",
-                ^.source := "organisationName",
+                ^.label := "email",
+                ^.source := "email",
                 ^.validate := required,
                 ^.allowEmpty := false,
                 ^.options := Map("fullWidth" -> true)
               )(),
               <.TextInput(
-                ^.label := "avatar url",
-                ^.source := "profile.avatarUrl",
+                ^.label := "firtsname",
+                ^.source := "firstName",
+                ^.validate := required,
+                ^.allowEmpty := false,
                 ^.options := Map("fullWidth" -> true)
               )(),
-              <.TextInput(
-                ^.label := "Description",
-                ^.source := "profile.description",
+              <.TextInput(^.label := "lastname", ^.source := "lastName", ^.options := Map("fullWidth" -> true))(),
+              <.SelectArrayInput(
+                ^.label := "roles",
+                ^.source := "roles",
+                ^.choices := rolesChoice,
                 ^.options := Map("fullWidth" -> true)
-              )()
+              )(),
+              <.SelectInput(
+                ^.source := "country",
+                ^.choices := Configuration.choicesCountry,
+                ^.allowEmpty := false,
+                ^.validate := required
+              )(),
+              Configuration.choiceLanguage.map {
+                case (country, languages) =>
+                  <.DependentInput(^.dependsOn := "country", ^.dependsValue := country)(
+                    <.SelectInput(
+                      ^.source := "language",
+                      ^.choices := languages,
+                      ^.allowEmpty := false,
+                      ^.validate := required
+                    )()
+                  )
+              }
             )
           )
         }

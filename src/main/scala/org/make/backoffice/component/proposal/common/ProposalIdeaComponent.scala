@@ -227,22 +227,22 @@ object ProposalIdeaComponent {
 
         <.Card(^.style := Map("marginTop" -> "1em"))(
           <.CardTitle(^.title := "Idea")(),
-          <.CardText()(
+          <.CardText()(if (self.state.ideaName.getOrElse(self.props.wrapped.ideaName).nonEmpty) {
             <.TextFieldMaterialUi(
               ^.value := self.state.ideaName.getOrElse(self.props.wrapped.ideaName),
-              ^.readonly := true,
+              ^.name := self.state.ideaName.getOrElse(self.props.wrapped.ideaName),
+              ^.readOnly := true,
               ^.disabled := true
-            )(),
-            if (self.state.selectedIdeaId.isDefined) {
-              <.CardActions(^.style := Map("float" -> "left"))(
-                <.EditButton(
-                  ^.label := "Edit Idea",
-                  ^.basePath := "/ideas",
-                  ^.record := js.Dynamic.literal("id" -> self.state.selectedIdeaId.map(_.value).getOrElse("").toString)
-                )()
-              )
-            }
-          ),
+            )()
+          }, if (self.state.selectedIdeaId.isDefined) {
+            <.CardActions(^.style := Map("float" -> "left"))(
+              <.EditButton(
+                ^.label := "Edit Idea",
+                ^.basePath := "/ideas",
+                ^.record := js.Dynamic.literal("id" -> self.state.selectedIdeaId.map(_.value).getOrElse("").toString)
+              )()
+            )
+          }),
           <.CardActions()(
             <.CardActions()(searchNew),
             <.br()(),
