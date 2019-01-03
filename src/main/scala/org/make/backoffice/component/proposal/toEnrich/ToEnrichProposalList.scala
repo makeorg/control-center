@@ -113,6 +113,7 @@ object ToEnrichProposalList {
           ^.source := "questionId",
           ^.sort := Map("field" -> "slug", "order" -> "ASC"),
           ^.reference := Resource.questions,
+          ^.perPage := 100,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")())
       )
