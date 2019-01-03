@@ -39,14 +39,14 @@ import scala.scalajs.js.annotation.JSImport
 object JsonServerRestClient extends js.Object {
   def jsonServerRestClient(
     apiUrl: String,
-    httpClient: js.Function2[String, js.UndefOr[js.Dictionary[String]], Promise[Response]]
+    httpClient: js.Function2[String, js.UndefOr[js.Dictionary[Any]], Promise[Response]]
   ): js.Function3[String, String, js.Object, Promise[Response]] = js.native
 }
 
 @js.native
 @JSImport("admin-on-rest", "fetchUtils")
 object FetchJson extends js.Object {
-  def fetchJson(url: String, options: js.Dictionary[String]): Promise[Response] = js.native
+  def fetchJson(url: String, options: js.Dictionary[Any]): Promise[Response] = js.native
 }
 
 @js.native

@@ -29,13 +29,21 @@ import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.Promise
+import org.scalajs.dom
 
 object RestClient extends CirceClassFormatters {
   def makeClient(restVerb: String, resource: String, parameters: js.Object): Promise[Response] = {
 
-    def fetchJsonCookie(url: String, options: js.UndefOr[js.Dictionary[String]]): Promise[Response] = {
-      val defined: js.Dictionary[String] = options.getOrElse(js.Dictionary())
+    def fetchJsonCookie(url: String, options: js.UndefOr[js.Dictionary[Any]]): Promise[Response] = {
+      val defined: js.Dictionary[Any] = options.getOrElse(js.Dictionary())
       defined.update("credentials", "include")
+      defined.update(
+        "user",
+        js.Dictionary(
+          "authenticated" -> true,
+          "token" -> dom.window.localStorage.getItem(AuthClient.AUTHENTICATION_KEY)
+        )
+      )
       FetchJson.fetchJson(url, defined)
     }
 
