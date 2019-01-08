@@ -100,6 +100,7 @@ object ProposalList {
         <.SelectArrayInput(^.label := "Status", ^.source := "status", ^.alwaysOn := true, ^.choices := statusChoices)(),
         <.ReferenceInput(
           ^.label := "Question",
+          ^.translateLabel := ((label: String) => label),
           ^.source := "questionId",
           ^.reference := Resource.questions,
           ^.sort := Map("field" -> "slug", "order" -> "ASC"),

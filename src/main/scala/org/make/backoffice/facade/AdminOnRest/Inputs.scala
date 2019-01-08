@@ -96,5 +96,6 @@ object Inputs {
     lazy val optionText = StringAttributeSpec("optionText")
     lazy val optionValue = StringAttributeSpec("optionValue")
     lazy val filterToQuery = FilterToQueryAttributeSpec("filterToQuery")
+    lazy val translateLabel = FunctionAttributeSpec("translate")
   }
 }

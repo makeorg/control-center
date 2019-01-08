@@ -207,6 +207,7 @@ object ValidatedProposalList {
       },
       <.ReferenceInput(
         ^.label := "Question",
+        ^.translateLabel := ((label: String) => label),
         ^.source := "questionId",
         ^.sort := Map("field" -> "slug", "order" -> "ASC"),
         ^.reference := Resource.questions,

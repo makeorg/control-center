@@ -53,6 +53,7 @@ object CreateIdea {
               )(),
               <.ReferenceInput(
                 ^.label := "Question",
+                ^.translateLabel := ((label: String) => label),
                 ^.source := "questionId",
                 ^.reference := Resource.questions,
                 ^.sort := Map("field" -> "slug", "order" -> "ASC"),
