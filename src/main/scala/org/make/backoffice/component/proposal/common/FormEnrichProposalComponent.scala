@@ -65,35 +65,19 @@ object FormEnrichProposalComponent {
                                      isLocked: Boolean = false,
                                      tagListLoaded: Boolean = false)
 
-  def setTagsFromTagIds(self: Self[FormEnrichProposalProps, FormEnrichProposalState],
-                        props: FormEnrichProposalProps): Unit = {
-    if (!js.isUndefined(props.proposal.tagIds)) {
-      props.proposal.tagIds.foreach { tagId =>
-        TagService.tags(questionId = props.proposal.questionId.toOption).onComplete {
-          case Success(tags) =>
-            self.setState(_.copy(tags = tags.find(_.id == tagId) match {
-              case Some(tag) => self.state.tags :+ tag
-              case None      => self.state.tags
-            }))
-          case Failure(e) => js.Dynamic.global.console.log(s"Fail with error: $e")
-        }
-      }
-    }
-  }
+  def setTags(self: Self[FormEnrichProposalProps, FormEnrichProposalState], props: FormEnrichProposalProps): Unit = {
+    val futureTags = for {
+      tagTypes <- TagTypeService.tagTypes
+      tags     <- TagService.tags(questionId = props.proposal.questionId.toOption)
+    } yield (tagTypes, tags)
 
-  def setTagsList(self: Self[FormEnrichProposalProps, FormEnrichProposalState],
-                  props: FormEnrichProposalProps): Unit = {
-    props.proposal.questionId.toOption.foreach { questionIdValue =>
-      val futureTags = for {
-        tagTypes <- TagTypeService.tagTypes
-        tags     <- TagService.tags(questionId = Some(questionIdValue))
-      } yield (tagTypes, tags)
-      futureTags.onComplete {
-        case Success((tagTypes, tags)) =>
-          self.setState(_.copy(tagsList = tags, tagTypes = tagTypes, tagListLoaded = true))
-        case Success(_) => self.setState(_.copy(tagsList = Seq.empty, tagListLoaded = true))
-        case Failure(e) => js.Dynamic.global.console.log(s"File with error: $e")
-      }
+    futureTags.onComplete {
+      case Success((tagTypes, tags)) =>
+        val proposalTags = props.proposal.tagIds.flatMap { tagId =>
+          tags.find(_.id == tagId)
+        }
+        self.setState(_.copy(tagsList = tags, tagTypes = tagTypes, tagListLoaded = true, tags = proposalTags))
+      case Failure(e) => js.Dynamic.global.console.log(s"Error: $e")
     }
   }
 
@@ -110,8 +94,7 @@ object FormEnrichProposalComponent {
             )
           },
           componentDidMount = self => {
-            setTagsFromTagIds(self, self.props.wrapped)
-            setTagsList(self, self.props.wrapped)
+            setTags(self, self.props.wrapped)
             self.props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
               IdeaService.getIdea(ideaId).onComplete {
                 case Success(response) =>
@@ -125,8 +108,7 @@ object FormEnrichProposalComponent {
             if (self.props.wrapped.proposal.id != props.wrapped.proposal.id) {
               self.setState(_.copy(content = props.wrapped.proposal.content, tags = Seq.empty))
             }
-            setTagsFromTagIds(self, props.wrapped)
-            setTagsList(self, props.wrapped)
+            setTags(self, props.wrapped)
             props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
               IdeaService.getIdea(ideaId).onComplete {
                 case Success(response) =>
