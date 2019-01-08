@@ -21,7 +21,37 @@
 package org.make.backoffice.model
 
 object Country {
-  private val mapping = Map("FR" -> "France", "IT" -> "Italy", "GB" -> "United Kingdom", "DE" -> "Germany")
+  private val mapping = Map(
+    "FR" -> "France",
+    "IT" -> "Italy",
+    "GB" -> "United Kingdom",
+    "DE" -> "Germany",
+    "AT" -> "Austria",
+    "BE" -> "Belgium",
+    "BG" -> "Bulgaria",
+    "CY" -> "Cyprus",
+    "CZ" -> "Czechia",
+    "DK" -> "Denmark",
+    "EE" -> "Estonia",
+    "ES" -> "Spain",
+    "FI" -> "Finland",
+    "GR" -> "Greece",
+    "HR" -> "Croatia",
+    "HU" -> "Hungary",
+    "IE" -> "Ireland",
+    "LT" -> "Lithuania",
+    "LU" -> "Luxembourg",
+    "LV" -> "Latvia",
+    "MT" -> "Malta",
+    "NL" -> "Netherlands",
+    "PL" -> "Poland",
+    "PT" -> "Portugal",
+    "RO" -> "Romania",
+    "SE" -> "Sweden",
+    "SI" -> "Slovakia",
+    "SK" -> "Slovenia"
+  )
+
   def getCountryNameByCountryCode(countryCode: String): Option[String] = {
     mapping.get(countryCode)
   }

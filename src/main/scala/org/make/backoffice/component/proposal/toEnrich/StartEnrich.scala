@@ -57,7 +57,7 @@ object StartEnrich {
         StartEnrichState(None, None, None, Seq.empty)
       }, componentWillMount = { self =>
         OperationOfQuestionService.operationsOfQuestions(None, None, Some(LocalDate.now())).onComplete {
-          case Success(questions) => self.setState(_.copy(questions = questions))
+          case Success(questions) => self.setState(_.copy(questions = questions.sortBy(_.slug)))
           case Failure(e)         => js.Dynamic.global.console.log(e.getMessage)
         }
       }, render = {

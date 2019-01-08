@@ -25,6 +25,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactCl
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.statictags.{Attribute, AttributeSpec, BooleanAttributeSpec, StringAttributeSpec}
+import org.make.backoffice.facade.MaterialUi.IntAttributeSpec
 import org.make.backoffice.facade.{ElementAttributeSpec, LocationAttributeSpec, MapStringAttributeSpec}
 
 import scala.scalajs.js
@@ -42,6 +43,7 @@ object Create {
     lazy val title = StringAttributeSpec("title")
     lazy val actions = ElementAttributeSpec("actions")
     lazy val hasList = BooleanAttributeSpec("hasList")
+    lazy val perPage = IntAttributeSpec("perPage")
     lazy val resource = StringAttributeSpec("resource")
     lazy val location = LocationAttributeSpec("location")
   }
