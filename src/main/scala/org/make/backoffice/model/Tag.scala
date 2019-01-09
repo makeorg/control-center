@@ -104,3 +104,39 @@ object TagId {
   implicit lazy val tagIdEncoder: Encoder[TagId] = (a: TagId) => Json.fromString(a.value)
   implicit lazy val tagIdDecoder: Decoder[TagId] = Decoder.decodeString.map(TagId(_))
 }
+
+@js.native
+trait PredictedTag extends js.Object {
+  val id: String
+  val label: String
+  val tagTypeId: String
+  val weight: Float
+  val questionId: js.UndefOr[String]
+  val checked: Boolean
+  val predicted: Boolean
+
+}
+
+object PredictedTag {
+  def apply(id: TagId,
+            label: String,
+            tagTypeId: TagTypeId,
+            weight: Float,
+            questionId: Option[QuestionId],
+            checked: Boolean,
+            predicted: Boolean): PredictedTag =
+    js.Dynamic
+      .literal(
+        id = id.value,
+        label = label,
+        tagTypeId = tagTypeId.value,
+        weight = weight,
+        questionId = questionId.map(_.value).orUndefined,
+        checked = checked,
+        predicted = predicted
+      )
+      .asInstanceOf[PredictedTag]
+
+  implicit lazy val decoder: Decoder[PredictedTag] =
+    Decoder.forProduct7("id", "label", "tagTypeId", "weight", "questionId", "checked", "predicted")(PredictedTag.apply)
+}

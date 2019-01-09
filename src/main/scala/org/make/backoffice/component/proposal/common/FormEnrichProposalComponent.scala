@@ -57,8 +57,8 @@ object FormEnrichProposalComponent {
                                      notifyUser: Boolean = true,
                                      operation: Option[Operation] = None,
                                      tagTypes: Seq[TagType] = Seq.empty,
-                                     tags: Seq[Tag] = Seq.empty,
-                                     tagsList: Seq[Tag] = Seq.empty,
+                                     selectedTags: Seq[TagId] = Seq.empty,
+                                     tagsList: Seq[PredictedTag] = Seq.empty,
                                      errorMessage: Seq[String] = Seq.empty,
                                      ideaId: Option[IdeaId] = None,
                                      ideaName: String = "",
@@ -68,15 +68,19 @@ object FormEnrichProposalComponent {
   def setTags(self: Self[FormEnrichProposalProps, FormEnrichProposalState], props: FormEnrichProposalProps): Unit = {
     val futureTags = for {
       tagTypes <- TagTypeService.tagTypes
-      tags     <- TagService.tags(questionId = props.proposal.questionId.toOption)
+      tags     <- ProposalService.getProposalTags(proposalId = props.proposal.id)
     } yield (tagTypes, tags)
 
     futureTags.onComplete {
       case Success((tagTypes, tags)) =>
-        val proposalTags = props.proposal.tagIds.flatMap { tagId =>
-          tags.find(_.id == tagId)
-        }
-        self.setState(_.copy(tagsList = tags, tagTypes = tagTypes, tagListLoaded = true, tags = proposalTags))
+        self.setState(
+          _.copy(
+            tagsList = tags.tags,
+            tagTypes = tagTypes,
+            tagListLoaded = true,
+            selectedTags = tags.tags.filter(_.checked).map(tag => TagId(tag.id))
+          )
+        )
       case Failure(e) => js.Dynamic.global.console.log(s"Error: $e")
     }
   }
@@ -106,7 +110,7 @@ object FormEnrichProposalComponent {
           componentWillReceiveProps = { (self, props) =>
             self.setState(_.copy(isLocked = props.wrapped.isLocked))
             if (self.props.wrapped.proposal.id != props.wrapped.proposal.id) {
-              self.setState(_.copy(content = props.wrapped.proposal.content, tags = Seq.empty))
+              self.setState(_.copy(content = props.wrapped.proposal.content, selectedTags = Seq.empty))
             }
             setTags(self, props.wrapped)
             props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
@@ -123,21 +127,22 @@ object FormEnrichProposalComponent {
               self.setState(_.copy(content = newContent))
             }
 
-            def handleTagChange: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = { (event, _) =>
-              val tag: String = event.target.value
+            def handleTagChange: (FormSyntheticEvent[HTMLInputElement], Boolean) => Unit = {
+              (event, _) =>
+                val tagId: String = event.target.value
 
-              val selectedTags: Seq[Tag] = {
-                if (self.state.tags.map(_.id).contains(tag)) {
-                  self.state.tags.filter(_.id != tag)
-                } else {
-                  self.state.tagsList.find(_.id == tag) match {
-                    case Some(value) => self.state.tags :+ value
-                    case _           => self.state.tags
+                val newSelectedTags: Seq[TagId] = {
+                  if (self.state.selectedTags.map(_.value).contains(tagId)) {
+                    self.state.selectedTags.filter(_.value != tagId)
+                  } else {
+                    self.state.tagsList.find(_.id == tagId) match {
+                      case Some(predictedTag) => self.state.selectedTags :+ TagId(predictedTag.id)
+                      case _                  => self.state.selectedTags
+                    }
                   }
                 }
-              }
 
-              self.setState(_.copy(tags = selectedTags))
+                self.setState(_.copy(selectedTags = newSelectedTags))
             }
 
             def handleNotifyUserChange: (js.Object, Boolean) => Unit = { (_, checked) =>
@@ -155,7 +160,7 @@ object FormEnrichProposalComponent {
                   .updateProposal(
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = mayBeNewContent,
-                    tags = self.state.tags.map(tag => TagId(tag.id)),
+                    tags = self.state.selectedTags,
                     ideaId = self.state.ideaId,
                     questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
                   )
@@ -183,7 +188,7 @@ object FormEnrichProposalComponent {
                     newContent = maybeNewContent,
                     sendNotificationEmail = self.state.notifyUser,
                     questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
-                    tags = self.state.tags.map(tag => TagId(tag.id)),
+                    tags = self.state.selectedTags,
                     ideaId = self.state.ideaId
                   )
                   .onComplete {
@@ -211,7 +216,7 @@ object FormEnrichProposalComponent {
                     _ <- ProposalService.updateProposal(
                       proposalId = self.props.wrapped.proposal.id,
                       newContent = mayBeNewContent,
-                      tags = self.state.tags.map(tag => TagId(tag.id)),
+                      tags = self.state.selectedTags,
                       ideaId = self.state.ideaId,
                       questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
                     )
@@ -247,11 +252,11 @@ object FormEnrichProposalComponent {
               }
             }
 
-            val groupedTagsWithTagType: Map[String, (Option[TagType], Seq[Tag])] =
+            val groupedTagsWithTagType: Map[String, (Option[TagType], Seq[PredictedTag])] =
               self.state.tagsList.groupBy[String](_.tagTypeId).map {
                 case (tagTypeId, tags) => (tagTypeId, (self.state.tagTypes.find(_.id == tagTypeId), tags))
               }
-            val groupedTagsWithTagTypeOrdered: Seq[(String, (Option[TagType], Seq[Tag]))] =
+            val groupedTagsWithTagTypeOrdered: Seq[(String, (Option[TagType], Seq[PredictedTag]))] =
               groupedTagsWithTagType.toSeq.sortBy {
                 case (_, (tagType, _)) => -1 * tagType.map(_.weight).getOrElse(2000.toFloat)
               }
@@ -262,7 +267,8 @@ object FormEnrichProposalComponent {
                   Seq(<.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))(), tags.map { tag =>
                     <.Checkbox(
                       ^.key := tag.id,
-                      ^.checked := self.state.tags.exists(_.id == tag.id),
+                      ^.checked := self.state.tagsList
+                        .exists(predictedTag => predictedTag.id == tag.id && predictedTag.checked),
                       ^.value := tag.id,
                       ^.label := tag.label,
                       ^.onCheck := handleTagChange

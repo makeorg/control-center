@@ -201,3 +201,17 @@ object ProposalsResult {
   def empty: ProposalsResult =
     ProposalsResult(total = 0, results = Seq.empty)
 }
+
+@js.native
+trait PredictedTagsWithModelResponse extends js.Object {
+  val tags: js.Array[PredictedTag]
+  val modelName: String
+}
+
+object PredictedTagsWithModelResponse {
+  def apply(tags: Seq[PredictedTag], modelName: String): PredictedTagsWithModelResponse =
+    js.Dynamic.literal(tags = tags.toJSArray, modelName = modelName).asInstanceOf[PredictedTagsWithModelResponse]
+
+  implicit lazy val decoder: Decoder[PredictedTagsWithModelResponse] =
+    Decoder.forProduct2("tags", "modelName")(PredictedTagsWithModelResponse.apply)
+}
