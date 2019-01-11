@@ -51,7 +51,10 @@ object AuthClient extends CirceClassFormatters {
         UserService.login(loginParameters.username, loginParameters.password).flatMap { user =>
           if (user.roles.contains(Role.roleAdmin) || user.roles.contains(Role.roleModerator)) {
             dom.window.localStorage
-              .setItem(AUTHENTICATION_KEY, MakeApiClientHttp.getToken.map(_.access_token).getOrElse(""))
+              .setItem(
+                AUTHENTICATION_KEY,
+                MakeApiClientHttp.getToken.map(token => s"${token.token_type} ${token.access_token}").getOrElse("")
+              )
             Future.successful("auth_login")
           } else {
             MakeApiClientHttp.removeToken()
@@ -63,21 +66,16 @@ object AuthClient extends CirceClassFormatters {
         MakeApiClientHttp.removeToken()
         Future.successful("auth_logout")
       case AUTH_ERROR =>
-        parameters match {
-          case UnauthorizedHttpException =>
-            dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
-            MakeApiClientHttp.removeToken()
-            Future.failed(new Error("Rejected AUTH_ERROR for UnauthorizedHttpException"))
-          case ForbiddenHttpException =>
+        val errorParameters = parameters.asInstanceOf[ErrorParameters]
+        errorParameters.message match {
+          case "Unauthorized" =>
             dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
             MakeApiClientHttp.removeToken()
             Future.failed(new Error("Rejected AUTH_ERROR for ForbiddenHttpException"))
           case _ => Future.successful("auth_error")
         }
       case AUTH_CHECK =>
-        if (MakeApiClientHttp.getToken
-              .map(_.access_token)
-              .contains(dom.window.localStorage.getItem(AUTHENTICATION_KEY))) {
+        if (dom.window.localStorage.getItem(AUTHENTICATION_KEY).nonEmpty) {
           Future.successful("auth_check")
         } else {
           dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
@@ -96,4 +94,9 @@ object AuthClient extends CirceClassFormatters {
 trait LoginParameters extends js.Object {
   val username: String
   val password: String
+}
+
+@js.native
+trait ErrorParameters extends js.Object {
+  val message: String
 }

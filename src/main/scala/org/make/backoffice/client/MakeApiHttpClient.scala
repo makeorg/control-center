@@ -30,6 +30,7 @@ import org.make.backoffice.facade.Configuration
 import org.make.backoffice.model.Token
 import org.make.backoffice.client.MakeApiClientHttp.RequestData
 import org.make.backoffice.util.uri._
+import org.scalajs.dom
 import org.scalajs.dom.XMLHttpRequest
 import org.scalajs.dom.ext.Ajax.InputData
 import org.scalajs.dom.ext.{Ajax, AjaxException}
@@ -59,7 +60,7 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
     ) ++
       MakeApiClientHttp.getToken.map { token =>
         Map("Authorization" -> s"${token.token_type} ${token.access_token}")
-      }.getOrElse(Map.empty)
+      }.getOrElse(Map("Authorization" -> dom.window.localStorage.getItem(AuthClient.AUTHENTICATION_KEY)))
   }
 
   final class DefaultMakeApiHttpClient extends HttpClient {

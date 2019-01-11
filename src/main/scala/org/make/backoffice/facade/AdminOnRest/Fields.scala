@@ -25,7 +25,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactCl
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, VirtualDOMElements}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.statictags._
-import org.make.backoffice.facade.{ChoicesAttributeSpec, FunctionAttributeSpec}
+import org.make.backoffice.facade.FunctionAttributeSpec
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
