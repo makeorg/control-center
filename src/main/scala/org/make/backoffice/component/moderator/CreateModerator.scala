@@ -34,6 +34,8 @@ import org.make.backoffice.facade.Choice
 import org.make.backoffice.model.Role
 import org.make.backoffice.util.Configuration
 
+import scala.scalajs.js
+
 object CreateModerator {
 
   case class CreateModeratorProps() extends RouterProps
@@ -70,13 +72,32 @@ object CreateModerator {
                 ^.label := "roles",
                 ^.source := "roles",
                 ^.choices := rolesChoice,
-                ^.options := Map("fullWidth" -> true)
+                ^.options := Map("fullWidth" -> true, "fullWidthInput" -> true)
               )(),
+              <.ReferenceArrayInput(
+                ^.label := "Available Questions",
+                ^.translateLabel := ((label: String) => label),
+                ^.source := "availableQuestions",
+                ^.reference := Resource.questions,
+                ^.perPage := 100,
+                ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+                ^.allowEmpty := true
+              )(
+                <.SelectArrayInput(
+                  ^.optionText := "slug",
+                  ^.options := Map(
+                    "fullWidth" -> true,
+                    "fullWidthInput" -> true,
+                    "menuProps" -> js.Dictionary("maxHeight" -> 400)
+                  )
+                )()
+              ),
               <.SelectInput(
                 ^.source := "country",
                 ^.choices := Configuration.choicesCountry,
                 ^.allowEmpty := false,
-                ^.validate := required
+                ^.validate := required,
+                ^.options := Map("fullWidth" -> true)
               )(),
               Configuration.choiceLanguage.map {
                 case (country, languages) =>
@@ -85,7 +106,8 @@ object CreateModerator {
                       ^.source := "language",
                       ^.choices := languages,
                       ^.allowEmpty := false,
-                      ^.validate := required
+                      ^.validate := required,
+                      ^.options := Map("fullWidth" -> true)
                     )()
                   )
               }
