@@ -69,12 +69,14 @@ object CreateTag {
               )(),
               <.ReferenceInput(
                 ^.label := "Tag Type",
+                ^.translateLabel := ((label: String) => label),
                 ^.source := "tagTypeId",
                 ^.reference := Resource.tagType,
                 ^.allowEmpty := false
               )(<.SelectInput(^.optionText := "label")()),
               <.ReferenceInput(
                 ^.label := "Question",
+                ^.translateLabel := ((label: String) => label),
                 ^.source := "questionId",
                 ^.reference := Resource.questions,
                 ^.allowEmpty := true

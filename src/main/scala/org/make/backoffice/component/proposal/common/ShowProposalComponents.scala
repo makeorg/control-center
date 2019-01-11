@@ -47,23 +47,6 @@ object ShowProposalComponents {
     case object List extends Context { override val name: String = "list" }
   }
 
-  val timer = new Timer()
-  def task(self: React.Self[ShowProposalComponentsProps, ShowProposalComponentsState]): TimerTask = new TimerTask {
-    override def run(): Unit = {
-      if (org.scalajs.dom.window.location.hash == self.props.wrapped.hash) {
-        ProposalService.lock(self.state.proposal.id).onComplete {
-          case Success(_) => self.setState(_.copy(isLocked = false))
-          case Failure(badRequest: BadRequestHttpException) =>
-            val moderatorName: Option[String] = badRequest.errors.find(_.field == "moderatorName").flatMap(_.message)
-            self.setState(_.copy(isLocked = true, moderatorName = moderatorName))
-          case Failure(_) => self.setState(_.copy(isLocked = true))
-        }
-      } else {
-        this.cancel()
-      }
-    }
-  }
-
   case class ShowProposalComponentsProps(hash: String,
                                          eventRefresh: Boolean = false,
                                          proposal: Option[SingleProposal],
@@ -72,16 +55,38 @@ object ShowProposalComponents {
                                          context: Context)
   case class ShowProposalComponentsState(proposal: SingleProposal,
                                          isLocked: Boolean = false,
-                                         moderatorName: Option[String] = None)
+                                         moderatorName: Option[String] = None,
+                                         timer: Timer)
 
   lazy val reactClass: ReactClass = React.createClass[ShowProposalComponentsProps, ShowProposalComponentsState](
     displayName = "ShowProposalComponent",
     getInitialState = { self =>
       val proposal = self.props.wrapped.proposal.getOrElse(self.props.native.record.asInstanceOf[SingleProposal])
-      ShowProposalComponentsState(proposal)
+      ShowProposalComponentsState(proposal = proposal, timer = new Timer())
     },
     componentDidMount = { self =>
-      timer.scheduleAtFixedRate(task(self), 0L, 10000L)
+      def task(self: React.Self[ShowProposalComponentsProps, ShowProposalComponentsState]): TimerTask = new TimerTask {
+        override def run(): Unit = {
+          if (org.scalajs.dom.window.location.hash == self.props.wrapped.hash) {
+            ProposalService.lock(self.state.proposal.id).onComplete {
+              case Success(_) => self.setState(_.copy(isLocked = false))
+              case Failure(badRequest: BadRequestHttpException) =>
+                val moderatorName: Option[String] =
+                  badRequest.errors.find(_.field == "moderatorName").flatMap(_.message)
+                self.setState(_.copy(isLocked = true, moderatorName = moderatorName))
+              case Failure(_) => self.setState(_.copy(isLocked = true))
+            }
+          } else {
+            this.cancel()
+          }
+        }
+      }
+
+      self.state.timer.scheduleAtFixedRate(task(self), 0L, 10000L)
+    },
+    componentWillUnmount = { self =>
+      self.state.timer.cancel()
+      self.state.timer.purge()
     },
     componentWillReceiveProps = { (self, props) =>
       val proposal = props.wrapped.proposal.getOrElse(props.native.record.asInstanceOf[SingleProposal])

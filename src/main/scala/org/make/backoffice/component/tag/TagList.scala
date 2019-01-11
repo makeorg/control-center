@@ -85,12 +85,14 @@ object TagList {
       <.TextInput(^.label := "Label", ^.source := "label", ^.alwaysOn := true)(),
       <.ReferenceInput(
         ^.label := "Tag Type",
+        ^.translateLabel := ((label: String) => label),
         ^.source := "tagTypeId",
         ^.reference := Resource.tagType,
         ^.alwaysOn := true
       )(<.SelectInput(^.optionText := "label")()),
       <.ReferenceInput(
         ^.label := "Question",
+        ^.translateLabel := ((label: String) => label),
         ^.source := "questionId",
         ^.reference := Resource.questions,
         ^.perPage := 100,
