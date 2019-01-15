@@ -94,14 +94,18 @@ object ProposalService extends ApiService with CirceClassFormatters {
                      tags: Seq[TagId] = Seq(TagId("default-tag")),
                      similarProposals: Seq[ProposalId] = Seq.empty,
                      ideaId: Option[IdeaId] = None,
-                     questionId: Option[QuestionId] = None): Future[SingleProposal] = {
+                     questionId: Option[QuestionId] = None,
+                     predictedTags: Option[Seq[TagId]],
+                     modelName: Option[String]): Future[SingleProposal] = {
     val request: UpdateProposalRequest = UpdateProposalRequest(
       newContent = newContent,
       tags = tags,
       similarProposals = similarProposals,
       idea = ideaId,
       questionId = questionId,
-      labels = Seq.empty // deprecated field
+      labels = Seq.empty, // deprecated field
+      predictedTags = predictedTags,
+      modelName = modelName
     )
     client
       .put[SingleProposal](
@@ -122,7 +126,9 @@ object ProposalService extends ApiService with CirceClassFormatters {
                        tags: Seq[TagId] = Seq.empty,
                        similarProposals: Seq[ProposalId] = Seq.empty,
                        ideaId: Option[IdeaId] = None,
-                       questionId: Option[QuestionId] = None): Future[SingleProposal] = {
+                       questionId: Option[QuestionId] = None,
+                       predictedTags: Option[Seq[TagId]],
+                       modelName: Option[String]): Future[SingleProposal] = {
     val request: ValidateProposalRequest = ValidateProposalRequest(
       newContent = newContent,
       sendNotificationEmail = sendNotificationEmail,
@@ -130,7 +136,9 @@ object ProposalService extends ApiService with CirceClassFormatters {
       similarProposals = similarProposals,
       idea = ideaId,
       questionId = questionId,
-      labels = Seq.empty // deprecated field
+      labels = Seq.empty, // deprecated field
+      predictedTags = predictedTags,
+      modelName = modelName
     )
     client
       .post[SingleProposal](resourceName / proposalId / "accept", data = request.asJson.pretty(ApiService.printer))
