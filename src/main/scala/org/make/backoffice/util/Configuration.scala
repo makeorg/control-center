@@ -51,7 +51,7 @@ object Configuration extends CirceClassFormatters {
     CountryConfiguration(countryCode = "IT", defaultLanguage = "it", supportedLanguages = Seq("it")),
     CountryConfiguration(countryCode = "LV", defaultLanguage = "lv", supportedLanguages = Seq("lv")),
     CountryConfiguration(countryCode = "LT", defaultLanguage = "lt", supportedLanguages = Seq("lt")),
-    CountryConfiguration(countryCode = "LU", defaultLanguage = "fr", supportedLanguages = Seq("fr", "de")),
+    CountryConfiguration(countryCode = "LU", defaultLanguage = "fr", supportedLanguages = Seq("fr")),
     CountryConfiguration(countryCode = "MT", defaultLanguage = "mt", supportedLanguages = Seq("mt")),
     CountryConfiguration(countryCode = "NL", defaultLanguage = "nl", supportedLanguages = Seq("nl")),
     CountryConfiguration(countryCode = "PL", defaultLanguage = "pl", supportedLanguages = Seq("pl")),
