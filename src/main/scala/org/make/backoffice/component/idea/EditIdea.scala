@@ -58,11 +58,7 @@ object EditIdea {
     <.h1()(self.state.idea.name)
   })
 
-  case class DataGridProps(ideaId: Option[String],
-                           operationId: Option[String],
-                           themeId: Option[String],
-                           country: Option[String],
-                           language: Option[String])
+  case class DataGridProps(ideaId: Option[String], questionId: Option[String])
   case class DataGridState(ideas: Seq[Idea] = Seq.empty,
                            proposalsIdeaList: Seq[Proposal] = Seq.empty,
                            proposalsSearchList: Seq[Proposal] = Seq.empty,
@@ -82,22 +78,11 @@ object EditIdea {
         displayName = "dataGrid",
         getInitialState = _ => DataGridState(),
         componentDidUpdate = (self, _, _) => {
-          if (self.props.wrapped.operationId.nonEmpty || self.props.wrapped.themeId.nonEmpty) {
+          if (self.props.wrapped.questionId.nonEmpty) {
             self.setState(_.copy(shouldUpdate = false))
           }
-          if (self.state.shouldUpdate && (self.props.wrapped.operationId.isDefined || self.props.wrapped.themeId.isDefined)) {
-            var filters: Seq[Filter] = Seq(
-              Filter(field = "country", value = self.props.wrapped.country.getOrElse("")),
-              Filter(field = "language", value = self.props.wrapped.language.getOrElse(""))
-            )
-
-            if (self.props.wrapped.operationId.isDefined) {
-              filters :+= Filter(field = "operationId", value = self.props.wrapped.operationId.getOrElse(""))
-            }
-
-            if (self.props.wrapped.themeId.isDefined) {
-              filters :+= Filter(field = "themeId", value = self.props.wrapped.themeId.getOrElse(""))
-            }
+          if (self.state.shouldUpdate && self.props.wrapped.questionId.isDefined) {
+            var filters: Seq[Filter] = Seq(Filter(field = "questionId", value = self.props.wrapped.questionId.get))
             ProposalService
               .proposals(
                 Some(Pagination(page = 1, perPage = 5000)), //todo asynchronous search
@@ -350,7 +335,13 @@ object EditIdea {
                   ^.allowEmpty := true
                 )(<.TextField(^.source := "slug")()),
               )
-            )
+            ),
+            <.CustomIdeaDatagrid(
+              ^.wrapped := DataGridProps(
+                ideaId = self.state.idea.map(_.id),
+                questionId = self.state.idea.flatMap(_.questionId.toOption)
+              )
+            )()
           )
         }
       )
