@@ -40,27 +40,30 @@ object NextProposal {
   final case class NextProposalProps() extends RouterProps
   final case class NextProposalState(proposal: Option[SingleProposal],
                                      minVotesCount: Option[String],
-                                     toEnrichMinScore: Option[String])
+                                     toEnrichMinScore: Option[String],
+                                     withTags: Boolean)
 
   lazy val reactClass: ReactClass =
     React.createClass[NextProposalProps, NextProposalState](
       displayName = "NextProposal",
       getInitialState = { _ =>
-        NextProposalState(None, None, None)
+        NextProposalState(None, None, None, withTags = true)
       },
-      componentDidMount = { self =>
-        val params = QueryString.parse(self.props.location.search)
-        ProposalService.getProposalById(self.props.`match`.params("id")).onComplete {
-          case Success(proposalResponse) =>
-            self.setState(
-              _.copy(
-                proposal = Some(proposalResponse.data),
-                minVotesCount = Some(params.getOrElse("minVotesCount", Configuration.toEnrichMinVotesCount)),
-                toEnrichMinScore = Some(params.getOrElse("minScore", Configuration.toEnrichMinScore))
+      componentDidMount = {
+        self =>
+          val params = QueryString.parse(self.props.location.search)
+          ProposalService.getProposalById(self.props.`match`.params("id")).onComplete {
+            case Success(proposalResponse) =>
+              self.setState(
+                _.copy(
+                  proposal = Some(proposalResponse.data),
+                  minVotesCount = Some(params.getOrElse("minVotesCount", Configuration.toEnrichMinVotesCount)),
+                  toEnrichMinScore = Some(params.getOrElse("minScore", Configuration.toEnrichMinScore)),
+                  withTags = params.getOrElse("withTags", "false").toBoolean
+                )
               )
-            )
-          case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
-        }
+            case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
+          }
       },
       componentWillReceiveProps = { (self, props) =>
         val params = QueryString.parse(self.props.location.search)
@@ -101,6 +104,7 @@ object NextProposal {
                 proposal = self.state.proposal,
                 minVotesCount = self.state.minVotesCount,
                 toEnrichMinScore = self.state.toEnrichMinScore,
+                withTags = self.state.withTags,
                 context = Context.StartModeration
               )
             )()

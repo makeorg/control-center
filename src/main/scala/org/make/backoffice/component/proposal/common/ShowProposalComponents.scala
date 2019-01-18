@@ -33,6 +33,7 @@ import org.make.backoffice.component.proposal.common.FormEnrichProposalComponent
 import org.make.backoffice.component.proposal.common.FormPostponeProposalComponent.FormPostponeProposalProps
 import org.make.backoffice.component.proposal.common.FormRefuseProposalComponent.FormRefuseProposalProps
 import org.make.backoffice.component.proposal.common.FormValidateProposalComponent.FormValidateProposalProps
+import org.make.backoffice.component.proposal.common.FormValidateProposalWithTagsComponent.FormValidateProposalWithTagsProps
 import org.make.backoffice.service.proposal.{ProposalService, _}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -52,6 +53,7 @@ object ShowProposalComponents {
                                          proposal: Option[SingleProposal],
                                          minVotesCount: Option[String],
                                          toEnrichMinScore: Option[String],
+                                         withTags: Boolean,
                                          context: Context)
   case class ShowProposalComponentsState(proposal: SingleProposal,
                                          isLocked: Boolean = false,
@@ -100,25 +102,18 @@ object ShowProposalComponents {
               self.state.proposal,
               self.props.wrapped.minVotesCount,
               self.props.wrapped.toEnrichMinScore,
-              "enrich",
               self.state.isLocked,
               self.props.wrapped.context
             )
           )(),
-        if (self.state.proposal.status != Accepted.shortName)
+        if (self.state.proposal.status != Accepted.shortName && !self.props.wrapped.withTags)
           <.FormValidateProposalComponent(
-            ^.wrapped := FormValidateProposalProps(
-              self.state.proposal,
-              "validate",
-              self.state.isLocked,
-              self.props.wrapped.context
-            )
+            ^.wrapped := FormValidateProposalProps(self.state.proposal, self.state.isLocked, self.props.wrapped.context)
           )(),
-        if (self.state.proposal.status == Accepted.shortName)
-          <.FormValidateProposalComponent(
-            ^.wrapped := FormValidateProposalProps(
+        if (self.state.proposal.status != Accepted.shortName && self.props.wrapped.withTags)
+          <.FormValidateProposalWithTagsComponent(
+            ^.wrapped := FormValidateProposalWithTagsProps(
               self.state.proposal,
-              "update",
               self.state.isLocked,
               self.props.wrapped.context
             )
@@ -130,17 +125,6 @@ object ShowProposalComponents {
         if (self.state.proposal.status == Pending.shortName)
           <.FormPostponeProposalComponent(
             ^.wrapped := FormPostponeProposalProps(self.state.proposal, self.state.isLocked, self.props.wrapped.context)
-          )(),
-        if (self.state.proposal.status != Accepted.shortName)
-          <.FormEnrichProposalComponent(
-            ^.wrapped := FormEnrichProposalProps(
-              self.state.proposal,
-              self.props.wrapped.minVotesCount,
-              self.props.wrapped.toEnrichMinScore,
-              "enrich",
-              self.state.isLocked,
-              self.props.wrapped.context
-            )
           )(),
         if (self.state.isLocked)
           <.Snackbar(^.open := self.state.isLocked, ^.message := {
