@@ -177,7 +177,9 @@ object EditTag {
                           newContent = None,
                           tags = tags,
                           questionId = self.props.wrapped.questionId.map(QuestionId(_)),
-                          ideaId = proposal.data.ideaId.toOption.map(IdeaId(_))
+                          ideaId = proposal.data.ideaId.toOption.map(IdeaId(_)),
+                          predictedTags = None,
+                          modelName = None
                         )
                   }
                   .onComplete {
@@ -216,7 +218,9 @@ object EditTag {
                           .filterNot(_ == self.props.wrapped.tagId.getOrElse(""))
                           .map(TagId(_)),
                         questionId = self.props.wrapped.questionId.map(QuestionId(_)),
-                        ideaId = proposal.data.ideaId.toOption.map(IdeaId(_))
+                        ideaId = proposal.data.ideaId.toOption.map(IdeaId(_)),
+                        predictedTags = None,
+                        modelName = None
                       )
                   }
                   .onComplete {
@@ -261,7 +265,9 @@ object EditTag {
                         newContent = None,
                         tags = (proposal.tagIds.toSeq :+ tagId).map(TagId(_)),
                         questionId = self.props.wrapped.questionId.map(QuestionId(_)),
-                        ideaId = proposal.ideaId.toOption.map(IdeaId(_))
+                        ideaId = proposal.ideaId.toOption.map(IdeaId(_)),
+                        predictedTags = None,
+                        modelName = None
                       )
                       .onComplete {
                         case Success(_) =>

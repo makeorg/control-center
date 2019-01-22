@@ -36,7 +36,7 @@ import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.idea.IdeaService
 import org.make.backoffice.service.proposal.{Pending, ProposalService}
-import org.make.backoffice.service.tag.{TagService, TagTypeService}
+import org.make.backoffice.service.tag.TagTypeService
 import org.make.backoffice.util.Configuration
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -59,6 +59,7 @@ object FormEnrichProposalComponent {
                                      tagTypes: Seq[TagType] = Seq.empty,
                                      selectedTags: Seq[TagId] = Seq.empty,
                                      tagsList: Seq[PredictedTag] = Seq.empty,
+                                     predictedTagsModelName: Option[String] = None,
                                      errorMessage: Seq[String] = Seq.empty,
                                      ideaId: Option[IdeaId] = None,
                                      ideaName: String = "",
@@ -67,18 +68,19 @@ object FormEnrichProposalComponent {
 
   def setTags(self: Self[FormEnrichProposalProps, FormEnrichProposalState], props: FormEnrichProposalProps): Unit = {
     val futureTags = for {
-      tagTypes <- TagTypeService.tagTypes
-      tags     <- ProposalService.getProposalTags(proposalId = props.proposal.id)
-    } yield (tagTypes, tags)
+      tagTypes      <- TagTypeService.tagTypes
+      predictedTags <- ProposalService.getProposalTags(proposalId = props.proposal.id)
+    } yield (tagTypes, predictedTags)
 
     futureTags.onComplete {
-      case Success((tagTypes, tags)) =>
+      case Success((tagTypes, predictedTags)) =>
         self.setState(
           _.copy(
-            tagsList = tags.tags,
+            tagsList = predictedTags.tags,
+            predictedTagsModelName = predictedTags.modelName.toOption,
             tagTypes = tagTypes,
             tagListLoaded = true,
-            selectedTags = tags.tags.filter(_.checked).map(tag => TagId(tag.id))
+            selectedTags = predictedTags.tags.filter(_.checked).map(tag => TagId(tag.id))
           )
         )
       case Failure(e) => js.Dynamic.global.console.log(s"Error: $e")
@@ -156,13 +158,17 @@ object FormEnrichProposalComponent {
                   if (self.state.content != self.props.wrapped.proposal.content) {
                     Some(self.state.content)
                   } else { None }
+                val predictedTags = self.state.tagsList.filter(_.predicted).map(tag => TagId(tag.id))
+                val predictedTagsParam = if (predictedTags.isEmpty) None else Some(predictedTags)
                 ProposalService
                   .updateProposal(
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = mayBeNewContent,
                     tags = self.state.selectedTags,
                     ideaId = self.state.ideaId,
-                    questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
+                    questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
+                    predictedTags = predictedTagsParam,
+                    modelName = self.state.predictedTagsModelName
                   )
                   .onComplete {
                     case Success(_) =>
@@ -182,6 +188,8 @@ object FormEnrichProposalComponent {
                   if (self.state.content != self.props.wrapped.proposal.content) {
                     Some(self.state.content)
                   } else { None }
+                val predictedTags = self.state.tagsList.filter(_.predicted).map(tag => TagId(tag.id))
+                val predictedTagsParam = if (predictedTags.isEmpty) None else Some(predictedTags)
                 ProposalService
                   .validateProposal(
                     proposalId = self.props.wrapped.proposal.id,
@@ -189,7 +197,9 @@ object FormEnrichProposalComponent {
                     sendNotificationEmail = self.state.notifyUser,
                     questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
                     tags = self.state.selectedTags,
-                    ideaId = self.state.ideaId
+                    ideaId = self.state.ideaId,
+                    predictedTags = predictedTagsParam,
+                    modelName = self.state.predictedTagsModelName
                   )
                   .onComplete {
                     case Success(_) =>
@@ -211,6 +221,8 @@ object FormEnrichProposalComponent {
                   if (self.state.content != self.props.wrapped.proposal.content) {
                     Some(self.state.content)
                   } else { None }
+                val predictedTags = self.state.tagsList.filter(_.predicted).map(tag => TagId(tag.id))
+                val predictedTagsParam = if (predictedTags.isEmpty) None else Some(predictedTags)
                 val futureNextProposal =
                   for {
                     _ <- ProposalService.updateProposal(
@@ -218,7 +230,9 @@ object FormEnrichProposalComponent {
                       newContent = mayBeNewContent,
                       tags = self.state.selectedTags,
                       ideaId = self.state.ideaId,
-                      questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply)
+                      questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
+                      predictedTags = predictedTagsParam,
+                      modelName = self.state.predictedTagsModelName
                     )
                     nextProposal <- ProposalService
                       .nextProposalToModerate(
@@ -267,8 +281,7 @@ object FormEnrichProposalComponent {
                   Seq(<.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))(), tags.map { tag =>
                     <.Checkbox(
                       ^.key := tag.id,
-                      ^.checked := self.state.tagsList
-                        .exists(predictedTag => predictedTag.id == tag.id && predictedTag.checked),
+                      ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
                       ^.value := tag.id,
                       ^.label := tag.label,
                       ^.onCheck := handleTagChange

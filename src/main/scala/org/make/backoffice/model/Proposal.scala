@@ -23,14 +23,13 @@ package org.make.backoffice.model
 import java.time.ZonedDateTime
 
 import io.circe.{Decoder, Encoder, Json}
+import org.make.backoffice.service.proposal.ProposalStatus
 import org.make.backoffice.util.FormatToPercent._
+import org.make.backoffice.util.JSConverters._
 
 import scala.scalajs.js
-import js.JSConverters._
-import org.make.backoffice.util.JSConverters._
-import org.make.backoffice.service.proposal.ProposalStatus
-
 import scala.scalajs.js.Date
+import scala.scalajs.js.JSConverters._
 
 @js.native
 trait ProposalId extends js.Object with StringValue {
@@ -205,12 +204,14 @@ object ProposalsResult {
 @js.native
 trait PredictedTagsWithModelResponse extends js.Object {
   val tags: js.Array[PredictedTag]
-  val modelName: String
+  val modelName: js.UndefOr[String]
 }
 
 object PredictedTagsWithModelResponse {
-  def apply(tags: Seq[PredictedTag], modelName: String): PredictedTagsWithModelResponse =
-    js.Dynamic.literal(tags = tags.toJSArray, modelName = modelName).asInstanceOf[PredictedTagsWithModelResponse]
+  def apply(tags: Seq[PredictedTag], modelName: Option[String]): PredictedTagsWithModelResponse =
+    js.Dynamic
+      .literal(tags = tags.toJSArray, modelName = modelName.orUndefined)
+      .asInstanceOf[PredictedTagsWithModelResponse]
 
   implicit lazy val decoder: Decoder[PredictedTagsWithModelResponse] =
     Decoder.forProduct2("tags", "modelName")(PredictedTagsWithModelResponse.apply)
