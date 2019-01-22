@@ -86,7 +86,7 @@ final case class SortRequest(field: Option[String], direction: Option[Order])
 final case class ExhaustiveSearchRequest(proposalIds: Option[Seq[String]] = None,
                                          themesIds: Option[Seq[String]] = None,
                                          tagsIds: Option[Seq[String]] = None,
-                                         @deprecated labelsIds: Option[Seq[String]] = None,
+                                         @Deprecated labelsIds: Option[Seq[String]] = None,
                                          operationId: Option[String] = None,
                                          content: Option[String] = None,
                                          context: Option[ContextFilterRequest] = None,
@@ -97,7 +97,7 @@ final case class ExhaustiveSearchRequest(proposalIds: Option[Seq[String]] = None
                                          country: Option[String])
 
 final case class UpdateProposalRequest(newContent: Option[String],
-                                       @deprecated labels: Seq[String],
+                                       @Deprecated labels: Seq[String],
                                        tags: Seq[TagId],
                                        similarProposals: Seq[ProposalId],
                                        idea: Option[IdeaId],
@@ -107,7 +107,7 @@ final case class RefuseProposalRequest(sendNotificationEmail: Boolean, refusalRe
 
 final case class ValidateProposalRequest(newContent: Option[String],
                                          sendNotificationEmail: Boolean,
-                                         @deprecated labels: Seq[String],
+                                         @Deprecated labels: Seq[String],
                                          tags: Seq[TagId],
                                          similarProposals: Seq[ProposalId],
                                          idea: Option[IdeaId],
