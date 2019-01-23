@@ -42,7 +42,6 @@ import scala.util.{Failure, Success}
 object FormValidateProposalComponent {
 
   case class FormValidateProposalProps(proposal: SingleProposal,
-                                       action: String,
                                        isLocked: Boolean = false,
                                        context: ShowProposalComponents.Context)
   case class FormValidateProposalState(content: String,
@@ -106,32 +105,6 @@ object FormValidateProposalComponent {
                   }
             }
 
-            def handleSubmitUpdate: SyntheticEvent => Unit = {
-              event =>
-                event.preventDefault()
-                val maybeNewContent =
-                  if (self.state.content != self.props.wrapped.proposal.content) {
-                    Some(self.state.content)
-                  } else { None }
-                ProposalService
-                  .updateProposal(
-                    proposalId = self.props.wrapped.proposal.id,
-                    newContent = maybeNewContent,
-                    questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
-                    predictedTags = None,
-                    modelName = None
-                  )
-                  .onComplete {
-                    case Success(_) =>
-                      self.props.history.goBack()
-                      self.setState(_.copy(errorMessage = Seq.empty))
-                    case Failure(BadRequestHttpException(errors)) =>
-                      self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
-                    case Failure(_) =>
-                      self.setState(_.copy(errorMessage = Seq(Main.defaultErrorMessage)))
-                  }
-            }
-
             def handleNextProposal: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
@@ -169,13 +142,10 @@ object FormValidateProposalComponent {
             }
 
             def handleSubmit: SyntheticEvent => Unit = {
-              if (self.props.wrapped.action == "validate" &&
-                  self.props.wrapped.context == ShowProposalComponents.Context.StartModeration) {
+              if (self.props.wrapped.context == ShowProposalComponents.Context.StartModeration) {
                 handleNextProposal
-              } else if (self.props.wrapped.action == "validate") {
-                handleSubmitValidate
               } else {
-                handleSubmitUpdate
+                handleSubmitValidate
               }
             }
 
@@ -183,7 +153,7 @@ object FormValidateProposalComponent {
               self.state.errorMessage.map(msg => <.p()(msg))
 
             <.Card(^.style := Map("marginTop" -> "1em"))(
-              <.CardTitle(^.title := s"I want to ${self.props.wrapped.action} this proposal")(),
+              <.CardTitle(^.title := s"I want to validate this proposal")(),
               <.CardActions()(
                 <.TextFieldMaterialUi(
                   ^.floatingLabelText := "Proposal content",
@@ -194,15 +164,14 @@ object FormValidateProposalComponent {
                 <.span()(s"${self.state.content.length}/${self.state.maxLength}"),
                 <.br()(),
                 <.Checkbox(
-                  ^.disabled := self.props.wrapped.action == "update",
                   ^.label := "Notify user",
-                  ^.checked := self.state.notifyUser && self.props.wrapped.action == "validate",
+                  ^.checked := self.state.notifyUser,
                   ^.onCheck := handleNotifyUserChange,
                   ^.style := Map("maxWidth" -> "25em")
                 )(),
                 <.RaisedButton(
                   ^.style := Map("marginTop" -> "1em"),
-                  ^.label := s"Confirm ${if (self.props.wrapped.action == "validate") "validation" else "changes"}",
+                  ^.label := "Confirm validation",
                   ^.onClick := handleSubmit,
                   ^.disabled := self.state.isLocked
                 )(),

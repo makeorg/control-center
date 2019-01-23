@@ -36,21 +36,22 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
-object StartModeration {
+object StartValidationWithTags {
 
-  final case class StartModerationProps(questions: Seq[Question]) extends RouterProps
-  final case class StartModerationState(questionId: Option[String],
-                                        snackbarOpen: Boolean = false,
-                                        errorMessage: String = "",
-                                        proposalsAmount: Int = 0)
+  final case class StartValidationWithTagsProps(questions: Seq[Question]) extends RouterProps
+  final case class StartValidationWithTagsState(questionId: Option[String],
+                                                snackbarOpen: Boolean = false,
+                                                errorMessage: String = "",
+                                                proposalsAmount: Int = 0)
 
   val reactClass: ReactClass =
     WithRouter(
-      React.createClass[StartModerationProps, StartModerationState](displayName = "StartModeration", getInitialState = {
-        _ =>
-          StartModerationState(None)
-      }, render = {
-        self =>
+      React.createClass[StartValidationWithTagsProps, StartValidationWithTagsState](
+        displayName = "StartValidationWithTags",
+        getInitialState = { _ =>
+          StartValidationWithTagsState(None)
+        },
+        render = { self =>
           def onSelectQuestion: (js.Object, js.UndefOr[Int], String) => Unit = {
             (_, _, value) =>
               self.setState(_.copy(questionId = Some(value)))
@@ -74,7 +75,7 @@ object StartModeration {
               ProposalService
                 .nextProposalToModerate(self.state.questionId, toEnrich = false, minVotesCount = None, minScore = None)
                 .onComplete {
-                  case Success(proposal) => self.props.history.push(s"/nextProposal/${proposal.data.id}")
+                  case Success(proposal) => self.props.history.push(s"/nextProposal/${proposal.data.id}?withTags=true")
                   case Failure(NotFoundHttpException) =>
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "No proposal found"))
                   case Failure(BadRequestHttpException(_)) =>
@@ -85,7 +86,7 @@ object StartModeration {
           }
 
           <.Card()(
-            <.CardTitle(^.title := "Proposals validation")(),
+            <.CardTitle(^.title := "Proposals validation with tags")(),
             <.CardHeader(^.title := self.state.proposalsAmount.toString + " proposals to moderate")(),
             <.SelectField(
               ^.style := Map("margin" -> "0 1em", "width" -> "80%"),
@@ -109,6 +110,7 @@ object StartModeration {
               ^.onRequestClose := (_ => self.setState(_.copy(snackbarOpen = false)))
             )()
           )
-      })
+        }
+      )
     )
 }

@@ -28,8 +28,8 @@ import scala.scalajs.js.JSConverters._
 
 object Configuration extends CirceClassFormatters {
 
-  val toEnrichMinScore = "1.3"
-  val toEnrichMinVotesCount = "200"
+  val toEnrichMinScore = "0"
+  val toEnrichMinVotesCount = "0"
 
   val proposalMaxLength: Int = 140
   val defaultLanguage: String = "fr"

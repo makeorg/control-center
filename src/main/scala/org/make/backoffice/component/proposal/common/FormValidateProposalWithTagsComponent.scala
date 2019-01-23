@@ -42,29 +42,28 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
-object FormEnrichProposalComponent {
+object FormValidateProposalWithTagsComponent {
 
-  case class FormEnrichProposalProps(proposal: SingleProposal,
-                                     minVotesCount: Option[String],
-                                     toEnrichMinScore: Option[String],
-                                     isLocked: Boolean = false,
-                                     context: ShowProposalComponents.Context)
-  case class FormEnrichProposalState(content: String,
-                                     maxLength: Int,
-                                     notifyUser: Boolean = true,
-                                     tagTypes: Seq[TagType] = Seq.empty,
-                                     selectedTags: Seq[TagId] = Seq.empty,
-                                     tagsList: Seq[PredictedTag] = Seq.empty,
-                                     predictedTagsModelName: Option[String] = None,
-                                     errorMessage: Seq[String] = Seq.empty,
-                                     isLocked: Boolean = false,
-                                     tagListLoaded: Boolean = false)
+  case class FormValidateProposalWithTagsProps(proposal: SingleProposal,
+                                               isLocked: Boolean = false,
+                                               context: ShowProposalComponents.Context)
+  case class FormValidateProposalWithTagsState(content: String,
+                                               maxLength: Int,
+                                               notifyUser: Boolean = true,
+                                               tagTypes: Seq[TagType] = Seq.empty,
+                                               selectedTags: Seq[TagId] = Seq.empty,
+                                               tagsList: Seq[PredictedTag] = Seq.empty,
+                                               predictedTagsModelName: Option[String] = None,
+                                               errorMessage: Seq[String] = Seq.empty,
+                                               isLocked: Boolean = false,
+                                               tagListLoaded: Boolean = false)
 
-  def setTags(self: Self[FormEnrichProposalProps, FormEnrichProposalState], props: FormEnrichProposalProps): Unit = {
+  def setTags(self: Self[FormValidateProposalWithTagsProps, FormValidateProposalWithTagsState],
+              props: FormValidateProposalWithTagsProps): Unit = {
     val futureTags = for {
-      tagTypes      <- TagTypeService.tagTypes
-      predictedTags <- ProposalService.getProposalTags(proposalId = props.proposal.id)
-    } yield (tagTypes, predictedTags)
+      tagTypes <- TagTypeService.tagTypes
+      tags     <- ProposalService.getProposalTags(proposalId = props.proposal.id)
+    } yield (tagTypes, tags)
 
     futureTags.onComplete {
       case Success((tagTypes, predictedTags)) =>
@@ -84,10 +83,10 @@ object FormEnrichProposalComponent {
   lazy val reactClass: ReactClass =
     WithRouter(
       React
-        .createClass[FormEnrichProposalProps, FormEnrichProposalState](
-          displayName = "FormEnrichProposalComponent",
+        .createClass[FormValidateProposalWithTagsProps, FormValidateProposalWithTagsState](
+          displayName = "FormValidateProposalWithTagsComponent",
           getInitialState = { self =>
-            FormEnrichProposalState(
+            FormValidateProposalWithTagsState(
               content = self.props.wrapped.proposal.content,
               maxLength = Configuration.proposalMaxLength,
               isLocked = self.props.wrapped.isLocked,
@@ -127,20 +126,24 @@ object FormEnrichProposalComponent {
                 self.setState(_.copy(selectedTags = newSelectedTags))
             }
 
-            def handleSubmitUpdate: SyntheticEvent => Unit = {
+            def handleNotifyUserChange: (js.Object, Boolean) => Unit = { (_, checked) =>
+              self.setState(_.copy(notifyUser = checked))
+            }
+
+            def handleSubmitValidate: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
-                val mayBeNewContent =
+                val maybeNewContent =
                   if (self.state.content != self.props.wrapped.proposal.content) {
                     Some(self.state.content)
                   } else { None }
                 val predictedTags = self.state.tagsList.filter(_.predicted).map(tag => TagId(tag.id))
                 val predictedTagsParam = if (predictedTags.isEmpty) None else Some(predictedTags)
                 ProposalService
-                  .updateProposal(
+                  .validateProposal(
                     proposalId = self.props.wrapped.proposal.id,
-                    newContent = mayBeNewContent,
-                    tags = self.state.selectedTags,
+                    newContent = maybeNewContent,
+                    sendNotificationEmail = self.state.notifyUser,
                     questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
                     predictedTags = predictedTagsParam,
                     modelName = self.state.predictedTagsModelName
@@ -159,8 +162,6 @@ object FormEnrichProposalComponent {
             def handleNextProposal: SyntheticEvent => Unit = {
               event =>
                 event.preventDefault()
-                val minVotesCount = self.props.wrapped.minVotesCount.getOrElse(Configuration.toEnrichMinVotesCount)
-                val minScore = self.props.wrapped.toEnrichMinScore.getOrElse(Configuration.toEnrichMinScore)
                 val mayBeNewContent =
                   if (self.state.content != self.props.wrapped.proposal.content) {
                     Some(self.state.content)
@@ -169,27 +170,26 @@ object FormEnrichProposalComponent {
                 val predictedTagsParam = if (predictedTags.isEmpty) None else Some(predictedTags)
                 val futureNextProposal =
                   for {
-                    _ <- ProposalService.updateProposal(
+                    _ <- ProposalService.validateProposal(
                       proposalId = self.props.wrapped.proposal.id,
                       newContent = mayBeNewContent,
                       tags = self.state.selectedTags,
                       questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
+                      sendNotificationEmail = self.state.notifyUser,
                       predictedTags = predictedTagsParam,
                       modelName = self.state.predictedTagsModelName
                     )
                     nextProposal <- ProposalService
                       .nextProposalToModerate(
                         self.props.wrapped.proposal.questionId.toOption,
-                        toEnrich = true,
-                        minVotesCount = Some(minVotesCount),
-                        minScore = Some(minScore)
+                        toEnrich = false,
+                        minVotesCount = None,
+                        minScore = None
                       )
                   } yield nextProposal
                 futureNextProposal.onComplete {
                   case Success(proposalResponse) =>
-                    self.props.history.push(
-                      s"/nextProposal/${proposalResponse.data.id}?minVotesCount=$minVotesCount&minScore=$minScore"
-                    )
+                    self.props.history.push(s"/nextProposal/${proposalResponse.data.id}?withTags=true")
                   case Failure(NotFoundHttpException) => self.props.history.push("/proposals")
                   case Failure(BadRequestHttpException(errors)) =>
                     self.setState(_.copy(errorMessage = errors.map(_.message.getOrElse(""))))
@@ -202,7 +202,7 @@ object FormEnrichProposalComponent {
               if (self.props.wrapped.context == ShowProposalComponents.Context.StartModeration) {
                 handleNextProposal
               } else {
-                handleSubmitUpdate
+                handleSubmitValidate
               }
             }
 
@@ -223,7 +223,8 @@ object FormEnrichProposalComponent {
                   Seq(<.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))(), tags.map { tag =>
                     <.Checkbox(
                       ^.key := tag.id,
-                      ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
+                      ^.checked := self.state.tagsList
+                        .exists(predictedTag => predictedTag.id == tag.id && predictedTag.checked),
                       ^.value := tag.id,
                       ^.label := tag.label,
                       ^.onCheck := handleTagChange
@@ -236,7 +237,7 @@ object FormEnrichProposalComponent {
               self.state.errorMessage.map(msg => <.p()(msg))
 
             <.Card(^.style := Map("marginTop" -> "1em"))(
-              <.CardTitle(^.title := s"I want to enrich this proposal")(),
+              <.CardTitle(^.title := s"I want to validate this proposal")(),
               <.CardActions()(
                 <.Card(^.style := Map("marginTop" -> "1em"))(
                   <.CardActions()(
@@ -257,9 +258,19 @@ object FormEnrichProposalComponent {
                     <.CircularProgress()()
                   }))
                 ),
+                <.Card(^.style := Map("marginTop" -> "1em"))(
+                  <.CardActions()(
+                    <.Checkbox(
+                      ^.label := "Notify user",
+                      ^.checked := self.state.notifyUser,
+                      ^.onCheck := handleNotifyUserChange,
+                      ^.style := Map("maxWidth" -> "25em")
+                    )()
+                  )
+                ),
                 <.RaisedButton(
                   ^.style := Map("marginTop" -> "1em"),
-                  ^.label := "Confirm changes",
+                  ^.label := s"Confirm validation",
                   ^.onClick := handleSubmit,
                   ^.disabled := self.state.isLocked
                 )(),

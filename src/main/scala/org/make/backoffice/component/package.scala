@@ -37,6 +37,8 @@ package object component {
       self(proposal.common.FormValidateProposalComponent.reactClass)
     def FormPostponeProposalComponent: ReactClassElementSpec =
       self(proposal.common.FormPostponeProposalComponent.reactClass)
+    def FormValidateProposalWithTagsComponent: ReactClassElementSpec =
+      self(proposal.common.FormValidateProposalWithTagsComponent.reactClass)
     def ModerationHistoryComponent: ReactClassElementSpec = self(proposal.common.ModerationHistoryComponent.reactClass)
     def ProposalIdeaComponent: ReactClassElementSpec = self(proposal.common.ProposalIdeaComponent.reactClass)
     def StatsValidatedProposal: ReactClassElementSpec = self(proposal.common.ValidatedProposalStats.reactClass)
@@ -47,6 +49,7 @@ package object component {
     def CustomTagDatagrid: ReactClassElementSpec = self(tag.EditTag.dataGrid)
     def StartModeration: ReactClassElementSpec = self(proposal.moderation.StartModeration.reactClass)
     def StartEnrich: ReactClassElementSpec = self(proposal.toEnrich.StartEnrich.reactClass)
+    def StartValidationWithTags: ReactClassElementSpec = self(proposal.moderation.StartValidationWithTags.reactClass)
   }
 
   implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {

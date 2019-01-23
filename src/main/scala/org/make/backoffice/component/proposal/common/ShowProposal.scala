@@ -24,15 +24,14 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
+import org.make.backoffice.client.Resource
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.proposal.common.ShowProposalComponents.{Context, ShowProposalComponentsProps}
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Show._
 import org.make.backoffice.facade.AdminOnRest.Tab._
 import org.make.backoffice.facade.AdminOnRest.TabbedShowLayout._
-import org.make.backoffice.util.Configuration
 import org.make.backoffice.model.SingleProposal
-import org.make.backoffice.client.Resource
 
 object ShowProposal {
 
@@ -57,7 +56,8 @@ object ShowProposal {
                 proposal = None,
                 context = Context.List,
                 minVotesCount = None,
-                toEnrichMinScore = None
+                toEnrichMinScore = None,
+                withTags = true
               )
             )()
           ),
