@@ -223,8 +223,7 @@ object FormValidateProposalWithTagsComponent {
                   Seq(<.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))(), tags.map { tag =>
                     <.Checkbox(
                       ^.key := tag.id,
-                      ^.checked := self.state.tagsList
-                        .exists(predictedTag => predictedTag.id == tag.id && predictedTag.checked),
+                      ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
                       ^.value := tag.id,
                       ^.label := tag.label,
                       ^.onCheck := handleTagChange
