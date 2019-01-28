@@ -37,6 +37,9 @@ import org.make.backoffice.service.proposal.ProposalService
 import org.make.backoffice.service.tag.TagTypeService
 import org.make.backoffice.util.Configuration
 import org.scalajs.dom.raw.HTMLInputElement
+import scalacss.DevDefaults._
+import scalacss.internal.StyleA
+import scalacss.internal.mutable.StyleSheet
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -219,16 +222,21 @@ object FormEnrichProposalComponent {
 
             val checkboxTags: Seq[Element] = groupedTagsWithTagTypeOrdered.map {
               case (maybeTagType, tags) =>
-                <.div(^.style := Map("maxWidth" -> "25em"))(
-                  Seq(<.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))(), tags.map { tag =>
-                    <.Checkbox(
-                      ^.key := tag.id,
-                      ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
-                      ^.value := tag.id,
-                      ^.label := tag.label,
-                      ^.onCheck := handleTagChange
-                    )()
-                  })
+                <.div(^.className := FormEnrichProposalStyles.gridWrapper.htmlClass)(
+                  Seq(
+                    <.div(^.className := FormEnrichProposalStyles.gridTitle.htmlClass)(
+                      <.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))()
+                    ),
+                    tags.map { tag =>
+                      <.Checkbox(
+                        ^.key := tag.id,
+                        ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
+                        ^.value := tag.id,
+                        ^.label := tag.label,
+                        ^.onCheck := handleTagChange
+                      )()
+                    }
+                  )
                 )
             }
 
@@ -251,7 +259,7 @@ object FormEnrichProposalComponent {
                 ),
                 <.Card(^.style := Map("marginTop" -> "1em"))(
                   <.CardTitle(^.title := "Tags")(),
-                  <.CardActions()(<.div(^.style := Map("display" -> "flex"))(if (self.state.tagListLoaded) {
+                  <.CardActions()(<.div()(if (self.state.tagListLoaded) {
                     checkboxTags
                   } else {
                     <.CircularProgress()()
@@ -264,9 +272,25 @@ object FormEnrichProposalComponent {
                   ^.disabled := self.state.isLocked
                 )(),
                 errorMessage
-              )
+              ),
+              <.style()(FormEnrichProposalStyles.render[String])
             )
           }
         )
     )
+}
+
+object FormEnrichProposalStyles extends StyleSheet.Inline {
+
+  import dsl._
+
+  val gridWrapper: StyleA =
+    style(
+      display.grid,
+      margin(10.px),
+      gridTemplateColumns := "repeat(5, 1fr)",
+      media.maxWidth(720.px)(gridTemplateColumns := "repeat(2, 1fr)")
+    )
+
+  val gridTitle: StyleA = style(gridColumn := "1 / 6", gridRow := "1", media.maxWidth(720.px)(gridColumn := "1 / 3"))
 }
