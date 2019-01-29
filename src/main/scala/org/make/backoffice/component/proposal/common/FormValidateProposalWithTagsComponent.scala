@@ -37,6 +37,9 @@ import org.make.backoffice.service.proposal.ProposalService
 import org.make.backoffice.service.tag.TagTypeService
 import org.make.backoffice.util.Configuration
 import org.scalajs.dom.raw.HTMLInputElement
+import scalacss.DevDefaults._
+import scalacss.internal.StyleA
+import scalacss.internal.mutable.StyleSheet
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -145,6 +148,7 @@ object FormValidateProposalWithTagsComponent {
                     newContent = maybeNewContent,
                     sendNotificationEmail = self.state.notifyUser,
                     questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
+                    tags = self.state.selectedTags,
                     predictedTags = predictedTagsParam,
                     modelName = self.state.predictedTagsModelName
                   )
@@ -219,16 +223,21 @@ object FormValidateProposalWithTagsComponent {
 
             val checkboxTags: Seq[Element] = groupedTagsWithTagTypeOrdered.map {
               case (maybeTagType, tags) =>
-                <.div(^.style := Map("maxWidth" -> "25em"))(
-                  Seq(<.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))(), tags.map { tag =>
-                    <.Checkbox(
-                      ^.key := tag.id,
-                      ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
-                      ^.value := tag.id,
-                      ^.label := tag.label,
-                      ^.onCheck := handleTagChange
-                    )()
-                  })
+                <.div(^.className := FormValidateProposalWithTagsStyles.gridWrapper.htmlClass)(
+                  Seq(
+                    <.div(^.className := FormValidateProposalWithTagsStyles.gridTitle.htmlClass)(
+                      <.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))()
+                    ),
+                    tags.map { tag =>
+                      <.Checkbox(
+                        ^.key := tag.id,
+                        ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
+                        ^.value := tag.id,
+                        ^.label := tag.label,
+                        ^.onCheck := handleTagChange
+                      )()
+                    }
+                  )
                 )
             }
 
@@ -251,7 +260,7 @@ object FormValidateProposalWithTagsComponent {
                 ),
                 <.Card(^.style := Map("marginTop" -> "1em"))(
                   <.CardTitle(^.title := "Tags")(),
-                  <.CardActions()(<.div(^.style := Map("display" -> "flex"))(if (self.state.tagListLoaded) {
+                  <.CardActions()(<.div()(if (self.state.tagListLoaded) {
                     checkboxTags
                   } else {
                     <.CircularProgress()()
@@ -274,9 +283,25 @@ object FormValidateProposalWithTagsComponent {
                   ^.disabled := self.state.isLocked
                 )(),
                 errorMessage
-              )
+              ),
+              <.style()(FormValidateProposalWithTagsStyles.render[String])
             )
           }
         )
     )
+}
+
+object FormValidateProposalWithTagsStyles extends StyleSheet.Inline {
+
+  import dsl._
+
+  val gridWrapper: StyleA =
+    style(
+      display.grid,
+      margin(10.px),
+      gridTemplateColumns := "repeat(5, 1fr)",
+      media.maxWidth(720.px)(gridTemplateColumns := "repeat(2, 1fr)")
+    )
+
+  val gridTitle: StyleA = style(gridColumn := "1 / 6", gridRow := "1", media.maxWidth(720.px)(gridColumn := "1 / 3"))
 }
