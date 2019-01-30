@@ -29,10 +29,12 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
-import org.make.backoffice.component.Main
+import org.make.backoffice.component.{Main, RichVirtualDOMElements}
+import org.make.backoffice.component.proposal.common.ProposalIdeaComponent.ProposalIdeaProps
 import org.make.backoffice.facade.AdminOnRest.Fields.FieldsVirtualDOMElements
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
+import org.make.backoffice.service.idea.IdeaService
 import org.make.backoffice.service.proposal.ProposalService
 import org.make.backoffice.service.tag.TagTypeService
 import org.make.backoffice.util.Configuration
@@ -59,6 +61,8 @@ object FormEnrichProposalComponent {
                                      selectedTags: Seq[TagId] = Seq.empty,
                                      tagsList: Seq[PredictedTag] = Seq.empty,
                                      predictedTagsModelName: Option[String] = None,
+                                     ideaId: Option[IdeaId] = None,
+                                     ideaName: String = "",
                                      errorMessage: Seq[String] = Seq.empty,
                                      isLocked: Boolean = false,
                                      tagListLoaded: Boolean = false)
@@ -98,6 +102,13 @@ object FormEnrichProposalComponent {
           },
           componentDidMount = self => {
             setTags(self, self.props.wrapped)
+            self.props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
+              IdeaService.getIdea(ideaId).onComplete {
+                case Success(response) =>
+                  self.setState(_.copy(ideaId = Some(IdeaId(response.data.id)), ideaName = response.data.name))
+                case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
+              }
+            }
           },
           componentWillReceiveProps = { (self, props) =>
             self.setState(_.copy(isLocked = props.wrapped.isLocked))
@@ -105,6 +116,13 @@ object FormEnrichProposalComponent {
               self.setState(_.copy(content = props.wrapped.proposal.content, selectedTags = Seq.empty))
             }
             setTags(self, props.wrapped)
+            props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
+              IdeaService.getIdea(ideaId).onComplete {
+                case Success(response) =>
+                  self.setState(_.copy(ideaId = Some(IdeaId(response.data.id)), ideaName = response.data.name))
+                case Failure(_) => self.setState(_.copy(ideaId = None, ideaName = ""))
+              }
+            }
           },
           render = { self =>
             def handleContentEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
@@ -144,6 +162,7 @@ object FormEnrichProposalComponent {
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = mayBeNewContent,
                     tags = self.state.selectedTags,
+                    ideaId = self.state.ideaId,
                     questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
                     predictedTags = predictedTagsParam,
                     modelName = self.state.predictedTagsModelName
@@ -176,6 +195,7 @@ object FormEnrichProposalComponent {
                       proposalId = self.props.wrapped.proposal.id,
                       newContent = mayBeNewContent,
                       tags = self.state.selectedTags,
+                      ideaId = self.state.ideaId,
                       questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
                       predictedTags = predictedTagsParam,
                       modelName = self.state.predictedTagsModelName
@@ -240,6 +260,10 @@ object FormEnrichProposalComponent {
                 )
             }
 
+            def setProposalIdea(ideaId: Option[IdeaId]): Unit = {
+              self.setState(_.copy(ideaId = ideaId))
+            }
+
             val errorMessage: Seq[Element] =
               self.state.errorMessage.map(msg => <.p()(msg))
 
@@ -265,6 +289,11 @@ object FormEnrichProposalComponent {
                     <.CircularProgress()()
                   }))
                 ),
+                if (self.props.wrapped.proposal.ideaId.nonEmpty) {
+                  <.ProposalIdeaComponent(
+                    ^.wrapped := ProposalIdeaProps(self.props.wrapped.proposal, setProposalIdea, self.state.ideaName)
+                  )()
+                },
                 <.RaisedButton(
                   ^.style := Map("marginTop" -> "1em"),
                   ^.label := "Confirm changes",

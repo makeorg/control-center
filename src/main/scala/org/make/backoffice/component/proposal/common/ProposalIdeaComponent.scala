@@ -31,6 +31,7 @@ import org.make.backoffice.client.request.{Filter, Pagination}
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.proposal.common.NewIdeaComponent.NewIdeaProps
 import org.make.backoffice.facade.AdminOnRest.EditButton._
+import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
@@ -232,13 +233,15 @@ object ProposalIdeaComponent {
               ^.value := self.state.ideaName.getOrElse(self.props.wrapped.ideaName),
               ^.name := self.state.ideaName.getOrElse(self.props.wrapped.ideaName),
               ^.readOnly := true,
-              ^.disabled := true
+              ^.underlineShow := false,
+              ^.style := Map("width" -> "80%")
             )()
           }, if (self.state.selectedIdeaId.isDefined) {
             <.CardActions(^.style := Map("float" -> "left"))(
               <.EditButton(
                 ^.label := "Edit Idea",
                 ^.basePath := "/ideas",
+                ^.translateLabel := ((label: String) => label),
                 ^.record := js.Dynamic.literal("id" -> self.state.selectedIdeaId.map(_.value).getOrElse("").toString)
               )()
             )

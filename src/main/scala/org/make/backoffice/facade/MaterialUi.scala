@@ -343,6 +343,7 @@ object MaterialUi {
     lazy val textFieldStyle = MapStringAttributeSpec("textFieldStyle")
     lazy val tooltip = StringAttributeSpec("tooltip")
     lazy val tooltipStyle = MapStringAttributeSpec("tooltipStyle")
+    lazy val underlineShow = BooleanAttributeSpec("underlineShow")
     lazy val valueSelect = ValueSelectAttributeSpec("value")
     lazy val wrapperStyle = MapStringAttributeSpec("wrapperStyle")
   }
