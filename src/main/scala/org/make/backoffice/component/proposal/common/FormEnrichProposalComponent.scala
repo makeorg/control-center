@@ -237,26 +237,30 @@ object FormEnrichProposalComponent {
               groupedTagsWithTagType.toSeq.sortBy {
                 case (tagType, _) => -1 * tagType.map(_.weight).getOrElse(2000.toFloat)
               }.map {
-                case (tagType, tags) => (tagType, tags.sortBy(tag => -1 * tag.weight))
+                case (tagType, tags) => (tagType, tags.sortBy(tag => tag.weight))
               }
 
-            val checkboxTags: Seq[Element] = groupedTagsWithTagTypeOrdered.map {
+            val checkboxTags: Seq[Element] = groupedTagsWithTagTypeOrdered.flatMap {
               case (maybeTagType, tags) =>
-                <.div(^.className := FormEnrichProposalStyles.gridWrapper.htmlClass)(
-                  Seq(
-                    <.div(^.className := FormEnrichProposalStyles.gridTitle.htmlClass)(
-                      <.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))()
-                    ),
-                    tags.map { tag =>
-                      <.Checkbox(
-                        ^.key := tag.id,
-                        ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
-                        ^.value := tag.id,
-                        ^.label := tag.label,
-                        ^.onCheck := handleTagChange
-                      )()
-                    }
-                  )
+                Seq(
+                  <.div(^.className := FormEnrichProposalStyles.gridWrapper.htmlClass)(
+                    Seq(
+                      <.div(^.className := FormEnrichProposalStyles.gridTitle.htmlClass)(
+                        <.h4()(maybeTagType.map(_.label).getOrElse("None"))
+                      ),
+                      tags.map { tag =>
+                        <.Checkbox(
+                          ^.className := FormEnrichProposalStyles.label.htmlClass,
+                          ^.key := tag.id,
+                          ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
+                          ^.value := tag.id,
+                          ^.label := tag.label,
+                          ^.onCheck := handleTagChange
+                        )()
+                      }
+                    )
+                  ),
+                  <.hr.empty
                 )
             }
 
@@ -314,12 +318,9 @@ object FormEnrichProposalStyles extends StyleSheet.Inline {
   import dsl._
 
   val gridWrapper: StyleA =
-    style(
-      display.grid,
-      margin(10.px),
-      gridTemplateColumns := "repeat(5, 1fr)",
-      media.maxWidth(720.px)(gridTemplateColumns := "repeat(2, 1fr)")
-    )
+    style(margin(10.px), columnCount(3), media.maxWidth(720.px)(columnCount(1)))
 
-  val gridTitle: StyleA = style(gridColumn := "1 / 6", gridRow := "1", media.maxWidth(720.px)(gridColumn := "1 / 3"))
+  val gridTitle: StyleA = style(columnSpan.all)
+
+  val label: StyleA = style(unsafeChild("label")(fontWeight.initial.important))
 }
