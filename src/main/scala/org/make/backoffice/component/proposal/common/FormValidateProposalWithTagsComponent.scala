@@ -30,8 +30,6 @@ import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
 import org.make.backoffice.component.Main
-import org.make.backoffice.component.proposal.common.FormEnrichProposalStyles.style
-import org.make.backoffice.facade.AdminOnRest.Fields.FieldsVirtualDOMElements
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.proposal.ProposalService
@@ -306,5 +304,5 @@ object FormValidateProposalWithTagsStyles extends StyleSheet.Inline {
 
   val gridTitle: StyleA = style(columnSpan.all)
 
-  val label: StyleA = style(unsafeChild("label")(fontWeight.initial.important))
+  val label: StyleA = style(breakInside.avoid, unsafeChild("label")(fontWeight.initial.important))
 }

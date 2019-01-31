@@ -322,5 +322,5 @@ object FormEnrichProposalStyles extends StyleSheet.Inline {
 
   val gridTitle: StyleA = style(columnSpan.all)
 
-  val label: StyleA = style(unsafeChild("label")(fontWeight.initial.important))
+  val label: StyleA = style(breakInside.avoid, unsafeChild("label")(fontWeight.initial.important))
 }
