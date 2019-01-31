@@ -30,6 +30,7 @@ import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
 import org.make.backoffice.component.Main
+import org.make.backoffice.component.proposal.common.FormEnrichProposalStyles.style
 import org.make.backoffice.facade.AdminOnRest.Fields.FieldsVirtualDOMElements
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
@@ -218,27 +219,32 @@ object FormValidateProposalWithTagsComponent {
               groupedTagsWithTagType.toSeq.sortBy {
                 case (tagType, _) => -1 * tagType.map(_.weight).getOrElse(2000.toFloat)
               }.map {
-                case (tagType, tags) => (tagType, tags.sortBy(tag => -1 * tag.weight))
+                case (tagType, tags) => (tagType, tags.sortBy(tag => tag.weight))
               }
 
-            val checkboxTags: Seq[Element] = groupedTagsWithTagTypeOrdered.map {
+            val checkboxTags: Seq[Element] = groupedTagsWithTagTypeOrdered.flatMap {
               case (maybeTagType, tags) =>
-                <.div(^.className := FormValidateProposalWithTagsStyles.gridWrapper.htmlClass)(
-                  Seq(
-                    <.div(^.className := FormValidateProposalWithTagsStyles.gridTitle.htmlClass)(
-                      <.FieldTitle(^.label := maybeTagType.map(_.label).getOrElse("None"))()
-                    ),
-                    tags.map { tag =>
-                      <.Checkbox(
-                        ^.key := tag.id,
-                        ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
-                        ^.value := tag.id,
-                        ^.label := tag.label,
-                        ^.onCheck := handleTagChange
-                      )()
-                    }
-                  )
+                Seq(
+                  <.div(^.className := FormValidateProposalWithTagsStyles.gridWrapper.htmlClass)(
+                    Seq(
+                      <.div(^.className := FormValidateProposalWithTagsStyles.gridTitle.htmlClass)(
+                        <.h4()(maybeTagType.map(_.label).getOrElse("None"))
+                      ),
+                      tags.map { tag =>
+                        <.Checkbox(
+                          ^.className := FormValidateProposalWithTagsStyles.label.htmlClass,
+                          ^.key := tag.id,
+                          ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
+                          ^.value := tag.id,
+                          ^.label := tag.label,
+                          ^.onCheck := handleTagChange
+                        )()
+                      }
+                    )
+                  ),
+                  <.hr.empty
                 )
+
             }
 
             val errorMessage: Seq[Element] =
@@ -296,12 +302,9 @@ object FormValidateProposalWithTagsStyles extends StyleSheet.Inline {
   import dsl._
 
   val gridWrapper: StyleA =
-    style(
-      display.grid,
-      margin(10.px),
-      gridTemplateColumns := "repeat(5, 1fr)",
-      media.maxWidth(720.px)(gridTemplateColumns := "repeat(2, 1fr)")
-    )
+    style(margin(10.px), columnCount(3), media.maxWidth(720.px)(columnCount(1)))
 
-  val gridTitle: StyleA = style(gridColumn := "1 / 6", gridRow := "1", media.maxWidth(720.px)(gridColumn := "1 / 3"))
+  val gridTitle: StyleA = style(columnSpan.all)
+
+  val label: StyleA = style(unsafeChild("label")(fontWeight.initial.important))
 }
