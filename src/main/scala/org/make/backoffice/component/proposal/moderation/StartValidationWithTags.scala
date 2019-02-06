@@ -97,7 +97,7 @@ object StartValidationWithTags {
               <.MenuItem(
                 ^.key := question.id,
                 ^.value := question.id,
-                ^.primaryText := s"${question.question} (${question.slug})"
+                ^.primaryText := s"${question.slug} : ${question.question}"
               )()
             }),
             <.CardActions()(

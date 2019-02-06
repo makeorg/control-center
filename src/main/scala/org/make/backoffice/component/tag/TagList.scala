@@ -94,9 +94,11 @@ object TagList {
         ^.label := "Question",
         ^.translateLabel := ((label: String) => label),
         ^.source := "questionId",
+        ^.sort := Map("field" -> "slug", "order" -> "ASC"),
         ^.reference := Resource.questions,
         ^.perPage := 100,
-        ^.alwaysOn := true
+        ^.alwaysOn := true,
+        ^.allowEmpty := true
       )(<.SelectInput(^.optionText := "slug")())
     )
   }

@@ -103,7 +103,7 @@ final case class UpdateProposalRequest(newContent: Option[String],
                                        idea: Option[IdeaId],
                                        questionId: Option[QuestionId],
                                        predictedTags: Option[Seq[TagId]],
-                                       modelName: Option[String])
+                                       predictedTagsModelName: Option[String])
 
 final case class RefuseProposalRequest(sendNotificationEmail: Boolean, refusalReason: Option[String])
 
@@ -115,7 +115,7 @@ final case class ValidateProposalRequest(newContent: Option[String],
                                          idea: Option[IdeaId],
                                          questionId: Option[QuestionId],
                                          predictedTags: Option[Seq[TagId]],
-                                         modelName: Option[String])
+                                         predictedTagsModelName: Option[String])
 
 final case class PatchProposalsIdeaRequest(proposalIds: Seq[ProposalId], ideaId: IdeaId)
 
