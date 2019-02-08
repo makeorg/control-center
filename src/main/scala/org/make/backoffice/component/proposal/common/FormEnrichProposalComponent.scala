@@ -31,7 +31,6 @@ import io.github.shogowada.statictags.Element
 import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
 import org.make.backoffice.component.{Main, RichVirtualDOMElements}
 import org.make.backoffice.component.proposal.common.ProposalIdeaComponent.ProposalIdeaProps
-import org.make.backoffice.facade.AdminOnRest.Fields.FieldsVirtualDOMElements
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.idea.IdeaService
@@ -113,7 +112,9 @@ object FormEnrichProposalComponent {
           componentWillReceiveProps = { (self, props) =>
             self.setState(_.copy(isLocked = props.wrapped.isLocked))
             if (self.props.wrapped.proposal.id != props.wrapped.proposal.id) {
-              self.setState(_.copy(content = props.wrapped.proposal.content, selectedTags = Seq.empty))
+              self.setState(
+                _.copy(content = props.wrapped.proposal.content, selectedTags = Seq.empty, tagListLoaded = false)
+              )
             }
             setTags(self, props.wrapped)
             props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>

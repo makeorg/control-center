@@ -100,7 +100,9 @@ object FormValidateProposalWithTagsComponent {
           componentWillReceiveProps = { (self, props) =>
             self.setState(_.copy(isLocked = props.wrapped.isLocked))
             if (self.props.wrapped.proposal.id != props.wrapped.proposal.id) {
-              self.setState(_.copy(content = props.wrapped.proposal.content, selectedTags = Seq.empty))
+              self.setState(
+                _.copy(content = props.wrapped.proposal.content, selectedTags = Seq.empty, tagListLoaded = false)
+              )
             }
             setTags(self, props.wrapped)
           },

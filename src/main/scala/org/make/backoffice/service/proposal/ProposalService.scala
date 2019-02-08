@@ -105,7 +105,7 @@ object ProposalService extends ApiService with CirceClassFormatters {
       questionId = questionId,
       labels = Seq.empty, // deprecated field
       predictedTags = predictedTags,
-      modelName = modelName
+      predictedTagsModelName = modelName
     )
     client
       .put[SingleProposal](
@@ -138,7 +138,7 @@ object ProposalService extends ApiService with CirceClassFormatters {
       questionId = questionId,
       labels = Seq.empty, // deprecated field
       predictedTags = predictedTags,
-      modelName = modelName
+      predictedTagsModelName = modelName
     )
     client
       .post[SingleProposal](resourceName / proposalId / "accept", data = request.asJson.pretty(ApiService.printer))
