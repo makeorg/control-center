@@ -29,8 +29,8 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
-import org.make.backoffice.component.{Main, RichVirtualDOMElements}
 import org.make.backoffice.component.proposal.common.ProposalIdeaComponent.ProposalIdeaProps
+import org.make.backoffice.component.{Main, RichVirtualDOMElements}
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.idea.IdeaService
@@ -110,18 +110,18 @@ object FormEnrichProposalComponent {
             }
           },
           componentWillReceiveProps = { (self, props) =>
-            self.setState(_.copy(isLocked = props.wrapped.isLocked))
             if (self.props.wrapped.proposal.id != props.wrapped.proposal.id) {
+              self.setState(_.copy(isLocked = props.wrapped.isLocked))
               self.setState(
                 _.copy(content = props.wrapped.proposal.content, selectedTags = Seq.empty, tagListLoaded = false)
               )
-            }
-            setTags(self, props.wrapped)
-            props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
-              IdeaService.getIdea(ideaId).onComplete {
-                case Success(response) =>
-                  self.setState(_.copy(ideaId = Some(IdeaId(response.data.id)), ideaName = response.data.name))
-                case Failure(_) => self.setState(_.copy(ideaId = None, ideaName = ""))
+              setTags(self, props.wrapped)
+              props.wrapped.proposal.ideaId.toOption.foreach { ideaId =>
+                IdeaService.getIdea(ideaId).onComplete {
+                  case Success(response) =>
+                    self.setState(_.copy(ideaId = Some(IdeaId(response.data.id)), ideaName = response.data.name))
+                  case Failure(_) => self.setState(_.copy(ideaId = None, ideaName = ""))
+                }
               }
             }
           },
