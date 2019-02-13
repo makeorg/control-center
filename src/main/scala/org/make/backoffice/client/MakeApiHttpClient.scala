@@ -53,8 +53,7 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
 
   override def defaultHeaders: Map[String, String] = {
     Map(
-      //TODO: X-Forwarded-For Header is set for dev only. Remove in prod.
-      "X-Forwarded-For" -> "0.0.0.0",
+      "x-make-app-name" -> "backoffice",
       "Accept" -> MediaTypes.`application/json`,
       "Content-Type" -> "application/json;charset=UTF-8"
     ) ++

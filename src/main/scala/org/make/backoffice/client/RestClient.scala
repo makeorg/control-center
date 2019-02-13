@@ -30,12 +30,14 @@ import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.Promise
 import org.scalajs.dom
+import org.scalajs.dom.experimental.Headers
 
 object RestClient extends CirceClassFormatters {
   def makeClient(restVerb: String, resource: String, parameters: js.Object): Promise[Response] = {
 
     def fetchJsonCookie(url: String, options: js.UndefOr[js.Dictionary[Any]]): Promise[Response] = {
       val defined: js.Dictionary[Any] = options.getOrElse(js.Dictionary())
+      defined.update("headers", new Headers(js.Dictionary("x-make-app-name" -> "backoffice")))
       defined.update("credentials", "include")
       defined.update(
         "user",
