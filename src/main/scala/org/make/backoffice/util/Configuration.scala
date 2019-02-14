@@ -99,4 +99,20 @@ object Configuration extends CirceClassFormatters {
       )
     }.toMap
   }
+
+  def choiceDefaultLanguage: js.Array[Choice] = {
+    supportedCountries
+      .map(_.defaultLanguage)
+      .sorted
+      .distinct
+      .map { defaultLanguage =>
+        Choice(
+          defaultLanguage,
+          Language
+            .getLanguageNameFromLanguageCode(defaultLanguage)
+            .getOrElse(defaultLanguage)
+        )
+      }
+      .toJSArray
+  }
 }

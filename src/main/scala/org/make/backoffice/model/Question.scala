@@ -19,7 +19,10 @@
  */
 
 package org.make.backoffice.model
+import java.time.LocalDate
+
 import io.circe.{Decoder, Encoder, Json}
+import scala.scalajs.js.JSConverters._
 
 import scala.scalajs.js
 
@@ -40,11 +43,38 @@ trait Question extends js.Object {
   val id: String
   val question: String
   val slug: String
+  val operationId: js.UndefOr[String]
+  val startDate: js.UndefOr[String]
+  val endDate: js.UndefOr[String]
+  val landingSequenceId: js.UndefOr[String]
+  val operationTitle: js.UndefOr[String]
+  val country: js.UndefOr[String]
+  val language: js.UndefOr[String]
 }
 
 object Question {
-  def apply(questionId: QuestionId, question: String, slug: String): Question =
+  def apply(questionId: QuestionId,
+            question: String,
+            slug: String,
+            operationId: Option[OperationId],
+            startDate: Option[LocalDate],
+            endDate: Option[LocalDate],
+            landingSequenceId: Option[String],
+            operationTitle: Option[String],
+            country: Option[String],
+            language: Option[String]): Question =
     js.Dynamic
-      .literal(id = questionId.value, question = question, slug = slug)
+      .literal(
+        id = questionId.value,
+        question = question,
+        slug = slug,
+        operationId = operationId.map(_.value).orUndefined,
+        startDate = startDate.map(_.toString).orUndefined,
+        endDate = endDate.map(_.toString).orUndefined,
+        landingSequenceId = landingSequenceId.orUndefined,
+        operationTitle = operationTitle.orUndefined,
+        country = country.orUndefined,
+        language = language.orUndefined
+      )
       .asInstanceOf[Question]
 }

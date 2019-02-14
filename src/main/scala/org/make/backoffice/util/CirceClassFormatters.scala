@@ -182,5 +182,16 @@ trait CirceClassFormatters extends TimeInstances {
     Decoder.forProduct6("operationId", "status", "slug", "defaultLanguage", "createdAt", "updatedAt")(Operation.apply)
 
   implicit lazy val questionDecoder: Decoder[Question] =
-    Decoder.forProduct3("questionId", "question", "questionSlug")(Question.apply)
+    Decoder.forProduct10(
+      "id",
+      "question",
+      "slug",
+      "operationId",
+      "startDate",
+      "endDate",
+      "landingSequenceId",
+      "operationTitle",
+      "country",
+      "language"
+    )(Question.apply)
 }

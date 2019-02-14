@@ -26,13 +26,15 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
+import org.make.backoffice.client.ListTotalResponse
+import org.make.backoffice.client.request.Filter
 import org.make.backoffice.component.proposal.moderation.StartModeration.StartModerationProps
 import org.make.backoffice.component.proposal.moderation.StartValidationWithTags.StartValidationWithTagsProps
 import org.make.backoffice.component.proposal.toEnrich.StartEnrich.StartEnrichProps
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.facade.ViewTitle._
 import org.make.backoffice.model.Question
-import org.make.backoffice.service.question.OperationOfQuestionService
+import org.make.backoffice.service.question.QuestionService
 import org.make.backoffice.service.user.UserService
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -56,11 +58,15 @@ object Dashboard {
           case Success(_) =>
           case Failure(_) => self.props.history.push("/login")
         }
-        OperationOfQuestionService.operationsOfQuestions(None, None, Some(LocalDate.now())).onComplete {
-          case Success(questions) =>
-            self.setState(_.copy(questionsList = questions.filterNot(_.slug.contains("huffpost")).sortBy(_.slug)))
-          case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
-        }
+        QuestionService
+          .questions(filters = Some(Seq(Filter("openAt", LocalDate.now()))))
+          .onComplete {
+            case Success(questionsResponse) =>
+              self.setState(
+                _.copy(questionsList = questionsResponse.data.filterNot(_.slug.contains("huffpost")).sortBy(_.slug))
+              )
+            case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
+          }
       },
       render = self => {
         <.div()(

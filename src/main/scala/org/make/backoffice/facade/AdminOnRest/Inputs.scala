@@ -63,8 +63,16 @@ object NativeDependentInput extends ReactClass
 object NativeNumberInput extends ReactClass
 
 @js.native
+@JSImport("admin-on-rest", "BooleanInput")
+object NativeBooleanInput extends ReactClass
+
+@js.native
 @JSImport("admin-on-rest", "NullableBooleanInput")
 object NativeNullableBooleanInput extends ReactClass
+
+@js.native
+@JSImport("admin-on-rest", "DateInput")
+object NativeDateInput extends ReactClass
 
 object Inputs {
   implicit class InputsVirtualDOMElements(elements: VirtualDOMElements) {
@@ -77,6 +85,8 @@ object Inputs {
     lazy val DependentInput: ReactClassElementSpec = elements(NativeDependentInput)
     lazy val NumberInput: ReactClassElementSpec = elements(NativeNumberInput)
     lazy val NullableBooleanInput: ReactClassElementSpec = elements(NativeNullableBooleanInput)
+    lazy val BooleanInput: ReactClassElementSpec = elements(NativeBooleanInput)
+    lazy val DateInput: ReactClassElementSpec = elements(NativeDateInput)
   }
 
   implicit class InputsVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
@@ -97,5 +107,6 @@ object Inputs {
     lazy val optionValue = StringAttributeSpec("optionValue")
     lazy val filterToQuery = FilterToQueryAttributeSpec("filterToQuery")
     lazy val translateLabel = FunctionAttributeSpec("translate")
+    lazy val parse = FunctionAttributeSpec("parse")
   }
 }

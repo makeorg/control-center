@@ -26,11 +26,12 @@ object Resource {
   val validatedProposals = "validated_proposals"
   val users = "users"
   val operations = "operations"
+  val operationsOfQuestions = "questions"
   val ideas = "ideas"
   val tags = "tags"
   val tagType = "tag-types"
   val organisations = "organisations"
-  val questions = "questions"
+  val questions = "simple_questions"
   val moderators = "moderators"
 
   private val resources: Set[String] =
@@ -40,6 +41,7 @@ object Resource {
       validatedProposals,
       users,
       operations,
+      operationsOfQuestions,
       ideas,
       tags,
       tagType,
