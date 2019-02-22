@@ -55,15 +55,6 @@ object GetListRequest {
             case (fieldName, filterValue) => Filter(fieldName, filterValue)
           })
         )
-      case Resource.ideas =>
-        val request = params.asInstanceOf[GetListRequest]
-        IdeaService.listIdeas(
-          request.pagination.toOption,
-          request.sort.toOption,
-          request.filter.toOption.map(_.toJSArray.map {
-            case (fieldName, filterValue) => Filter(fieldName, filterValue)
-          })
-        )
       case Resource.users =>
         throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetListRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in GetListRequest")

@@ -22,12 +22,12 @@ package org.make.backoffice.service.idea
 
 import io.circe.generic.auto._
 import io.circe.syntax._
-import org.make.backoffice.model.{Idea, IdeasResult}
 import org.make.backoffice.client.request.{Filter, Pagination, Sort}
-import org.make.backoffice.client.{BadRequestHttpException, ListTotalResponse, SingleResponse}
+import org.make.backoffice.client.{BadRequestHttpException, SingleResponse}
+import org.make.backoffice.model.Idea
+import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
-import org.make.backoffice.service.ApiService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -38,7 +38,7 @@ object IdeaService extends ApiService with CirceClassFormatters {
 
   def listIdeas(pagination: Option[Pagination] = None,
                 sort: Option[Sort] = None,
-                filters: Option[Seq[Filter]] = None): Future[ListTotalResponse[Idea]] = {
+                filters: Option[Seq[Filter]] = None): Future[Seq[Idea]] = {
 
     var getIdeaUri: String = resourceName ?
       ("limit", pagination.map(_.perPage)) &
@@ -52,10 +52,7 @@ object IdeaService extends ApiService with CirceClassFormatters {
     }
 
     client
-      .get[IdeasResult](getIdeaUri)
-      .map { ideaResult =>
-        ListTotalResponse.apply(total = ideaResult.total, data = ideaResult.results)
-      }
+      .get[Seq[Idea]](getIdeaUri)
       .recoverWith {
         case e: BadRequestHttpException =>
           js.Dynamic.global.console
