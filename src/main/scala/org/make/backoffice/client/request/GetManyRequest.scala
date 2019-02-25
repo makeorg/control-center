@@ -21,7 +21,6 @@
 package org.make.backoffice.client.request
 
 import org.make.backoffice.client.{Resource, Response}
-import org.make.backoffice.service.operation.OperationService
 
 import scala.concurrent.Future
 import scala.scalajs.js
@@ -38,9 +37,6 @@ object GetManyRequest {
 
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
-      case Resource.operations =>
-        val request = params.asInstanceOf[GetManyRequest]
-        OperationService.getOperationByIds(request.ids)
       case Resource.proposals =>
         throw ResourceNotImplementedException(
           s"Resource ${Resource.proposals} not implemented for request GetManyRequest"

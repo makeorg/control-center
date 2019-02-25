@@ -23,6 +23,7 @@ package org.make.backoffice.model
 import java.time.ZonedDateTime
 
 import io.circe.{Decoder, Encoder, Json}
+import org.make.backoffice.facade.Choice
 import org.make.backoffice.util.JSConverters._
 
 import scala.scalajs.js
@@ -68,6 +69,8 @@ object Operation {
         updatedAt = updatedAt.orUndefined.map(_.toJSDate)
       )
       .asInstanceOf[Operation]
+
+  val allowedSourcesChoices: js.Array[Choice] = js.Array(Choice("core", "core"), Choice("huffpost", "Huffington Post"))
 }
 
 @js.native

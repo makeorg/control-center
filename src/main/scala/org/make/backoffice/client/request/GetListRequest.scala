@@ -22,7 +22,6 @@ package org.make.backoffice.client.request
 
 import org.make.backoffice.client.{Resource, Response}
 import org.make.backoffice.service.idea.IdeaService
-import org.make.backoffice.service.operation.OperationService
 import org.make.backoffice.service.proposal.ProposalService
 
 import scala.concurrent.Future
@@ -65,8 +64,6 @@ object GetListRequest {
             case (fieldName, filterValue) => Filter(fieldName, filterValue)
           })
         )
-      case Resource.operations =>
-        OperationService.operations()
       case Resource.users =>
         throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetListRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in GetListRequest")

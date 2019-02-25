@@ -19,9 +19,9 @@
  */
 
 package org.make.backoffice.service.question
-import java.time.LocalDate
-
-import org.make.backoffice.model.{OperationId, Question}
+import org.make.backoffice.client.ListTotalResponse
+import org.make.backoffice.client.request.{Filter, Pagination, Sort}
+import org.make.backoffice.model.Question
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
@@ -30,20 +30,27 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
 
-object OperationOfQuestionService extends ApiService with CirceClassFormatters {
+object QuestionService extends ApiService with CirceClassFormatters {
 
   override val resourceName: String = "moderation/operations-of-questions"
 
-  def operationsOfQuestions(questionId: Option[String],
-                            operationId: Option[OperationId],
-                            openAt: Option[LocalDate]): Future[Seq[Question]] = {
+  def questions(pagination: Option[Pagination] = None,
+                sort: Option[Sort] = None,
+                filters: Option[Seq[Filter]] = None): Future[ListTotalResponse[Question]] = {
     client
-      .get[Seq[Question]](resourceName ? ("questionId", questionId) & ("operationId", operationId) & ("openAt", openAt))
+      .get[js.Array[Question]](
+        resourceName ?
+          ("limit", pagination.map(_.perPage)) &
+          ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
+          ("questionId", ApiService.getFieldValueFromFilters("questionId", filters)) &
+          ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
+          ("openAt", ApiService.getFieldValueFromFilters("openAt", filters))
+      )
+      .map(questions => ListTotalResponse.apply(total = questions.size, data = questions))
       .recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of converting to Question: failed cursor $e")
           throw e
       }
   }
-
 }

@@ -26,11 +26,13 @@ import io.github.shogowada.scalajs.reactjs.router.Router._
 import org.make.backoffice.client.{AuthClient, Resource, RestClient}
 import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
 import org.make.backoffice.component.moderator.{CreateModerator, EditModerator, ModeratorList}
+import org.make.backoffice.component.operation.{CreateOperation, EditOperation, OperationsList}
 import org.make.backoffice.component.organisation.{CreateOrganisation, EditOrganisation, OrganisationList}
 import org.make.backoffice.component.proposal.common.ShowProposal
 import org.make.backoffice.component.proposal.moderation.{NextProposal, ProposalList}
 import org.make.backoffice.component.proposal.toEnrich.ToEnrichProposalList
 import org.make.backoffice.component.proposal.validated.ValidatedProposalList
+import org.make.backoffice.component.question.{CreateQuestion, EditQuestion, QuestionsList}
 import org.make.backoffice.component.tag.{CreateTag, EditTag, TagList}
 import org.make.backoffice.facade.AdminOnRest.Admin._
 import org.make.backoffice.facade.AdminOnRest.Resource._
@@ -66,7 +68,18 @@ object Main {
           ^.show := ShowProposal()
         )(),
         <.Resource(^.name := Resource.ideas, ^.listing := IdeaList(), ^.create := CreateIdea(), ^.edit := EditIdea())(),
-        <.Resource(^.name := Resource.operations)(),
+        <.Resource(
+          ^.name := Resource.operations,
+          ^.listing := OperationsList(),
+          ^.create := CreateOperation(),
+          ^.edit := EditOperation()
+        )(),
+        <.Resource(
+          ^.name := Resource.operationsOfQuestions,
+          ^.listing := QuestionsList(),
+          ^.create := CreateQuestion(),
+          ^.edit := EditQuestion()
+        )(),
         <.Resource(^.name := Resource.tags, ^.listing := TagList(), ^.create := CreateTag(), ^.edit := EditTag())(),
         <.Resource(^.name := Resource.tagType)(),
         <.Resource(
