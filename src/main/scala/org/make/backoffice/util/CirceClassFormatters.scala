@@ -98,8 +98,18 @@ trait CirceClassFormatters extends TimeInstances {
       "initialProposal"
     )(Proposal.apply)
 
+  implicit lazy val ideaStatusEncoder: Encoder[IdeaStatus] = (status: IdeaStatus) => Json.fromString(status.shortName)
+  implicit lazy val ideaStatusDecoder: Decoder[IdeaStatus] =
+    Decoder.decodeString.emap(
+      ideaStatus =>
+        IdeaStatus.matchIdeaStatus(ideaStatus) match {
+          case Some(status) => Right(status)
+          case _            => Left(s"$ideaStatus is not an idea status")
+      }
+    )
+
   implicit lazy val ideaDecoder: Decoder[Idea] =
-    Decoder.forProduct5("ideaId", "name", "questionId", "createdAt", "updatedAt")(Idea.apply)
+    Decoder.forProduct4("id", "name", "questionId", "status")(Idea.apply)
 
   implicit lazy val ideasResultDecoder: Decoder[IdeasResult] =
     Decoder.forProduct2("total", "results")(IdeasResult.apply)

@@ -42,29 +42,35 @@ object IdeaId {
 }
 
 @js.native
+sealed trait IdeaStatus extends js.Object {
+  val shortName: String
+}
+
+object IdeaStatus {
+  def apply(shortName: String): IdeaStatus = js.Dynamic.literal(shortName = shortName).asInstanceOf[IdeaStatus]
+
+  val ideaActivated = IdeaStatus("Activated")
+  val ideaArchived = IdeaStatus("Archived")
+
+  val ideaStatus: Map[String, IdeaStatus] =
+    Map(ideaActivated.shortName -> ideaActivated, ideaArchived.shortName -> ideaArchived)
+
+  def matchIdeaStatus(status: String): Option[IdeaStatus] = ideaStatus.get(status)
+}
+
+@js.native
 trait Idea extends js.Object {
   val id: String
   val name: String
   val questionId: js.UndefOr[String]
-  val createdAt: Date
-  val updatedAt: js.UndefOr[Date]
+  val status: String
 
 }
 
 object Idea {
-  def apply(ideaId: IdeaId,
-            name: String,
-            questionId: Option[QuestionId],
-            createdAt: ZonedDateTime,
-            updatedAt: Option[ZonedDateTime]): Idea = {
+  def apply(id: IdeaId, name: String, questionId: Option[QuestionId], status: IdeaStatus): Idea = {
     js.Dynamic
-      .literal(
-        id = ideaId.value,
-        name = name,
-        questionId = questionId.map(_.value).orUndefined,
-        createdAt = createdAt.toJSDate,
-        updatedAt = updatedAt.map(_.toJSDate).orUndefined
-      )
+      .literal(id = id.value, name = name, questionId = questionId.map(_.value).orUndefined, status = status.shortName)
       .asInstanceOf[Idea]
   }
 }

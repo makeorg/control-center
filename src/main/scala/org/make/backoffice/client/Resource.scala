@@ -33,6 +33,7 @@ object Resource {
   val organisations = "organisations"
   val questions = "simple_questions"
   val moderators = "moderators"
+  val ideaMappings = "idea-mappings"
 
   private val resources: Set[String] =
     Set(
@@ -47,7 +48,8 @@ object Resource {
       tagType,
       organisations,
       questions,
-      moderators
+      moderators,
+      ideaMappings
     )
 
   def amongst: String => Boolean = { resources.contains }

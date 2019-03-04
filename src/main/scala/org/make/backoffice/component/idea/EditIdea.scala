@@ -33,7 +33,7 @@ import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
-import org.make.backoffice.facade.DataSourceConfig
+import org.make.backoffice.facade.{Choice, DataSourceConfig}
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.idea.IdeaService
@@ -103,9 +103,7 @@ object EditIdea {
               }
             IdeaService.listIdeas(Some(Pagination(page = 1, perPage = 1000)), None, Some(filters)).onComplete {
               case Success(ideaResponse) =>
-                self.setState(
-                  _.copy(ideas = ideaResponse.data.filterNot(_.id == self.props.wrapped.ideaId.getOrElse("")))
-                )
+                self.setState(_.copy(ideas = ideaResponse.filterNot(_.id == self.props.wrapped.ideaId.getOrElse(""))))
               case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
             }
           }
@@ -317,6 +315,13 @@ object EditIdea {
           }
         },
         render = self => {
+
+          val statusChoices =
+            Seq(
+              Choice(id = IdeaStatus.ideaActivated.shortName, name = IdeaStatus.ideaActivated.shortName),
+              Choice(id = IdeaStatus.ideaArchived.shortName, name = IdeaStatus.ideaArchived.shortName)
+            )
+
           <.div()(
             <.Edit(
               ^.resource := Resource.ideas,
@@ -327,6 +332,12 @@ object EditIdea {
               <.SimpleForm(^.redirect := false)(
                 <.TextField(^.source := "id")(),
                 <.TextInput(^.source := "name", ^.options := Map("fullWidth" -> true))(),
+                <.SelectInput(
+                  ^.source := "status",
+                  ^.choices := statusChoices,
+                  ^.allowEmpty := false,
+                  ^.options := Map("fullWidth" -> true)
+                )(),
                 <.ReferenceField(
                   ^.source := "questionId",
                   ^.label := "question",

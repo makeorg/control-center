@@ -26,7 +26,6 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
-import org.make.backoffice.client.ListTotalResponse
 import org.make.backoffice.client.request.{Filter, Pagination}
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.proposal.common.NewIdeaComponent.NewIdeaProps
@@ -120,8 +119,7 @@ object ProposalIdeaComponent {
                                ideaName: Option[String],
                                isLoading: Boolean = true)
 
-  def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState],
-                props: ProposalIdeaProps): Future[ListTotalResponse[Idea]] = {
+  def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState], props: ProposalIdeaProps): Future[Seq[Idea]] = {
 
     IdeaService
       .listIdeas(
@@ -143,7 +141,7 @@ object ProposalIdeaComponent {
       componentDidMount = { self =>
         loadIdeas(self, self.props.wrapped).onComplete {
           case Success(listIdeas) =>
-            self.setState(_.copy(ideas = listIdeas.data.toSeq, foundProposalIdeas = listIdeas.data.toSeq))
+            self.setState(_.copy(ideas = listIdeas, foundProposalIdeas = listIdeas))
           case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get ideas failed with error $e")
         }
         loadDuplicates(self.props.wrapped).onComplete {

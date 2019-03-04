@@ -61,7 +61,7 @@ object StartEnrich {
                 None,
                 Some(
                   Seq(
-                    Filter("questionId", self.state.questionId.getOrElse("")),
+                    Filter("questionId", value),
                     Filter("status", s"${Accepted.shortName}"),
                     Filter("toEnrich", true),
                     Filter("minVotesCount", self.state.minVotesCount.getOrElse(Configuration.toEnrichMinVotesCount)),
