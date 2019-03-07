@@ -53,7 +53,8 @@ object EditIdeaMapping {
                   ^.label := "idea",
                   ^.reference := Resource.ideas,
                   ^.linkType := false,
-                  ^.sortable := false
+                  ^.sortable := false,
+                  ^.sort := Map("field" -> "name", "order" -> "ASC"),
                 )(<.SelectInput(^.source := "name")()),
                 <.BooleanInput(^.source := "migrateProposals", ^.options := Map("defaultToggled" -> true))()
               )
