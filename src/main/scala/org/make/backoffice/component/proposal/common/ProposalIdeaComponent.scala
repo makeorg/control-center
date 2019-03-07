@@ -110,7 +110,11 @@ object NewIdeaComponent {
 }
 
 object ProposalIdeaComponent {
-  case class ProposalIdeaProps(proposal: SingleProposal, setProposalIdea: Option[IdeaId] => Unit, ideaName: String)
+  case class ProposalIdeaProps(proposal: SingleProposal,
+                               setProposalIdea: Option[IdeaId] => Unit,
+                               ideaName: String,
+                               handleCheckIdeaAuto: (js.Object, Boolean) => Unit,
+                               ideaAuto: Boolean)
   case class ProposalIdeaState(ideas: Seq[Idea],
                                selectedIdeaId: Option[IdeaId],
                                searchIdeaContent: String,
@@ -226,35 +230,34 @@ object ProposalIdeaComponent {
 
         <.Card(^.style := Map("marginTop" -> "1em"))(
           <.CardTitle(^.title := "Idea")(),
-          <.CardText()(if (self.state.ideaName.getOrElse(self.props.wrapped.ideaName).nonEmpty) {
-            <.TextFieldMaterialUi(
-              ^.value := self.state.ideaName.getOrElse(self.props.wrapped.ideaName),
-              ^.name := self.state.ideaName.getOrElse(self.props.wrapped.ideaName),
-              ^.readOnly := true,
-              ^.underlineShow := false,
-              ^.style := Map("width" -> "80%")
+          <.CardText()(
+            <.Checkbox(
+              ^.label := "Idea auto",
+              ^.checked := self.props.wrapped.ideaAuto,
+              ^.onCheck := self.props.wrapped.handleCheckIdeaAuto,
+              ^.style := Map("maxWidth" -> "25em")
             )()
-          }, if (self.state.selectedIdeaId.isDefined) {
-            <.CardActions(^.style := Map("float" -> "left"))(
-              <.EditButton(
-                ^.label := "Edit Idea",
-                ^.basePath := "/ideas",
-                ^.translateLabel := ((label: String) => label),
-                ^.record := js.Dynamic.literal("id" -> self.state.selectedIdeaId.map(_.value).getOrElse("").toString)
+          ),
+          if (!self.props.wrapped.ideaAuto) {
+            Seq(<.CardText()(if (self.state.ideaName.getOrElse(self.props.wrapped.ideaName).nonEmpty) {
+              <.TextFieldMaterialUi(
+                ^.value := self.state.ideaName.getOrElse(self.props.wrapped.ideaName),
+                ^.name := self.state.ideaName.getOrElse(self.props.wrapped.ideaName),
+                ^.readOnly := true,
+                ^.underlineShow := false,
+                ^.style := Map("width" -> "80%")
               )()
-            )
-          }),
-          <.CardActions()(
-            <.CardActions()(searchNew),
-            <.br()(),
-            <.NewIdeaComponent(
-              ^.wrapped := NewIdeaProps(
-                self.props.wrapped.setProposalIdea,
-                setIdeas,
-                self.props.wrapped.proposal.questionId.toOption
+            }, if (self.state.selectedIdeaId.isDefined) {
+              <.CardActions(^.style := Map("float" -> "left"))(
+                <.EditButton(
+                  ^.label := "Edit Idea",
+                  ^.basePath := "/ideas",
+                  ^.translateLabel := ((label: String) => label),
+                  ^.record := js.Dynamic.literal("id" -> self.state.selectedIdeaId.map(_.value).getOrElse("").toString)
+                )()
               )
-            )()
-          )
+            }), <.CardActions()(<.CardActions()(searchNew), <.br()(), <.NewIdeaComponent(^.wrapped := NewIdeaProps(self.props.wrapped.setProposalIdea, setIdeas, self.props.wrapped.proposal.questionId.toOption))()))
+          }
         )
       }
     )

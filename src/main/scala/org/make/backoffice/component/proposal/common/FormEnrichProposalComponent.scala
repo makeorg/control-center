@@ -64,7 +64,8 @@ object FormEnrichProposalComponent {
                                      ideaName: String = "",
                                      errorMessage: Seq[String] = Seq.empty,
                                      isLocked: Boolean = false,
-                                     tagListLoaded: Boolean = false)
+                                     tagListLoaded: Boolean = false,
+                                     ideaAuto: Boolean)
 
   def setTags(self: Self[FormEnrichProposalProps, FormEnrichProposalState], props: FormEnrichProposalProps): Unit = {
     val futureTags = for {
@@ -97,6 +98,7 @@ object FormEnrichProposalComponent {
               content = self.props.wrapped.proposal.content,
               maxLength = Configuration.proposalMaxLength,
               isLocked = self.props.wrapped.isLocked,
+              ideaAuto = false
             )
           },
           componentDidMount = self => {
@@ -146,7 +148,7 @@ object FormEnrichProposalComponent {
                   }
                 }
 
-                self.setState(_.copy(selectedTags = newSelectedTags))
+                self.setState(_.copy(selectedTags = newSelectedTags, ideaAuto = true))
             }
 
             def handleSubmitUpdate: SyntheticEvent => Unit = {
@@ -163,7 +165,7 @@ object FormEnrichProposalComponent {
                     proposalId = self.props.wrapped.proposal.id,
                     newContent = mayBeNewContent,
                     tags = self.state.selectedTags,
-                    ideaId = self.state.ideaId,
+                    ideaId = if (self.state.ideaAuto) None else self.state.ideaId,
                     questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
                     predictedTags = predictedTagsParam,
                     modelName = self.state.predictedTagsModelName
@@ -196,7 +198,7 @@ object FormEnrichProposalComponent {
                       proposalId = self.props.wrapped.proposal.id,
                       newContent = mayBeNewContent,
                       tags = self.state.selectedTags,
-                      ideaId = self.state.ideaId,
+                      ideaId = if (self.state.ideaAuto) None else self.state.ideaId,
                       questionId = self.props.wrapped.proposal.questionId.toOption.map(QuestionId.apply),
                       predictedTags = predictedTagsParam,
                       modelName = self.state.predictedTagsModelName
@@ -269,6 +271,10 @@ object FormEnrichProposalComponent {
               self.setState(_.copy(ideaId = ideaId))
             }
 
+            def handleCheckIdeaAuto: (js.Object, Boolean) => Unit = { (_, checked) =>
+              self.setState(_.copy(ideaAuto = checked))
+            }
+
             val errorMessage: Seq[Element] =
               self.state.errorMessage.map(msg => <.p()(msg))
 
@@ -296,7 +302,13 @@ object FormEnrichProposalComponent {
                 ),
                 if (self.props.wrapped.proposal.ideaId.nonEmpty) {
                   <.ProposalIdeaComponent(
-                    ^.wrapped := ProposalIdeaProps(self.props.wrapped.proposal, setProposalIdea, self.state.ideaName)
+                    ^.wrapped := ProposalIdeaProps(
+                      self.props.wrapped.proposal,
+                      setProposalIdea,
+                      self.state.ideaName,
+                      handleCheckIdeaAuto,
+                      self.state.ideaAuto
+                    )
                   )()
                 },
                 <.RaisedButton(
