@@ -82,7 +82,6 @@ object Main {
         )(),
         <.Resource(^.name := Resource.ideas, ^.listing := IdeaList(), ^.create := CreateIdea(), ^.edit := EditIdea())(),
         <.Resource(^.name := Resource.ideaMappings, ^.listing := IdeaMappingsList(), ^.edit := EditIdeaMapping())(),
-        <.Resource(^.name := Resource.operations)(),
         <.Resource(^.name := Resource.tags, ^.listing := TagList(), ^.create := CreateTag(), ^.edit := EditTag())(),
         <.Resource(^.name := Resource.tagType)(),
         <.Resource(
