@@ -46,7 +46,7 @@ object CreateQuestion {
         displayName = "CreateQuestion",
         render = self => {
 
-          <.Create(^.resource := Resource.operationsOfQuestions, ^.location := self.props.location)(
+          <.Create(^.resource := Resource.operationsOfQuestions, ^.location := self.props.location, ^.hasList := true)(
             <.SimpleForm()(
               <.DateInput(
                 ^.label := "Start Date",

@@ -54,7 +54,7 @@ object QuestionsList {
             ^.resource := Resource.operationsOfQuestions,
             ^.hasCreate := true,
             ^.filters := questionFilters(),
-            ^.sort := Map("field" -> "operation_title", "order" -> "ASC")
+            ^.sortList := Map("field" -> "operation_title", "order" -> "ASC")
           )(
             <.Datagrid()(
               <.EditButton()(),
@@ -86,7 +86,7 @@ object QuestionsList {
           ^.translateLabel := ((label: String) => label),
           ^.source := "id",
           ^.reference := Resource.questions,
-          ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+          ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
           ^.perPage := 100,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")()),
@@ -95,7 +95,7 @@ object QuestionsList {
           ^.translateLabel := ((label: String) => label),
           ^.source := "operationId",
           ^.reference := Resource.operations,
-          ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+          ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
           ^.perPage := 100,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")())

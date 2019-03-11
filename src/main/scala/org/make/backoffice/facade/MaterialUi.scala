@@ -286,7 +286,7 @@ object MaterialUi {
     lazy val displaySelectAll = BooleanAttributeSpec("displaySelectAll")
     lazy val enableSelectAll = BooleanAttributeSpec("enableSelectAll")
     lazy val errorStyle = MapStringAttributeSpec("errorStyle")
-    lazy val errorText = ElementAttributeSpec("errorText")
+    lazy val errorText = StringAttributeSpec("errorText")
     lazy val filterAutoComplete = FilterAutoCompleteAttributeSpec("filter")
     lazy val fixedFooter = BooleanAttributeSpec("fixedFooter")
     lazy val fixedHeader = BooleanAttributeSpec("fixedHeader")

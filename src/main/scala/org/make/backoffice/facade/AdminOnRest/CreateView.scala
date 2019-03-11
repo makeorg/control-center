@@ -61,7 +61,6 @@ object SimpleForm {
   implicit class SimpleFormVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val redirect = RedirectAttributeSpec("redirect")
     lazy val toolbar = ElementAttributeSpec("toolbar")
-    lazy val sort = MapStringAttributeSpec("sort")
   }
 
   case class RedirectAttributeSpec(name: String) extends AttributeSpec {

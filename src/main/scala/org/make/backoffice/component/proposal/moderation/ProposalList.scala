@@ -54,7 +54,7 @@ object ProposalList {
           ^.resource := Resource.proposals,
           ^.hasCreate := false,
           ^.filters := filterList(),
-          ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
+          ^.sortList := Map("field" -> "createdAt", "order" -> "DESC")
         )(
           <.Datagrid(^.rowStyle := rowStyle)(
             <.ShowButton()(),
@@ -103,7 +103,7 @@ object ProposalList {
           ^.translateLabel := ((label: String) => label),
           ^.source := "questionId",
           ^.reference := Resource.questions,
-          ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+          ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
           ^.perPage := 100,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")()),

@@ -44,6 +44,16 @@ object ProposalId {
 }
 
 @js.native
+trait ProposalIdResult extends js.Object with StringValue {
+  val proposalId: ProposalId
+}
+
+object ProposalIdResult {
+  def apply(proposalId: String): ProposalIdResult =
+    js.Dynamic.literal(proposalId = ProposalId(proposalId)).asInstanceOf[ProposalIdResult]
+}
+
+@js.native
 trait Qualification extends js.Object {
   val key: String
   val count: Int = 0

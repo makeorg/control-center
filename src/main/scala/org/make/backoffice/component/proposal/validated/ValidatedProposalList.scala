@@ -142,7 +142,7 @@ object ValidatedProposalList {
             ^.hasCreate := false,
             ^.filters := filterList(tagChoices, self.props.wrapped.filters.get("questionId").isDefined),
             ^.filter := Map("status" -> Accepted.shortName),
-            ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
+            ^.sortList := Map("field" -> "createdAt", "order" -> "DESC")
           )(
             <.Datagrid()(
               <.ShowButton()(),
@@ -198,7 +198,7 @@ object ValidatedProposalList {
         ^.label := "Question",
         ^.translateLabel := ((label: String) => label),
         ^.source := "questionId",
-        ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+        ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
         ^.reference := Resource.questions,
         ^.alwaysOn := true,
         ^.perPage := 100,
