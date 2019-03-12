@@ -47,7 +47,7 @@ object CreateQuestion {
         render = self => {
 
           <.Create(^.resource := Resource.operationsOfQuestions, ^.location := self.props.location, ^.hasList := true)(
-            <.SimpleForm()(
+            <.SimpleForm(^.redirect := "edit")(
               <.DateInput(
                 ^.label := "Start Date",
                 ^.translateLabel := ((label: String) => label),
