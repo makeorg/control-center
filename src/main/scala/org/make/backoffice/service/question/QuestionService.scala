@@ -19,9 +19,12 @@
  */
 
 package org.make.backoffice.service.question
+
+import io.circe.generic.auto._
+import io.circe.syntax._
 import org.make.backoffice.client.ListTotalResponse
 import org.make.backoffice.client.request.{Filter, Pagination, Sort}
-import org.make.backoffice.model.Question
+import org.make.backoffice.model.{ProposalIdResult, Question}
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
@@ -53,4 +56,26 @@ object QuestionService extends ApiService with CirceClassFormatters {
           throw e
       }
   }
+
+  def addInitialProposal(questionId: String, request: InitialProposalRequest): Future[Unit] = {
+    client
+      .post[ProposalIdResult](
+        apiEndpoint = s"moderation/questions/$questionId/initial-proposals",
+        data = request.asJson.pretty(ApiService.printer)
+      )
+      .map(_ => ())
+      .recover {
+        case e =>
+          js.Dynamic.global.console.log(s"instead of converting to Question: failed cursor $e")
+          throw e
+      }
+  }
+
+  case class InitialProposalRequest(content: String, author: AuthorRequest, tags: Array[String] = Array())
+
+  case class AuthorRequest(age: Option[String],
+                           firstName: Option[String],
+                           lastName: Option[String],
+                           postalCode: Option[String],
+                           profession: Option[String])
 }

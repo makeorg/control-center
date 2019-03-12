@@ -47,7 +47,7 @@ object TagList {
           <.List(
             ^.perPage := 50,
             ^.title := "Tags",
-            ^.sort := Map("field" -> "label", "order" -> "ASC"),
+            ^.sortList := Map("field" -> "label", "order" -> "ASC"),
             ^.location := self.props.location,
             ^.resource := Resource.tags,
             ^.hasCreate := true,
@@ -94,7 +94,7 @@ object TagList {
         ^.label := "Question",
         ^.translateLabel := ((label: String) => label),
         ^.source := "questionId",
-        ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+        ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
         ^.reference := Resource.questions,
         ^.perPage := 100,
         ^.alwaysOn := true,

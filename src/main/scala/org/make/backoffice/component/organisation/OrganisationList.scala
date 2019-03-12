@@ -45,7 +45,7 @@ object OrganisationList {
             ^.perPage := 50,
             ^.title := "Organisations",
             ^.location := self.props.location,
-            ^.sort := Map("field" -> "organisation_name", "order" -> "ASC"),
+            ^.sortList := Map("field" -> "organisation_name", "order" -> "ASC"),
             ^.resource := Resource.organisations,
             ^.hasCreate := true
           )(

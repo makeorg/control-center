@@ -51,7 +51,7 @@ object OperationsList {
             ^.resource := Resource.operations,
             ^.hasCreate := true,
             ^.filters := operationFilters(),
-            ^.sort := Map("field" -> "slug", "order" -> "ASC")
+            ^.sortList := Map("field" -> "slug", "order" -> "ASC")
           )(<.Datagrid()(<.EditButton()(), <.TextField(^.source := "slug", ^.sortable := true)()))
         }
       )

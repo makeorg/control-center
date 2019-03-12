@@ -95,7 +95,7 @@ object IdeaMappingsList {
           ^.translateLabel := ((label: String) => label),
           ^.source := "questionId",
           ^.reference := Resource.questions,
-          ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+          ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
           ^.perPage := 100,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")())

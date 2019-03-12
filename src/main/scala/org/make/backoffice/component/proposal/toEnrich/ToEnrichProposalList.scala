@@ -71,7 +71,7 @@ object ToEnrichProposalList {
           ^.hasCreate := false,
           ^.filters := filterList(),
           ^.filter := Map("status" -> Accepted.shortName, "toEnrich" -> true),
-          ^.sort := Map("field" -> "createdAt", "order" -> "DESC")
+          ^.sortList := Map("field" -> "createdAt", "order" -> "DESC")
         )(
           <.Datagrid()(
             <.ShowButton()(),
@@ -112,7 +112,7 @@ object ToEnrichProposalList {
           ^.label := "Question",
           ^.translateLabel := ((label: String) => label),
           ^.source := "questionId",
-          ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+          ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
           ^.reference := Resource.questions,
           ^.perPage := 100,
           ^.alwaysOn := true

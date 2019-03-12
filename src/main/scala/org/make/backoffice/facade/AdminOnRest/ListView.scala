@@ -82,7 +82,7 @@ object List {
     lazy val actions = ElementAttributeSpec("actions")
     lazy val filters = ElementAttributeSpec("filters")
     lazy val perPage = IntAttributeSpec("perPage")
-    lazy val sort = MapStringAttributeSpec("sort")
+    lazy val sortList = MapStringAttributeSpec("sort")
     lazy val filter = MapArrayAttributeSpec("filter")
     lazy val location = LocationAttributeSpec("location")
     lazy val resource = StringAttributeSpec("resource")

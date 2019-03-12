@@ -108,5 +108,6 @@ object Inputs {
     lazy val filterToQuery = FilterToQueryAttributeSpec("filterToQuery")
     lazy val translateLabel = FunctionAttributeSpec("translate")
     lazy val parse = FunctionAttributeSpec("parse")
+    lazy val sort = MapStringAttributeSpec("sort")
   }
 }

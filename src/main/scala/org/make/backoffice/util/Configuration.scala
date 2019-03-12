@@ -32,6 +32,7 @@ object Configuration extends CirceClassFormatters {
   val toEnrichMinVotesCount = "0"
 
   val proposalMaxLength: Int = 140
+  val proposalMinLength: Int = 12
   val defaultLanguage: String = "fr"
   val supportedCountries: Seq[CountryConfiguration] = Seq(
     CountryConfiguration(countryCode = "AT", defaultLanguage = "de", supportedLanguages = Seq("de")),

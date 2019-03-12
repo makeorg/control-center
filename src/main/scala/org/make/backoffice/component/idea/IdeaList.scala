@@ -51,7 +51,7 @@ object IdeaList {
             ^.resource := Resource.ideas,
             ^.hasCreate := true,
             ^.filters := ideaFilters(),
-            ^.sort := Map("field" -> "name", "order" -> "ASC")
+            ^.sortList := Map("field" -> "name", "order" -> "ASC")
           )(
             <.Datagrid()(
               <.EditButton()(),
@@ -78,7 +78,7 @@ object IdeaList {
           ^.translateLabel := ((label: String) => label),
           ^.source := "questionId",
           ^.reference := Resource.questions,
-          ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+          ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
           ^.perPage := 100,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")()),

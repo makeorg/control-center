@@ -46,7 +46,7 @@ object ModeratorList {
             ^.perPage := 50,
             ^.title := "Moderators",
             ^.location := self.props.location,
-            ^.sort := Map("field" -> "first_name", "order" -> "ASC"),
+            ^.sortList := Map("field" -> "first_name", "order" -> "ASC"),
             ^.resource := Resource.moderators,
             ^.hasCreate := true
           )(
