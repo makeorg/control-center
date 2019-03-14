@@ -71,6 +71,17 @@ object QuestionService extends ApiService with CirceClassFormatters {
       }
   }
 
+  def refuseInitialProposals(questionId: String): Future[Unit] = {
+    client
+      .post[ProposalIdResult](apiEndpoint = s"moderation/questions/$questionId/initial-proposals/refuse")
+      .map(_ => ())
+      .recover {
+        case e =>
+          js.Dynamic.global.console.log(s"instead of converting to Question: failed cursor $e")
+          throw e
+      }
+  }
+
   case class InitialProposalRequest(content: String, author: AuthorRequest, tags: Array[String] = Array())
 
   case class AuthorRequest(age: Option[String],

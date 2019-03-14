@@ -26,7 +26,12 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.statictags.{BooleanAttributeSpec, StringAttributeSpec}
 import org.make.backoffice.facade.AdminOnRest.ShowButton.RecordAttributeSpec
 import org.make.backoffice.facade.MaterialUi.IntAttributeSpec
-import org.make.backoffice.facade.{ElementAttributeSpec, LocationAttributeSpec, MatchAttributeSpec}
+import org.make.backoffice.facade.{
+  ElementAttributeSpec,
+  LocationAttributeSpec,
+  MapArrayAttributeSpec,
+  MatchAttributeSpec
+}
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
@@ -48,6 +53,7 @@ object Edit {
     lazy val `match` = MatchAttributeSpec("match")
     lazy val hasList = BooleanAttributeSpec("hasList")
     lazy val perPage = IntAttributeSpec("perPage")
+    lazy val filter = MapArrayAttributeSpec("filter")
   }
 }
 
