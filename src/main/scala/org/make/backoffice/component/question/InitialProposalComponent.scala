@@ -31,6 +31,7 @@ import org.make.backoffice.util.Configuration
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.scalajs.js
 import scala.util.{Failure, Success}
 
 object InitialProposalComponent {
@@ -39,6 +40,7 @@ object InitialProposalComponent {
   val firstNameTextError = "User firstname must not be empty"
   val ageTextError = "User age must be between 13 and 120"
 
+  case class InitialProposalComponentProps(reloadComponent: () => Unit)
   case class InitialProposalComponentState(content: String,
                                            errorContent: Boolean,
                                            firstName: Option[String],
@@ -50,9 +52,10 @@ object InitialProposalComponent {
                                            profession: Option[String],
                                            questionId: String,
                                            snackbarOpen: Boolean,
-                                           snackbarMessage: String)
+                                           snackbarMessage: String,
+                                           createProposalModalOpen: Boolean)
 
-  lazy val reactClass: ReactClass = React.createClass[Unit, InitialProposalComponentState](
+  lazy val reactClass: ReactClass = React.createClass[InitialProposalComponentProps, InitialProposalComponentState](
     displayName = "InitialProposalComponent",
     getInitialState = self =>
       InitialProposalComponentState(
@@ -67,7 +70,8 @@ object InitialProposalComponent {
         profession = None,
         questionId = self.props.native.record.asInstanceOf[Question].id,
         snackbarOpen = false,
-        snackbarMessage = ""
+        snackbarMessage = "",
+        createProposalModalOpen = false
     ),
     render = { self =>
       def handleContentEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
@@ -103,26 +107,22 @@ object InitialProposalComponent {
       }
 
       def isValidFields(content: String, firstName: Option[String], age: Option[String]): Boolean = {
-        var isValid: Boolean = true
+        var isValidContent: Boolean = true
+        var isValidFirstName: Boolean = true
+        var isValidAge: Boolean = true
         if (content.length < Configuration.proposalMinLength) {
-          self.setState(_.copy(errorContent = true))
-          isValid = false
-        } else {
-          self.setState(_.copy(errorContent = false))
+          isValidContent = false
         }
         if (firstName.forall(_.isEmpty)) {
-          self.setState(_.copy(errorFirstName = true))
-          isValid = false
-        } else {
-          self.setState(_.copy(errorFirstName = false))
+          isValidFirstName = false
         }
         if (age.exists(age => age.toInt < 13 || age.toInt > 120)) {
-          self.setState(_.copy(errorAge = true))
-          isValid = false
-        } else {
-          self.setState(_.copy(errorAge = false))
+          isValidAge = false
         }
-        isValid
+        self.setState(
+          _.copy(errorContent = !isValidContent, errorFirstName = !isValidFirstName, errorAge = !isValidAge)
+        )
+        isValidContent && isValidFirstName && isValidAge
       }
 
       def onCreateProposal: SyntheticEvent => Unit = {
@@ -153,17 +153,49 @@ object InitialProposalComponent {
                     postalCode = None,
                     profession = None,
                     snackbarOpen = true,
-                    snackbarMessage = "Proposal successfully created"
+                    snackbarMessage = "Proposal successfully created",
+                    createProposalModalOpen = false
                   )
                 )
+                self.props.wrapped.reloadComponent()
               case Failure(e) =>
                 self.setState(_.copy(snackbarOpen = true, snackbarMessage = s"Error while creating proposal"))
             }
           }
       }
 
-      <.Card(^.style := Map("marginTop" -> "1em"))(
+      def handleOpenModal: SyntheticEvent => Unit = { _ =>
+        self.setState(_.copy(createProposalModalOpen = true))
+      }
+
+      def handleCloseModal: SyntheticEvent => Unit = { _ =>
+        self.setState(_.copy(createProposalModalOpen = false))
+      }
+
+      def handleRefuseProposal: SyntheticEvent => Unit = { _ =>
+        QuestionService.refuseInitialProposals(self.props.native.record.id.toString).foreach { _ =>
+          self.props.wrapped.reloadComponent()
+        }
+      }
+
+      <.div()(
         <.CardActions()(
+          <.FlatButton(^.label := "Create proposal", ^.primary := true, ^.onClick := handleOpenModal)(),
+          <.FlatButton(
+            ^.label := "Refuse proposals",
+            ^.style := Map("float" -> "right"),
+            ^.secondary := true,
+            ^.onClick := handleRefuseProposal
+          )()
+        ),
+        <.Dialog(
+          ^.title := "Create proposal",
+          ^.open := self.state.createProposalModalOpen,
+          ^.actionsModal := Seq(
+            <.FlatButton(^.label := "Cancel", ^.onClick := handleCloseModal)(),
+            <.FlatButton(^.label := "Create proposal", ^.primary := true, ^.onClick := onCreateProposal)()
+          )
+        )(
           <.TextFieldMaterialUi(
             ^.floatingLabelText := "Proposal content",
             ^.value := self.state.content,
@@ -180,37 +212,11 @@ object InitialProposalComponent {
             ^.fullWidth := true
           )(),
           <.TextFieldMaterialUi(
-            ^.floatingLabelText := "Author lastname",
-            ^.value := self.state.lastName.getOrElse(""),
-            ^.onChange := handleLastnameEdition,
-            ^.fullWidth := true
-          )(),
-          <.TextFieldMaterialUi(
             ^.floatingLabelText := "Author age",
             ^.value := self.state.age.getOrElse(""),
             ^.onChange := handleAgeEdition,
             ^.errorText := { if (self.state.errorAge) ageTextError else "" },
             ^.fullWidth := true
-          )(),
-          <.TextFieldMaterialUi(
-            ^.floatingLabelText := "Author postal code",
-            ^.value := self.state.postalCode.getOrElse(""),
-            ^.onChange := handlePostalCodeEdition,
-            ^.fullWidth := true
-          )(),
-          <.TextFieldMaterialUi(
-            ^.floatingLabelText := "Author profession",
-            ^.value := self.state.profession.getOrElse(""),
-            ^.onChange := handleProfessionEdition,
-            ^.fullWidth := true
-          )()
-        ),
-        <.CardActions()(
-          <.RaisedButton(
-            ^.label := "Create proposal",
-            ^.primary := true,
-            ^.fullWidth := true,
-            ^.onClick := onCreateProposal
           )()
         ),
         <.Snackbar(

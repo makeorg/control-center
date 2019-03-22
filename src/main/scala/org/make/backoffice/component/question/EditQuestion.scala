@@ -26,6 +26,8 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.question.InitialProposalComponent.InitialProposalComponentProps
+import org.make.backoffice.facade.AdminOnRest.Datagrid._
 import org.make.backoffice.facade.AdminOnRest.Edit._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.FormTab._
@@ -33,6 +35,8 @@ import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.AdminOnRest.required
+import org.make.backoffice.facade.AdminOnRest.ShowButton._
+import org.make.backoffice.service.proposal.{Accepted, Refused}
 import org.make.backoffice.util.{Configuration, DateParser}
 
 import scala.scalajs.js
@@ -40,14 +44,21 @@ import scala.scalajs.js
 object EditQuestion {
 
   case class EditQuestionProps() extends RouterProps
+  case class EditQuestionState(reload: Boolean)
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass =
     React
-      .createClass[EditQuestionProps, Unit](
+      .createClass[EditQuestionProps, EditQuestionState](
         displayName = "EditQuestion",
+        getInitialState = _ => EditQuestionState(reload = false),
         render = self => {
+
+          def reloadComponent = { () =>
+            self.setState(state => state.copy(reload = true))
+          }
+
           <.Edit(
             ^.resource := Resource.operationsOfQuestions,
             ^.location := self.props.location,
@@ -113,7 +124,7 @@ object EditQuestion {
                   ^.options := Map("fullWidth" -> true)
                 )(),
                 <.TextInput(
-                  ^.source := "questionSlug",
+                  ^.source := "slug",
                   ^.allowEmpty := false,
                   ^.validate := required,
                   ^.options := Map("fullWidth" -> true)
@@ -124,7 +135,31 @@ object EditQuestion {
                   ^.source := "canPropose"
                 )()
               ),
-              <.FormTab(^.label := "initials proposals")(<.InitialProposal.empty)
+              <.FormTab(^.label := "initials proposals")(if (!self.state.reload) {
+                js.Array(
+                    <.InitialProposal(^.wrapped := InitialProposalComponentProps(reloadComponent))(),
+                    <.ReferenceManyField(
+                      ^.reference := Resource.proposals,
+                      ^.target := "questionId",
+                      ^.addLabel := false,
+                      ^.perPage := 50,
+                      ^.filter := Map(
+                        "status" -> s"${Accepted.shortName},${Refused.shortName}",
+                        "initialProposal" -> true
+                      )
+                    )(
+                      <.Datagrid()(
+                        <.ShowButton.empty,
+                        <.TextField(^.source := "content")(),
+                        <.TextField(^.label := "Author", ^.source := "author.firstName")(),
+                        <.TextField(^.source := "status")()
+                      )
+                    )
+                  )
+                  .toSeq
+              } else {
+                self.setState(_.copy(reload = false))
+              })
             )
           )
         }

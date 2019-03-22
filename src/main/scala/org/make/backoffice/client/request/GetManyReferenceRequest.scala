@@ -21,10 +21,12 @@
 package org.make.backoffice.client.request
 
 import org.make.backoffice.client.{Resource, Response}
+import org.make.backoffice.service.proposal.ProposalService
 
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
+import scala.scalajs.js.|
 
 @js.native
 trait GetManyReferenceRequest extends js.Object with Request {
@@ -32,7 +34,7 @@ trait GetManyReferenceRequest extends js.Object with Request {
   val id: String
   val pagination: js.UndefOr[Pagination]
   val sorts: js.UndefOr[Sort]
-  val filter: js.UndefOr[Seq[Filter]]
+  val filter: js.UndefOr[js.Dictionary[String | js.Array[String]]]
 }
 
 object GetManyReferenceRequest {
@@ -54,8 +56,16 @@ object GetManyReferenceRequest {
   def fetch(resource: String, params: js.Object): Future[Response] = {
     resource match {
       case Resource.proposals =>
-        throw ResourceNotImplementedException(
-          s"Resource ${Resource.proposals} not implemented for request GetManyReferenceRequest"
+        val request = params.asInstanceOf[GetManyReferenceRequest]
+        ProposalService.proposals(
+          request.pagination.toOption,
+          request.sorts.toOption,
+          request.filter.toOption
+            .map(_.toJSArray.map {
+              case (fieldName, filterValue) => Filter(fieldName, filterValue)
+            }.toSeq)
+            .map(_ :+ Filter(request.target, request.id))
+            .orElse(Some(Seq(Filter(request.target, request.id))))
         )
       case Resource.users =>
         throw ResourceNotImplementedException(

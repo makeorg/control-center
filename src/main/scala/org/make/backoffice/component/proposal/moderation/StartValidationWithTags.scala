@@ -75,7 +75,8 @@ object StartValidationWithTags {
               ProposalService
                 .nextProposalToModerate(self.state.questionId, toEnrich = false, minVotesCount = None, minScore = None)
                 .onComplete {
-                  case Success(proposal) => self.props.history.push(s"/nextProposal/${proposal.data.id}?withTags=true")
+                  case Success(proposal) =>
+                    self.props.history.push(s"/nextProposal/${proposal.data.id}?withTags=true")
                   case Failure(NotFoundHttpException) =>
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "No proposal found"))
                   case Failure(BadRequestHttpException(_)) =>
