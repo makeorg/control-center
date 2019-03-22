@@ -138,6 +138,14 @@ object NativeDialog extends ReactClass
 object NativeCircularProgress extends ReactClass
 
 @js.native
+@JSImport("material-ui", "Divider")
+object NativeDivider extends ReactClass
+
+@js.native
+@JSImport("material-ui", "SvgIcon")
+object NativeSvgIcon extends ReactClass
+
+@js.native
 trait Event extends js.Object {
   val target: Element = js.native
 }
@@ -252,11 +260,13 @@ object MaterialUi {
     lazy val Chip: ReactClassElementSpec = elements(NativeChip)
     lazy val CircularProgress: ReactClassElementSpec = elements(NativeCircularProgress)
     lazy val Dialog: ReactClassElementSpec = elements(NativeDialog)
+    lazy val Divider: ReactClassElementSpec = elements(NativeDivider)
     lazy val FlatButton: ReactClassElementSpec = elements(NativeFlatButton)
     lazy val MenuItem: ReactClassElementSpec = elements(NativeMenuItem)
     lazy val RaisedButton: ReactClassElementSpec = elements(NativeRaisedButton)
     lazy val SelectField: ReactClassElementSpec = elements(NativeSelectField)
     lazy val Snackbar: ReactClassElementSpec = elements(NativeSnackbar)
+    lazy val SvgIcon: ReactClassElementSpec = elements(NativeSvgIcon)
     lazy val Table: ReactClassElementSpec = elements(NativeTable)
     lazy val TableRow: ReactClassElementSpec = elements(NativeTableRow)
     lazy val TableRowColumn: ReactClassElementSpec = elements(NativeTableRowColumn)
