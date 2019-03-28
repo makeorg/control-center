@@ -46,6 +46,7 @@ object Show {
     lazy val `match` = MatchAttributeSpec("match")
     lazy val showTitle = ElementAttributeSpec("title")
     lazy val hasEdit = BooleanAttributeSpec("hasEdit")
+    lazy val hasList = BooleanAttributeSpec("hasList")
   }
 }
 

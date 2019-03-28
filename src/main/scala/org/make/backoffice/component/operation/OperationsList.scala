@@ -27,7 +27,7 @@ import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
-import org.make.backoffice.facade.AdminOnRest.EditButton._
+import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
@@ -52,7 +52,7 @@ object OperationsList {
             ^.hasCreate := true,
             ^.filters := operationFilters(),
             ^.sortList := Map("field" -> "slug", "order" -> "ASC")
-          )(<.Datagrid()(<.EditButton()(), <.TextField(^.source := "slug", ^.sortable := true)()))
+          )(<.Datagrid()(<.ShowButton()(), <.TextField(^.source := "slug", ^.sortable := true)()))
         }
       )
 

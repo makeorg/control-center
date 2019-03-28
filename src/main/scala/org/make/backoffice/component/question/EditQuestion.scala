@@ -33,11 +33,11 @@ import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.FormTab._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
+import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.AdminOnRest.required
-import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.service.proposal.{Accepted, Refused}
-import org.make.backoffice.util.{Configuration, DateParser}
+import org.make.backoffice.util.DateParser
 
 import scala.scalajs.js
 
@@ -79,56 +79,27 @@ object EditQuestion {
                   ^.source := "endDate",
                   ^.parse := ((date: js.UndefOr[String]) => date.map(DateParser.parseDate))
                 )(),
-                <.ReferenceInput(
+                <.ReferenceField(
                   ^.label := "Operation",
                   ^.translateLabel := ((label: String) => label),
                   ^.source := "operationId",
                   ^.reference := Resource.operations,
-                  ^.sort := Map("field" -> "slug", "order" -> "ASC"),
-                  ^.perPage := 100,
-                  ^.allowEmpty := false,
-                  ^.validate := required,
-                  ^.options := Map("fullWidth" -> true)
-                )(<.SelectInput(^.optionText := "slug")()),
-                <.TextInput(
+                  ^.linkType := false
+                )(<.TextField(^.source := "slug")()),
+                <.TextField(
                   ^.label := "Operation Title",
                   ^.translateLabel := ((label: String) => label),
-                  ^.source := "operationTitle",
-                  ^.allowEmpty := false,
-                  ^.validate := required,
-                  ^.options := Map("fullWidth" -> true)
+                  ^.source := "operationTitle"
                 )(),
-                <.SelectInput(
-                  ^.source := "country",
-                  ^.choices := Configuration.choicesCountry,
-                  ^.allowEmpty := false,
-                  ^.validate := required,
-                  ^.options := Map("fullWidth" -> true)
-                )(),
-                Configuration.choiceLanguage.map {
-                  case (country, languages) =>
-                    <.DependentInput(^.dependsOn := "country", ^.dependsValue := country)(
-                      <.SelectInput(
-                        ^.source := "language",
-                        ^.choices := languages,
-                        ^.allowEmpty := false,
-                        ^.validate := required,
-                        ^.options := Map("fullWidth" -> true)
-                      )()
-                    )
-                },
+                <.TextField(^.source := "country")(),
+                <.TextField(^.source := "language")(),
                 <.TextInput(
                   ^.source := "question",
                   ^.allowEmpty := false,
                   ^.validate := required,
                   ^.options := Map("fullWidth" -> true)
                 )(),
-                <.TextInput(
-                  ^.source := "slug",
-                  ^.allowEmpty := false,
-                  ^.validate := required,
-                  ^.options := Map("fullWidth" -> true)
-                )(),
+                <.TextField(^.source := "slug")(),
                 <.BooleanInput(
                   ^.label := "Can propose",
                   ^.translateLabel := ((label: String) => label),
