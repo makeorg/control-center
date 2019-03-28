@@ -84,7 +84,7 @@ object QuestionsList {
         <.ReferenceInput(
           ^.label := "Question",
           ^.translateLabel := ((label: String) => label),
-          ^.source := "id",
+          ^.source := "questionId",
           ^.reference := Resource.questions,
           ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
           ^.perPage := 100,
