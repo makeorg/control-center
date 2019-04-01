@@ -25,53 +25,36 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
-import org.make.backoffice.facade.AdminOnRest.Edit._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
-import org.make.backoffice.facade.AdminOnRest.SimpleForm._
-import org.make.backoffice.facade.AdminOnRest.required
-import org.make.backoffice.model.Operation
-import org.make.backoffice.util.Configuration
+import org.make.backoffice.facade.AdminOnRest.Show._
+import org.make.backoffice.facade.AdminOnRest.SimpleShowLayout._
 
-object EditOperation {
+object ShowOperation {
 
-  case class EditOperationProps() extends RouterProps
+  case class ShowOperationProps() extends RouterProps
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass =
     React
-      .createClass[EditOperationProps, Unit](
-        displayName = "EditOperation",
+      .createClass[ShowOperationProps, Unit](
+        displayName = "ShowOperation",
         render = self => {
-          <.Edit(
+          <.Show(
             ^.resource := Resource.operations,
             ^.location := self.props.location,
             ^.`match` := self.props.`match`,
             ^.hasList := true
           )(
-            <.SimpleForm()(
-              <.TextInput(
-                ^.source := "slug",
-                ^.allowEmpty := false,
-                ^.validate := required,
-                ^.options := Map("fullWidth" -> true)
-              )(),
-              <.SelectInput(
+            <.SimpleShowLayout()(
+              <.TextField(^.source := "slug")(),
+              <.TextField(
                 ^.label := "Default language",
                 ^.translateLabel := ((label: String) => label),
-                ^.source := "defaultLanguage",
-                ^.choices := Configuration.choiceDefaultLanguage,
-                ^.allowEmpty := false,
-                ^.validate := required,
-                ^.options := Map("fullWidth" -> true)
+                ^.source := "defaultLanguage"
               )(),
-              <.SelectArrayInput(
-                ^.label := "Allowed sources",
-                ^.translateLabel := ((label: String) => label),
-                ^.source := "allowedSources",
-                ^.choices := Operation.allowedSourcesChoices
-              )()
+              <.TextField(^.source := "allowedSources")()
             )
           )
         }
