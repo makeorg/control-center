@@ -179,17 +179,6 @@ object ProposalService extends ApiService with CirceClassFormatters {
     }
   }
 
-  def getDuplicates(proposalId: String): Future[Seq[SimilarResult]] = {
-    client
-      .get[js.Array[SimilarResult]](resourceName / proposalId / "duplicates")
-      .map(similarResult => similarResult.toSeq)
-      .recover {
-        case e =>
-          js.Dynamic.global.console.log(s"instead of converting to SimilarResult: failed cursor $e")
-          throw e
-      }
-  }
-
   def lock(proposalId: String): Future[Unit] = {
     client.post[Unit](resourceName / proposalId / "lock")
   }
