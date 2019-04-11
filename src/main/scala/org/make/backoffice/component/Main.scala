@@ -58,7 +58,12 @@ object Main {
         ^.restClient := RestClient.makeClient,
         ^.authClient := AuthClient.auth
       )(
-        <.Resource(^.name := Resource.proposals, ^.listing := ProposalList(), ^.show := ShowProposal())(),
+        <.Resource(
+          ^.name := Resource.proposals,
+          ^.listing := ProposalList(),
+          ^.show := ShowProposal(),
+          ^.edit := ShowProposal()
+        )(),
         <.Resource(
           ^.name := Resource.toEnrichProposals,
           ^.listing := ToEnrichProposalList(),

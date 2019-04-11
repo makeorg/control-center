@@ -27,11 +27,12 @@ import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
-import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
+import org.make.backoffice.facade.AdminOnRest.ShowButton._
+import org.make.backoffice.model.Operation
 
 object OperationsList {
 
@@ -44,6 +45,7 @@ object OperationsList {
       .createClass[ListProps, Unit](
         displayName = "OperationsList",
         render = self => {
+
           <.List(
             ^.perPage := 20,
             ^.title := "Operations",
@@ -52,13 +54,32 @@ object OperationsList {
             ^.hasCreate := true,
             ^.filters := operationFilters(),
             ^.sortList := Map("field" -> "slug", "order" -> "ASC")
-          )(<.Datagrid()(<.ShowButton()(), <.TextField(^.source := "slug", ^.sortable := true)()))
+          )(
+            <.Datagrid()(
+              <.ShowButton()(),
+              <.TextField(^.source := "slug", ^.sortable := true)(),
+              <.FunctionField(^.label := "Operation Kind", ^.translateLabel := ((label: String) => label), ^.render := {
+                record =>
+                  val operation = record.asInstanceOf[Operation]
+                  Operation.kindMap(operation.operationKind)
+              })()
+            )
+          )
         }
       )
 
   def operationFilters(): ReactElement = {
     <.Filter(^.resource := Resource.operations)(
-      Seq(<.TextInput(^.label := "Slug", ^.source := "slug", ^.alwaysOn := true)())
+      Seq(
+        <.TextInput(^.label := "Slug", ^.source := "slug", ^.alwaysOn := true)(),
+        <.SelectInput(
+          ^.label := "Operation kind",
+          ^.source := "operationKind",
+          ^.alwaysOn := true,
+          ^.choices := Operation.kindChoices,
+          ^.allowEmpty := true
+        )(),
+      )
     )
   }
 

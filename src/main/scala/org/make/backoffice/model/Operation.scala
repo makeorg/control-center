@@ -48,6 +48,7 @@ trait Operation extends js.Object {
   val status: String
   val slug: String
   val defaultLanguage: String
+  val operationKind: String
   val createdAt: js.UndefOr[Date]
   val updatedAt: js.UndefOr[Date]
 }
@@ -71,6 +72,17 @@ object Operation {
       .asInstanceOf[Operation]
 
   val allowedSourcesChoices: js.Array[Choice] = js.Array(Choice("core", "core"), Choice("huffpost", "Huffington Post"))
+
+  val kindMap: Map[String, String] = Map(
+    "PUBLIC_CONSULTATION" -> "Public consultation",
+    "GREAT_CAUSE" -> "Great cause",
+    "PRIVATE_CONSULTATION" -> "Private consultation"
+  )
+
+  val kindChoices: js.Array[Choice] =
+    kindMap.map {
+      case (id, name) => Choice(id, name)
+    }.toJSArray
 }
 
 @js.native
