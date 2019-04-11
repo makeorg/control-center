@@ -1,3 +1,5 @@
+[![build status](https://gitlab.com/makeorg-scala/make-backoffice/badges/preproduction/build.svg)](https://gitlab.com/makeorg-scala/make-backoffice/commits/preproduction)
+
 Make back-office
 ================
 
