@@ -187,17 +187,6 @@ object Proposal {
 }
 
 @js.native
-trait SimilarResult extends js.Object {
-  val ideaId: String
-  val ideaName: String
-}
-
-object SimilarResult {
-  def apply(ideaId: IdeaId, ideaName: String): SimilarResult =
-    js.Dynamic.literal(ideaId = ideaId.value, ideaName = ideaName).asInstanceOf[SimilarResult]
-}
-
-@js.native
 trait ProposalsResult extends js.Object {
   val total: Int
   val results: js.Array[Proposal]

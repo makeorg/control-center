@@ -35,7 +35,6 @@ import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.idea.IdeaService
-import org.make.backoffice.service.proposal.ProposalService
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -119,7 +118,6 @@ object ProposalIdeaComponent {
                                selectedIdeaId: Option[IdeaId],
                                searchIdeaContent: String,
                                foundProposalIdeas: Seq[Idea],
-                               similarResult: Seq[SimilarResult],
                                ideaName: Option[String],
                                isLoading: Boolean = true)
 
@@ -132,27 +130,17 @@ object ProposalIdeaComponent {
       )
   }
 
-  def loadDuplicates(props: ProposalIdeaProps): Future[Seq[SimilarResult]] = {
-    ProposalService.getDuplicates(props.proposal.id)
-  }
-
   lazy val reactClass: ReactClass =
     React.createClass[ProposalIdeaProps, ProposalIdeaState](
       displayName = "ProposalIdea",
       getInitialState = { _ =>
-        ProposalIdeaState(Seq.empty, None, "", Seq.empty, Seq.empty, None)
+        ProposalIdeaState(Seq.empty, None, "", Seq.empty, None)
       },
       componentDidMount = { self =>
         loadIdeas(self, self.props.wrapped).onComplete {
           case Success(listIdeas) =>
             self.setState(_.copy(ideas = listIdeas, foundProposalIdeas = listIdeas))
           case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get ideas failed with error $e")
-        }
-        loadDuplicates(self.props.wrapped).onComplete {
-          case Success(similarResult) => self.setState(_.copy(similarResult = similarResult, isLoading = false))
-          case Failure(e) =>
-            self.setState(_.copy(isLoading = false))
-            scalajs.js.Dynamic.global.console.log(s"get similar failed with error $e")
         }
         self.setState(_.copy(selectedIdeaId = self.props.wrapped.proposal.ideaId.map(IdeaId(_)).toOption))
         if (self.props.wrapped.ideaName.isEmpty) {
@@ -166,21 +154,7 @@ object ProposalIdeaComponent {
       },
       componentWillReceiveProps = { (self, props) =>
         if (self.props.wrapped.proposal.id != props.wrapped.proposal.id) {
-          self.setState(
-            _.copy(
-              selectedIdeaId = None,
-              searchIdeaContent = "",
-              similarResult = Seq.empty,
-              ideaName = None,
-              isLoading = true
-            )
-          )
-          loadDuplicates(props.wrapped).onComplete {
-            case Success(similarResult) => self.setState(_.copy(similarResult = similarResult, isLoading = false))
-            case Failure(e) =>
-              self.setState(_.copy(isLoading = false))
-              scalajs.js.Dynamic.global.console.log(s"get similar failed with error $e")
-          }
+          self.setState(_.copy(selectedIdeaId = None, searchIdeaContent = "", ideaName = None, isLoading = true))
         }
       },
       render = { self =>
