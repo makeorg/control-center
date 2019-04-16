@@ -99,11 +99,94 @@ object EditQuestion {
                   ^.validate := required,
                   ^.options := Map("fullWidth" -> true)
                 )(),
-                <.TextField(^.source := "slug")(),
+                <.TextField(^.source := "slug")()
+              ),
+              <.FormTab(^.label := "Sequence config")(
+                <.BooleanInput(^.label := "Can propose", ^.source := "canPropose")(),
+                <.TextInput(
+                  ^.label := "About Url",
+                  ^.source := "aboutUrl",
+                  ^.`type` := "url",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.hr.empty,
+                <.h3()("Intro Card"),
+                <.BooleanInput(^.label := "Enabled", ^.source := "sequenceCardsConfiguration.introCard.enabled")(),
+                <.TextInput(
+                  ^.label := "Title",
+                  ^.source := "sequenceCardsConfiguration.introCard.title",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.LongTextInput(
+                  ^.label := "Description (multiline)",
+                  ^.source := "sequenceCardsConfiguration.introCard.description",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.hr.empty,
+                <.h3()("Push Proposal Card"),
                 <.BooleanInput(
-                  ^.label := "Can propose",
-                  ^.translateLabel := ((label: String) => label),
-                  ^.source := "canPropose"
+                  ^.label := "Enabled",
+                  ^.source := "sequenceCardsConfiguration.pushProposalCard.enabled"
+                )(),
+                <.hr.empty,
+                <.h3()("Signup Card"),
+                <.BooleanInput(^.label := "Enabled", ^.source := "sequenceCardsConfiguration.signUpCard.enabled")(),
+                <.TextInput(
+                  ^.label := "Title",
+                  ^.source := "sequenceCardsConfiguration.signUpCard.title",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.TextInput(
+                  ^.label := "Next Cta",
+                  ^.source := "sequenceCardsConfiguration.signUpCard.nextCtaText",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.hr.empty,
+                <.h3()("Final Card"),
+                <.BooleanInput(^.label := "Enabled", ^.source := "sequenceCardsConfiguration.finalCard.enabled")(),
+                <.BooleanInput(
+                  ^.label := "With sharing",
+                  ^.source := "sequenceCardsConfiguration.finalCard.sharingEnabled"
+                )(),
+                <.TextInput(
+                  ^.label := "Title",
+                  ^.source := "sequenceCardsConfiguration.finalCard.title",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.LongTextInput(
+                  ^.label := "Share text (multiline)",
+                  ^.source := "sequenceCardsConfiguration.finalCard.shareDescription",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.TextInput(
+                  ^.label := "Learn more title",
+                  ^.source := "sequenceCardsConfiguration.finalCard.learnMoreTitle",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.TextInput(
+                  ^.label := "Learn more button text",
+                  ^.source := "sequenceCardsConfiguration.finalCard.learnMoreTextButton",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.TextInput(
+                  ^.label := "Link url",
+                  ^.source := "sequenceCardsConfiguration.finalCard.linkUrl",
+                  ^.`type` := "url",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.hr.empty,
+                <.h3()("Metas"),
+                <.TextInput(^.label := "Title", ^.source := "metas.title", ^.options := Map("fullWidth" -> true))(),
+                <.TextInput(
+                  ^.label := "Description",
+                  ^.source := "metas.description",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.TextInput(
+                  ^.label := "Picture",
+                  ^.source := "metas.picture",
+                  ^.`type` := "url",
+                  ^.options := Map("fullWidth" -> true)
                 )()
               ),
               <.FormTab(^.label := "initials proposals")(if (!self.state.reload) {

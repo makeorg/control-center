@@ -25,6 +25,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM.{VirtualDOMAttributes, Vir
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.statictags.{BooleanAttributeSpec, StringAttributeSpec}
 import org.make.backoffice.facade.AdminOnRest.ShowButton.RecordAttributeSpec
+import org.make.backoffice.facade.AdminOnRest.SimpleForm.RedirectAttributeSpec
 import org.make.backoffice.facade.MaterialUi.IntAttributeSpec
 import org.make.backoffice.facade.{
   ElementAttributeSpec,
@@ -79,6 +80,10 @@ object NativeTabbedForm extends ReactClass
 object TabbedForm {
   implicit class TabbedFormVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val TabbedForm: ReactClassElementSpec = elements(NativeTabbedForm)
+  }
+
+  implicit class TabbedFormVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val redirect = RedirectAttributeSpec("redirect")
   }
 }
 
