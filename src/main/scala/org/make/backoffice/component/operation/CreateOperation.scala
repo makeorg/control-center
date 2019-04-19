@@ -62,6 +62,15 @@ object CreateOperation {
                 ^.validate := required,
                 ^.options := Map("fullWidth" -> true)
               )(),
+              <.SelectInput(
+                ^.label := "Operation Kind",
+                ^.translateLabel := ((label: String) => label),
+                ^.source := "operationKind",
+                ^.choices := Operation.kindChoices,
+                ^.allowEmpty := false,
+                ^.validate := required,
+                ^.options := Map("fullWidth" -> true)
+              )(),
               <.SelectArrayInput(
                 ^.label := "Allowed sources",
                 ^.translateLabel := ((label: String) => label),

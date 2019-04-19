@@ -29,6 +29,7 @@ import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.Show._
 import org.make.backoffice.facade.AdminOnRest.SimpleShowLayout._
+import org.make.backoffice.model.Operation
 
 object ShowOperation {
 
@@ -54,6 +55,11 @@ object ShowOperation {
                 ^.translateLabel := ((label: String) => label),
                 ^.source := "defaultLanguage"
               )(),
+              <.FunctionField(^.label := "Operation Kind", ^.translateLabel := ((label: String) => label), ^.render := {
+                record =>
+                  val operation = record.asInstanceOf[Operation]
+                  Operation.kindMap(operation.operationKind)
+              })(),
               <.TextField(^.source := "allowedSources")()
             )
           )

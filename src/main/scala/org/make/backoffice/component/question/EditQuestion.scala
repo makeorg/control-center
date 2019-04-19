@@ -33,7 +33,7 @@ import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.FormTab._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
-import org.make.backoffice.facade.AdminOnRest.ShowButton._
+import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.AdminOnRest.required
 import org.make.backoffice.service.proposal.{Accepted, Refused}
@@ -120,7 +120,7 @@ object EditQuestion {
                       )
                     )(
                       <.Datagrid()(
-                        <.ShowButton.empty,
+                        <.EditButton.empty,
                         <.TextField(^.source := "content")(),
                         <.TextField(^.label := "Author", ^.source := "author.firstName")(),
                         <.TextField(^.source := "status")()
