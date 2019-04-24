@@ -36,4 +36,4 @@ start:
 	sbt fastOptJS::startWebpackDevServer ~fastOptJS
 
 package-docker-image:
-    sbt publishLocal
+	sbt publishLocal

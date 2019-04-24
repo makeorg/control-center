@@ -20,8 +20,8 @@
 
 package org.make.backoffice.component.question
 import io.github.shogowada.scalajs.reactjs.React
-import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
+import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.Question
@@ -31,7 +31,6 @@ import org.make.backoffice.util.Configuration
 import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.scalajs.js
 import scala.util.{Failure, Success}
 
 object InitialProposalComponent {

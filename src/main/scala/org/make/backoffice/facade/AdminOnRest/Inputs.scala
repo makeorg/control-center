@@ -74,6 +74,10 @@ object NativeNullableBooleanInput extends ReactClass
 @JSImport("admin-on-rest", "DateInput")
 object NativeDateInput extends ReactClass
 
+@js.native
+@JSImport("admin-on-rest", "LongTextInput")
+object NativeLongTextInput extends ReactClass
+
 object Inputs {
   implicit class InputsVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val TextInput: ReactClassElementSpec = elements(NativeTextInput)
@@ -87,6 +91,7 @@ object Inputs {
     lazy val NullableBooleanInput: ReactClassElementSpec = elements(NativeNullableBooleanInput)
     lazy val BooleanInput: ReactClassElementSpec = elements(NativeBooleanInput)
     lazy val DateInput: ReactClassElementSpec = elements(NativeDateInput)
+    lazy val LongTextInput: ReactClassElementSpec = elements(NativeLongTextInput)
   }
 
   implicit class InputsVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
@@ -97,11 +102,19 @@ object Inputs {
         Attribute(name = name, value = element, AS_IS)
     }
 
+    case class DefaultValueAttributeSpec(name: String) extends AttributeSpec {
+      def :=(value: String): Attribute[String] =
+        Attribute(name = name, value = value, AS_IS)
+
+      def :=(value: Boolean): Attribute[Boolean] =
+        Attribute(name = name, value = value, AS_IS)
+    }
+
     lazy val stripTags = BooleanAttributeSpec("stripTags")
     lazy val choices = ChoicesAttributeSpec("choices")
     lazy val dependsOn = StringAttributeSpec("dependsOn")
     lazy val dependsValue = StringAttributeSpec("value")
-    lazy val defaultValue = StringAttributeSpec("defaultValue")
+    lazy val defaultValue = DefaultValueAttributeSpec("defaultValue")
     lazy val resolve = StringAttributeSpec("resolve")
     lazy val optionText = StringAttributeSpec("optionText")
     lazy val optionValue = StringAttributeSpec("optionValue")
