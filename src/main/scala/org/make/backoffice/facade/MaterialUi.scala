@@ -146,6 +146,10 @@ object NativeDivider extends ReactClass
 object NativeSvgIcon extends ReactClass
 
 @js.native
+@JSImport("material-ui", "Toggle")
+object NativeToggle extends ReactClass
+
+@js.native
 trait Event extends js.Object {
   val target: Element = js.native
 }
@@ -202,6 +206,11 @@ object MaterialUi {
   case class ValueSelectAttributeSpec(name: String) extends AttributeSpec {
     def :=(elements: Seq[String]): Attribute[js.Array[String]] =
       Attribute(name = name, value = elements.toJSArray, AS_IS)
+  }
+
+  case class ValueFloatAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: Float): Attribute[Float] =
+      Attribute(name = name, value = element, AS_IS)
   }
 
   case class DataSourceAttributeSpec(name: String) extends AttributeSpec {
@@ -275,6 +284,7 @@ object MaterialUi {
     lazy val TableBody: ReactClassElementSpec = elements(NativeTableBody)
     lazy val TableFooter: ReactClassElementSpec = elements(NativeTableFooter)
     lazy val TextFieldMaterialUi: ReactClassElementSpec = elements(NativeTextField)
+    lazy val Toggle: ReactClassElementSpec = elements(NativeToggle)
   }
 
   implicit class MaterialUiVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
@@ -309,6 +319,7 @@ object MaterialUi {
     lazy val hintText = StringAttributeSpec("hintText")
     lazy val hoverable = BooleanAttributeSpec("hoverable")
     lazy val hovered = MapStringAttributeSpec("hovered")
+    lazy val inputStyle = CssAttributeSpec("inputStyle")
     lazy val insetChildren = BooleanAttributeSpec("insetChildren")
     lazy val listStyle = MapStringAttributeSpec("listStyle")
     lazy val maxSearchResults = IntegerAttributeSpec("maxSearchResults")
@@ -332,6 +343,7 @@ object MaterialUi {
     lazy val onRowHover = OnRowAttributeSpec("onRowHover")
     lazy val onRowHoverExit = OnRowAttributeSpec("onRowHoverExit")
     lazy val onRowSelection = OnRowSelectionAttributeSpec("onRowSelection")
+    lazy val onToggle = OnCheckAttributeSpec("onToggle")
     lazy val onUpdateInput = OnUpdateInputAttributeSpec("onUpdateInput")
     lazy val open = BooleanAttributeSpec("open")
     lazy val openOnFocus = BooleanAttributeSpec("openOnFocus")
@@ -351,10 +363,12 @@ object MaterialUi {
     lazy val style = MapStringAttributeSpec("style")
     lazy val subtitle = StringAttributeSpec("subtitle")
     lazy val textFieldStyle = MapStringAttributeSpec("textFieldStyle")
+    lazy val toggled = BooleanAttributeSpec("toggled")
     lazy val tooltip = StringAttributeSpec("tooltip")
     lazy val tooltipStyle = MapStringAttributeSpec("tooltipStyle")
     lazy val underlineShow = BooleanAttributeSpec("underlineShow")
     lazy val valueSelect = ValueSelectAttributeSpec("value")
+    lazy val valueFloat = ValueFloatAttributeSpec("value")
     lazy val wrapperStyle = MapStringAttributeSpec("wrapperStyle")
   }
 }

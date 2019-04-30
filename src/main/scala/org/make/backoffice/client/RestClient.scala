@@ -37,7 +37,10 @@ object RestClient extends CirceClassFormatters {
 
     def fetchJsonCookie(url: String, options: js.UndefOr[js.Dictionary[Any]]): Promise[Response] = {
       val defined: js.Dictionary[Any] = options.getOrElse(js.Dictionary())
-      defined.update("headers", new Headers(js.Dictionary("x-make-app-name" -> "backoffice")))
+      defined.update(
+        "headers",
+        new Headers(js.Dictionary("x-make-app-name" -> "backoffice", "x-make-source" -> "core"))
+      )
       defined.update("credentials", "include")
       defined.update(
         "user",

@@ -54,6 +54,7 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
   override def defaultHeaders: Map[String, String] = {
     Map(
       "x-make-app-name" -> "backoffice",
+      "x-make-source" -> "core",
       "Accept" -> MediaTypes.`application/json`,
       "Content-Type" -> "application/json;charset=UTF-8"
     ) ++

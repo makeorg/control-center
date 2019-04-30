@@ -55,12 +55,12 @@ object IdeaMappingsList {
             <.Datagrid()(
               <.EditButton()(),
               <.ReferenceField(
-                ^.source := "ideaId",
-                ^.label := "idea",
-                ^.reference := Resource.ideas,
+                ^.source := "questionId",
+                ^.label := "question",
+                ^.reference := Resource.questions,
                 ^.linkType := false,
                 ^.sortable := false
-              )(<.TextField(^.source := "name")()),
+              )(<.TextField(^.source := "slug")()),
               <.ReferenceField(
                 ^.source := "stakeTagId",
                 ^.label := "Stake Tag",
@@ -76,12 +76,12 @@ object IdeaMappingsList {
                 ^.sortable := false
               )(<.TextField(^.source := "label")()),
               <.ReferenceField(
-                ^.source := "questionId",
-                ^.label := "question",
-                ^.reference := Resource.questions,
+                ^.source := "ideaId",
+                ^.label := "idea",
+                ^.reference := Resource.ideas,
                 ^.linkType := false,
                 ^.sortable := false
-              )(<.TextField(^.source := "slug")())
+              )(<.TextField(^.source := "name")())
             )
           )
         }

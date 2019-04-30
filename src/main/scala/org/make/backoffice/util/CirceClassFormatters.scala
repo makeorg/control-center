@@ -22,6 +22,7 @@ package org.make.backoffice.util
 
 import io.circe.java8.time.TimeInstances
 import io.circe.{Decoder, Encoder, Json}
+import org.make.backoffice.model.Question.DataConfiguration
 import org.make.backoffice.model._
 
 trait CirceClassFormatters extends TimeInstances {
@@ -204,4 +205,64 @@ trait CirceClassFormatters extends TimeInstances {
       "country",
       "language"
     )(Question.apply)
+
+  implicit lazy val dataConfigurationDecoder: Decoder[DataConfiguration] =
+    Decoder.forProduct16(
+      "newProposalsRatio",
+      "newProposalsVoteThreshold",
+      "testedProposalsEngagementThreshold",
+      "testedProposalsScoreThreshold",
+      "testedProposalsControversyThreshold",
+      "testedProposalsMaxVotesThreshold",
+      "intraIdeaEnabled",
+      "intraIdeaMinCount",
+      "intraIdeaProposalsRatio",
+      "interIdeaCompetitionEnabled",
+      "interIdeaCompetitionTargetCount",
+      "interIdeaCompetitionControversialRatio",
+      "interIdeaCompetitionControversialCount",
+      "maxTestedProposalCount",
+      "sequenceSize",
+      "selectionAlgorithmName"
+    )(DataConfiguration.apply)
+
+  implicit lazy val dataConfigurationEncoder: Encoder[DataConfiguration] =
+    Encoder.forProduct16(
+      "newProposalsRatio",
+      "newProposalsVoteThreshold",
+      "testedProposalsEngagementThreshold",
+      "testedProposalsScoreThreshold",
+      "testedProposalsControversyThreshold",
+      "testedProposalsMaxVotesThreshold",
+      "intraIdeaEnabled",
+      "intraIdeaMinCount",
+      "intraIdeaProposalsRatio",
+      "interIdeaCompetitionEnabled",
+      "interIdeaCompetitionTargetCount",
+      "interIdeaCompetitionControversialRatio",
+      "interIdeaCompetitionControversialCount",
+      "maxTestedProposalCount",
+      "sequenceSize",
+      "selectionAlgorithmName"
+    )(
+      dataConfiguration =>
+        (
+          dataConfiguration.newProposalsRatio,
+          dataConfiguration.newProposalsVoteThreshold,
+          dataConfiguration.testedProposalsEngagementThreshold,
+          dataConfiguration.testedProposalsScoreThreshold,
+          dataConfiguration.testedProposalsControversyThreshold,
+          dataConfiguration.testedProposalsMaxVotesThreshold,
+          dataConfiguration.intraIdeaEnabled,
+          dataConfiguration.intraIdeaMinCount,
+          dataConfiguration.intraIdeaProposalsRatio,
+          dataConfiguration.interIdeaCompetitionEnabled,
+          dataConfiguration.interIdeaCompetitionTargetCount,
+          dataConfiguration.interIdeaCompetitionControversialRatio,
+          dataConfiguration.interIdeaCompetitionControversialCount,
+          dataConfiguration.maxTestedProposalCount,
+          dataConfiguration.sequenceSize,
+          dataConfiguration.selectionAlgorithmName
+      )
+    )
 }

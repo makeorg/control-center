@@ -51,6 +51,7 @@ package object component {
     def StartEnrich: ReactClassElementSpec = self(proposal.toEnrich.StartEnrich.reactClass)
     def StartValidationWithTags: ReactClassElementSpec = self(proposal.moderation.StartValidationWithTags.reactClass)
     def InitialProposal: ReactClassElementSpec = self(question.InitialProposalComponent.reactClass)
+    def DataConfigurationComponent: ReactClassElementSpec = self(question.DataConfigurationComponent.reactClass)
   }
 
   implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {
