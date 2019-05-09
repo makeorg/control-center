@@ -24,6 +24,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.make.backoffice.client.ListTotalResponse
 import org.make.backoffice.client.request.{Filter, Pagination, Sort}
+import org.make.backoffice.model.Question.DataConfiguration
 import org.make.backoffice.model.{ProposalIdResult, Question}
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
@@ -78,6 +79,27 @@ object QuestionService extends ApiService with CirceClassFormatters {
       .recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of converting to Question: failed cursor $e")
+          throw e
+      }
+  }
+
+  def getDataConfiguration(sequenceId: String): Future[DataConfiguration] = {
+    client.get[DataConfiguration](apiEndpoint = s"moderation/sequences/$sequenceId/configuration").recover {
+      case e =>
+        js.Dynamic.global.console.log(s"instead of converting to DataConfiguration: failed cursor $e")
+        throw e
+    }
+  }
+
+  def putDataConfiguration(sequenceId: String, questionId: String, request: DataConfiguration): Future[Boolean] = {
+    client
+      .put[Boolean](
+        apiEndpoint = s"moderation/sequences/$sequenceId/$questionId/configuration",
+        data = request.asJson.pretty(ApiService.printer)
+      )
+      .recover {
+        case e =>
+          js.Dynamic.global.console.log(s"instead of converting to DataConfiguration: failed cursor $e")
           throw e
       }
   }

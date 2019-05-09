@@ -22,9 +22,9 @@ package org.make.backoffice.model
 import java.time.LocalDate
 
 import io.circe.{Decoder, Encoder, Json}
-import scala.scalajs.js.JSConverters._
 
 import scala.scalajs.js
+import scala.scalajs.js.JSConverters._
 
 @js.native
 trait QuestionId extends js.Object with StringValue {
@@ -77,4 +77,64 @@ object Question {
         language = language.orUndefined
       )
       .asInstanceOf[Question]
+
+  @js.native
+  trait DataConfiguration extends js.Object {
+    val newProposalsRatio: Float
+    val newProposalsVoteThreshold: Int
+    val testedProposalsEngagementThreshold: Float
+    val testedProposalsScoreThreshold: Float
+    val testedProposalsControversyThreshold: Float
+    val testedProposalsMaxVotesThreshold: Int
+    val intraIdeaEnabled: Boolean
+    val intraIdeaMinCount: Int
+    val intraIdeaProposalsRatio: Float
+    val interIdeaCompetitionEnabled: Boolean
+    val interIdeaCompetitionTargetCount: Int
+    val interIdeaCompetitionControversialRatio: Float
+    val interIdeaCompetitionControversialCount: Int
+    val maxTestedProposalCount: Int
+    val sequenceSize: Int
+    val selectionAlgorithmName: String
+  }
+
+  object DataConfiguration {
+    def apply(newProposalsRatio: Float,
+              newProposalsVoteThreshold: Int,
+              testedProposalsEngagementThreshold: Float,
+              testedProposalsScoreThreshold: Float,
+              testedProposalsControversyThreshold: Float,
+              testedProposalsMaxVotesThreshold: Int,
+              intraIdeaEnabled: Boolean,
+              intraIdeaMinCount: Int,
+              intraIdeaProposalsRatio: Float,
+              interIdeaCompetitionEnabled: Boolean,
+              interIdeaCompetitionTargetCount: Int,
+              interIdeaCompetitionControversialRatio: Float,
+              interIdeaCompetitionControversialCount: Int,
+              maxTestedProposalCount: Int,
+              sequenceSize: Int,
+              selectionAlgorithmName: String): DataConfiguration = {
+      js.Dynamic
+        .literal(
+          newProposalsRatio = newProposalsRatio,
+          newProposalsVoteThreshold = newProposalsVoteThreshold,
+          testedProposalsEngagementThreshold = testedProposalsEngagementThreshold,
+          testedProposalsScoreThreshold = testedProposalsScoreThreshold,
+          testedProposalsControversyThreshold = testedProposalsControversyThreshold,
+          testedProposalsMaxVotesThreshold = testedProposalsMaxVotesThreshold,
+          intraIdeaEnabled = intraIdeaEnabled,
+          intraIdeaMinCount = intraIdeaMinCount,
+          intraIdeaProposalsRatio = intraIdeaProposalsRatio,
+          interIdeaCompetitionEnabled = interIdeaCompetitionEnabled,
+          interIdeaCompetitionTargetCount = interIdeaCompetitionTargetCount,
+          interIdeaCompetitionControversialRatio = interIdeaCompetitionControversialRatio,
+          interIdeaCompetitionControversialCount = interIdeaCompetitionControversialCount,
+          maxTestedProposalCount = maxTestedProposalCount,
+          sequenceSize = sequenceSize,
+          selectionAlgorithmName = selectionAlgorithmName
+        )
+        .asInstanceOf[DataConfiguration]
+    }
+  }
 }

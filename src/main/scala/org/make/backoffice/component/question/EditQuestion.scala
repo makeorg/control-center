@@ -101,7 +101,7 @@ object EditQuestion {
                 )(),
                 <.TextField(^.source := "slug")()
               ),
-              <.FormTab(^.label := "Sequence config")(
+              <.FormTab(^.label := "Configuration")(
                 <.BooleanInput(^.label := "Can propose", ^.source := "canPropose")(),
                 <.TextInput(
                   ^.label := "About Url",
@@ -134,12 +134,20 @@ object EditQuestion {
                 <.TextInput(
                   ^.label := "Title",
                   ^.source := "sequenceCardsConfiguration.signUpCard.title",
-                  ^.options := Map("fullWidth" -> true)
+                  ^.options := Map(
+                    "fullWidth" -> true,
+                    "floatingLabelFixed" -> true,
+                    "hintText" -> "Recevez les résultats de la consultation et soyez informé(e) des actions à venir"
+                  )
                 )(),
                 <.TextInput(
                   ^.label := "Next Cta",
                   ^.source := "sequenceCardsConfiguration.signUpCard.nextCtaText",
-                  ^.options := Map("fullWidth" -> true)
+                  ^.options := Map(
+                    "fullWidth" -> true,
+                    "floatingLabelFixed" -> true,
+                    "hintText" -> "NON MERCI, JE NE SOUHAITE PAS ÊTRE INFORMÉ(E) DES RÉSULTATS"
+                  )
                 )(),
                 <.hr.empty,
                 <.h3()("Final Card"),
@@ -151,12 +159,23 @@ object EditQuestion {
                 <.TextInput(
                   ^.label := "Title",
                   ^.source := "sequenceCardsConfiguration.finalCard.title",
-                  ^.options := Map("fullWidth" -> true)
+                  ^.options := Map(
+                    "fullWidth" -> true,
+                    "floatingLabelFixed" -> true,
+                    "hintText" -> "Merci pour votre participation !"
+                  )
                 )(),
                 <.LongTextInput(
                   ^.label := "Share text (multiline)",
                   ^.source := "sequenceCardsConfiguration.finalCard.shareDescription",
-                  ^.options := Map("fullWidth" -> true)
+                  ^.options := Map(
+                    "fullWidth" -> true,
+                    "floatingLabelFixed" -> true,
+                    "hintText" ->
+                      ("Vous souhaitez aller plus loin sur cette consultation ?\n" +
+                        "Invitez vos proches et/ou votre communauté à participer\n" +
+                        "Découvrez toutes les propositions sur cette consultation")
+                  )
                 )(),
                 <.TextInput(
                   ^.label := "Learn more title",
@@ -189,6 +208,7 @@ object EditQuestion {
                   ^.options := Map("fullWidth" -> true)
                 )()
               ),
+              <.FormTab(^.label := "Data configuration")(<.DataConfigurationComponent.empty),
               <.FormTab(^.label := "initials proposals")(if (!self.state.reload) {
                 js.Array(
                     <.InitialProposal(^.wrapped := InitialProposalComponentProps(reloadComponent))(),

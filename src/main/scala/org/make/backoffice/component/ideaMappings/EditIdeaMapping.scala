@@ -48,9 +48,31 @@ object EditIdeaMapping {
               ^.`match` := self.props.`match`
             )(
               <.SimpleForm(^.redirect := false)(
+                <.ReferenceField(
+                  ^.source := "questionId",
+                  ^.label := "question",
+                  ^.reference := Resource.questions,
+                  ^.linkType := false,
+                  ^.sortable := false
+                )(<.TextField(^.source := "slug")()),
+                <.ReferenceField(
+                  ^.source := "stakeTagId",
+                  ^.label := "Stake Tag",
+                  ^.reference := Resource.tags,
+                  ^.linkType := false,
+                  ^.sortable := false
+                )(<.TextField(^.source := "label")()),
+                <.ReferenceField(
+                  ^.source := "solutionTypeTagId",
+                  ^.label := "Solution Type Tag",
+                  ^.reference := Resource.tags,
+                  ^.linkType := false,
+                  ^.sortable := false
+                )(<.TextField(^.source := "label")()),
                 <.ReferenceInput(
                   ^.source := "ideaId",
                   ^.label := "idea",
+                  ^.translateLabel := ((label: String) => label),
                   ^.reference := Resource.ideas,
                   ^.linkType := false,
                   ^.sortable := false,
