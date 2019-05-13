@@ -106,9 +106,5 @@ object QuestionService extends ApiService with CirceClassFormatters {
 
   case class InitialProposalRequest(content: String, author: AuthorRequest, tags: Array[String] = Array())
 
-  case class AuthorRequest(age: Option[String],
-                           firstName: Option[String],
-                           lastName: Option[String],
-                           postalCode: Option[String],
-                           profession: Option[String])
+  case class AuthorRequest(age: Option[String], firstName: Option[String], lastName: Option[String])
 }

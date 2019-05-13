@@ -265,4 +265,7 @@ trait CirceClassFormatters extends TimeInstances {
           dataConfiguration.selectionAlgorithmName
       )
     )
+
+  implicit lazy val organisationDecoder: Decoder[Organisation] =
+    Decoder.forProduct3("id", "organisationName", "profile")(Organisation.apply)
 }

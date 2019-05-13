@@ -162,8 +162,8 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
     }
 
     override def delete[ENTITY](apiEndpoint: String,
-                                urlParams: Seq[(String, Any)],
-                                data: InputData,
+                                urlParams: Seq[(String, Any)] = Seq.empty,
+                                data: InputData = "",
                                 headers: Map[String, String])(implicit decoder: Decoder[ENTITY]): Future[ENTITY] = {
       val requestData = RequestData(
         method = "DELETE",

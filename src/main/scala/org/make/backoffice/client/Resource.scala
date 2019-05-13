@@ -34,6 +34,7 @@ object Resource {
   val questions = "simple_questions"
   val moderators = "moderators"
   val ideaMappings = "idea-mappings"
+  val partners = "partners"
 
   private val resources: Set[String] =
     Set(

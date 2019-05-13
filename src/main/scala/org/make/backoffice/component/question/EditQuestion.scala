@@ -26,16 +26,20 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.question.CreatePartnerComponent.CreatePartnerComponentProps
+import org.make.backoffice.component.question.DeletePartnerComponent.DeletePartnerComponentProps
+import org.make.backoffice.component.question.EditPartnerComponent.EditPartnerComponentProps
 import org.make.backoffice.component.question.InitialProposalComponent.InitialProposalComponentProps
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
 import org.make.backoffice.facade.AdminOnRest.Edit._
+import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.FormTab._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
-import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.AdminOnRest.required
+import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.service.proposal.{Accepted, Refused}
 import org.make.backoffice.util.DateParser
 
@@ -119,7 +123,13 @@ object EditQuestion {
                 <.LongTextInput(
                   ^.label := "Description (multiline)",
                   ^.source := "sequenceCardsConfiguration.introCard.description",
-                  ^.options := Map("fullWidth" -> true)
+                  ^.options := Map(
+                    "fullWidth" -> true,
+                    "floatingLabelFixed" -> true,
+                    "hintText" -> ("Prenez position sur ces solutions et proposez les vôtres !\n" +
+                      "Les meilleures détermineront nos actions"),
+                    "hintStyle" -> js.Dictionary("whiteSpace" -> "pre")
+                  )
                 )(),
                 <.hr.empty,
                 <.h3()("Signup Card"),
@@ -169,7 +179,7 @@ object EditQuestion {
                         "Invitez vos proches et/ou votre communauté à participer\n" +
                         "Découvrez toutes les propositions sur cette consultation"
                     ),
-                    "hintStyle" -> js.Dynamic.literal("whiteSpace" -> "pre")
+                    "hintStyle" -> js.Dictionary("whiteSpace" -> "pre")
                   )
                 )(),
                 <.TextInput(
@@ -178,17 +188,13 @@ object EditQuestion {
                   ^.options := Map(
                     "fullWidth" -> true,
                     "floatingLabelFixed" -> true,
-                    "hintText" -> "Vous souhaitez aller plus loin sur cette consultation ?"
+                    "hintText" -> "Découvrez toutes les propositions."
                   )
                 )(),
                 <.TextInput(
                   ^.label := "Learn more button text",
                   ^.source := "sequenceCardsConfiguration.finalCard.learnMoreTextButton",
-                  ^.options := Map(
-                    "fullWidth" -> true,
-                    "floatingLabelFixed" -> true,
-                    "hintText" -> "Invitez vos proches et/ou votre communauté à participer"
-                  )
+                  ^.options := Map("fullWidth" -> true, "floatingLabelFixed" -> true, "hintText" -> "En savoir +")
                 )(),
                 <.TextInput(
                   ^.label := "Link url (operation page)",
@@ -250,6 +256,40 @@ object EditQuestion {
                         <.TextField(^.source := "content")(),
                         <.TextField(^.label := "Author", ^.source := "author.firstName")(),
                         <.TextField(^.source := "status")()
+                      )
+                    )
+                  )
+                  .toSeq
+              } else {
+                self.setState(_.copy(reload = false))
+              }),
+              <.FormTab(^.label := "Partners")(if (!self.state.reload) {
+                js.Array(
+                    <.CreatePartnerComponent(^.wrapped := CreatePartnerComponentProps(reloadComponent))(),
+                    <.ReferenceManyField(
+                      ^.reference := Resource.partners,
+                      ^.target := "questionId",
+                      ^.addLabel := false,
+                      ^.perPage := 50,
+                      ^.sort := Map("field" -> "name", "order" -> "ASC")
+                    )(
+                      <.Datagrid()(
+                        <.FlatButton(
+                          ^.label := "edit partner",
+                          ^.containerElement := <.EditPartnerComponent(
+                            ^.wrapped := EditPartnerComponentProps(reloadComponent)
+                          )()
+                        )(),
+                        <.TextField(^.source := "name")(),
+                        <.TextField(^.source := "link")(),
+                        <.TextField(^.source := "partnerKind", ^.label := "kind")(),
+                        <.TextField(^.source := "weight")(),
+                        <.FlatButton(
+                          ^.label := "delete partner",
+                          ^.containerElement := <.DeletePartnerComponent(
+                            ^.wrapped := DeletePartnerComponentProps(reloadComponent)
+                          )()
+                        )()
                       )
                     )
                   )

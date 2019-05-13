@@ -119,3 +119,18 @@ object UserId {
   implicit lazy val userIdDecoder: Decoder[UserId] = Decoder.decodeString.map(UserId(_))
 
 }
+
+@js.native
+trait Organisation extends js.Object {
+  val id: js.UndefOr[String]
+  val organisationName: String
+  val profile: js.UndefOr[Profile]
+}
+
+object Organisation {
+  def apply(id: Option[UserId], organisationName: String, profile: Option[Profile]): Organisation = {
+    js.Dynamic
+      .literal(id = id.map(_.value).orUndefined, organisationName = organisationName, profile = profile.orUndefined)
+      .asInstanceOf[Organisation]
+  }
+}
