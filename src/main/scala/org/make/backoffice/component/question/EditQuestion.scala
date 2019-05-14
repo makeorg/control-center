@@ -102,16 +102,15 @@ object EditQuestion {
                 <.TextField(^.source := "slug")()
               ),
               <.FormTab(^.label := "Configuration")(
+                <.h2(^.style := Map("color" -> "red"))("Cards"),
                 <.BooleanInput(^.label := "Can propose", ^.source := "canPropose")(),
-                <.TextInput(
-                  ^.label := "About Url",
-                  ^.source := "aboutUrl",
-                  ^.`type` := "url",
-                  ^.options := Map("fullWidth" -> true)
+                <.BooleanInput(
+                  ^.label := "Push proposal card",
+                  ^.source := "sequenceCardsConfiguration.pushProposalCard.enabled"
                 )(),
                 <.hr.empty,
                 <.h3()("Intro Card"),
-                <.BooleanInput(^.label := "Enabled", ^.source := "sequenceCardsConfiguration.introCard.enabled")(),
+                <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.introCard.enabled")(),
                 <.TextInput(
                   ^.label := "Title",
                   ^.source := "sequenceCardsConfiguration.introCard.title",
@@ -123,14 +122,8 @@ object EditQuestion {
                   ^.options := Map("fullWidth" -> true)
                 )(),
                 <.hr.empty,
-                <.h3()("Push Proposal Card"),
-                <.BooleanInput(
-                  ^.label := "Enabled",
-                  ^.source := "sequenceCardsConfiguration.pushProposalCard.enabled"
-                )(),
-                <.hr.empty,
                 <.h3()("Signup Card"),
-                <.BooleanInput(^.label := "Enabled", ^.source := "sequenceCardsConfiguration.signUpCard.enabled")(),
+                <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.signUpCard.enabled")(),
                 <.TextInput(
                   ^.label := "Title",
                   ^.source := "sequenceCardsConfiguration.signUpCard.title",
@@ -141,7 +134,7 @@ object EditQuestion {
                   )
                 )(),
                 <.TextInput(
-                  ^.label := "Next Cta",
+                  ^.label := "Next card button text",
                   ^.source := "sequenceCardsConfiguration.signUpCard.nextCtaText",
                   ^.options := Map(
                     "fullWidth" -> true,
@@ -151,7 +144,7 @@ object EditQuestion {
                 )(),
                 <.hr.empty,
                 <.h3()("Final Card"),
-                <.BooleanInput(^.label := "Enabled", ^.source := "sequenceCardsConfiguration.finalCard.enabled")(),
+                <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.finalCard.enabled")(),
                 <.BooleanInput(
                   ^.label := "With sharing",
                   ^.source := "sequenceCardsConfiguration.finalCard.sharingEnabled"
@@ -171,35 +164,65 @@ object EditQuestion {
                   ^.options := Map(
                     "fullWidth" -> true,
                     "floatingLabelFixed" -> true,
-                    "hintText" ->
-                      ("Vous souhaitez aller plus loin sur cette consultation ?\n" +
+                    "hintText" -> (
+                      "Vous souhaitez aller plus loin sur cette consultation ?\n" +
                         "Invitez vos proches et/ou votre communauté à participer\n" +
-                        "Découvrez toutes les propositions sur cette consultation")
+                        "Découvrez toutes les propositions sur cette consultation"
+                    ),
+                    "hintStyle" -> js.Dynamic.literal("whiteSpace" -> "pre")
                   )
                 )(),
                 <.TextInput(
                   ^.label := "Learn more title",
                   ^.source := "sequenceCardsConfiguration.finalCard.learnMoreTitle",
-                  ^.options := Map("fullWidth" -> true)
+                  ^.options := Map(
+                    "fullWidth" -> true,
+                    "floatingLabelFixed" -> true,
+                    "hintText" -> "Vous souhaitez aller plus loin sur cette consultation ?"
+                  )
                 )(),
                 <.TextInput(
                   ^.label := "Learn more button text",
                   ^.source := "sequenceCardsConfiguration.finalCard.learnMoreTextButton",
-                  ^.options := Map("fullWidth" -> true)
+                  ^.options := Map(
+                    "fullWidth" -> true,
+                    "floatingLabelFixed" -> true,
+                    "hintText" -> "Invitez vos proches et/ou votre communauté à participer"
+                  )
                 )(),
                 <.TextInput(
-                  ^.label := "Link url",
+                  ^.label := "Link url (operation page)",
                   ^.source := "sequenceCardsConfiguration.finalCard.linkUrl",
                   ^.`type` := "url",
                   ^.options := Map("fullWidth" -> true)
                 )(),
                 <.hr.empty,
-                <.h3()("Metas"),
-                <.TextInput(^.label := "Title", ^.source := "metas.title", ^.options := Map("fullWidth" -> true))(),
+                <.h3()("Footer"),
+                <.TextInput(
+                  ^.label := "Link url (about page)",
+                  ^.source := "aboutUrl",
+                  ^.`type` := "url",
+                  ^.options := Map("fullWidth" -> true)
+                )(),
+                <.hr.empty,
+                <.h2(^.style := Map("color" -> "red"))("Metas"),
+                <.TextInput(
+                  ^.label := "Title",
+                  ^.source := "metas.title",
+                  ^.options := Map(
+                    "fullWidth" -> true,
+                    "floatingLabelFixed" -> true,
+                    "hintText" -> "Vous avez une idée sur le sujet ?"
+                  )
+                )(),
                 <.TextInput(
                   ^.label := "Description",
                   ^.source := "metas.description",
-                  ^.options := Map("fullWidth" -> true)
+                  ^.options := Map(
+                    "fullWidth" -> true,
+                    "floatingLabelFixed" -> true,
+                    "hintText" -> "Participez à la consultation initiée par [Nom partenaires fondateurs] avec Make.org"
+                  )
                 )(),
                 <.TextInput(
                   ^.label := "Picture",
