@@ -80,18 +80,18 @@ object Question {
 
   @js.native
   trait DataConfiguration extends js.Object {
-    val newProposalsRatio: Float
+    val newProposalsRatio: Double
     val newProposalsVoteThreshold: Int
-    val testedProposalsEngagementThreshold: Float
-    val testedProposalsScoreThreshold: Float
-    val testedProposalsControversyThreshold: Float
+    val testedProposalsEngagementThreshold: Double
+    val testedProposalsScoreThreshold: Double
+    val testedProposalsControversyThreshold: Double
     val testedProposalsMaxVotesThreshold: Int
     val intraIdeaEnabled: Boolean
     val intraIdeaMinCount: Int
-    val intraIdeaProposalsRatio: Float
+    val intraIdeaProposalsRatio: Double
     val interIdeaCompetitionEnabled: Boolean
     val interIdeaCompetitionTargetCount: Int
-    val interIdeaCompetitionControversialRatio: Float
+    val interIdeaCompetitionControversialRatio: Double
     val interIdeaCompetitionControversialCount: Int
     val maxTestedProposalCount: Int
     val sequenceSize: Int
@@ -99,18 +99,18 @@ object Question {
   }
 
   object DataConfiguration {
-    def apply(newProposalsRatio: Float,
+    def apply(newProposalsRatio: Double,
               newProposalsVoteThreshold: Int,
-              testedProposalsEngagementThreshold: Float,
-              testedProposalsScoreThreshold: Float,
-              testedProposalsControversyThreshold: Float,
+              testedProposalsEngagementThreshold: Double,
+              testedProposalsScoreThreshold: Double,
+              testedProposalsControversyThreshold: Double,
               testedProposalsMaxVotesThreshold: Int,
               intraIdeaEnabled: Boolean,
               intraIdeaMinCount: Int,
-              intraIdeaProposalsRatio: Float,
+              intraIdeaProposalsRatio: Double,
               interIdeaCompetitionEnabled: Boolean,
               interIdeaCompetitionTargetCount: Int,
-              interIdeaCompetitionControversialRatio: Float,
+              interIdeaCompetitionControversialRatio: Double,
               interIdeaCompetitionControversialCount: Int,
               maxTestedProposalCount: Int,
               sequenceSize: Int,

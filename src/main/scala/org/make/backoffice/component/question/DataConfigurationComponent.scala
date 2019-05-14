@@ -23,7 +23,7 @@ package org.make.backoffice.component.question
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
+import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, MouseSyntheticEvent, SyntheticEvent}
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.Question
 import org.make.backoffice.model.Question.DataConfiguration
@@ -36,18 +36,18 @@ import scala.util.{Failure, Success}
 
 object DataConfigurationComponent {
 
-  case class DataConfigurationState(newProposalsRatio: Float,
+  case class DataConfigurationState(newProposalsRatio: Double,
                                     newProposalsVoteThreshold: Int,
-                                    testedProposalsEngagementThreshold: Float,
-                                    testedProposalsScoreThreshold: Float,
-                                    testedProposalsControversyThreshold: Float,
+                                    testedProposalsEngagementThreshold: Double,
+                                    testedProposalsScoreThreshold: Double,
+                                    testedProposalsControversyThreshold: Double,
                                     testedProposalsMaxVotesThreshold: Int,
                                     intraIdeaEnabled: Boolean,
                                     intraIdeaMinCount: Int,
-                                    intraIdeaProposalsRatio: Float,
+                                    intraIdeaProposalsRatio: Double,
                                     interIdeaCompetitionEnabled: Boolean,
                                     interIdeaCompetitionTargetCount: Int,
-                                    interIdeaCompetitionControversialRatio: Float,
+                                    interIdeaCompetitionControversialRatio: Double,
                                     interIdeaCompetitionControversialCount: Int,
                                     maxTestedProposalCount: Int,
                                     sequenceSize: Int,
@@ -136,7 +136,7 @@ object DataConfigurationComponent {
           }
 
           def handleNewProposalsRatioEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-            val value = event.target.value.toInt
+            val value = event.target.value.toDouble
             self.setState(_.copy(newProposalsRatio = value))
           }
 
@@ -146,23 +146,23 @@ object DataConfigurationComponent {
           }
 
           def handleTestedProposalsEngagementThresholdEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-            val value = event.target.value.toFloat
+            val value = event.target.value.toDouble
             self.setState(_.copy(testedProposalsEngagementThreshold = value))
           }
 
           def handleTestedProposalsScoreThresholdEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-            val value = event.target.value.toFloat
+            val value = event.target.value.toDouble
             self.setState(_.copy(testedProposalsScoreThreshold = value))
           }
 
           def handleTestedProposalsControversyThresholdEdition: FormSyntheticEvent[HTMLInputElement] => Unit = {
             event =>
-              val value = event.target.value.toFloat
+              val value = event.target.value.toDouble
               self.setState(_.copy(testedProposalsControversyThreshold = value))
           }
 
-          def handleIntraIdeaEnabledEdition: (js.Object, Boolean) => Unit = { (_, value) =>
-            self.setState(_.copy(intraIdeaEnabled = value))
+          def handleIntraIdeaEnabledEdition: MouseSyntheticEvent => Unit = { _ =>
+            self.setState(_.copy(intraIdeaEnabled = !self.state.intraIdeaEnabled))
           }
 
           def handleIntraIdeaMinCountEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
@@ -171,12 +171,12 @@ object DataConfigurationComponent {
           }
 
           def handleIntraIdeaProposalsRatioEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-            val value = event.target.value.toFloat
+            val value = event.target.value.toDouble
             self.setState(_.copy(intraIdeaProposalsRatio = value))
           }
 
-          def handleInterIdeaCompetitionEnabledEdition: (js.Object, Boolean) => Unit = { (_, value) =>
-            self.setState(_.copy(interIdeaCompetitionEnabled = value))
+          def handleInterIdeaCompetitionEnabledEdition: MouseSyntheticEvent => Unit = { _ =>
+            self.setState(_.copy(interIdeaCompetitionEnabled = !self.state.interIdeaCompetitionEnabled))
           }
 
           def handleInterIdeaCompetitionTargetCountEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
@@ -186,7 +186,7 @@ object DataConfigurationComponent {
 
           def handleInterIdeaCompetitionControversialRatioEdition: FormSyntheticEvent[HTMLInputElement] => Unit = {
             event =>
-              val value = event.target.value.toFloat
+              val value = event.target.value.toDouble
               self.setState(_.copy(interIdeaCompetitionControversialRatio = value))
           }
 
@@ -262,7 +262,7 @@ object DataConfigurationComponent {
             <.TextFieldMaterialUi(
               ^.`type` := "number",
               ^.floatingLabelText := "New proposals ratio",
-              ^.valueFloat := self.state.newProposalsRatio,
+              ^.value := self.state.newProposalsRatio,
               ^.fullWidth := true,
               ^.onChange := handleNewProposalsRatioEdition
             )(),
@@ -276,31 +276,32 @@ object DataConfigurationComponent {
             <.TextFieldMaterialUi(
               ^.`type` := "number",
               ^.floatingLabelText := "Tested proposals engagement threshold",
-              ^.valueFloat := self.state.testedProposalsEngagementThreshold,
+              ^.value := self.state.testedProposalsEngagementThreshold,
               ^.fullWidth := true,
               ^.onChange := handleTestedProposalsEngagementThresholdEdition
             )(),
             <.TextFieldMaterialUi(
               ^.`type` := "number",
               ^.floatingLabelText := "Tested proposals score threshold",
-              ^.valueFloat := self.state.testedProposalsScoreThreshold,
+              ^.value := self.state.testedProposalsScoreThreshold,
               ^.fullWidth := true,
               ^.onChange := handleTestedProposalsScoreThresholdEdition
             )(),
             <.TextFieldMaterialUi(
               ^.`type` := "number",
               ^.floatingLabelText := "Tested proposals controversy threshold",
-              ^.valueFloat := self.state.testedProposalsControversyThreshold,
+              ^.value := self.state.testedProposalsControversyThreshold,
               ^.fullWidth := true,
               ^.onChange := handleTestedProposalsControversyThresholdEdition
             )(),
-            <.Toggle(
-              ^.label := "Intra idea enabled",
-              ^.toggled := self.state.intraIdeaEnabled,
-              ^.style := Map("width" -> "25%"),
-              ^.inputStyle := Map("position" -> "relative"),
-              ^.onToggle := handleIntraIdeaEnabledEdition
-            )(),
+            <.span(^.onClick := handleIntraIdeaEnabledEdition)(
+              <.Toggle(
+                ^.label := "Intra idea enabled",
+                ^.toggled := self.state.intraIdeaEnabled,
+                ^.style := Map("width" -> "25%"),
+                ^.inputStyle := Map("position" -> "relative")
+              )()
+            ),
             <.TextFieldMaterialUi(
               ^.`type` := "number",
               ^.floatingLabelText := "Intra idea min count",
@@ -311,17 +312,18 @@ object DataConfigurationComponent {
             <.TextFieldMaterialUi(
               ^.`type` := "number",
               ^.floatingLabelText := "Intra idea proposals ratio",
-              ^.valueFloat := self.state.intraIdeaProposalsRatio,
+              ^.value := self.state.intraIdeaProposalsRatio,
               ^.fullWidth := true,
               ^.onChange := handleIntraIdeaProposalsRatioEdition
             )(),
-            <.Toggle(
-              ^.label := "Inter idea competition enabled",
-              ^.toggled := self.state.interIdeaCompetitionEnabled,
-              ^.style := Map("width" -> "25%"),
-              ^.inputStyle := Map("position" -> "relative"),
-              ^.onToggle := handleInterIdeaCompetitionEnabledEdition
-            )(),
+            <.span(^.onClick := handleInterIdeaCompetitionEnabledEdition)(
+              <.Toggle(
+                ^.label := "Inter idea competition enabled",
+                ^.toggled := self.state.interIdeaCompetitionEnabled,
+                ^.style := Map("width" -> "25%"),
+                ^.inputStyle := Map("position" -> "relative")
+              )()
+            ),
             <.TextFieldMaterialUi(
               ^.`type` := "number",
               ^.floatingLabelText := "Inter idea competition target count",
@@ -332,7 +334,7 @@ object DataConfigurationComponent {
             <.TextFieldMaterialUi(
               ^.`type` := "number",
               ^.floatingLabelText := "Inter idea competition controversial Ratio",
-              ^.valueFloat := self.state.interIdeaCompetitionControversialRatio,
+              ^.value := self.state.interIdeaCompetitionControversialRatio,
               ^.fullWidth := true,
               ^.onChange := handleInterIdeaCompetitionControversialRatioEdition
             )(),
