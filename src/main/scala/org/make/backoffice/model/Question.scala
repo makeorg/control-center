@@ -101,10 +101,10 @@ object Question {
   object DataConfiguration {
     def apply(newProposalsRatio: Double,
               newProposalsVoteThreshold: Int,
-              testedProposalsEngagementThreshold: Double,
-              testedProposalsScoreThreshold: Double,
-              testedProposalsControversyThreshold: Double,
-              testedProposalsMaxVotesThreshold: Int,
+              maybeTestedProposalsEngagementThreshold: Option[Double],
+              maybeTestedProposalsScoreThreshold: Option[Double],
+              maybeTestedProposalsControversyThreshold: Option[Double],
+              maybeTestedProposalsMaxVotesThreshold: Option[Int],
               intraIdeaEnabled: Boolean,
               intraIdeaMinCount: Int,
               intraIdeaProposalsRatio: Double,
@@ -115,6 +115,10 @@ object Question {
               maxTestedProposalCount: Int,
               sequenceSize: Int,
               selectionAlgorithmName: String): DataConfiguration = {
+      val testedProposalsEngagementThreshold: Double = maybeTestedProposalsEngagementThreshold.getOrElse(0)
+      val testedProposalsScoreThreshold: Double = maybeTestedProposalsScoreThreshold.getOrElse(0)
+      val testedProposalsControversyThreshold: Double = maybeTestedProposalsControversyThreshold.getOrElse(0)
+      val testedProposalsMaxVotesThreshold: Int = maybeTestedProposalsMaxVotesThreshold.getOrElse(0)
       js.Dynamic
         .literal(
           newProposalsRatio = newProposalsRatio,
