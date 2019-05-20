@@ -82,10 +82,10 @@ object Question {
   trait DataConfiguration extends js.Object {
     val newProposalsRatio: Double
     val newProposalsVoteThreshold: Int
-    val testedProposalsEngagementThreshold: Double
-    val testedProposalsScoreThreshold: Double
-    val testedProposalsControversyThreshold: Double
-    val testedProposalsMaxVotesThreshold: Int
+    val testedProposalsEngagementThreshold: js.UndefOr[Double]
+    val testedProposalsScoreThreshold: js.UndefOr[Double]
+    val testedProposalsControversyThreshold: js.UndefOr[Double]
+    val testedProposalsMaxVotesThreshold: js.UndefOr[Int]
     val intraIdeaEnabled: Boolean
     val intraIdeaMinCount: Int
     val intraIdeaProposalsRatio: Double
@@ -101,10 +101,10 @@ object Question {
   object DataConfiguration {
     def apply(newProposalsRatio: Double,
               newProposalsVoteThreshold: Int,
-              maybeTestedProposalsEngagementThreshold: Option[Double],
-              maybeTestedProposalsScoreThreshold: Option[Double],
-              maybeTestedProposalsControversyThreshold: Option[Double],
-              maybeTestedProposalsMaxVotesThreshold: Option[Int],
+              testedProposalsEngagementThreshold: Option[Double],
+              testedProposalsScoreThreshold: Option[Double],
+              testedProposalsControversyThreshold: Option[Double],
+              testedProposalsMaxVotesThreshold: Option[Int],
               intraIdeaEnabled: Boolean,
               intraIdeaMinCount: Int,
               intraIdeaProposalsRatio: Double,
@@ -115,18 +115,14 @@ object Question {
               maxTestedProposalCount: Int,
               sequenceSize: Int,
               selectionAlgorithmName: String): DataConfiguration = {
-      val testedProposalsEngagementThreshold: Double = maybeTestedProposalsEngagementThreshold.getOrElse(0)
-      val testedProposalsScoreThreshold: Double = maybeTestedProposalsScoreThreshold.getOrElse(0)
-      val testedProposalsControversyThreshold: Double = maybeTestedProposalsControversyThreshold.getOrElse(0)
-      val testedProposalsMaxVotesThreshold: Int = maybeTestedProposalsMaxVotesThreshold.getOrElse(0)
       js.Dynamic
         .literal(
           newProposalsRatio = newProposalsRatio,
           newProposalsVoteThreshold = newProposalsVoteThreshold,
-          testedProposalsEngagementThreshold = testedProposalsEngagementThreshold,
-          testedProposalsScoreThreshold = testedProposalsScoreThreshold,
-          testedProposalsControversyThreshold = testedProposalsControversyThreshold,
-          testedProposalsMaxVotesThreshold = testedProposalsMaxVotesThreshold,
+          testedProposalsEngagementThreshold = testedProposalsEngagementThreshold.orUndefined,
+          testedProposalsScoreThreshold = testedProposalsScoreThreshold.orUndefined,
+          testedProposalsControversyThreshold = testedProposalsControversyThreshold.orUndefined,
+          testedProposalsMaxVotesThreshold = testedProposalsMaxVotesThreshold.orUndefined,
           intraIdeaEnabled = intraIdeaEnabled,
           intraIdeaMinCount = intraIdeaMinCount,
           intraIdeaProposalsRatio = intraIdeaProposalsRatio,
