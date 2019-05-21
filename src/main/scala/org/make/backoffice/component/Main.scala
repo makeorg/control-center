@@ -102,7 +102,8 @@ object Main {
           ^.edit := EditModerator(),
           ^.create := CreateModerator()
         )(),
-        <.Resource(^.name := Resource.questions)()
+        <.Resource(^.name := Resource.questions)(),
+        <.Resource(^.name := Resource.partners)()
       ),
       dom.document.getElementById("make-backoffice")
     )

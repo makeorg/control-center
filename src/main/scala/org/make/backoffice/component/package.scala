@@ -52,6 +52,9 @@ package object component {
     def StartValidationWithTags: ReactClassElementSpec = self(proposal.moderation.StartValidationWithTags.reactClass)
     def InitialProposal: ReactClassElementSpec = self(question.InitialProposalComponent.reactClass)
     def DataConfigurationComponent: ReactClassElementSpec = self(question.DataConfigurationComponent.reactClass)
+    def CreatePartnerComponent: ReactClassElementSpec = self(question.CreatePartnerComponent.reactClass)
+    def EditPartnerComponent: ReactClassElementSpec = self(question.EditPartnerComponent.reactClass)
+    def DeletePartnerComponent: ReactClassElementSpec = self(question.DeletePartnerComponent.reactClass)
   }
 
   implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {

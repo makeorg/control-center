@@ -47,8 +47,6 @@ object InitialProposalComponent {
                                            lastName: Option[String],
                                            age: Option[String],
                                            errorAge: Boolean,
-                                           postalCode: Option[String],
-                                           profession: Option[String],
                                            questionId: String,
                                            snackbarOpen: Boolean,
                                            snackbarMessage: String,
@@ -65,8 +63,6 @@ object InitialProposalComponent {
         lastName = None,
         age = None,
         errorAge = false,
-        postalCode = None,
-        profession = None,
         questionId = self.props.native.record.asInstanceOf[Question].id,
         snackbarOpen = false,
         snackbarMessage = "",
@@ -93,16 +89,6 @@ object InitialProposalComponent {
         if (age.forall(Character.isDigit)) {
           self.setState(_.copy(age = Some(age)))
         }
-      }
-
-      def handlePostalCodeEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-        val postalCode: String = event.target.value
-        self.setState(_.copy(postalCode = Some(postalCode)))
-      }
-
-      def handleProfessionEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-        val profession: String = event.target.value
-        self.setState(_.copy(profession = Some(profession)))
       }
 
       def isValidFields(content: String, firstName: Option[String], age: Option[String]): Boolean = {
@@ -132,13 +118,8 @@ object InitialProposalComponent {
 
             val request = InitialProposalRequest(
               content = self.state.content,
-              author = AuthorRequest(
-                age = self.state.age,
-                firstName = self.state.firstName,
-                lastName = self.state.lastName,
-                postalCode = self.state.postalCode,
-                profession = self.state.profession
-              )
+              author =
+                AuthorRequest(age = self.state.age, firstName = self.state.firstName, lastName = self.state.lastName)
             )
 
             QuestionService.addInitialProposal(self.state.questionId, request).onComplete {
@@ -149,8 +130,6 @@ object InitialProposalComponent {
                     firstName = None,
                     lastName = None,
                     age = None,
-                    postalCode = None,
-                    profession = None,
                     snackbarOpen = true,
                     snackbarMessage = "Proposal successfully created",
                     createProposalModalOpen = false
