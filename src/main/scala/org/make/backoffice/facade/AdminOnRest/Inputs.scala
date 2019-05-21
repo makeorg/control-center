@@ -113,7 +113,7 @@ object Inputs {
     lazy val stripTags = BooleanAttributeSpec("stripTags")
     lazy val choices = ChoicesAttributeSpec("choices")
     lazy val dependsOn = StringAttributeSpec("dependsOn")
-    lazy val dependsValue = StringAttributeSpec("value")
+    lazy val dependsValue = DynamicAttributeSpec("value")
     lazy val defaultValue = DefaultValueAttributeSpec("defaultValue")
     lazy val resolve = StringAttributeSpec("resolve")
     lazy val optionText = StringAttributeSpec("optionText")

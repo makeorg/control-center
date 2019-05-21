@@ -108,10 +108,19 @@ object EditQuestion {
               <.FormTab(^.label := "Configuration")(
                 <.h2(^.style := Map("color" -> "red"))("Cards"),
                 <.BooleanInput(^.label := "Can propose", ^.source := "canPropose")(),
-                <.BooleanInput(
-                  ^.label := "Push proposal card",
-                  ^.source := "sequenceCardsConfiguration.pushProposalCard.enabled"
-                )(),
+                <.DependentInput(^.dependsOn := "canPropose", ^.dependsValue := true)(
+                  <.BooleanInput(
+                    ^.label := "Push proposal card",
+                    ^.source := "sequenceCardsConfiguration.pushProposalCard.enabled"
+                  )()
+                ),
+                <.DependentInput(^.dependsOn := "canPropose", ^.dependsValue := false)(
+                  <.BooleanInput(
+                    ^.label := "Push proposal card",
+                    ^.source := "disabledPushProposalCard",
+                    ^.options := Map("disabled" -> true)
+                  )()
+                ),
                 <.hr.empty,
                 <.h3()("Intro Card"),
                 <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.introCard.enabled")(),
@@ -155,10 +164,22 @@ object EditQuestion {
                 <.hr.empty,
                 <.h3()("Final Card"),
                 <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.finalCard.enabled")(),
-                <.BooleanInput(
-                  ^.label := "With sharing",
-                  ^.source := "sequenceCardsConfiguration.finalCard.sharingEnabled"
-                )(),
+                <.DependentInput(^.dependsOn := "sequenceCardsConfiguration.finalCard.enabled", ^.dependsValue := true)(
+                  <.BooleanInput(
+                    ^.label := "With sharing",
+                    ^.source := "sequenceCardsConfiguration.finalCard.sharingEnabled"
+                  )()
+                ),
+                <.DependentInput(
+                  ^.dependsOn := "sequenceCardsConfiguration.finalCard.enabled",
+                  ^.dependsValue := false
+                )(
+                  <.BooleanInput(
+                    ^.label := "With sharing",
+                    ^.source := "disabledSharingEnabled",
+                    ^.options := Map("disabled" -> true)
+                  )()
+                ),
                 <.TextInput(
                   ^.label := "Title",
                   ^.source := "sequenceCardsConfiguration.finalCard.title",
