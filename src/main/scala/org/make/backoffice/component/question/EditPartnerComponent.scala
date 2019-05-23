@@ -32,7 +32,6 @@ import org.scalajs.dom.raw.HTMLInputElement
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters._
 import scala.util.{Failure, Success}
 
 object EditPartnerComponent {
@@ -41,32 +40,10 @@ object EditPartnerComponent {
   trait PartnerRecord extends js.Object {
     val id: String
     val name: String
-    val logo: js.UndefOr[String]
-    val link: js.UndefOr[String]
+    val logo: String
+    val link: String
     val partnerKind: String
     val weight: Double
-  }
-
-  object PartnerRecord {
-
-    def apply(id: String,
-              name: String,
-              logo: Option[String],
-              link: Option[String],
-              partnerKind: String,
-              weight: Double): PartnerRecord = {
-      js.Dynamic
-        .literal(
-          id = id,
-          name = name,
-          logo = logo.orUndefined,
-          link = link.orUndefined,
-          partnerKind = partnerKind,
-          weight = weight
-        )
-        .asInstanceOf[PartnerRecord]
-    }
-
   }
 
   case class EditPartnerComponentProps(reloadComponent: () => Unit)
@@ -88,8 +65,8 @@ object EditPartnerComponent {
         EditPartnerComponentState(
           partnerId = partner.id,
           name = partner.name,
-          logo = partner.logo.toOption,
-          link = partner.link.toOption,
+          logo = Option(partner.logo),
+          link = Option(partner.link),
           partnerKind = partner.partnerKind,
           weight = partner.weight,
           editPartnerModalOpen = false,
@@ -110,13 +87,15 @@ object EditPartnerComponent {
         }
 
         def handleLogoEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-          val newLogo: String = event.target.value
-          self.setState(_.copy(logo = Some(newLogo)))
+          val value: String = event.target.value
+          val newLogo = if (value.isEmpty) None else Some(value)
+          self.setState(_.copy(logo = newLogo))
         }
 
         def handleLinkEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-          val newLink: String = event.target.value
-          self.setState(_.copy(link = Some(newLink)))
+          val value: String = event.target.value
+          val newLink = if (value.isEmpty) None else Some(value)
+          self.setState(_.copy(link = newLink))
         }
 
         def handleWeightEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>

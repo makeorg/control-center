@@ -105,7 +105,7 @@ object CustomMenu {
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
             )(),
             <.MenuItemLink(
-              ^.to := s"/${Resource.tags}",
+              ^.to := s"/${Resource.ideas}",
               ^.primaryText := "Ideas",
               ^.leftIcon := ideaIcon,
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
