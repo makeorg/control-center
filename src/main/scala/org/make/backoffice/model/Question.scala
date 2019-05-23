@@ -19,7 +19,7 @@
  */
 
 package org.make.backoffice.model
-import java.time.LocalDate
+import java.time.ZonedDateTime
 
 import io.circe.{Decoder, Encoder, Json}
 
@@ -57,8 +57,8 @@ object Question {
             question: String,
             slug: String,
             operationId: Option[OperationId],
-            startDate: Option[LocalDate],
-            endDate: Option[LocalDate],
+            startDate: Option[ZonedDateTime],
+            endDate: Option[ZonedDateTime],
             landingSequenceId: Option[String],
             operationTitle: Option[String],
             country: Option[String],

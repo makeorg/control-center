@@ -26,7 +26,6 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
-import org.make.backoffice.client.ListTotalResponse
 import org.make.backoffice.client.request.Filter
 import org.make.backoffice.component.proposal.moderation.StartModeration.StartModerationProps
 import org.make.backoffice.component.proposal.moderation.StartValidationWithTags.StartValidationWithTagsProps
