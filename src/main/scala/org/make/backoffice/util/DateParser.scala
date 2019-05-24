@@ -20,6 +20,7 @@
 
 package org.make.backoffice.util
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 import scala.scalajs.js
 
@@ -27,13 +28,13 @@ object DateParser {
 
   def parseDate(date: String): String = {
     val offset = new js.Date().getTimezoneOffset()
-    val localDate = ZonedDateTime.parse(date).toLocalDate
+    val zonedDateTime = ZonedDateTime.parse(date)
 
     // negative offset means that the date got converted to previous day
     if (offset < 0) {
-      localDate.plusDays(1).toString
+      zonedDateTime.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'"))
     } else {
-      localDate.toString
+      zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'"))
     }
   }
 
