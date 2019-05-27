@@ -71,7 +71,7 @@ object CreatePartnerComponent {
       componentDidMount = { self =>
         val nullOrganisation = Organisation(id = None, organisationName = "", profile = None)
 
-        OrganisationService.organisations.onComplete {
+        OrganisationService.organisations(None, Some(500)).onComplete {
           case Success(organisations) =>
             self.setState(_.copy(organisationSearchList = organisations.+:(nullOrganisation)))
           case Failure(_) =>

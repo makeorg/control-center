@@ -27,13 +27,15 @@ import org.make.backoffice.util.CirceClassFormatters
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
+import org.make.backoffice.util.uri._
 
 object OrganisationService extends ApiService with CirceClassFormatters {
   override val resourceName: String = "moderation/organisations"
 
-  def organisations: Future[Seq[Organisation]] = client.get[Seq[Organisation]](resourceName).recover {
-    case e =>
-      js.Dynamic.global.console.log(s"instead of getting organisation: failed cursor $e")
-      throw e
-  }
+  def organisations(offset: Option[Int], limit: Option[Int]): Future[Seq[Organisation]] =
+    client.get[Seq[Organisation]](resourceName ? ("_start", offset) & ("_end", limit)).recover {
+      case e =>
+        js.Dynamic.global.console.log(s"instead of getting organisation: failed cursor $e")
+        throw e
+    }
 }
