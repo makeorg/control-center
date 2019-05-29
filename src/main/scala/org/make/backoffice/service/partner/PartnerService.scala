@@ -22,7 +22,7 @@ package org.make.backoffice.service.partner
 
 import io.circe.generic.auto._
 import io.circe.syntax._
-import org.make.backoffice.model.PartnerId
+import org.make.backoffice.model.{Partner, PartnerId}
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
@@ -33,6 +33,14 @@ import scala.scalajs.js
 
 object PartnerService extends ApiService with CirceClassFormatters {
   override val resourceName: String = "admin/partners"
+
+  def partners(questionId: String, limit: Int): Future[Seq[Partner]] = {
+    client.get[Seq[Partner]](resourceName ? ("questionId", questionId) & ("_end", limit)).recover {
+      case e =>
+        js.Dynamic.global.console.log(s"instead of getting partners: failed cursor $e")
+        throw e
+    }
+  }
 
   def createPartner(request: CreatePartnerRequest): Future[PartnerIdResponse] = {
     client.post[PartnerIdResponse](resourceName, data = request.asJson.pretty(ApiService.printer)).recover {

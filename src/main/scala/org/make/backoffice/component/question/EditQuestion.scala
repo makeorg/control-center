@@ -294,7 +294,7 @@ object EditQuestion {
                       ^.target := "questionId",
                       ^.addLabel := false,
                       ^.perPage := 50,
-                      ^.sort := Map("field" -> "name", "order" -> "ASC")
+                      ^.sort := Map("field" -> "weight", "order" -> "ASC")
                     )(
                       <.Datagrid()(
                         <.FlatButton(

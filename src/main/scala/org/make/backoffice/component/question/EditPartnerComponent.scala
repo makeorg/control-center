@@ -44,15 +44,22 @@ object EditPartnerComponent {
     val link: String
     val partnerKind: String
     val weight: Double
+    val organisationId: String
   }
 
   case class EditPartnerComponentProps(reloadComponent: () => Unit)
   case class EditPartnerComponentState(partnerId: String,
                                        name: String,
+                                       errorName: String,
                                        logo: Option[String],
+                                       errorLogo: String,
                                        link: Option[String],
+                                       errorLink: String,
                                        partnerKind: String,
+                                       errorPartnerKind: String,
                                        weight: Double,
+                                       errorWeight: String,
+                                       organisationId: Option[String],
                                        editPartnerModalOpen: Boolean,
                                        snackbarOpen: Boolean,
                                        snackbarMessage: String)
@@ -65,10 +72,16 @@ object EditPartnerComponent {
         EditPartnerComponentState(
           partnerId = partner.id,
           name = partner.name,
+          errorName = "",
           logo = Option(partner.logo),
+          errorLogo = "",
           link = Option(partner.link),
+          errorLink = "",
           partnerKind = partner.partnerKind,
+          errorPartnerKind = "",
           weight = partner.weight,
+          errorWeight = "",
+          organisationId = Option(partner.organisationId),
           editPartnerModalOpen = false,
           snackbarOpen = false,
           snackbarMessage = ""
@@ -83,63 +96,114 @@ object EditPartnerComponent {
 
         def handleNameEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
           val newName: String = event.target.value
-          self.setState(_.copy(name = newName))
+          var errorName = ""
+          if (newName.isEmpty) {
+            errorName = "Name is required"
+          }
+          self.setState(_.copy(name = newName, errorName = errorName))
         }
 
         def handleLogoEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
           val value: String = event.target.value
           val newLogo = if (value.isEmpty) None else Some(value)
-          self.setState(_.copy(logo = newLogo))
+          var errorLogo = ""
+          if (newLogo.isEmpty && self.state.organisationId.isEmpty) {
+            errorLogo = "Logo is required"
+          }
+          self.setState(_.copy(logo = newLogo, errorLogo = errorLogo))
         }
 
         def handleLinkEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
           val value: String = event.target.value
           val newLink = if (value.isEmpty) None else Some(value)
-          self.setState(_.copy(link = newLink))
+          var errorLink = ""
+          if (newLink.isEmpty && self.state.partnerKind == "FOUNDER") {
+            errorLink = "Link is required"
+          }
+          self.setState(_.copy(link = newLink, errorLink = errorLink))
         }
 
         def handleWeightEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
           val newWeight: String = event.target.value
           if (newWeight.nonEmpty) {
-            self.setState(_.copy(weight = newWeight.toDouble))
+            self.setState(_.copy(weight = newWeight.toDouble, errorWeight = ""))
           } else {
-            self.setState(_.copy(weight = 0))
+            self.setState(_.copy(weight = 0, errorWeight = "Weight must be greater than 0"))
           }
         }
 
         def onChangePartnerKind: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
-          self.setState(_.copy(partnerKind = value))
+          self.setState(_.copy(partnerKind = value, errorPartnerKind = ""))
         }
 
         def onEditPartner: SyntheticEvent => Unit = {
           event =>
-            event.preventDefault()
+            var error = false
+            var errorName = ""
+            var errorLogo = ""
+            var errorLink = ""
+            var errorPartnerKind = ""
+            var errorWeight = ""
 
-            val request = UpdatePartnerRequest(
-              name = self.state.name,
-              logo = self.state.logo,
-              link = self.state.link,
-              partnerKind = self.state.partnerKind,
-              weight = self.state.weight
-            )
+            if (self.state.name.isEmpty) {
+              errorName = "Name is required"
+              error = true
+            }
+            if (self.state.logo.isEmpty && self.state.organisationId.isEmpty) {
+              errorLogo = "Logo is required"
+              error = true
+            }
+            if (self.state.link.isEmpty && self.state.partnerKind == "FOUNDER") {
+              errorLink = "Link is required"
+              error = true
+            }
+            if (self.state.partnerKind.isEmpty) {
+              errorPartnerKind = "Partner kind is required"
+              error = true
+            }
+            if (self.state.weight <= 0) {
+              errorWeight = "Weight must be greater than 0"
+              error = true
+            }
 
-            PartnerService.editPartner(request = request, partnerId = self.state.partnerId).onComplete {
-              case Success(_) =>
-                self.setState(
-                  _.copy(
-                    name = "",
-                    logo = None,
-                    link = None,
-                    partnerKind = "",
-                    weight = 0,
-                    snackbarOpen = true,
-                    snackbarMessage = "Partner successfully updated",
-                    editPartnerModalOpen = false
+            if (!error) {
+
+              val request = UpdatePartnerRequest(
+                name = self.state.name,
+                logo = self.state.logo,
+                link = self.state.link,
+                partnerKind = self.state.partnerKind,
+                weight = self.state.weight
+              )
+
+              PartnerService.editPartner(request = request, partnerId = self.state.partnerId).onComplete {
+                case Success(_) =>
+                  self.setState(
+                    _.copy(
+                      name = "",
+                      logo = None,
+                      link = None,
+                      partnerKind = "",
+                      weight = 0,
+                      snackbarOpen = true,
+                      snackbarMessage = "Partner successfully updated",
+                      editPartnerModalOpen = false
+                    )
                   )
+                  self.props.wrapped.reloadComponent()
+                case Failure(_) =>
+                  self.setState(_.copy(snackbarOpen = true, snackbarMessage = s"Error while updating partner"))
+              }
+            } else {
+              self.setState(
+                _.copy(
+                  errorName = errorName,
+                  errorLogo = errorLogo,
+                  errorLink = errorLink,
+                  errorPartnerKind = errorPartnerKind,
+                  errorWeight = errorWeight
                 )
-                self.props.wrapped.reloadComponent()
-              case Failure(_) =>
-                self.setState(_.copy(snackbarOpen = true, snackbarMessage = s"Error while updating partner"))
+              )
             }
         }
 
@@ -168,12 +232,14 @@ object EditPartnerComponent {
               ^.floatingLabelText := "Name",
               ^.value := self.state.name,
               ^.onChange := handleNameEdition,
-              ^.fullWidth := true
+              ^.fullWidth := true,
+              ^.errorText := self.state.errorName
             )(),
             <.SelectField(
               ^.floatingLabelText := "Kind",
               ^.value := self.state.partnerKind,
-              ^.onChangeSelect := onChangePartnerKind
+              ^.onChangeSelect := onChangePartnerKind,
+              ^.errorText := self.state.errorPartnerKind
             )(Partner.partnerKindMap.map {
               case (key, value) =>
                 <.MenuItem(^.key := key, ^.value := key, ^.primaryText := value)()
@@ -182,20 +248,23 @@ object EditPartnerComponent {
               ^.floatingLabelText := "Logo",
               ^.value := self.state.logo.getOrElse(""),
               ^.onChange := handleLogoEdition,
-              ^.fullWidth := true
+              ^.fullWidth := true,
+              ^.errorText := self.state.errorLogo
             )(),
             <.TextFieldMaterialUi(
               ^.floatingLabelText := "Link",
               ^.value := self.state.link.getOrElse(""),
               ^.onChange := handleLinkEdition,
-              ^.fullWidth := true
+              ^.fullWidth := true,
+              ^.errorText := self.state.errorLink
             )(),
             <.TextFieldMaterialUi(
               ^.floatingLabelText := "Weight",
               ^.value := self.state.weight,
               ^.`type` := "number",
               ^.onChange := handleWeightEdition,
-              ^.fullWidth := true
+              ^.fullWidth := true,
+              ^.errorText := self.state.errorWeight
             )()
           ),
           <.Snackbar(
