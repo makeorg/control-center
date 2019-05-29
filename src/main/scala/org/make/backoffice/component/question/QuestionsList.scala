@@ -78,7 +78,7 @@ object QuestionsList {
         <.DateInput(
           ^.label := "Open at",
           ^.source := "openAt",
-          ^.parse := ((date: js.UndefOr[String]) => date.map(DateParser.parseDate)),
+          ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate)),
           ^.alwaysOn := true
         )(),
         <.ReferenceInput(

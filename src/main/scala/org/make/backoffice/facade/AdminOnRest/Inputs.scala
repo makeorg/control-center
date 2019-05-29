@@ -78,6 +78,10 @@ object NativeDateInput extends ReactClass
 @JSImport("admin-on-rest", "LongTextInput")
 object NativeLongTextInput extends ReactClass
 
+@js.native
+@JSImport("aor-datetime-input", JSImport.Default)
+object NativeDateTimeInput extends ReactClass
+
 object Inputs {
   implicit class InputsVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val TextInput: ReactClassElementSpec = elements(NativeTextInput)
@@ -92,6 +96,7 @@ object Inputs {
     lazy val BooleanInput: ReactClassElementSpec = elements(NativeBooleanInput)
     lazy val DateInput: ReactClassElementSpec = elements(NativeDateInput)
     lazy val LongTextInput: ReactClassElementSpec = elements(NativeLongTextInput)
+    lazy val DateTimeInput: ReactClassElementSpec = elements(NativeDateTimeInput)
   }
 
   implicit class InputsVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
@@ -122,5 +127,6 @@ object Inputs {
     lazy val translateLabel = FunctionAttributeSpec("translate")
     lazy val parse = FunctionAttributeSpec("parse")
     lazy val sort = MapStringAttributeSpec("sort")
+    lazy val labelTime = StringAttributeSpec("labelTime")
   }
 }
