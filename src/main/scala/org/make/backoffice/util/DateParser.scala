@@ -19,23 +19,16 @@
  */
 
 package org.make.backoffice.util
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 import scala.scalajs.js
 
 object DateParser {
 
-  def parseDate(date: String): String = {
-    val offset = new js.Date().getTimezoneOffset()
-    val zonedDateTime = ZonedDateTime.parse(date)
+  def parseDate(date: js.Date): String = {
 
-    // negative offset means that the date got converted to previous day
-    if (offset < 0) {
-      zonedDateTime.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'"))
-    } else {
-      zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'"))
-    }
+    val zonedDateTime = date.toISOString()
+
+    zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
   }
-
 }

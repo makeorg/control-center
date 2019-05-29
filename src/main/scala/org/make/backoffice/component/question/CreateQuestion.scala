@@ -48,17 +48,19 @@ object CreateQuestion {
 
           <.Create(^.resource := Resource.operationsOfQuestions, ^.location := self.props.location, ^.hasList := true)(
             <.SimpleForm(^.redirect := "edit")(
-              <.DateInput(
+              <.DateTimeInput(
                 ^.label := "Start Date",
+                ^.labelTime := "Start Time",
                 ^.translateLabel := ((label: String) => label),
                 ^.source := "startDate",
-                ^.parse := ((date: js.UndefOr[String]) => date.map(DateParser.parseDate))
+                ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate))
               )(),
-              <.DateInput(
+              <.DateTimeInput(
                 ^.label := "End Date",
+                ^.labelTime := "End Time",
                 ^.translateLabel := ((label: String) => label),
                 ^.source := "endDate",
-                ^.parse := ((date: js.UndefOr[String]) => date.map(DateParser.parseDate))
+                ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate))
               )(),
               <.ReferenceInput(
                 ^.label := "Operation",
