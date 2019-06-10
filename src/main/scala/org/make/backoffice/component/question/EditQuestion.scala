@@ -226,9 +226,9 @@ object EditQuestion {
                   ^.options := Map("fullWidth" -> true)
                 )(),
                 <.hr.empty,
-                <.h3()("Footer"),
+                <.h3()("About page"),
                 <.TextInput(
-                  ^.label := "Link url (about page)",
+                  ^.label := "Link url",
                   ^.source := "aboutUrl",
                   ^.`type` := "url",
                   ^.options := Map("fullWidth" -> true)
