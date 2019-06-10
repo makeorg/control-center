@@ -45,7 +45,6 @@ trait Partner extends js.Object {
   val logo: js.UndefOr[String]
   val link: js.UndefOr[String]
   val kind: String
-  val questionId: String
   val weight: Double
 }
 
@@ -57,7 +56,6 @@ object Partner {
             logo: Option[String],
             link: Option[String],
             kind: String,
-            questionId: QuestionId,
             weight: Double): Partner = {
     js.Dynamic
       .literal(
@@ -66,7 +64,6 @@ object Partner {
         logo = logo.orUndefined,
         link = link.orUndefined,
         kind = kind,
-        questionId = questionId.value,
         weight = weight
       )
       .asInstanceOf[Partner]
