@@ -76,7 +76,8 @@ object Operation {
   val kindMap: Map[String, String] = Map(
     "PUBLIC_CONSULTATION" -> "Public consultation",
     "GREAT_CAUSE" -> "Great cause",
-    "PRIVATE_CONSULTATION" -> "Private consultation"
+    "PRIVATE_CONSULTATION" -> "Private consultation",
+    "BUSINESS_CONSULTATION" -> "Business consultation"
   )
 
   val kindChoices: js.Array[Choice] =
