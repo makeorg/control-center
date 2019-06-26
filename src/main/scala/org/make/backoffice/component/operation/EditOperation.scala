@@ -27,39 +27,44 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
-import org.make.backoffice.facade.AdminOnRest.Show._
-import org.make.backoffice.facade.AdminOnRest.SimpleShowLayout._
+import org.make.backoffice.facade.AdminOnRest.Edit._
+import org.make.backoffice.facade.AdminOnRest.SimpleForm._
+import org.make.backoffice.facade.AdminOnRest.required
 import org.make.backoffice.model.Operation
 
-object ShowOperation {
+object EditOperation {
 
-  case class ShowOperationProps() extends RouterProps
+  case class EditOperationProps() extends RouterProps
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass =
     React
-      .createClass[ShowOperationProps, Unit](
-        displayName = "ShowOperation",
+      .createClass[EditOperationProps, Unit](
+        displayName = "EditOperation",
         render = self => {
-          <.Show(
+          <.Edit(
             ^.resource := Resource.operations,
             ^.location := self.props.location,
             ^.`match` := self.props.`match`,
             ^.hasList := true
           )(
-            <.SimpleShowLayout()(
+            <.SimpleForm()(
               <.TextField(^.source := "slug")(),
               <.TextField(
                 ^.label := "Default language",
                 ^.translateLabel := ((label: String) => label),
                 ^.source := "defaultLanguage"
               )(),
-              <.FunctionField(^.label := "Operation Kind", ^.translateLabel := ((label: String) => label), ^.render := {
-                record =>
-                  val operation = record.asInstanceOf[Operation]
-                  Operation.kindMap(operation.operationKind)
-              })(),
+              <.SelectInput(
+                ^.label := "Operation Kind",
+                ^.translateLabel := ((label: String) => label),
+                ^.source := "operationKind",
+                ^.choices := Operation.kindChoices,
+                ^.allowEmpty := false,
+                ^.validate := required,
+                ^.options := Map("fullWidth" -> true)
+              )(),
               <.TextField(^.source := "allowedSources")()
             )
           )
