@@ -96,3 +96,68 @@ object OperationsResult {
   def apply(total: Int, results: Seq[Operation]): OperationsResult =
     js.Dynamic.literal(total = total, results = results.toJSArray).asInstanceOf[OperationsResult]
 }
+
+@js.native
+trait FeaturedOperationId extends js.Object with StringValue {
+  val value: String
+}
+
+object FeaturedOperationId {
+  def apply(value: String): FeaturedOperationId = js.Dynamic.literal(value = value).asInstanceOf[FeaturedOperationId]
+
+  implicit lazy val featuredOperationIdEncoder: Encoder[FeaturedOperationId] = (a: FeaturedOperationId) =>
+    Json.fromString(a.value)
+  implicit lazy val featuredOperationIdDecoder: Decoder[FeaturedOperationId] =
+    Decoder.decodeString.map(FeaturedOperationId(_))
+}
+
+@js.native
+trait FeaturedOperation extends js.Object {
+  val id: String
+  val questionId: js.UndefOr[String]
+  val title: String
+  val description: js.UndefOr[String]
+  val landscapePicture: String
+  val portraitPicture: String
+  val altPicture: String
+  val label: String
+  val buttonLabel: String
+  val internalLink: js.UndefOr[String]
+  val externalLink: js.UndefOr[String]
+  val slot: Int
+}
+
+object FeaturedOperation {
+  def apply(id: FeaturedOperationId,
+            questionId: Option[QuestionId],
+            title: String,
+            description: Option[String],
+            landscapePicture: String,
+            portraitPicture: String,
+            altPicture: String,
+            label: String,
+            buttonLabel: String,
+            internalLink: Option[String],
+            externalLink: Option[String],
+            slot: Int): FeaturedOperation =
+    js.Dynamic
+      .literal(
+        id = id.value,
+        questionId = questionId.map(_.value).orUndefined,
+        title = title,
+        description = description.orUndefined,
+        landscapePicture = landscapePicture,
+        portraitPicture = portraitPicture,
+        altPicture = altPicture,
+        label = label,
+        buttonLabel = buttonLabel,
+        internalLink = internalLink.orUndefined,
+        externalLink = externalLink.orUndefined,
+        slot = slot
+      )
+      .asInstanceOf[FeaturedOperation]
+
+  val internalLinkMap: Map[String, String] = {
+    Map("CONSULTATION" -> "Consultation", "SELECTION" -> "Selection", "ACTIONS" -> "Actions")
+  }
+}

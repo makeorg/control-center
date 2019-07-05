@@ -24,6 +24,7 @@ import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.router.Router._
 import org.make.backoffice.client.{AuthClient, Resource, RestClient}
+import org.make.backoffice.component.homepage.EditHomepage
 import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
 import org.make.backoffice.component.ideaMappings.{EditIdeaMapping, IdeaMappingsList}
 import org.make.backoffice.component.moderator.{CreateModerator, EditModerator, ModeratorList}
@@ -103,7 +104,8 @@ object Main {
           ^.create := CreateModerator()
         )(),
         <.Resource(^.name := Resource.questions)(),
-        <.Resource(^.name := Resource.partners)()
+        <.Resource(^.name := Resource.partners)(),
+        <.Resource(^.name := Resource.homepage, ^.listing := EditHomepage())()
       ),
       dom.document.getElementById("make-backoffice")
     )

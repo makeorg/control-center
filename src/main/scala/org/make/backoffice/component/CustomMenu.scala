@@ -53,6 +53,7 @@ object CustomMenu {
             "M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"
           val moderatorSvgPath =
             "M3 5v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.11 0-2 .9-2 2zm12 4c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3zm-9 8c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1H6v-1z"
+          val homepageSvgPath = "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"
 
           val proposalIcon: ReactElement =
             <.SvgIcon()(React.createElement("path", js.Dictionary("d" -> proposalSvgPath)))
@@ -75,6 +76,9 @@ object CustomMenu {
 
           val moderatorIcon: ReactElement =
             <.SvgIcon()(React.createElement("path", js.Dictionary("d" -> moderatorSvgPath)))
+
+          val homepageIcon: ReactElement =
+            <.SvgIcon()(React.createElement("path", js.Dictionary("d" -> homepageSvgPath)))
 
           <.div()(
             <.DashboardMenuItem()(),
@@ -117,6 +121,12 @@ object CustomMenu {
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
             )(),
             <.Divider.empty,
+            <.MenuItemLink(
+              ^.to := s"/${Resource.homepage}",
+              ^.primaryText := "Homepage",
+              ^.leftIcon := homepageIcon,
+              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
+            )(),
             <.MenuItemLink(
               ^.to := s"/${Resource.operations}",
               ^.primaryText := "Operations",
