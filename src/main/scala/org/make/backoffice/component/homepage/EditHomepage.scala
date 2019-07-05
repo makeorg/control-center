@@ -23,19 +23,25 @@ package org.make.backoffice.component.homepage
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
+import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.homepage.CurrentOperationsListComponent.CurrentOperationsProps
 
 object EditHomepage {
 
+  case class HomepageProps() extends RouterProps
+
   def apply(): ReactClass = reactClass
 
-  private lazy val reactClass: ReactClass = React.createClass[Unit, Unit](
+  private lazy val reactClass: ReactClass = React.createClass[HomepageProps, Unit](
     displayName = "EditHomepage",
-    render = { _ =>
+    render = { self =>
       <.Tabs()(
         <.Tab(^.label := "Header")(<.HeaderListComponent.empty),
-        <.Tab(^.label := "Current Operations")(<.h1(^.style := Map("textAlign" -> "center"))("TODO"))
+        <.Tab(^.label := "Current Operations")(
+          <.CurrentOperationsListComponent(^.wrapped := CurrentOperationsProps(self.props.location))()
+        )
       )
     }
   )

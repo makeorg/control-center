@@ -67,6 +67,7 @@ object RestClient extends CirceClassFormatters {
       case Resource.ideas                  => jsonClient(restVerb, resource, parameters)
       case Resource.ideaMappings           => adminJsonClient(restVerb, resource, parameters)
       case Resource.partners               => adminJsonClient(restVerb, resource, parameters)
+      case Resource.homepage               => adminJsonClient(restVerb, "views/home/current-operations", parameters)
       case Resource.questionsConfiguration => jsonClient(restVerb, "operations-of-questions", parameters)
       case res if Resource.amongst(res)    => Request.fetch(restVerb, resource, parameters).toJSPromise
       case unknownResource =>

@@ -87,6 +87,7 @@ object List {
     lazy val location = LocationAttributeSpec("location")
     lazy val resource = StringAttributeSpec("resource")
     lazy val hasCreate = BooleanAttributeSpec("hasCreate")
+    lazy val pagination = ElementAttributeSpec("pagination")
   }
 }
 

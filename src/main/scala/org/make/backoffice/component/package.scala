@@ -57,6 +57,7 @@ package object component {
     def DeletePartnerComponent: ReactClassElementSpec = self(question.DeletePartnerComponent.reactClass)
     def HeaderListComponent: ReactClassElementSpec = self(homepage.HeaderListComponent.reactClass)
     def HeaderComponent: ReactClassElementSpec = self(homepage.HeaderComponent.reactClass)
+    def CurrentOperationsListComponent: ReactClassElementSpec = self(homepage.CurrentOperationsListComponent.reactClass)
   }
 
   implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {

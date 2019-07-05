@@ -161,3 +161,56 @@ object FeaturedOperation {
     Map("CONSULTATION" -> "Consultation", "SELECTION" -> "Selection", "ACTIONS" -> "Actions")
   }
 }
+
+@js.native
+trait CurrentOperationId extends js.Object with StringValue {
+  val value: String
+}
+
+object CurrentOperationId {
+  def apply(value: String): CurrentOperationId = js.Dynamic.literal(value = value).asInstanceOf[CurrentOperationId]
+
+  implicit lazy val featuredOperationIdEncoder: Encoder[CurrentOperationId] = (a: CurrentOperationId) =>
+    Json.fromString(a.value)
+  implicit lazy val featuredOperationIdDecoder: Decoder[CurrentOperationId] =
+    Decoder.decodeString.map(CurrentOperationId(_))
+}
+
+@js.native
+trait CurrentOperation extends js.Object {
+  val id: String
+  val questionId: String
+  val description: String
+  val label: String
+  val picture: String
+  val altPicture: String
+  val linkLabel: String
+  val internalLink: js.UndefOr[String]
+  val externalLink: js.UndefOr[String]
+}
+
+object CurrentOperation {
+  def apply(id: CurrentOperationId,
+            questionId: QuestionId,
+            description: String,
+            label: String,
+            picture: String,
+            altPicture: String,
+            linkLabel: String,
+            internalLink: Option[String],
+            externalLink: Option[String]): CurrentOperation =
+    js.Dynamic
+      .literal(
+        id = id.value,
+        questionId = questionId.value,
+        description = description,
+        label = label,
+        picture = picture,
+        altPicture = altPicture,
+        label = label,
+        linkLabel = linkLabel,
+        internalLink = internalLink.orUndefined,
+        externalLink = externalLink.orUndefined
+      )
+      .asInstanceOf[CurrentOperation]
+}

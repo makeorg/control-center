@@ -28,7 +28,7 @@ import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.{FeaturedOperation, Question}
 import org.make.backoffice.service.operation.{
   CreateFeaturedOperationRequest,
-  OperationService,
+  FeaturedOperationService,
   UpdateFeaturedOperationRequest
 }
 import org.scalajs.dom.raw.HTMLInputElement
@@ -191,7 +191,7 @@ object HeaderComponent {
                 externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
                 slot = self.state.slot
               )
-              OperationService.postFeaturedOperation(request)
+              FeaturedOperationService.postFeaturedOperation(request)
           }
 
           def handleUpdate: SyntheticEvent => Unit = {
@@ -209,31 +209,32 @@ object HeaderComponent {
                 externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
                 slot = self.state.slot
               )
-              OperationService.putFeaturedOperation(self.state.id, request)
+              FeaturedOperationService.putFeaturedOperation(self.state.id, request)
           }
 
-          def handleDelete: SyntheticEvent => Unit = { _ =>
-            OperationService.deleteFeaturedOperation(self.state.id)
-            self.setState(
-              _.copy(
-                id = "",
-                questionId = None,
-                title = "",
-                description = None,
-                landscapePicture = "",
-                portraitPicture = "",
-                altPicture = "",
-                label = "",
-                buttonLabel = "",
-                internalLink = None,
-                externalLink = None,
-                slot = self.props.wrapped.slot,
-                internalLinkChecked = false,
-                externalLinkChecked = false,
-                cardExpended = false,
-                toCreate = true
+          def handleDelete: SyntheticEvent => Unit = {
+            _ =>
+              FeaturedOperationService.deleteFeaturedOperation(self.state.id)
+              self.setState(
+                _.copy(
+                  id = "",
+                  questionId = None,
+                  title = "",
+                  description = None,
+                  landscapePicture = "",
+                  portraitPicture = "",
+                  altPicture = "",
+                  label = "",
+                  buttonLabel = "",
+                  internalLink = None,
+                  externalLink = None,
+                  slot = self.props.wrapped.slot,
+                  internalLinkChecked = false,
+                  externalLinkChecked = false,
+                  cardExpended = false,
+                  toCreate = true
+                )
               )
-            )
           }
 
           <.Card(
