@@ -31,8 +31,10 @@ import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
-import org.make.backoffice.facade.AdminOnRest.ShowButton._
+import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.model.Operation
+
+import scala.scalajs.js
 
 object OperationsList {
 
@@ -56,13 +58,9 @@ object OperationsList {
             ^.sortList := Map("field" -> "slug", "order" -> "ASC")
           )(
             <.Datagrid()(
-              <.ShowButton()(),
+              <.EditButton()(),
               <.TextField(^.source := "slug", ^.sortable := true)(),
-              <.FunctionField(^.label := "Operation Kind", ^.translateLabel := ((label: String) => label), ^.render := {
-                record =>
-                  val operation = record.asInstanceOf[Operation]
-                  Operation.kindMap(operation.operationKind)
-              })()
+              <.TextField(^.source := "operationKind", ^.label := "Operation Kind")()
             )
           )
         }

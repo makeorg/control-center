@@ -20,7 +20,7 @@
 
 package org.make.backoffice.component
 
-import java.time.LocalDate
+import java.time.ZonedDateTime
 
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
@@ -58,7 +58,7 @@ object Dashboard {
           case Failure(_) => self.props.history.push("/login")
         }
         QuestionService
-          .questions(filters = Some(Seq(Filter("openAt", LocalDate.now()))))
+          .questions(filters = Some(Seq(Filter("openAt", ZonedDateTime.now()))))
           .onComplete {
             case Success(questionsResponse) =>
               self.setState(
