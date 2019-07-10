@@ -260,6 +260,12 @@ object EditQuestion {
                   ^.options := Map("fullWidth" -> true)
                 )()
               ),
+              <.FormTab(^.label := "Theme")(
+                <.ColorInput(^.source := "theme.gradientStart")(),
+                <.ColorInput(^.source := "theme.gradientEnd")(),
+                <.ColorInput(^.source := "theme.color")(),
+                <.ColorInput(^.source := "theme.footerFontColor")()
+              ),
               <.FormTab(^.label := "Data configuration")(<.DataConfigurationComponent.empty),
               <.FormTab(^.label := "initials proposals")(if (!self.state.reload) {
                 js.Array(
