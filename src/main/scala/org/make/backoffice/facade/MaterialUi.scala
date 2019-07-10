@@ -150,6 +150,14 @@ object NativeSvgIcon extends ReactClass
 object NativeToggle extends ReactClass
 
 @js.native
+@JSImport("material-ui", "Tabs")
+object NativeTabs extends ReactClass
+
+@js.native
+@JSImport("material-ui", "Tab")
+object NativeTab extends ReactClass
+
+@js.native
 trait Event extends js.Object {
   val target: Element = js.native
 }
@@ -276,6 +284,7 @@ object MaterialUi {
     lazy val SelectField: ReactClassElementSpec = elements(NativeSelectField)
     lazy val Snackbar: ReactClassElementSpec = elements(NativeSnackbar)
     lazy val SvgIcon: ReactClassElementSpec = elements(NativeSvgIcon)
+    lazy val Tab: ReactClassElementSpec = elements(NativeTab)
     lazy val Table: ReactClassElementSpec = elements(NativeTable)
     lazy val TableRow: ReactClassElementSpec = elements(NativeTableRow)
     lazy val TableRowColumn: ReactClassElementSpec = elements(NativeTableRowColumn)
@@ -283,11 +292,13 @@ object MaterialUi {
     lazy val TableHeaderColumn: ReactClassElementSpec = elements(NativeTableHeaderColumn)
     lazy val TableBody: ReactClassElementSpec = elements(NativeTableBody)
     lazy val TableFooter: ReactClassElementSpec = elements(NativeTableFooter)
+    lazy val Tabs: ReactClassElementSpec = elements(NativeTabs)
     lazy val TextFieldMaterialUi: ReactClassElementSpec = elements(NativeTextField)
     lazy val Toggle: ReactClassElementSpec = elements(NativeToggle)
   }
 
   implicit class MaterialUiVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val actAsExpander = BooleanAttributeSpec("actAsExpander")
     lazy val actionsModal = ElementListAttributeSpec("actions")
     lazy val adjustForCheckbox = BooleanAttributeSpec("adjustForCheckbox")
     lazy val allRowsSelected = BooleanAttributeSpec("allRowsSelected")
@@ -309,6 +320,8 @@ object MaterialUi {
     lazy val enableSelectAll = BooleanAttributeSpec("enableSelectAll")
     lazy val errorStyle = MapStringAttributeSpec("errorStyle")
     lazy val errorText = StringAttributeSpec("errorText")
+    lazy val expandable = BooleanAttributeSpec("expandable")
+    lazy val expanded = BooleanAttributeSpec("expanded")
     lazy val filterAutoComplete = FilterAutoCompleteAttributeSpec("filter")
     lazy val fixedFooter = BooleanAttributeSpec("fixedFooter")
     lazy val fixedHeader = BooleanAttributeSpec("fixedHeader")
@@ -325,6 +338,7 @@ object MaterialUi {
     lazy val inputStyle = CssAttributeSpec("inputStyle")
     lazy val insetChildren = BooleanAttributeSpec("insetChildren")
     lazy val listStyle = MapStringAttributeSpec("listStyle")
+    lazy val labelPosition = StringAttributeSpec("labelPosition")
     lazy val maxSearchResults = IntegerAttributeSpec("maxSearchResults")
     lazy val menuCloseDelay = IntegerAttributeSpec("menuCloseDelay")
     lazy val menuProps = MapIntAttributeSpec("menuProps")
@@ -341,6 +355,7 @@ object MaterialUi {
     lazy val onChangeTextField = OnChangeTextFieldAttributeSpec("onChange")
     lazy val onCheck = OnCheckAttributeSpec("onCheck")
     lazy val onClose = BaseFunction0AttributeSpec("onClose")
+    lazy val onExpandChange = FunctionAttributeSpec("onExpandChange")
     lazy val onNewRequest = OnNewRequestAttributeSpec("onNewRequest")
     lazy val onRequestClose = OnRequestCloseAttributeSpec("onRequestClose")
     lazy val onRowHover = OnRowAttributeSpec("onRowHover")
@@ -360,6 +375,7 @@ object MaterialUi {
     lazy val secondary = BooleanAttributeSpec("secondary")
     lazy val selectable = BooleanAttributeSpec("selectable")
     lazy val selected = BooleanAttributeSpec("selected")
+    lazy val showExpandableButton = BooleanAttributeSpec("showExpandableButton")
     lazy val showRowHover = BooleanAttributeSpec("showRowHover")
     lazy val striped = BooleanAttributeSpec("striped")
     lazy val stripedRows = BooleanAttributeSpec("stripedRows")
