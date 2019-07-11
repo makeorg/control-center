@@ -86,7 +86,8 @@ Compile / npmDependencies ++= Seq(
   "react-redux" -> npmReactReduxVersion,
   "redux" -> npmReduxVersion,
   "redux-form" -> "7.4.2",
-  "aor-datetime-input" -> "1.0.6"
+  "aor-datetime-input" -> "1.0.6",
+  "aor-color-input" -> "1.2.1"
 )
 
 Compile / npmDevDependencies ++= Seq(

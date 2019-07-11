@@ -82,6 +82,10 @@ object NativeLongTextInput extends ReactClass
 @JSImport("aor-datetime-input", JSImport.Default)
 object NativeDateTimeInput extends ReactClass
 
+@js.native
+@JSImport("aor-color-input", JSImport.Default)
+object NativeColorInput extends ReactClass
+
 object Inputs {
   implicit class InputsVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val TextInput: ReactClassElementSpec = elements(NativeTextInput)
@@ -97,6 +101,7 @@ object Inputs {
     lazy val DateInput: ReactClassElementSpec = elements(NativeDateInput)
     lazy val LongTextInput: ReactClassElementSpec = elements(NativeLongTextInput)
     lazy val DateTimeInput: ReactClassElementSpec = elements(NativeDateTimeInput)
+    lazy val ColorInput: ReactClassElementSpec = elements(NativeColorInput)
   }
 
   implicit class InputsVirtualDOMAttributes(attributes: VirtualDOMAttributes) {

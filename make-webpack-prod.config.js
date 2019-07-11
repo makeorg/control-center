@@ -54,7 +54,7 @@ var prod = {
     module: {
         rules: [
             {
-                test: /\.sass$/,
+                test: /\.(sass|css)$/,
                 loader: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
             },
             {
