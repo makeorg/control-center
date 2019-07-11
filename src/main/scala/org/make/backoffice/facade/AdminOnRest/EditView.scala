@@ -84,6 +84,7 @@ object TabbedForm {
 
   implicit class TabbedFormVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
     lazy val redirect = RedirectAttributeSpec("redirect")
+    lazy val toolbar = ElementAttributeSpec("toolbar")
   }
 }
 
