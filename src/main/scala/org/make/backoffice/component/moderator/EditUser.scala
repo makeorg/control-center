@@ -36,23 +36,23 @@ import org.make.backoffice.util.Configuration
 
 import scala.scalajs.js
 
-object EditModerator {
+object EditUser {
 
-  case class EditModeratorProps() extends RouterProps
+  case class EditUserProps() extends RouterProps
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass =
     React
-      .createClass[EditModeratorProps, Unit](
-        displayName = "EditModerator",
+      .createClass[EditUserProps, Unit](
+        displayName = "EditUser",
         render = self => {
 
           val rolesChoice: Seq[Choice] =
             Role.roles.values.map(role => Choice(id = role.shortName, name = role.shortName)).toSeq
 
           <.Edit(
-            ^.resource := Resource.moderators,
+            ^.resource := Resource.users,
             ^.location := self.props.location,
             ^.`match` := self.props.`match`,
             ^.hasList := true

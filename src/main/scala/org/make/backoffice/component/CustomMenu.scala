@@ -114,6 +114,14 @@ object CustomMenu {
               ^.leftIcon := ideaIcon,
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
             )(),
+            <.Divider.empty,
+            <.MenuItemLink(
+              ^.to := s"/${Resource.users}",
+              ^.primaryText := "Users",
+              ^.leftIcon := moderatorIcon,
+              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
+            )(),
+            <.Divider.empty,
             <.MenuItemLink(
               ^.to := s"/${Resource.ideaMappings}",
               ^.primaryText := "Idea mappings",
@@ -144,12 +152,6 @@ object CustomMenu {
               ^.to := s"/${Resource.organisations}",
               ^.primaryText := "Organisations",
               ^.leftIcon := organisationIcon,
-              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
-            )(),
-            <.MenuItemLink(
-              ^.to := s"/${Resource.moderators}",
-              ^.primaryText := "Moderators",
-              ^.leftIcon := moderatorIcon,
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
             )(),
             <.Divider.empty,

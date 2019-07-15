@@ -23,31 +23,37 @@ package org.make.backoffice.component.moderator
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
+import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
 import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.facade.AdminOnRest.Fields._
+import org.make.backoffice.facade.AdminOnRest.Inputs._
+import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.List._
-import org.make.backoffice.model.Moderator
+import org.make.backoffice.facade.MaterialUi._
+import org.make.backoffice.facade.Choice
+import org.make.backoffice.model.{Moderator, Role}
 
-object ModeratorList {
+object UsersList {
 
-  case class ModeratorListProps() extends RouterProps
+  case class UsersListProps() extends RouterProps
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass: ReactClass =
     React
-      .createClass[ModeratorListProps, Unit](
-        displayName = "ModeratorList",
+      .createClass[UsersListProps, Unit](
+        displayName = "UsersList",
         render = self => {
           <.List(
             ^.perPage := 50,
-            ^.title := "Moderators",
+            ^.title := "Users",
             ^.location := self.props.location,
             ^.sortList := Map("field" -> "first_name", "order" -> "ASC"),
-            ^.resource := Resource.moderators,
+            ^.resource := Resource.users,
+            ^.filters := usersFilters(),
             ^.hasCreate := true
           )(
             <.Datagrid()(
@@ -57,11 +63,29 @@ object ModeratorList {
               <.TextField(^.source := "email")(),
               <.FunctionField(^.label := "roles", ^.sortable := false, ^.render := { record =>
                 val moderator = record.asInstanceOf[Moderator]
-                moderator.roles.mkString(", ")
+                moderator.roles.map(role => <.Chip(^.style := Map("marginTop" -> "5px"))(role))
               })(),
               <.TextField(^.source := "country", ^.sortable := false)()
             )
           )
         }
       )
+
+  def usersFilters(): ReactElement = {
+    val rolesChoice: Seq[Choice] =
+      Role.roles.values.map(role => Choice(id = role.shortName, name = role.shortName)).toSeq
+
+    <.Filter(^.resource := Resource.users)(
+      Seq(
+        <.TextInput(^.label := "Email", ^.source := "email", ^.alwaysOn := true)(),
+        <.SelectInput(
+          ^.label := "roles",
+          ^.source := "role",
+          ^.choices := rolesChoice,
+          ^.alwaysOn := true,
+          ^.allowEmpty := true
+        )()
+      )
+    )
+  }
 }
