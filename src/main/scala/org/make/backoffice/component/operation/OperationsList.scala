@@ -27,14 +27,12 @@ import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
+import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
-import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.model.Operation
-
-import scala.scalajs.js
 
 object OperationsList {
 
