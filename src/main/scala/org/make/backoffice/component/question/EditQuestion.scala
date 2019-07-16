@@ -25,22 +25,13 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
-import org.make.backoffice.component.RichVirtualDOMElements
-import org.make.backoffice.component.question.CreatePartnerComponent.CreatePartnerComponentProps
-import org.make.backoffice.component.question.DeletePartnerComponent.DeletePartnerComponentProps
-import org.make.backoffice.component.question.EditPartnerComponent.EditPartnerComponentProps
-import org.make.backoffice.component.question.InitialProposalComponent.InitialProposalComponentProps
-import org.make.backoffice.facade.AdminOnRest.Datagrid._
 import org.make.backoffice.facade.AdminOnRest.Edit._
-import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.FormTab._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.AdminOnRest.required
-import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.service.proposal.{Accepted, Refused}
 import org.make.backoffice.util.DateParser
 
 import scala.scalajs.js
@@ -261,71 +252,11 @@ object EditQuestion {
                 )()
               ),
               <.FormTab(^.label := "Theme")(
-                <.ColorInput(^.source := "theme.gradientStart")(),
-                <.ColorInput(^.source := "theme.gradientEnd")(),
-                <.ColorInput(^.source := "theme.color")(),
-                <.ColorInput(^.source := "theme.footerFontColor")()
-              ),
-              <.FormTab(^.label := "Data configuration")(<.DataConfigurationComponent.empty),
-              <.FormTab(^.label := "initials proposals")(if (!self.state.reload) {
-                js.Array(
-                    <.InitialProposal(^.wrapped := InitialProposalComponentProps(reloadComponent))(),
-                    <.ReferenceManyField(
-                      ^.reference := Resource.proposals,
-                      ^.target := "questionId",
-                      ^.addLabel := false,
-                      ^.perPage := 50,
-                      ^.filter := Map(
-                        "status" -> s"${Accepted.shortName},${Refused.shortName}",
-                        "initialProposal" -> true
-                      )
-                    )(
-                      <.Datagrid()(
-                        <.EditButton.empty,
-                        <.TextField(^.source := "content")(),
-                        <.TextField(^.label := "Author", ^.source := "author.firstName")(),
-                        <.TextField(^.source := "status")()
-                      )
-                    )
-                  )
-                  .toSeq
-              } else {
-                self.setState(_.copy(reload = false))
-              }),
-              <.FormTab(^.label := "Partners")(if (!self.state.reload) {
-                js.Array(
-                    <.CreatePartnerComponent(^.wrapped := CreatePartnerComponentProps(reloadComponent))(),
-                    <.ReferenceManyField(
-                      ^.reference := Resource.partners,
-                      ^.target := "questionId",
-                      ^.addLabel := false,
-                      ^.perPage := 50,
-                      ^.sort := Map("field" -> "weight", "order" -> "ASC")
-                    )(
-                      <.Datagrid()(
-                        <.FlatButton(
-                          ^.label := "edit partner",
-                          ^.containerElement := <.EditPartnerComponent(
-                            ^.wrapped := EditPartnerComponentProps(reloadComponent)
-                          )()
-                        )(),
-                        <.TextField(^.source := "name")(),
-                        <.TextField(^.source := "link")(),
-                        <.TextField(^.source := "partnerKind", ^.label := "kind")(),
-                        <.TextField(^.source := "weight")(),
-                        <.FlatButton(
-                          ^.label := "delete partner",
-                          ^.containerElement := <.DeletePartnerComponent(
-                            ^.wrapped := DeletePartnerComponentProps(reloadComponent)
-                          )()
-                        )()
-                      )
-                    )
-                  )
-                  .toSeq
-              } else {
-                self.setState(_.copy(reload = false))
-              })
+                <.ColorInput(^.source := "theme.gradientStart", ^.label := "Gradient start")(),
+                <.ColorInput(^.source := "theme.gradientEnd", ^.label := "Gradient End")(),
+                <.ColorInput(^.source := "theme.color", ^.label := "Color")(),
+                <.ColorInput(^.source := "theme.footerFontColor", ^.label := "Footer font color")()
+              )
             )
           )
         }

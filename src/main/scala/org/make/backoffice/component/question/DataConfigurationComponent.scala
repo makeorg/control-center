@@ -449,11 +449,11 @@ object DataConfigurationComponent {
               ^.fullWidth := true,
               ^.onChange := handleInterIdeaCompetitionControversialCountEdition
             )(),
-            <.FlatButton(
-              ^.label := "Update data configuration",
+            <.RaisedButton(
+              ^.label := "Save",
               ^.onClick := onClickUpdateDataConfiguration,
-              ^.fullWidth := true,
-              ^.secondary := true
+              ^.primary := true,
+              ^.style := Map("marginTop" -> "30px")
             )(),
             <.Snackbar(
               ^.open := self.state.snackbarOpen,
