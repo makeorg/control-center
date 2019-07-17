@@ -29,7 +29,7 @@ import org.make.backoffice.client.request.Filter
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.homepage.HeaderComponent.HeaderComponentProps
 import org.make.backoffice.model.{FeaturedOperation, Question}
-import org.make.backoffice.service.operation.OperationService
+import org.make.backoffice.service.operation.FeaturedOperationService
 import org.make.backoffice.service.question.QuestionService
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -44,7 +44,7 @@ object HeaderListComponent {
     displayName = "HeaderListComponent",
     getInitialState = _ => HeaderListComponentState(Seq.empty, Seq.empty),
     componentWillMount = self => {
-      OperationService.featuredOperations.onComplete {
+      FeaturedOperationService.featuredOperations.onComplete {
         case Success(featuredOperations) => self.setState(_.copy(featuredOperations = featuredOperations))
         case Failure(_)                  =>
       }

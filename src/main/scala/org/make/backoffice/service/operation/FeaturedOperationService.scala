@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
 
-object OperationService extends ApiService with CirceClassFormatters {
+object FeaturedOperationService extends ApiService with CirceClassFormatters {
   override val resourceName = "admin/views/home/featured-operations"
 
   def featuredOperations: Future[Seq[FeaturedOperation]] =
@@ -43,12 +43,14 @@ object OperationService extends ApiService with CirceClassFormatters {
     }
 
   def postFeaturedOperation(request: CreateFeaturedOperationRequest): Future[FeaturedOperationId] =
-    client.post[FeaturedOperationId](resourceName, data = request.asJson.pretty(ApiService.printer)).recoverWith {
-      case e: BadRequestHttpException =>
-        Future.failed(js.JavaScriptException(js.Error(e.errors.headOption.flatMap(_.message).getOrElse(""))))
-      case e =>
-        Future.failed(e)
-    }
+    client
+      .post[FeaturedOperationId](resourceName, data = request.asJson.pretty(ApiService.printer))
+      .recoverWith {
+        case e: BadRequestHttpException =>
+          Future.failed(js.JavaScriptException(js.Error(e.errors.headOption.flatMap(_.message).getOrElse(""))))
+        case e =>
+          Future.failed(e)
+      }
 
   def putFeaturedOperation(featuredOperationId: String,
                            request: UpdateFeaturedOperationRequest): Future[FeaturedOperationId] =

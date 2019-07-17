@@ -158,6 +158,14 @@ object NativeTabs extends ReactClass
 object NativeTab extends ReactClass
 
 @js.native
+@JSImport("material-ui", "Toolbar")
+object NativeToolbar extends ReactClass
+
+@js.native
+@JSImport("material-ui", "ToolbarGroup")
+object NativeToolbarGroup extends ReactClass
+
+@js.native
 trait Event extends js.Object {
   val target: Element = js.native
 }
@@ -295,6 +303,8 @@ object MaterialUi {
     lazy val Tabs: ReactClassElementSpec = elements(NativeTabs)
     lazy val TextFieldMaterialUi: ReactClassElementSpec = elements(NativeTextField)
     lazy val Toggle: ReactClassElementSpec = elements(NativeToggle)
+    lazy val Toolbar: ReactClassElementSpec = elements(NativeToolbar)
+    lazy val ToolbarGroup: ReactClassElementSpec = elements(NativeToolbarGroup)
   }
 
   implicit class MaterialUiVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
