@@ -38,11 +38,13 @@ import scala.util.{Failure, Success}
 
 object HeaderListComponent {
 
-  case class HeaderListComponentState(featuredOperations: Seq[FeaturedOperation], questionsList: Seq[Question])
+  case class HeaderListComponentState(featuredOperations: Seq[FeaturedOperation],
+                                      questionsList: Seq[Question],
+                                      reload: Boolean)
 
   lazy val reactClass: ReactClass = React.createClass[Unit, HeaderListComponentState](
     displayName = "HeaderListComponent",
-    getInitialState = _ => HeaderListComponentState(Seq.empty, Seq.empty),
+    getInitialState = _ => HeaderListComponentState(Seq.empty, Seq.empty, reload = false),
     componentWillMount = self => {
       FeaturedOperationService.featuredOperations.onComplete {
         case Success(featuredOperations) => self.setState(_.copy(featuredOperations = featuredOperations))
@@ -58,18 +60,46 @@ object HeaderListComponent {
           case Failure(e) => js.Dynamic.global.console.log(e.getMessage)
         }
     },
+    componentDidUpdate = (self, _, state) => {
+      if (state.reload) {
+        FeaturedOperationService.featuredOperations.onComplete {
+          case Success(featuredOperations) => self.setState(_.copy(featuredOperations = featuredOperations))
+          case Failure(_)                  =>
+        }
+      }
+    },
     render = self => {
-      <.div()(self.state.featuredOperations.sortBy(_.slot).map { featuredOperation =>
-        <.HeaderComponent(
-          ^.wrapped := HeaderComponentProps(
-            featuredOperation = Some(featuredOperation),
-            slot = featuredOperation.slot,
-            questionsList = self.state.questionsList
-          )
-        )()
-      }, for {
-        i <- self.state.featuredOperations.size until 4
-      } yield <.HeaderComponent(^.wrapped := HeaderComponentProps(featuredOperation = None, slot = i + 1, questionsList = self.state.questionsList))())
+
+      def reloadComponent = { () =>
+        self.setState(state => state.copy(reload = true))
+      }
+
+      if (!self.state.reload) {
+        <.div()(self.state.featuredOperations.sortBy(_.slot).map { featuredOperation =>
+          <.HeaderComponent(
+            ^.wrapped := HeaderComponentProps(
+              featuredOperation = Some(featuredOperation),
+              slot = featuredOperation.slot,
+              questionsList = self.state.questionsList,
+              reloadComponent = reloadComponent
+            )
+          )()
+        }, for {
+          i <- self.state.featuredOperations.size until 4
+        } yield {
+          <.HeaderComponent(
+            ^.wrapped := HeaderComponentProps(
+              featuredOperation = None,
+              slot = i + 1,
+              questionsList = self.state.questionsList,
+              reloadComponent = reloadComponent
+            )
+          )()
+        })
+      } else {
+        self.setState(_.copy(reload = false))
+        <.div.empty
+      }
     }
   )
 

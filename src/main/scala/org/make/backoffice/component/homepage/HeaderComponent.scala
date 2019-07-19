@@ -24,6 +24,7 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, MouseSyntheticEvent, SyntheticEvent}
+import org.make.backoffice.client.request.Filter
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.{FeaturedOperation, Question}
 import org.make.backoffice.service.operation.{
@@ -31,13 +32,19 @@ import org.make.backoffice.service.operation.{
   FeaturedOperationService,
   UpdateFeaturedOperationRequest
 }
+import org.make.backoffice.service.question.QuestionService
 import org.scalajs.dom.raw.HTMLInputElement
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
+import scala.util.{Failure, Success}
 
 object HeaderComponent {
 
-  case class HeaderComponentProps(featuredOperation: Option[FeaturedOperation], slot: Int, questionsList: Seq[Question])
+  case class HeaderComponentProps(featuredOperation: Option[FeaturedOperation],
+                                  slot: Int,
+                                  questionsList: Seq[Question],
+                                  reloadComponent: () => Unit)
   case class HeaderComponentState(id: String,
                                   questionId: Option[String],
                                   title: String,
@@ -53,7 +60,8 @@ object HeaderComponent {
                                   internalLinkChecked: Boolean,
                                   externalLinkChecked: Boolean,
                                   cardExpended: Boolean,
-                                  toCreate: Boolean)
+                                  toCreate: Boolean,
+                                  questionsList: Seq[Question])
 
   lazy val reactClass: ReactClass =
     React
@@ -76,7 +84,8 @@ object HeaderComponent {
             internalLinkChecked = false,
             externalLinkChecked = false,
             cardExpended = false,
-            toCreate = true
+            toCreate = true,
+            questionsList = self.props.wrapped.questionsList
           )
         },
         componentWillReceiveProps = (self, props) => {
@@ -99,10 +108,12 @@ object HeaderComponent {
                   internalLinkChecked = featuredOperation.internalLink.isDefined,
                   externalLinkChecked = featuredOperation.externalLink.isDefined,
                   cardExpended = true,
-                  toCreate = false
+                  toCreate = false,
+                  questionsList = props.wrapped.questionsList
                 )
               )
           }
+          self.setState(_.copy(questionsList = props.wrapped.questionsList))
         },
         render = self => {
 
@@ -168,8 +179,17 @@ object HeaderComponent {
             )
           }
 
-          def onSelectInternalLink: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
-            self.setState(_.copy(internalLink = Some(value)))
+          def onSelectInternalLink: (js.Object, js.UndefOr[Int], String) => Unit = {
+            (_, _, value) =>
+              self.setState(_.copy(internalLink = Some(value), questionId = None))
+              if (value == "ACTIONS") {
+                QuestionService.questions(None, None, Some(Seq(Filter("operationKind", "GREAT_CAUSE")))).onComplete {
+                  case Success(questions) => self.setState(_.copy(questionsList = questions.data))
+                  case Failure(e)         => js.Dynamic.global.console.log(e.getMessage)
+                }
+              } else {
+                self.setState(_.copy(questionsList = self.props.wrapped.questionsList))
+              }
           }
 
           def onSelectQuestion: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
@@ -214,27 +234,31 @@ object HeaderComponent {
 
           def handleDelete: SyntheticEvent => Unit = {
             _ =>
-              FeaturedOperationService.deleteFeaturedOperation(self.state.id)
-              self.setState(
-                _.copy(
-                  id = "",
-                  questionId = None,
-                  title = "",
-                  description = None,
-                  landscapePicture = "",
-                  portraitPicture = "",
-                  altPicture = "",
-                  label = "",
-                  buttonLabel = "",
-                  internalLink = None,
-                  externalLink = None,
-                  slot = self.props.wrapped.slot,
-                  internalLinkChecked = false,
-                  externalLinkChecked = false,
-                  cardExpended = false,
-                  toCreate = true
-                )
-              )
+              FeaturedOperationService.deleteFeaturedOperation(self.state.id).onComplete {
+                case Success(_) =>
+                  self.setState(
+                    _.copy(
+                      id = "",
+                      questionId = None,
+                      title = "",
+                      description = None,
+                      landscapePicture = "",
+                      portraitPicture = "",
+                      altPicture = "",
+                      label = "",
+                      buttonLabel = "",
+                      internalLink = None,
+                      externalLink = None,
+                      slot = self.props.wrapped.slot,
+                      internalLinkChecked = false,
+                      externalLinkChecked = false,
+                      cardExpended = false,
+                      toCreate = true
+                    )
+                  )
+                  self.props.wrapped.reloadComponent()
+                case Failure(_) =>
+              }
           }
 
           <.Card(
@@ -249,28 +273,39 @@ object HeaderComponent {
             )(),
             <.CardText(^.style := Map("display" -> "grid"), ^.expandable := true)(
               <.h3(^.style := Map("color" -> "blue"))("Image"),
-              <.TextFieldMaterialUi(
-                ^.name := "Alternative text",
-                ^.floatingLabelText := "Alternative text",
-                ^.floatingLabelFixed := true,
-                ^.value := self.state.altPicture,
-                ^.onChange := onChangeAltPicture
-              )(),
-              <.div()(
-                <.TextFieldMaterialUi(
-                  ^.name := "link desktop",
-                  ^.floatingLabelText := "Link desktop",
-                  ^.floatingLabelFixed := true,
-                  ^.value := self.state.landscapePicture,
-                  ^.onChange := onChangeLandscapePicture
-                )(),
-                <.TextFieldMaterialUi(
-                  ^.name := "link mobile",
-                  ^.floatingLabelText := "Link mobile",
-                  ^.floatingLabelFixed := true,
-                  ^.value := self.state.portraitPicture,
-                  ^.onChange := onChangePortraitPicture
-                )()
+              <.div(^.style := Map("display" -> "flex"))(
+                <.div(^.style := Map("width" -> "70%"))(
+                  <.TextFieldMaterialUi(
+                    ^.name := "Alternative text",
+                    ^.floatingLabelText := "Alternative text",
+                    ^.floatingLabelFixed := true,
+                    ^.value := self.state.altPicture,
+                    ^.onChange := onChangeAltPicture,
+                    ^.style := Map("width" -> "90%")
+                  )(),
+                  <.TextFieldMaterialUi(
+                    ^.name := "link desktop",
+                    ^.floatingLabelText := "Link desktop",
+                    ^.floatingLabelFixed := true,
+                    ^.value := self.state.landscapePicture,
+                    ^.onChange := onChangeLandscapePicture,
+                    ^.style := Map("width" -> "90%")
+                  )(),
+                  <.TextFieldMaterialUi(
+                    ^.name := "link mobile",
+                    ^.floatingLabelText := "Link mobile",
+                    ^.floatingLabelFixed := true,
+                    ^.value := self.state.portraitPicture,
+                    ^.onChange := onChangePortraitPicture,
+                    ^.style := Map("width" -> "90%")
+                  )()
+                ),
+                <.div(^.style := Map("width" -> "30%"))(
+                  <.img(
+                    ^.src := self.state.landscapePicture,
+                    ^.style := Map("maxWidth" -> "100%", "height" -> "auto")
+                  )()
+                )
               ),
               <.h3(^.style := Map("color" -> "blue"))("Label"),
               <.TextFieldMaterialUi(
@@ -311,6 +346,8 @@ object HeaderComponent {
                 ),
                 <.SelectField(
                   ^.label := "internal link",
+                  ^.floatingLabelText := "Internal link",
+                  ^.floatingLabelFixed := true,
                   ^.style := Map("width" -> "50%"),
                   ^.value := self.state.internalLink.getOrElse(""),
                   ^.disabled := !self.state.internalLinkChecked,
@@ -321,10 +358,12 @@ object HeaderComponent {
                 <.SelectField(
                   ^.style := Map("width" -> "50%"),
                   ^.label := "question",
+                  ^.floatingLabelText := "Question",
+                  ^.floatingLabelFixed := true,
                   ^.value := self.state.questionId.getOrElse(""),
                   ^.disabled := !self.state.internalLinkChecked,
                   ^.onChangeSelect := onSelectQuestion
-                )(self.props.wrapped.questionsList.map { question =>
+                )(self.state.questionsList.map { question =>
                   <.MenuItem(
                     ^.key := question.id,
                     ^.value := question.id,
