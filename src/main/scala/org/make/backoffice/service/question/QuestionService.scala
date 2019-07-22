@@ -48,6 +48,7 @@ object QuestionService extends ApiService with CirceClassFormatters {
           ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
           ("questionId", ApiService.getFieldValueFromFilters("questionId", filters)) &
           ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
+          ("operationKind", ApiService.getFieldValueFromFilters("operationKind", filters)) &
           ("openAt", ApiService.getFieldValueFromFilters("openAt", filters))
       )
       .map(questions => ListTotalResponse.apply(total = questions.size, data = questions))
