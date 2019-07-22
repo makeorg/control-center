@@ -118,7 +118,8 @@ object Main {
           ^.create := CreateCurrentOperation(),
           ^.edit := EditCurrentOperation(),
           ^.remove := NativeDelete
-        )()
+        )(),
+        <.Resource(^.name := Resource.moderators)()
       ),
       dom.document.getElementById("make-backoffice")
     )

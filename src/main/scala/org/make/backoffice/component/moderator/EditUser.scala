@@ -52,7 +52,7 @@ object EditUser {
             Role.roles.values.map(role => Choice(id = role.shortName, name = role.shortName)).toSeq
 
           <.Edit(
-            ^.resource := Resource.users,
+            ^.resource := Resource.moderators,
             ^.location := self.props.location,
             ^.`match` := self.props.`match`,
             ^.hasList := true
