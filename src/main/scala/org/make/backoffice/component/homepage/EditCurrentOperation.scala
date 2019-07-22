@@ -20,8 +20,6 @@
 
 package org.make.backoffice.component.homepage
 
-import java.time.ZonedDateTime
-
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
@@ -98,7 +96,9 @@ object EditCurrentOperation {
             case Failure(_) =>
           }
           QuestionService
-            .questions(filters = Some(Seq(Filter("openAt", ZonedDateTime.now()))))
+            .questions(
+              filters = Some(Seq(Filter("operationKind", "GREAT_CAUSE,PUBLIC_CONSULTATION,BUSINESS_CONSULTATION")))
+            )
             .onComplete {
               case Success(questionsResponse) =>
                 self.setState(
