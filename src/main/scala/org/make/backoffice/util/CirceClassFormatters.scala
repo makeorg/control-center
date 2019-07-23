@@ -300,4 +300,10 @@ trait CirceClassFormatters extends TimeInstances {
       "internalLink",
       "externalLink"
     )(CurrentOperation.apply)
+
+  implicit lazy val currentOperationIdResultDecoder: Decoder[CurrentOperationIdResult] =
+    Decoder.forProduct1("currentOperationId")(CurrentOperationIdResult.apply)
+
+  implicit lazy val featuredOperationIdResultDecoder: Decoder[FeaturedOperationIdResult] =
+    Decoder.forProduct1("featuredOperationId")(FeaturedOperationIdResult.apply)
 }

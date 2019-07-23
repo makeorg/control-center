@@ -49,7 +49,15 @@ object CreateCurrentOperation {
                                          externalLink: Option[String],
                                          questionsList: Seq[Question],
                                          internalLinkChecked: Boolean,
-                                         externalLinkChecked: Boolean)
+                                         externalLinkChecked: Boolean,
+                                         snackbarOpen: Boolean,
+                                         snackbarMessage: String,
+                                         questionError: String,
+                                         descriptionError: String,
+                                         labelError: String,
+                                         pictureError: String,
+                                         altPictureError: String,
+                                         linkLabelError: String)
 
   def apply(): ReactClass = reactClass
 
@@ -69,7 +77,15 @@ object CreateCurrentOperation {
             externalLink = None,
             questionsList = Seq.empty,
             internalLinkChecked = false,
-            externalLinkChecked = false
+            externalLinkChecked = false,
+            snackbarOpen = false,
+            snackbarMessage = "",
+            questionError = "",
+            descriptionError = "",
+            labelError = "",
+            pictureError = "",
+            altPictureError = "",
+            linkLabelError = ""
           )
         },
         componentWillMount = self => {
@@ -88,32 +104,47 @@ object CreateCurrentOperation {
         render = self => {
 
           def onSelectQuestion: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
-            self.setState(_.copy(questionId = value))
+            self.setState(_.copy(questionId = value, questionError = ""))
           }
 
           def onChangeDescription: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(description = value))
+            if (value.length > 140) {
+              self.setState(
+                _.copy(description = value, descriptionError = "Description length must be lower than 140 characters")
+              )
+            } else {
+              self.setState(_.copy(description = value, descriptionError = ""))
+            }
           }
 
           def onChangeLabel: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(label = value))
+            self.setState(_.copy(label = value, labelError = ""))
           }
 
           def onChangePicture: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(picture = value))
+            self.setState(_.copy(picture = value, pictureError = ""))
           }
 
           def onChangeAltPicture: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(altPicture = value))
+            if (value.length > 130) {
+              self.setState(
+                _.copy(
+                  altPicture = value,
+                  altPictureError = "Alternative text length must be lower than 130 characters"
+                )
+              )
+            } else {
+              self.setState(_.copy(altPicture = value, altPictureError = ""))
+            }
           }
 
           def onChangeLinkLabel: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(linkLabel = value))
+            self.setState(_.copy(linkLabel = value, linkLabelError = ""))
           }
 
           def onSelectInternalLink: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
@@ -143,19 +174,63 @@ object CreateCurrentOperation {
             )
           }
 
+          def checkError: Boolean = {
+            var error: Boolean = false
+
+            if (self.state.questionId.isEmpty) {
+              self.setState(_.copy(questionError = "question must not be empty"))
+              error = true
+            }
+            if (self.state.description.isEmpty) {
+              self.setState(_.copy(descriptionError = "description must not be empty"))
+              error = true
+            }
+            if (self.state.label.isEmpty) {
+              self.setState(_.copy(labelError = "label must not be empty"))
+              error = true
+            }
+            if (self.state.picture.isEmpty) {
+              self.setState(_.copy(pictureError = "picture must not be empty"))
+              error = true
+            }
+            if (self.state.altPicture.isEmpty) {
+              self.setState(_.copy(altPictureError = "alternative text must not be empty"))
+              error = true
+            }
+            if (self.state.linkLabel.isEmpty) {
+              self.setState(_.copy(linkLabelError = "link label must not be empty"))
+              error = true
+            }
+            error
+          }
+
           def handleCreate: SyntheticEvent => Unit = {
             _ =>
-              val request = CreateCurrentOperationRequest(
-                questionId = self.state.questionId,
-                description = self.state.description,
-                label = self.state.label,
-                picture = self.state.picture,
-                altPicture = self.state.altPicture,
-                linkLabel = self.state.linkLabel,
-                internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
-                externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink
-              )
-              CurrentOperationService.postCurrentOperation(request)
+              if (!checkError) {
+                val request = CreateCurrentOperationRequest(
+                  questionId = self.state.questionId,
+                  description = self.state.description,
+                  label = self.state.label,
+                  picture = self.state.picture,
+                  altPicture = self.state.altPicture,
+                  linkLabel = self.state.linkLabel,
+                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
+                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink
+                )
+                CurrentOperationService.postCurrentOperation(request).onComplete {
+                  case Success(_) =>
+                    self
+                      .setState(_.copy(snackbarOpen = true, snackbarMessage = "Current operation created successfully"))
+                    self.props.history.push("/homepage")
+                  case Failure(_) =>
+                    self
+                      .setState(_.copy(snackbarOpen = true, snackbarMessage = "Current operation failed to be created"))
+                }
+              }
+          }
+
+          def onSnackbarClose: String => Unit = _ => {
+            self.setState(_.copy(snackbarOpen = false, snackbarMessage = ""))
           }
 
           <.div()(
@@ -167,6 +242,7 @@ object CreateCurrentOperation {
                   ^.value := self.state.questionId,
                   ^.fullWidth := true,
                   ^.floatingLabelFixed := true,
+                  ^.errorText := self.state.questionError,
                   ^.onChangeSelect := onSelectQuestion
                 )(self.state.questionsList.map { question =>
                   <.MenuItem(
@@ -181,6 +257,7 @@ object CreateCurrentOperation {
                   ^.floatingLabelFixed := true,
                   ^.value := self.state.description,
                   ^.fullWidth := true,
+                  ^.errorText := self.state.descriptionError,
                   ^.onChange := onChangeDescription
                 )(),
                 <.TextFieldMaterialUi(
@@ -189,6 +266,7 @@ object CreateCurrentOperation {
                   ^.floatingLabelFixed := true,
                   ^.value := self.state.label,
                   ^.fullWidth := true,
+                  ^.errorText := self.state.labelError,
                   ^.onChange := onChangeLabel
                 )(),
                 <.TextFieldMaterialUi(
@@ -197,6 +275,7 @@ object CreateCurrentOperation {
                   ^.floatingLabelFixed := true,
                   ^.value := self.state.picture,
                   ^.fullWidth := true,
+                  ^.errorText := self.state.pictureError,
                   ^.onChange := onChangePicture
                 )(),
                 <.TextFieldMaterialUi(
@@ -205,6 +284,7 @@ object CreateCurrentOperation {
                   ^.floatingLabelFixed := true,
                   ^.value := self.state.altPicture,
                   ^.fullWidth := true,
+                  ^.errorText := self.state.altPictureError,
                   ^.onChange := onChangeAltPicture
                 )(),
                 <.TextFieldMaterialUi(
@@ -213,7 +293,9 @@ object CreateCurrentOperation {
                   ^.floatingLabelFixed := true,
                   ^.value := self.state.linkLabel,
                   ^.fullWidth := true,
-                  ^.onChange := onChangeLinkLabel
+                  ^.errorText := self.state.linkLabelError,
+                  ^.onChange := onChangeLinkLabel,
+                  ^.style := Map("marginBottom" -> "15px")
                 )(),
                 <.div(^.style := Map("display" -> "flex"))(
                   <.span(^.onClick := onToggleInternalLink)(
@@ -254,7 +336,13 @@ object CreateCurrentOperation {
               ),
               <.Toolbar(^.style := Map("backgroundColor" -> "#e8e8e8"))(
                 <.ToolbarGroup()(<.RaisedButton(^.primary := true, ^.label := "Save", ^.onClick := handleCreate)())
-              )
+              ),
+              <.Snackbar(
+                ^.open := self.state.snackbarOpen,
+                ^.message := self.state.snackbarMessage,
+                ^.autoHideDuration := 3000,
+                ^.onRequestClose := onSnackbarClose
+              )()
             )
           )
         }
