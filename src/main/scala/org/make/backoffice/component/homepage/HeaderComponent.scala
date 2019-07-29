@@ -61,7 +61,16 @@ object HeaderComponent {
                                   externalLinkChecked: Boolean,
                                   cardExpended: Boolean,
                                   toCreate: Boolean,
-                                  questionsList: Seq[Question])
+                                  questionsList: Seq[Question],
+                                  snackbarOpen: Boolean,
+                                  snackbarMessage: String,
+                                  titleError: String,
+                                  descriptionError: String,
+                                  landscapePictureError: String,
+                                  portraitPictureError: String,
+                                  altPictureError: String,
+                                  labelError: String,
+                                  buttonLabelError: String)
 
   lazy val reactClass: ReactClass =
     React
@@ -85,7 +94,16 @@ object HeaderComponent {
             externalLinkChecked = false,
             cardExpended = false,
             toCreate = true,
-            questionsList = self.props.wrapped.questionsList
+            questionsList = self.props.wrapped.questionsList,
+            snackbarOpen = false,
+            snackbarMessage = "",
+            titleError = "",
+            descriptionError = "",
+            landscapePictureError = "",
+            portraitPictureError = "",
+            altPictureError = "",
+            labelError = "",
+            buttonLabelError = ""
           )
         },
         componentWillReceiveProps = (self, props) => {
@@ -123,37 +141,52 @@ object HeaderComponent {
 
           def onChangeAltPicture: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(altPicture = value))
+            if (value.length > 130) {
+              self.setState(
+                _.copy(
+                  altPicture = value,
+                  altPictureError = "Alternative text length must be lower than 130 characters"
+                )
+              )
+            } else {
+              self.setState(_.copy(altPicture = value, altPictureError = ""))
+            }
           }
 
           def onChangeLandscapePicture: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(landscapePicture = value))
+            self.setState(_.copy(landscapePicture = value, landscapePictureError = ""))
           }
 
           def onChangePortraitPicture: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(portraitPicture = value))
+            self.setState(_.copy(portraitPicture = value, portraitPictureError = ""))
           }
 
           def onChangeLabel: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(label = value))
+            self.setState(_.copy(label = value, labelError = ""))
           }
 
           def onChangeTitle: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(title = value))
+            self.setState(_.copy(title = value, titleError = ""))
           }
 
           def onChangeDescription: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = if (event.target.value.isEmpty) None else Some(event.target.value)
-            self.setState(_.copy(description = value))
+            if (value.exists(_.length > 140)) {
+              self.setState(
+                _.copy(description = value, descriptionError = "Description length must be lower than 140 characters")
+              )
+            } else {
+              self.setState(_.copy(description = value, descriptionError = ""))
+            }
           }
 
           def onChangeButtonLabel: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
-            self.setState(_.copy(buttonLabel = value))
+            self.setState(_.copy(buttonLabel = value, buttonLabelError = ""))
           }
 
           def onChangeExternalLink: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
@@ -196,40 +229,100 @@ object HeaderComponent {
             self.setState(_.copy(questionId = Some(value)))
           }
 
+          def checkError: Boolean = {
+            var error: Boolean = false
+
+            if (self.state.description.isEmpty) {
+              self.setState(_.copy(descriptionError = "description must not be empty"))
+              error = true
+            }
+            if (self.state.label.isEmpty) {
+              self.setState(_.copy(labelError = "label must not be empty"))
+              error = true
+            }
+            if (self.state.landscapePicture.isEmpty) {
+              self.setState(_.copy(landscapePictureError = "picture must not be empty"))
+              error = true
+            }
+            if (self.state.portraitPicture.isEmpty) {
+              self.setState(_.copy(portraitPictureError = "picture must not be empty"))
+              error = true
+            }
+            if (self.state.altPicture.isEmpty) {
+              self.setState(_.copy(altPictureError = "alternative text must not be empty"))
+              error = true
+            }
+            if (self.state.title.isEmpty) {
+              self.setState(_.copy(titleError = "link label must not be empty"))
+              error = true
+            }
+            if (self.state.buttonLabel.isEmpty) {
+              self.setState(_.copy(buttonLabelError = "link label must not be empty"))
+              error = true
+            }
+            error
+          }
+
           def handleCreation: SyntheticEvent => Unit = {
             _ =>
-              val request = CreateFeaturedOperationRequest(
-                questionId = self.state.questionId,
-                title = self.state.title,
-                description = self.state.description,
-                landscapePicture = self.state.landscapePicture,
-                portraitPicture = self.state.portraitPicture,
-                altPicture = self.state.altPicture,
-                label = self.state.label,
-                buttonLabel = self.state.buttonLabel,
-                internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
-                externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
-                slot = self.state.slot
-              )
-              FeaturedOperationService.postFeaturedOperation(request)
+              if (!checkError) {
+                val request = CreateFeaturedOperationRequest(
+                  questionId = self.state.questionId,
+                  title = self.state.title,
+                  description = self.state.description,
+                  landscapePicture = self.state.landscapePicture,
+                  portraitPicture = self.state.portraitPicture,
+                  altPicture = self.state.altPicture,
+                  label = self.state.label,
+                  buttonLabel = self.state.buttonLabel,
+                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
+                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
+                  slot = self.state.slot
+                )
+                FeaturedOperationService.postFeaturedOperation(request).onComplete {
+                  case Success(_) =>
+                    self
+                      .setState(
+                        _.copy(snackbarOpen = true, snackbarMessage = "Featured operation created successfully")
+                      )
+                  case Failure(_) =>
+                    self
+                      .setState(
+                        _.copy(snackbarOpen = true, snackbarMessage = "featured operation failed to be created")
+                      )
+                }
+              }
           }
 
           def handleUpdate: SyntheticEvent => Unit = {
             _ =>
-              val request = UpdateFeaturedOperationRequest(
-                questionId = self.state.questionId,
-                title = self.state.title,
-                description = self.state.description,
-                landscapePicture = self.state.landscapePicture,
-                portraitPicture = self.state.portraitPicture,
-                altPicture = self.state.altPicture,
-                label = self.state.label,
-                buttonLabel = self.state.buttonLabel,
-                internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
-                externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
-                slot = self.state.slot
-              )
-              FeaturedOperationService.putFeaturedOperation(self.state.id, request)
+              if (!checkError) {
+                val request = UpdateFeaturedOperationRequest(
+                  questionId = self.state.questionId,
+                  title = self.state.title,
+                  description = self.state.description,
+                  landscapePicture = self.state.landscapePicture,
+                  portraitPicture = self.state.portraitPicture,
+                  altPicture = self.state.altPicture,
+                  label = self.state.label,
+                  buttonLabel = self.state.buttonLabel,
+                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
+                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
+                  slot = self.state.slot
+                )
+                FeaturedOperationService.putFeaturedOperation(self.state.id, request).onComplete {
+                  case Success(_) =>
+                    self
+                      .setState(
+                        _.copy(snackbarOpen = true, snackbarMessage = "Featured operation updated successfully")
+                      )
+                  case Failure(_) =>
+                    self
+                      .setState(
+                        _.copy(snackbarOpen = true, snackbarMessage = "featured operation failed to be updated")
+                      )
+                }
+              }
           }
 
           def handleDelete: SyntheticEvent => Unit = {
@@ -253,157 +346,180 @@ object HeaderComponent {
                       internalLinkChecked = false,
                       externalLinkChecked = false,
                       cardExpended = false,
-                      toCreate = true
+                      toCreate = true,
+                      snackbarOpen = true,
+                      snackbarMessage = "Featured operation deleted successfully"
                     )
                   )
                   self.props.wrapped.reloadComponent()
                 case Failure(_) =>
+                  self
+                    .setState(_.copy(snackbarOpen = true, snackbarMessage = "featured operation failed to be deleted"))
               }
           }
 
-          <.Card(
-            ^.style := Map("marginTop" -> "30px"),
-            ^.expanded := self.state.cardExpended,
-            ^.onExpandChange := onExpendChange
-          )(
-            <.CardTitle(
-              ^.title := s"Slot ${self.state.slot}",
-              ^.actAsExpander := true,
-              ^.showExpandableButton := true
-            )(),
-            <.CardText(^.style := Map("display" -> "grid"), ^.expandable := true)(
-              <.h3(^.style := Map("color" -> "blue"))("Image"),
-              <.div(^.style := Map("display" -> "flex"))(
-                <.div(^.style := Map("width" -> "70%"))(
-                  <.TextFieldMaterialUi(
-                    ^.name := "Alternative text",
-                    ^.floatingLabelText := "Alternative text",
-                    ^.floatingLabelFixed := true,
-                    ^.value := self.state.altPicture,
-                    ^.onChange := onChangeAltPicture,
-                    ^.style := Map("width" -> "90%")
-                  )(),
-                  <.TextFieldMaterialUi(
-                    ^.name := "link desktop",
-                    ^.floatingLabelText := "Link desktop",
-                    ^.floatingLabelFixed := true,
-                    ^.value := self.state.landscapePicture,
-                    ^.onChange := onChangeLandscapePicture,
-                    ^.style := Map("width" -> "90%")
-                  )(),
-                  <.TextFieldMaterialUi(
-                    ^.name := "link mobile",
-                    ^.floatingLabelText := "Link mobile",
-                    ^.floatingLabelFixed := true,
-                    ^.value := self.state.portraitPicture,
-                    ^.onChange := onChangePortraitPicture,
-                    ^.style := Map("width" -> "90%")
-                  )()
+          def onSnackbarClose: String => Unit = _ => {
+            self.setState(_.copy(snackbarOpen = false, snackbarMessage = ""))
+          }
+
+          <.div()(
+            <.Card(
+              ^.style := Map("marginTop" -> "30px"),
+              ^.expanded := self.state.cardExpended,
+              ^.onExpandChange := onExpendChange
+            )(
+              <.CardTitle(
+                ^.title := s"Slot ${self.state.slot}",
+                ^.actAsExpander := true,
+                ^.showExpandableButton := true
+              )(),
+              <.CardText(^.style := Map("display" -> "grid"), ^.expandable := true)(
+                <.h3(^.style := Map("color" -> "blue"))("Image"),
+                <.div(^.style := Map("display" -> "flex"))(
+                  <.div(^.style := Map("width" -> "70%"))(
+                    <.TextFieldMaterialUi(
+                      ^.name := "Alternative text",
+                      ^.floatingLabelText := "Alternative text",
+                      ^.floatingLabelFixed := true,
+                      ^.value := self.state.altPicture,
+                      ^.onChange := onChangeAltPicture,
+                      ^.errorText := self.state.altPictureError,
+                      ^.style := Map("width" -> "90%")
+                    )(),
+                    <.TextFieldMaterialUi(
+                      ^.name := "link desktop",
+                      ^.floatingLabelText := "Link desktop",
+                      ^.floatingLabelFixed := true,
+                      ^.value := self.state.landscapePicture,
+                      ^.onChange := onChangeLandscapePicture,
+                      ^.errorText := self.state.landscapePictureError,
+                      ^.style := Map("width" -> "90%")
+                    )(),
+                    <.TextFieldMaterialUi(
+                      ^.name := "link mobile",
+                      ^.floatingLabelText := "Link mobile",
+                      ^.floatingLabelFixed := true,
+                      ^.value := self.state.portraitPicture,
+                      ^.onChange := onChangePortraitPicture,
+                      ^.errorText := self.state.portraitPictureError,
+                      ^.style := Map("width" -> "90%")
+                    )()
+                  ),
+                  <.div(^.style := Map("width" -> "30%"))(
+                    <.img(
+                      ^.src := self.state.landscapePicture,
+                      ^.style := Map("maxWidth" -> "100%", "height" -> "auto")
+                    )()
+                  )
                 ),
-                <.div(^.style := Map("width" -> "30%"))(
-                  <.img(
-                    ^.src := self.state.landscapePicture,
-                    ^.style := Map("maxWidth" -> "100%", "height" -> "auto")
-                  )()
-                )
-              ),
-              <.h3(^.style := Map("color" -> "blue"))("Label"),
-              <.TextFieldMaterialUi(
-                ^.name := "label",
-                ^.value := self.state.label,
-                ^.onChange := onChangeLabel,
-                ^.fullWidth := true
-              )(),
-              <.h3(^.style := Map("color" -> "blue"))("Title"),
-              <.TextFieldMaterialUi(
-                ^.name := "title",
-                ^.value := self.state.title,
-                ^.onChange := onChangeTitle,
-                ^.fullWidth := true
-              )(),
-              <.h3(^.style := Map("color" -> "blue"))("Description"),
-              <.TextFieldMaterialUi(
-                ^.name := "description",
-                ^.value := self.state.description.getOrElse(""),
-                ^.onChange := onChangeDescription,
-                ^.fullWidth := true
-              )(),
-              <.h3(^.style := Map("color" -> "blue"))("Button text"),
-              <.TextFieldMaterialUi(
-                ^.name := "button text",
-                ^.value := self.state.buttonLabel,
-                ^.onChange := onChangeButtonLabel
-              )(),
-              <.h3(^.style := Map("color" -> "blue"))("Link"),
-              <.div(^.style := Map("display" -> "flex"))(
-                <.span(^.onClick := onToggleInternalLink)(
-                  <.Toggle(
-                    ^.label := "Internal link",
-                    ^.toggled := self.state.internalLinkChecked,
-                    ^.labelPosition := "right",
-                    ^.style := Map("width" -> "25%")
-                  )()
-                ),
-                <.SelectField(
-                  ^.label := "internal link",
-                  ^.floatingLabelText := "Internal link",
-                  ^.floatingLabelFixed := true,
-                  ^.style := Map("width" -> "50%"),
-                  ^.value := self.state.internalLink.getOrElse(""),
-                  ^.disabled := !self.state.internalLinkChecked,
-                  ^.onChangeSelect := onSelectInternalLink
-                )(FeaturedOperation.internalLinkMap.map {
-                  case (id, text) => <.MenuItem(^.key := id, ^.value := id, ^.primaryText := text)()
-                }),
-                <.SelectField(
-                  ^.style := Map("width" -> "50%"),
-                  ^.label := "question",
-                  ^.floatingLabelText := "Question",
-                  ^.floatingLabelFixed := true,
-                  ^.value := self.state.questionId.getOrElse(""),
-                  ^.disabled := !self.state.internalLinkChecked,
-                  ^.onChangeSelect := onSelectQuestion
-                )(self.state.questionsList.map { question =>
-                  <.MenuItem(
-                    ^.key := question.id,
-                    ^.value := question.id,
-                    ^.primaryText := s"${question.slug} : ${question.question}"
-                  )()
-                })
-              ),
-              <.div(^.style := Map("display" -> "flex"))(
-                <.span(^.onClick := onToggleExternalLink)(
-                  <.Toggle(
-                    ^.label := "External link",
-                    ^.toggled := self.state.externalLinkChecked,
-                    ^.labelPosition := "right",
-                    ^.style := Map("width" -> "25%")
-                  )()
-                ),
+                <.h3(^.style := Map("color" -> "blue"))("Label"),
                 <.TextFieldMaterialUi(
-                  ^.name := "external link",
-                  ^.value := self.state.externalLink.getOrElse(""),
-                  ^.style := Map("width" -> "100%"),
-                  ^.onChange := onChangeExternalLink,
-                  ^.disabled := !self.state.externalLinkChecked
-                )()
-              ),
-              <.CardActions()(if (self.state.toCreate) {
-                <.RaisedButton(
-                  ^.label := "Save",
-                  ^.primary := true,
-                  ^.style := Map("float" -> "right"),
-                  ^.onClick := handleCreation
-                )()
-              } else {
-                <.RaisedButton(
-                  ^.label := "Update",
-                  ^.primary := true,
-                  ^.style := Map("float" -> "right"),
-                  ^.onClick := handleUpdate
-                )()
-              }, <.RaisedButton(^.label := "Delete", ^.secondary := true, ^.style := Map("float" -> "right"), ^.onClick := handleDelete)())
-            )
+                  ^.name := "label",
+                  ^.value := self.state.label,
+                  ^.onChange := onChangeLabel,
+                  ^.errorText := self.state.labelError,
+                  ^.fullWidth := true
+                )(),
+                <.h3(^.style := Map("color" -> "blue"))("Title"),
+                <.TextFieldMaterialUi(
+                  ^.name := "title",
+                  ^.value := self.state.title,
+                  ^.onChange := onChangeTitle,
+                  ^.errorText := self.state.titleError,
+                  ^.fullWidth := true
+                )(),
+                <.h3(^.style := Map("color" -> "blue"))("Description"),
+                <.TextFieldMaterialUi(
+                  ^.name := "description",
+                  ^.value := self.state.description.getOrElse(""),
+                  ^.onChange := onChangeDescription,
+                  ^.errorText := self.state.descriptionError,
+                  ^.fullWidth := true
+                )(),
+                <.h3(^.style := Map("color" -> "blue"))("Button text"),
+                <.TextFieldMaterialUi(
+                  ^.name := "button text",
+                  ^.value := self.state.buttonLabel,
+                  ^.errorText := self.state.buttonLabelError,
+                  ^.onChange := onChangeButtonLabel
+                )(),
+                <.h3(^.style := Map("color" -> "blue"))("Link"),
+                <.div(^.style := Map("display" -> "flex"))(
+                  <.span(^.onClick := onToggleInternalLink)(
+                    <.Toggle(
+                      ^.label := "Internal link",
+                      ^.toggled := self.state.internalLinkChecked,
+                      ^.labelPosition := "right",
+                      ^.style := Map("width" -> "25%")
+                    )()
+                  ),
+                  <.SelectField(
+                    ^.label := "internal link",
+                    ^.floatingLabelText := "Internal link",
+                    ^.floatingLabelFixed := true,
+                    ^.style := Map("width" -> "50%"),
+                    ^.value := self.state.internalLink.getOrElse(""),
+                    ^.disabled := !self.state.internalLinkChecked,
+                    ^.onChangeSelect := onSelectInternalLink
+                  )(FeaturedOperation.internalLinkMap.map {
+                    case (id, text) => <.MenuItem(^.key := id, ^.value := id, ^.primaryText := text)()
+                  }),
+                  <.SelectField(
+                    ^.style := Map("width" -> "50%"),
+                    ^.label := "question",
+                    ^.floatingLabelText := "Question",
+                    ^.floatingLabelFixed := true,
+                    ^.value := self.state.questionId.getOrElse(""),
+                    ^.disabled := !self.state.internalLinkChecked,
+                    ^.onChangeSelect := onSelectQuestion
+                  )(self.state.questionsList.map { question =>
+                    <.MenuItem(
+                      ^.key := question.id,
+                      ^.value := question.id,
+                      ^.primaryText := s"${question.slug} : ${question.question}"
+                    )()
+                  })
+                ),
+                <.div(^.style := Map("display" -> "flex"))(
+                  <.span(^.onClick := onToggleExternalLink)(
+                    <.Toggle(
+                      ^.label := "External link",
+                      ^.toggled := self.state.externalLinkChecked,
+                      ^.labelPosition := "right",
+                      ^.style := Map("width" -> "25%")
+                    )()
+                  ),
+                  <.TextFieldMaterialUi(
+                    ^.name := "external link",
+                    ^.value := self.state.externalLink.getOrElse(""),
+                    ^.style := Map("width" -> "100%"),
+                    ^.onChange := onChangeExternalLink,
+                    ^.disabled := !self.state.externalLinkChecked
+                  )()
+                ),
+                <.CardActions()(if (self.state.toCreate) {
+                  <.RaisedButton(
+                    ^.label := "Save",
+                    ^.primary := true,
+                    ^.style := Map("float" -> "right"),
+                    ^.onClick := handleCreation
+                  )()
+                } else {
+                  <.RaisedButton(
+                    ^.label := "Update",
+                    ^.primary := true,
+                    ^.style := Map("float" -> "right"),
+                    ^.onClick := handleUpdate
+                  )()
+                }, <.RaisedButton(^.label := "Delete", ^.secondary := true, ^.style := Map("float" -> "right"), ^.onClick := handleDelete)())
+              )
+            ),
+            <.Snackbar(
+              ^.open := self.state.snackbarOpen,
+              ^.message := self.state.snackbarMessage,
+              ^.autoHideDuration := 3000,
+              ^.onRequestClose := onSnackbarClose
+            )()
           )
         }
       )

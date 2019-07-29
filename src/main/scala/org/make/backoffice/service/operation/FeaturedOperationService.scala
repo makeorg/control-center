@@ -23,7 +23,7 @@ package org.make.backoffice.service.operation
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.make.backoffice.client.BadRequestHttpException
-import org.make.backoffice.model.{FeaturedOperation, FeaturedOperationId}
+import org.make.backoffice.model.{FeaturedOperation, FeaturedOperationIdResult}
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
@@ -42,24 +42,29 @@ object FeaturedOperationService extends ApiService with CirceClassFormatters {
         throw e
     }
 
-  def postFeaturedOperation(request: CreateFeaturedOperationRequest): Future[FeaturedOperationId] =
+  def postFeaturedOperation(request: CreateFeaturedOperationRequest): Future[FeaturedOperationIdResult] =
     client
-      .post[FeaturedOperationId](resourceName, data = request.asJson.pretty(ApiService.printer))
+      .post[FeaturedOperationIdResult](resourceName, data = request.asJson.pretty(ApiService.printer))
       .recoverWith {
         case e: BadRequestHttpException =>
           Future.failed(js.JavaScriptException(js.Error(e.errors.headOption.flatMap(_.message).getOrElse(""))))
         case e =>
+          js.Dynamic.global.console.log(s"instead of creating featured operations: failed cursor $e")
           Future.failed(e)
       }
 
   def putFeaturedOperation(featuredOperationId: String,
-                           request: UpdateFeaturedOperationRequest): Future[FeaturedOperationId] =
+                           request: UpdateFeaturedOperationRequest): Future[FeaturedOperationIdResult] =
     client
-      .put[FeaturedOperationId](resourceName / featuredOperationId, data = request.asJson.pretty(ApiService.printer))
+      .put[FeaturedOperationIdResult](
+        resourceName / featuredOperationId,
+        data = request.asJson.pretty(ApiService.printer)
+      )
       .recoverWith {
         case e: BadRequestHttpException =>
           Future.failed(js.JavaScriptException(js.Error(e.errors.headOption.flatMap(_.message).getOrElse(""))))
         case e =>
+          js.Dynamic.global.console.log(s"instead of updating featured operations: failed cursor $e")
           Future.failed(e)
       }
 

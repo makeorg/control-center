@@ -112,6 +112,18 @@ object FeaturedOperationId {
 }
 
 @js.native
+trait FeaturedOperationIdResult extends js.Object with StringValue {
+  val featuredOperationId: FeaturedOperationId
+}
+
+object FeaturedOperationIdResult {
+  def apply(featuredOperationId: String): FeaturedOperationIdResult =
+    js.Dynamic
+      .literal(featuredOperationId = FeaturedOperationId(featuredOperationId))
+      .asInstanceOf[FeaturedOperationIdResult]
+}
+
+@js.native
 trait FeaturedOperation extends js.Object {
   val id: String
   val questionId: js.UndefOr[String]
@@ -177,6 +189,18 @@ object CurrentOperationId {
 }
 
 @js.native
+trait CurrentOperationIdResult extends js.Object with StringValue {
+  val currentOperationId: CurrentOperationId
+}
+
+object CurrentOperationIdResult {
+  def apply(currentOperationId: String): CurrentOperationIdResult =
+    js.Dynamic
+      .literal(currentOperationId = CurrentOperationId(currentOperationId))
+      .asInstanceOf[CurrentOperationIdResult]
+}
+
+@js.native
 trait CurrentOperation extends js.Object {
   val id: String
   val questionId: String
@@ -207,7 +231,6 @@ object CurrentOperation {
         label = label,
         picture = picture,
         altPicture = altPicture,
-        label = label,
         linkLabel = linkLabel,
         internalLink = internalLink.orUndefined,
         externalLink = externalLink.orUndefined
