@@ -25,7 +25,6 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
-import org.make.backoffice.client.AuthClient.AUTHENTICATION_KEY
 import org.make.backoffice.client.MakeApiClientHttp
 import org.make.backoffice.facade.Configuration
 import org.make.backoffice.facade.Login._
@@ -67,11 +66,7 @@ object LoginPage {
           futureUser.onComplete {
             case Success(user) =>
               if (user.roles.contains(Role.roleAdmin) || user.roles.contains(Role.roleModerator)) {
-                dom.window.localStorage
-                  .setItem(
-                    AUTHENTICATION_KEY,
-                    MakeApiClientHttp.getToken.map(token => s"${token.token_type} ${token.access_token}").getOrElse("")
-                  )
+                Future.successful("auth_login")
                 val resolvedHash = {
                   if (baseUrl.contains("/login")) {
                     "/"

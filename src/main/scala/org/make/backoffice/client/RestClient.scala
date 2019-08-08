@@ -42,13 +42,6 @@ object RestClient extends CirceClassFormatters {
         new Headers(js.Dictionary("x-make-app-name" -> "backoffice", "x-make-source" -> "core"))
       )
       defined.update("credentials", "include")
-      defined.update(
-        "user",
-        js.Dictionary(
-          "authenticated" -> true,
-          "token" -> dom.window.localStorage.getItem(AuthClient.AUTHENTICATION_KEY)
-        )
-      )
       FetchJson.fetchJson(url, defined)
     }
 
