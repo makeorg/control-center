@@ -32,9 +32,11 @@ trait HttpClient {
     implicit decoder: Decoder[ENTITY]
   ): Future[ENTITY]
 
-  def post[ENTITY](apiEndpoint: String, urlParams: Seq[(String, Any)], data: InputData, headers: Map[String, String])(
-    implicit decoder: Decoder[ENTITY]
-  ): Future[ENTITY]
+  def post[ENTITY](apiEndpoint: String,
+                   urlParams: Seq[(String, Any)],
+                   data: InputData,
+                   headers: Map[String, String],
+                   includeContentType: Boolean)(implicit decoder: Decoder[ENTITY]): Future[ENTITY]
 
   def put[ENTITY](apiEndpoint: String,
                   urlParams: Seq[(String, Any)],

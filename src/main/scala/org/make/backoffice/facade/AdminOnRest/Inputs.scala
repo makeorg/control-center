@@ -86,6 +86,10 @@ object NativeDateTimeInput extends ReactClass
 @JSImport("aor-color-input", JSImport.Default)
 object NativeColorInput extends ReactClass
 
+@js.native
+@JSImport("admin-on-rest", "ImageInput")
+object NativeImageInput extends ReactClass
+
 object Inputs {
   implicit class InputsVirtualDOMElements(elements: VirtualDOMElements) {
     lazy val TextInput: ReactClassElementSpec = elements(NativeTextInput)
@@ -102,6 +106,7 @@ object Inputs {
     lazy val LongTextInput: ReactClassElementSpec = elements(NativeLongTextInput)
     lazy val DateTimeInput: ReactClassElementSpec = elements(NativeDateTimeInput)
     lazy val ColorInput: ReactClassElementSpec = elements(NativeColorInput)
+    lazy val ImageInput: ReactClassElementSpec = elements(NativeImageInput)
   }
 
   implicit class InputsVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
