@@ -38,8 +38,6 @@ object AuthClient extends CirceClassFormatters {
   val AUTH_ERROR = "AUTH_ERROR"
   val AUTH_CHECK = "AUTH_CHECK"
 
-  val AUTHENTICATION_KEY = "AUTHENTICATION_KEY"
-
   def auth(`type`: String, parameters: Any): Promise[String] = {
     futureAuth(`type`, parameters).toJSPromise
   }
@@ -50,11 +48,6 @@ object AuthClient extends CirceClassFormatters {
         val loginParameters = parameters.asInstanceOf[LoginParameters]
         UserService.login(loginParameters.username, loginParameters.password).flatMap { user =>
           if (user.roles.contains(Role.roleAdmin) || user.roles.contains(Role.roleModerator)) {
-            dom.window.localStorage
-              .setItem(
-                AUTHENTICATION_KEY,
-                MakeApiClientHttp.getToken.map(token => s"${token.token_type} ${token.access_token}").getOrElse("")
-              )
             Future.successful("auth_login")
           } else {
             MakeApiClientHttp.removeToken()
@@ -62,28 +55,19 @@ object AuthClient extends CirceClassFormatters {
           }
         }
       case AUTH_LOGOUT =>
-        dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
         MakeApiClientHttp.removeToken()
         Future.successful("auth_logout")
       case AUTH_ERROR =>
         val errorParameters = parameters.asInstanceOf[ErrorParameters]
         errorParameters.message match {
           case "Unauthorized" =>
-            dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
             MakeApiClientHttp.removeToken()
             Future.failed(new Error("Rejected AUTH_ERROR for ForbiddenHttpException"))
           case _ => Future.successful("auth_error")
         }
       case AUTH_CHECK =>
-        if (dom.window.localStorage.getItem(AUTHENTICATION_KEY).nonEmpty) {
-          Future.successful("auth_check")
-        } else {
-          dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
-          MakeApiClientHttp.removeToken()
-          Future.failed(new Error("auth_check"))
-        }
+        Future.successful("auth_check")
       case _ =>
-        dom.window.localStorage.removeItem(AUTHENTICATION_KEY)
         MakeApiClientHttp.removeToken()
         Future.failed(new Error("unknown type"))
     }

@@ -57,10 +57,7 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
       "x-make-source" -> "core",
       "Accept" -> MediaTypes.`application/json`,
       "Content-Type" -> "application/json;charset=UTF-8"
-    ) ++
-      MakeApiClientHttp.getToken.map { token =>
-        Map("Authorization" -> s"${token.token_type} ${token.access_token}")
-      }.getOrElse(Map("Authorization" -> dom.window.localStorage.getItem(AuthClient.AUTHENTICATION_KEY)))
+    )
   }
 
   final class DefaultMakeApiHttpClient extends HttpClient {
