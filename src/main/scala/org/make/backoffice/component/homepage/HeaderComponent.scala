@@ -232,10 +232,6 @@ object HeaderComponent {
           def checkError: Boolean = {
             var error: Boolean = false
 
-            if (self.state.description.isEmpty) {
-              self.setState(_.copy(descriptionError = "description must not be empty"))
-              error = true
-            }
             if (self.state.label.isEmpty) {
               self.setState(_.copy(labelError = "label must not be empty"))
               error = true
