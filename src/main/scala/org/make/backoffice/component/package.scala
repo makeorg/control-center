@@ -58,6 +58,8 @@ package object component {
     def HeaderListComponent: ReactClassElementSpec = self(homepage.HeaderListComponent.reactClass)
     def HeaderComponent: ReactClassElementSpec = self(homepage.HeaderComponent.reactClass)
     def CurrentOperationsListComponent: ReactClassElementSpec = self(homepage.CurrentOperationsListComponent.reactClass)
+    def ImagePreview: ReactClassElementSpec = self(question.EditQuestion.imagePreview)
+    def ImageUrlValidate: ReactClassElementSpec = self(question.EditQuestion.imageUrlValidate)
   }
 
   implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {

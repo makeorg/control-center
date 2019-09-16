@@ -23,8 +23,11 @@ package org.make.backoffice.component.question
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
+import io.github.shogowada.scalajs.reactjs.events.MouseSyntheticEvent
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
-import org.make.backoffice.client.Resource
+import io.github.shogowada.scalajs.reactjs.router.RouterProps._
+import org.make.backoffice.client.{BadRequestHttpException, Resource}
+import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.facade.AdminOnRest.Edit._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.FormTab._
@@ -32,233 +35,345 @@ import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.AdminOnRest.required
+import org.make.backoffice.facade.MaterialUi._
+import org.make.backoffice.model.Question
+import org.make.backoffice.service.question.QuestionService
 import org.make.backoffice.util.DateParser
+import org.scalajs.dom._
+import scalacss.DevDefaults._
+import scalacss.internal.StyleA
+import scalacss.internal.mutable.StyleSheet
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
+import scala.util.{Failure, Success}
 
 object EditQuestion {
 
   case class EditQuestionProps() extends RouterProps
-  case class EditQuestionState(reload: Boolean)
+  case class EditQuestionState(imgUrl: String, file: Option[File], snackbarOpen: Boolean, errorMessage: String)
+  case class ImageUrlValidateProps(uploadFile: String => MouseSyntheticEvent => Unit)
 
   def apply(): ReactClass = reactClass
+
+  lazy val imagePreview: ReactClass = React.createClass[Unit, Unit](render = self => {
+    val question: Question = self.props.native.record.asInstanceOf[Question]
+
+    question.imageUrl.toOption match {
+      case Some(imgUrl) if imgUrl != null =>
+        <.div(^.className := EditQuestionStyles.imgPreview.htmlClass)(
+          <.label()("current image"),
+          <.br.empty,
+          <.img(^.src := imgUrl, ^.title := "question imageUrl", ^.width := 150)()
+        )
+      case _ =>
+        <.div(^.className := EditQuestionStyles.imgPreview.htmlClass)(<.label()("No current image"))
+    }
+  })
+
+  lazy val imageUrlValidate: ReactClass = React.createClass[ImageUrlValidateProps, Unit](render = self => {
+    val question: Question = self.props.native.record.asInstanceOf[Question]
+
+    <.RaisedButton(
+      ^.className := EditQuestionStyles.validateImage.htmlClass,
+      ^.onClick := self.props.wrapped.uploadFile(question.id),
+      ^.label := "Upload Image",
+      ^.secondary := true
+    )()
+
+  })
 
   private lazy val reactClass =
     React
       .createClass[EditQuestionProps, EditQuestionState](
         displayName = "EditQuestion",
-        getInitialState = _ => EditQuestionState(reload = false),
+        getInitialState = _ => EditQuestionState(imgUrl = "", file = None, snackbarOpen = false, errorMessage = ""),
         render = self => {
-
-          def reloadComponent = { () =>
-            self.setState(state => state.copy(reload = true))
+          def getFile: ImageFileWrapper => Unit = { imgFile =>
+            self.setState(_.copy(file = Some(imgFile.`0`.rawFile)))
           }
 
-          <.Edit(
-            ^.resource := Resource.operationsOfQuestions,
-            ^.location := self.props.location,
-            ^.`match` := self.props.`match`,
-            ^.hasList := true
-          )(
-            <.TabbedForm(^.submitOnEnter := false)(
-              <.FormTab(^.label := "infos")(
-                <.DateTimeInput(
-                  ^.label := "Start Date",
-                  ^.labelTime := "Start Time",
-                  ^.translateLabel := ((label: String) => label),
-                  ^.source := "startDate",
-                  ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate))
-                )(),
-                <.DateTimeInput(
-                  ^.label := "End Date",
-                  ^.labelTime := "End Time",
-                  ^.translateLabel := ((label: String) => label),
-                  ^.source := "endDate",
-                  ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate))
-                )(),
-                <.ReferenceField(
-                  ^.label := "Operation",
-                  ^.translateLabel := ((label: String) => label),
-                  ^.source := "operationId",
-                  ^.reference := Resource.operations,
-                  ^.linkType := false
-                )(<.TextField(^.source := "slug")()),
-                <.TextField(
-                  ^.label := "Operation Title",
-                  ^.translateLabel := ((label: String) => label),
-                  ^.source := "operationTitle"
-                )(),
-                <.TextField(^.source := "country")(),
-                <.TextField(^.source := "language")(),
-                <.TextInput(
-                  ^.source := "question",
-                  ^.allowEmpty := false,
-                  ^.validate := required,
-                  ^.options := Map("fullWidth" -> true)
-                )(),
-                <.TextField(^.source := "slug")()
-              ),
-              <.FormTab(^.label := "Configuration")(
-                <.h2(^.style := Map("color" -> "red"))("Cards"),
-                <.BooleanInput(^.label := "Can propose", ^.source := "canPropose")(),
-                <.DependentInput(^.dependsOn := "canPropose", ^.dependsValue := true)(
-                  <.BooleanInput(
-                    ^.label := "Push proposal card",
-                    ^.source := "sequenceCardsConfiguration.pushProposalCard.enabled"
+          def handleImageUrl(imgFile: File): String => MouseSyntheticEvent => Unit = {
+            questionId => _ =>
+              val formData = new FormData()
+              formData.append("data", imgFile)
+              QuestionService
+                .uploadImage(questionId, formData = formData)
+                .onComplete {
+                  case Success(_) =>
+                    self.setState(_.copy(snackbarOpen = true, errorMessage = "Image uploaded successfully"))
+                    self.props.history.goBack()
+                  case Failure(BadRequestHttpException(_)) =>
+                    self.setState(_.copy(snackbarOpen = true, errorMessage = "Bad request"))
+                  case Failure(_) =>
+                    self.setState(_.copy(snackbarOpen = true, errorMessage = "Internal Error"))
+                }
+          }
+
+          <.div()(
+            <.Edit(
+              ^.resource := Resource.operationsOfQuestions,
+              ^.location := self.props.location,
+              ^.`match` := self.props.`match`,
+              ^.hasList := true
+            )(
+              <.TabbedForm(^.submitOnEnter := false)(
+                <.FormTab(^.label := "infos")(
+                  <.DateTimeInput(
+                    ^.label := "Start Date",
+                    ^.labelTime := "Start Time",
+                    ^.translateLabel := ((label: String) => label),
+                    ^.source := "startDate",
+                    ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate))
+                  )(),
+                  <.DateTimeInput(
+                    ^.label := "End Date",
+                    ^.labelTime := "End Time",
+                    ^.translateLabel := ((label: String) => label),
+                    ^.source := "endDate",
+                    ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate))
+                  )(),
+                  <.ReferenceField(
+                    ^.label := "Operation",
+                    ^.translateLabel := ((label: String) => label),
+                    ^.source := "operationId",
+                    ^.reference := Resource.operations,
+                    ^.linkType := false
+                  )(<.TextField(^.source := "slug")()),
+                  <.TextField(
+                    ^.label := "Operation Title",
+                    ^.translateLabel := ((label: String) => label),
+                    ^.source := "operationTitle"
+                  )(),
+                  <.TextField(^.source := "country")(),
+                  <.TextField(^.source := "language")(),
+                  <.TextInput(
+                    ^.source := "question",
+                    ^.allowEmpty := false,
+                    ^.validate := required,
+                    ^.options := Map("fullWidth" -> true)
+                  )(),
+                  <.TextField(^.source := "slug")()
+                ),
+                <.FormTab(^.label := "Configuration")(
+                  <.h2(^.style := Map("color" -> "red"))("Cards"),
+                  <.BooleanInput(^.label := "Can propose", ^.source := "canPropose")(),
+                  <.DependentInput(^.dependsOn := "canPropose", ^.dependsValue := true)(
+                    <.BooleanInput(
+                      ^.label := "Push proposal card",
+                      ^.source := "sequenceCardsConfiguration.pushProposalCard.enabled"
+                    )()
+                  ),
+                  <.DependentInput(^.dependsOn := "canPropose", ^.dependsValue := false)(
+                    <.BooleanInput(
+                      ^.label := "Push proposal card",
+                      ^.source := "disabledPushProposalCard",
+                      ^.options := Map("disabled" -> true)
+                    )()
+                  ),
+                  <.hr.empty,
+                  <.h3()("Intro Card"),
+                  <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.introCard.enabled")(),
+                  <.TextInput(
+                    ^.label := "Title",
+                    ^.source := "sequenceCardsConfiguration.introCard.title",
+                    ^.options := Map("fullWidth" -> true)
+                  )(),
+                  <.LongTextInput(
+                    ^.label := "Description (multiline)",
+                    ^.source := "sequenceCardsConfiguration.introCard.description",
+                    ^.options := Map(
+                      "fullWidth" -> true,
+                      "floatingLabelFixed" -> true,
+                      "hintText" -> ("Prenez position sur ces solutions et proposez les vôtres !\n" +
+                        "Les meilleures détermineront nos actions"),
+                      "hintStyle" -> js.Dictionary("whiteSpace" -> "pre")
+                    )
+                  )(),
+                  <.hr.empty,
+                  <.h3()("Signup Card"),
+                  <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.signUpCard.enabled")(),
+                  <.TextInput(
+                    ^.label := "Title",
+                    ^.source := "sequenceCardsConfiguration.signUpCard.title",
+                    ^.options := Map(
+                      "fullWidth" -> true,
+                      "floatingLabelFixed" -> true,
+                      "hintText" -> "Recevez les résultats de la consultation et soyez informé(e) des actions à venir"
+                    )
+                  )(),
+                  <.TextInput(
+                    ^.label := "Next card button text",
+                    ^.source := "sequenceCardsConfiguration.signUpCard.nextCtaText",
+                    ^.options := Map(
+                      "fullWidth" -> true,
+                      "floatingLabelFixed" -> true,
+                      "hintText" -> "NON MERCI, JE NE SOUHAITE PAS ÊTRE INFORMÉ(E) DES RÉSULTATS"
+                    )
+                  )(),
+                  <.hr.empty,
+                  <.h3()("Final Card"),
+                  <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.finalCard.enabled")(),
+                  <.DependentInput(
+                    ^.dependsOn := "sequenceCardsConfiguration.finalCard.enabled",
+                    ^.dependsValue := true
+                  )(
+                    <.BooleanInput(
+                      ^.label := "With sharing",
+                      ^.source := "sequenceCardsConfiguration.finalCard.sharingEnabled"
+                    )()
+                  ),
+                  <.DependentInput(
+                    ^.dependsOn := "sequenceCardsConfiguration.finalCard.enabled",
+                    ^.dependsValue := false
+                  )(
+                    <.BooleanInput(
+                      ^.label := "With sharing",
+                      ^.source := "disabledSharingEnabled",
+                      ^.options := Map("disabled" -> true)
+                    )()
+                  ),
+                  <.TextInput(
+                    ^.label := "Title",
+                    ^.source := "sequenceCardsConfiguration.finalCard.title",
+                    ^.options := Map(
+                      "fullWidth" -> true,
+                      "floatingLabelFixed" -> true,
+                      "hintText" -> "Merci pour votre participation !"
+                    )
+                  )(),
+                  <.LongTextInput(
+                    ^.label := "Share text (multiline)",
+                    ^.source := "sequenceCardsConfiguration.finalCard.shareDescription",
+                    ^.options := Map(
+                      "fullWidth" -> true,
+                      "floatingLabelFixed" -> true,
+                      "hintText" -> (
+                        "Vous souhaitez aller plus loin sur cette consultation ?\n" +
+                          "Invitez vos proches et/ou votre communauté à participer\n" +
+                          "Découvrez toutes les propositions sur cette consultation"
+                      ),
+                      "hintStyle" -> js.Dictionary("whiteSpace" -> "pre")
+                    )
+                  )(),
+                  <.TextInput(
+                    ^.label := "Learn more title",
+                    ^.source := "sequenceCardsConfiguration.finalCard.learnMoreTitle",
+                    ^.options := Map(
+                      "fullWidth" -> true,
+                      "floatingLabelFixed" -> true,
+                      "hintText" -> "Découvrez toutes les propositions."
+                    )
+                  )(),
+                  <.TextInput(
+                    ^.label := "Learn more button text",
+                    ^.source := "sequenceCardsConfiguration.finalCard.learnMoreTextButton",
+                    ^.options := Map("fullWidth" -> true, "floatingLabelFixed" -> true, "hintText" -> "En savoir +")
+                  )(),
+                  <.TextInput(
+                    ^.label := "Link url (operation page)",
+                    ^.source := "sequenceCardsConfiguration.finalCard.linkUrl",
+                    ^.`type` := "url",
+                    ^.options := Map("fullWidth" -> true)
+                  )(),
+                  <.hr.empty,
+                  <.h3()("About page"),
+                  <.TextInput(
+                    ^.label := "Link url",
+                    ^.source := "aboutUrl",
+                    ^.`type` := "url",
+                    ^.options := Map("fullWidth" -> true)
+                  )(),
+                  <.hr.empty,
+                  <.h2(^.style := Map("color" -> "red"))("Metas"),
+                  <.TextInput(
+                    ^.label := "Title",
+                    ^.source := "metas.title",
+                    ^.options := Map(
+                      "fullWidth" -> true,
+                      "floatingLabelFixed" -> true,
+                      "hintText" -> "Vous avez une idée sur le sujet ?"
+                    )
+                  )(),
+                  <.TextInput(
+                    ^.label := "Description",
+                    ^.source := "metas.description",
+                    ^.options := Map(
+                      "fullWidth" -> true,
+                      "floatingLabelFixed" -> true,
+                      "hintText" -> "Participez à la consultation initiée par [Nom partenaires fondateurs] avec Make.org"
+                    )
+                  )(),
+                  <.TextInput(
+                    ^.label := "Picture",
+                    ^.source := "metas.picture",
+                    ^.`type` := "url",
+                    ^.options := Map("fullWidth" -> true)
                   )()
                 ),
-                <.DependentInput(^.dependsOn := "canPropose", ^.dependsValue := false)(
-                  <.BooleanInput(
-                    ^.label := "Push proposal card",
-                    ^.source := "disabledPushProposalCard",
-                    ^.options := Map("disabled" -> true)
-                  )()
-                ),
-                <.hr.empty,
-                <.h3()("Intro Card"),
-                <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.introCard.enabled")(),
-                <.TextInput(
-                  ^.label := "Title",
-                  ^.source := "sequenceCardsConfiguration.introCard.title",
-                  ^.options := Map("fullWidth" -> true)
-                )(),
-                <.LongTextInput(
-                  ^.label := "Description (multiline)",
-                  ^.source := "sequenceCardsConfiguration.introCard.description",
-                  ^.options := Map(
-                    "fullWidth" -> true,
-                    "floatingLabelFixed" -> true,
-                    "hintText" -> ("Prenez position sur ces solutions et proposez les vôtres !\n" +
-                      "Les meilleures détermineront nos actions"),
-                    "hintStyle" -> js.Dictionary("whiteSpace" -> "pre")
-                  )
-                )(),
-                <.hr.empty,
-                <.h3()("Signup Card"),
-                <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.signUpCard.enabled")(),
-                <.TextInput(
-                  ^.label := "Title",
-                  ^.source := "sequenceCardsConfiguration.signUpCard.title",
-                  ^.options := Map(
-                    "fullWidth" -> true,
-                    "floatingLabelFixed" -> true,
-                    "hintText" -> "Recevez les résultats de la consultation et soyez informé(e) des actions à venir"
-                  )
-                )(),
-                <.TextInput(
-                  ^.label := "Next card button text",
-                  ^.source := "sequenceCardsConfiguration.signUpCard.nextCtaText",
-                  ^.options := Map(
-                    "fullWidth" -> true,
-                    "floatingLabelFixed" -> true,
-                    "hintText" -> "NON MERCI, JE NE SOUHAITE PAS ÊTRE INFORMÉ(E) DES RÉSULTATS"
-                  )
-                )(),
-                <.hr.empty,
-                <.h3()("Final Card"),
-                <.BooleanInput(^.label := "Yes / No", ^.source := "sequenceCardsConfiguration.finalCard.enabled")(),
-                <.DependentInput(^.dependsOn := "sequenceCardsConfiguration.finalCard.enabled", ^.dependsValue := true)(
-                  <.BooleanInput(
-                    ^.label := "With sharing",
-                    ^.source := "sequenceCardsConfiguration.finalCard.sharingEnabled"
-                  )()
-                ),
-                <.DependentInput(
-                  ^.dependsOn := "sequenceCardsConfiguration.finalCard.enabled",
-                  ^.dependsValue := false
-                )(
-                  <.BooleanInput(
-                    ^.label := "With sharing",
-                    ^.source := "disabledSharingEnabled",
-                    ^.options := Map("disabled" -> true)
-                  )()
-                ),
-                <.TextInput(
-                  ^.label := "Title",
-                  ^.source := "sequenceCardsConfiguration.finalCard.title",
-                  ^.options := Map(
-                    "fullWidth" -> true,
-                    "floatingLabelFixed" -> true,
-                    "hintText" -> "Merci pour votre participation !"
-                  )
-                )(),
-                <.LongTextInput(
-                  ^.label := "Share text (multiline)",
-                  ^.source := "sequenceCardsConfiguration.finalCard.shareDescription",
-                  ^.options := Map(
-                    "fullWidth" -> true,
-                    "floatingLabelFixed" -> true,
-                    "hintText" -> (
-                      "Vous souhaitez aller plus loin sur cette consultation ?\n" +
-                        "Invitez vos proches et/ou votre communauté à participer\n" +
-                        "Découvrez toutes les propositions sur cette consultation"
-                    ),
-                    "hintStyle" -> js.Dictionary("whiteSpace" -> "pre")
-                  )
-                )(),
-                <.TextInput(
-                  ^.label := "Learn more title",
-                  ^.source := "sequenceCardsConfiguration.finalCard.learnMoreTitle",
-                  ^.options := Map(
-                    "fullWidth" -> true,
-                    "floatingLabelFixed" -> true,
-                    "hintText" -> "Découvrez toutes les propositions."
-                  )
-                )(),
-                <.TextInput(
-                  ^.label := "Learn more button text",
-                  ^.source := "sequenceCardsConfiguration.finalCard.learnMoreTextButton",
-                  ^.options := Map("fullWidth" -> true, "floatingLabelFixed" -> true, "hintText" -> "En savoir +")
-                )(),
-                <.TextInput(
-                  ^.label := "Link url (operation page)",
-                  ^.source := "sequenceCardsConfiguration.finalCard.linkUrl",
-                  ^.`type` := "url",
-                  ^.options := Map("fullWidth" -> true)
-                )(),
-                <.hr.empty,
-                <.h3()("About page"),
-                <.TextInput(
-                  ^.label := "Link url",
-                  ^.source := "aboutUrl",
-                  ^.`type` := "url",
-                  ^.options := Map("fullWidth" -> true)
-                )(),
-                <.hr.empty,
-                <.h2(^.style := Map("color" -> "red"))("Metas"),
-                <.TextInput(
-                  ^.label := "Title",
-                  ^.source := "metas.title",
-                  ^.options := Map(
-                    "fullWidth" -> true,
-                    "floatingLabelFixed" -> true,
-                    "hintText" -> "Vous avez une idée sur le sujet ?"
-                  )
-                )(),
-                <.TextInput(
-                  ^.label := "Description",
-                  ^.source := "metas.description",
-                  ^.options := Map(
-                    "fullWidth" -> true,
-                    "floatingLabelFixed" -> true,
-                    "hintText" -> "Participez à la consultation initiée par [Nom partenaires fondateurs] avec Make.org"
-                  )
-                )(),
-                <.TextInput(
-                  ^.label := "Picture",
-                  ^.source := "metas.picture",
-                  ^.`type` := "url",
-                  ^.options := Map("fullWidth" -> true)
-                )()
-              ),
-              <.FormTab(^.label := "Theme")(
-                <.ColorInput(^.source := "theme.gradientStart", ^.label := "Gradient start")(),
-                <.ColorInput(^.source := "theme.gradientEnd", ^.label := "Gradient End")(),
-                <.ColorInput(^.source := "theme.color", ^.label := "Color")(),
-                <.ColorInput(^.source := "theme.footerFontColor", ^.label := "Footer font color")()
+                <.FormTab(^.label := "Theme")(
+                  <.ColorInput(^.source := "theme.gradientStart", ^.label := "Gradient start")(),
+                  <.ColorInput(^.source := "theme.gradientEnd", ^.label := "Gradient End")(),
+                  <.ColorInput(^.source := "theme.color", ^.label := "Color", ^.options := Map("fullWidth" -> true))(),
+                  <.ColorInput(^.source := "theme.footerFontColor", ^.label := "Footer font color")(),
+                  <.ImagePreview.empty,
+                  <.ImageInput(
+                    ^.name := "imagePreviewInput",
+                    ^.source := "imagePreviewInput",
+                    ^.label := "Upload new image",
+                    ^.accept := "image/*",
+                    ^.onChange := getFile,
+                    ^.style := Map("width" -> "50%")
+                  )(<.ImageField(^.source := "src", ^.title := "title", ^.style := Map("width" -> "50%"))()),
+                  self.state.file.map { file =>
+                    <.ImageUrlValidate(^.wrapped := ImageUrlValidateProps(uploadFile = handleImageUrl(file)))()
+                  }.getOrElse(<.div()())
+                )
               )
-            )
+            ),
+            <.Snackbar(
+              ^.open := self.state.snackbarOpen,
+              ^.message := self.state.errorMessage,
+              ^.autoHideDuration := 5000,
+              ^.onRequestClose := (_ => self.setState(_.copy(snackbarOpen = false)))
+            )(),
+            <.style()(EditQuestionStyles.render[String])
           )
         }
       )
+}
+
+object EditQuestionStyles extends StyleSheet.Inline {
+
+  import dsl._
+
+  val imgPreview: StyleA =
+    style(
+      display.inlineBlock,
+      maxWidth(50.%%),
+      unsafeChild("label")(color(rgba(0, 0, 0, 0.3)), fontSize(12.px), fontWeight._700)
+    )
+
+  val validateImage: StyleA =
+    style(width(50.%%))
+
+}
+
+@js.native
+trait ImageFileWrapper extends js.Object {
+  val `0`: ImageFile
+}
+
+@js.native
+trait ImageFile extends js.Object {
+  val rawFile: File
+  val src: String
+  val title: String
+}
+
+object ImageFile {
+  def apply(rawFile: File, src: String, title: String): ImageFile =
+    js.Dynamic
+      .literal(rawFile = rawFile, src = src, title = title)
+      .asInstanceOf[ImageFile]
 }

@@ -22,6 +22,7 @@ package org.make.backoffice.model
 import java.time.ZonedDateTime
 
 import io.circe.{Decoder, Encoder, Json}
+import org.make.backoffice.component.question.ImageFile
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
@@ -50,6 +51,7 @@ trait Question extends js.Object {
   val operationTitle: js.UndefOr[String]
   val country: js.UndefOr[String]
   val language: js.UndefOr[String]
+  val imageUrl: js.UndefOr[String]
 }
 
 object Question {
@@ -62,7 +64,8 @@ object Question {
             landingSequenceId: Option[String],
             operationTitle: Option[String],
             country: Option[String],
-            language: Option[String]): Question =
+            language: Option[String],
+            imageUrl: Option[String]): Question =
     js.Dynamic
       .literal(
         id = questionId.value,
@@ -74,7 +77,8 @@ object Question {
         landingSequenceId = landingSequenceId.orUndefined,
         operationTitle = operationTitle.orUndefined,
         country = country.orUndefined,
-        language = language.orUndefined
+        language = language.orUndefined,
+        imageUrl = imageUrl.orUndefined
       )
       .asInstanceOf[Question]
 
