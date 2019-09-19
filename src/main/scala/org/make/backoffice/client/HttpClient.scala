@@ -58,6 +58,10 @@ trait HttpException extends Exception
 
 case class ValidationError(field: String, message: Option[String])
 
+object ValidationError {
+  implicit lazy val decoder: Decoder[ValidationError] = Decoder.forProduct2("field", "message")(ValidationError.apply)
+}
+
 trait ValidationFailedHttpException extends HttpException {
   val errors: Seq[ValidationError]
   override def getMessage: String = { errors.map(_.message.getOrElse("")).toString() }

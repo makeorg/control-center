@@ -20,4 +20,11 @@
 
 package org.make.backoffice.model
 
+import io.circe.Decoder
+
 final case class Token(token_type: String, access_token: String, expires_in: Long, refresh_token: String)
+
+object Token {
+  implicit lazy val decoder: Decoder[Token] =
+    Decoder.forProduct4("token_type", "access_token", "expires_in", "refresh_token")(Token.apply)
+}

@@ -27,12 +27,17 @@ import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, MouseSynt
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.request.Filter
 import org.make.backoffice.facade.MaterialUi._
+import org.make.backoffice.facade.ReactDropzone._
 import org.make.backoffice.model.{FeaturedOperation, Question}
+import org.make.backoffice.service.homepage.{HomepageService, UploadResponse}
 import org.make.backoffice.service.operation.{CurrentOperationService, UpdateCurrentOperationRequest}
 import org.make.backoffice.service.question.QuestionService
+import org.scalajs.dom.FormData
 import org.scalajs.dom.raw.HTMLInputElement
+import scalacss.DevDefaults._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
@@ -44,6 +49,7 @@ object EditCurrentOperation {
                                        description: String,
                                        label: String,
                                        picture: String,
+                                       pictureFile: Option[ImageFile],
                                        altPicture: String,
                                        linkLabel: String,
                                        internalLink: Option[String],
@@ -73,6 +79,7 @@ object EditCurrentOperation {
             description = "",
             label = "",
             picture = "",
+            pictureFile = None,
             altPicture = "",
             linkLabel = "",
             internalLink = None,
@@ -101,6 +108,7 @@ object EditCurrentOperation {
                   description = operation.description,
                   label = operation.label,
                   picture = operation.picture,
+                  pictureFile = None,
                   altPicture = operation.altPicture,
                   linkLabel = operation.linkLabel,
                   internalLink = operation.internalLink.toOption,
@@ -143,11 +151,6 @@ object EditCurrentOperation {
           def onChangeLabel: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value
             self.setState(_.copy(label = value, labelError = ""))
-          }
-
-          def onChangePicture: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-            val value = event.target.value
-            self.setState(_.copy(picture = value, pictureError = ""))
           }
 
           def onChangeAltPicture: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
@@ -211,10 +214,6 @@ object EditCurrentOperation {
               self.setState(_.copy(labelError = "label must not be empty"))
               error = true
             }
-            if (self.state.picture.isEmpty) {
-              self.setState(_.copy(pictureError = "picture must not be empty"))
-              error = true
-            }
             if (self.state.altPicture.isEmpty) {
               self.setState(_.copy(altPictureError = "alternative text must not be empty"))
               error = true
@@ -226,29 +225,57 @@ object EditCurrentOperation {
             error
           }
 
+          def uploadImage(file: ImageFile): Future[UploadResponse] = {
+            val formDataLandscape: FormData = new FormData()
+            formDataLandscape.append("data", file)
+            HomepageService.uploadImage(formDataLandscape)
+          }
+
+          def maybeFutureImage: Future[Option[String]] = {
+            val maybePicture: Option[Future[UploadResponse]] = self.state.pictureFile.map { pictureFile =>
+              uploadImage(pictureFile)
+            }
+
+            maybePicture match {
+              case None              => Future.successful(None)
+              case Some(picturePath) => picturePath.map(path => Some(path.path))
+            }
+          }
+
           def handleUpdate: SyntheticEvent => Unit = {
             _ =>
               if (!checkError) {
-                val request = UpdateCurrentOperationRequest(
-                  questionId = self.state.questionId,
-                  description = self.state.description,
-                  label = self.state.label,
-                  picture = self.state.picture,
-                  altPicture = self.state.altPicture,
-                  linkLabel = self.state.linkLabel,
-                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
-                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink
-                )
-                CurrentOperationService.putCurrentOperation(self.state.id, request).onComplete {
-                  case Success(_) =>
-                    self
-                      .setState(_.copy(snackbarOpen = true, snackbarMessage = "Current operation updated successfully"))
-                    self.props.history.push("/homepage")
-                  case Failure(_) =>
-                    self
-                      .setState(_.copy(snackbarOpen = true, snackbarMessage = "Current operation failed to be updated"))
+                maybeFutureImage.map {
+                  picturePath =>
+                    val request = UpdateCurrentOperationRequest(
+                      questionId = self.state.questionId,
+                      description = self.state.description,
+                      label = self.state.label,
+                      picture = picturePath.getOrElse(self.state.picture),
+                      altPicture = self.state.altPicture,
+                      linkLabel = self.state.linkLabel,
+                      internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
+                      externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink
+                    )
+                    CurrentOperationService.putCurrentOperation(self.state.id, request).onComplete {
+                      case Success(_) =>
+                        self
+                          .setState(
+                            _.copy(snackbarOpen = true, snackbarMessage = "Current operation updated successfully")
+                          )
+                        self.props.history.push("/homepage")
+                      case Failure(_) =>
+                        self
+                          .setState(
+                            _.copy(snackbarOpen = true, snackbarMessage = "Current operation failed to be updated")
+                          )
+                    }
                 }
               }
+          }
+
+          def setPicture: js.Array[ImageFile] => Unit = { imgFile =>
+            self.setState(_.copy(picture = imgFile(0).preview, pictureFile = Some(imgFile(0))))
           }
 
           def onSnackbarClose: String => Unit = _ => {
@@ -291,15 +318,12 @@ object EditCurrentOperation {
                   ^.errorText := self.state.labelError,
                   ^.onChange := onChangeLabel
                 )(),
-                <.TextFieldMaterialUi(
-                  ^.name := "picture",
-                  ^.floatingLabelText := "Picture",
-                  ^.floatingLabelFixed := true,
-                  ^.value := self.state.picture,
-                  ^.fullWidth := true,
-                  ^.errorText := self.state.pictureError,
-                  ^.onChange := onChangePicture
-                )(),
+                <.Dropzone(
+                  ^.multiple := false,
+                  ^.className := CurrentOperationStyles.dropzone.htmlClass,
+                  ^.onDropDropzone := setPicture
+                )("Picture"),
+                <.img(^.src := self.state.picture, ^.className := CurrentOperationStyles.preview.htmlClass)(),
                 <.TextFieldMaterialUi(
                   ^.name := "alternativeText",
                   ^.floatingLabelText := "Alternative text",
@@ -365,7 +389,8 @@ object EditCurrentOperation {
                 ^.autoHideDuration := 3000,
                 ^.onRequestClose := onSnackbarClose
               )()
-            )
+            ),
+            <.style()(CurrentOperationStyles.render[String])
           )
         }
       )

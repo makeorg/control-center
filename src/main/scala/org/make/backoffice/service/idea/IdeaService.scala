@@ -20,7 +20,6 @@
 
 package org.make.backoffice.service.idea
 
-import io.circe.generic.auto._
 import io.circe.syntax._
 import org.make.backoffice.client.request.{Filter, Pagination, Sort}
 import org.make.backoffice.client.{BadRequestHttpException, SingleResponse}
