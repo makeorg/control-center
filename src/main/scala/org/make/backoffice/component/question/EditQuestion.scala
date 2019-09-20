@@ -102,7 +102,7 @@ object EditQuestion {
                 .onComplete {
                   case Success(_) =>
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "Image uploaded successfully"))
-                    self.props.history.goBack()
+                    self.props.history.push("/questions")
                   case Failure(BadRequestHttpException(_)) =>
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "Bad request"))
                   case Failure(_) =>
