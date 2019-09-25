@@ -20,10 +20,8 @@
 
 package org.make.backoffice.service.question
 
-import io.circe.Decoder
-import io.circe.generic.auto._
-import io.circe.generic.semiauto
 import io.circe.syntax._
+import io.circe.{Decoder, Encoder}
 import org.make.backoffice.client.ListTotalResponse
 import org.make.backoffice.client.request.{Filter, Pagination, Sort}
 import org.make.backoffice.model.Question.DataConfiguration
@@ -31,13 +29,12 @@ import org.make.backoffice.model.{ProposalIdResult, Question}
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
-import org.scalajs.dom.{Blob, FormData}
+import org.scalajs.dom.FormData
 import org.scalajs.dom.ext.Ajax.InputData
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
-import scala.scalajs.js.typedarray.ArrayBufferView
 
 object QuestionService extends ApiService with CirceClassFormatters {
 
@@ -120,14 +117,27 @@ object QuestionService extends ApiService with CirceClassFormatters {
       )
       .recover {
         case e =>
-          js.Dynamic.global.console.log(s"instead of converting to DataConfiguration: failed cursor $e")
+          js.Dynamic.global.console.log(s"instead of converting to ImagePath: failed cursor $e")
           throw e
       }
   }
 
   case class InitialProposalRequest(content: String, author: AuthorRequest, tags: Array[String] = Array())
 
+  object InitialProposalRequest {
+    implicit lazy val encoder: Encoder[InitialProposalRequest] = Encoder.forProduct3("content", "author", "tags")(
+      initialProposalRequest =>
+        (initialProposalRequest.content, initialProposalRequest.author, initialProposalRequest.tags)
+    )
+  }
+
   case class AuthorRequest(age: Option[String], firstName: Option[String], lastName: Option[String])
+
+  object AuthorRequest {
+    implicit lazy val encoder: Encoder[AuthorRequest] = Encoder.forProduct3("age", "firstName", "lastName")(
+      authorRequest => (authorRequest.age, authorRequest.firstName, authorRequest.lastName)
+    )
+  }
 
   @js.native
   trait ImagePath extends js.Object {

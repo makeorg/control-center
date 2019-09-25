@@ -20,10 +20,10 @@
 
 package org.make.backoffice.service.operation
 
-import io.circe.generic.auto._
+import io.circe.Encoder
 import io.circe.syntax._
 import org.make.backoffice.client.BadRequestHttpException
-import org.make.backoffice.model.{CurrentOperation, CurrentOperationId, CurrentOperationIdResult}
+import org.make.backoffice.model.{CurrentOperation, CurrentOperationIdResult}
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
@@ -78,6 +78,31 @@ case class CreateCurrentOperationRequest(questionId: String,
                                          internalLink: Option[String],
                                          externalLink: Option[String])
 
+object CreateCurrentOperationRequest {
+  implicit lazy val encoder: Encoder[CreateCurrentOperationRequest] = Encoder.forProduct8(
+    "questionId",
+    "description",
+    "label",
+    "picture",
+    "altPicture",
+    "linkLabel",
+    "internalLink",
+    "externalLink"
+  )(
+    createCurrentOperationRequest =>
+      (
+        createCurrentOperationRequest.questionId,
+        createCurrentOperationRequest.description,
+        createCurrentOperationRequest.label,
+        createCurrentOperationRequest.picture,
+        createCurrentOperationRequest.altPicture,
+        createCurrentOperationRequest.linkLabel,
+        createCurrentOperationRequest.internalLink,
+        createCurrentOperationRequest.externalLink
+    )
+  )
+}
+
 case class UpdateCurrentOperationRequest(questionId: String,
                                          description: String,
                                          label: String,
@@ -86,3 +111,28 @@ case class UpdateCurrentOperationRequest(questionId: String,
                                          linkLabel: String,
                                          internalLink: Option[String],
                                          externalLink: Option[String])
+
+object UpdateCurrentOperationRequest {
+  implicit lazy val encoder: Encoder[UpdateCurrentOperationRequest] = Encoder.forProduct8(
+    "questionId",
+    "description",
+    "label",
+    "picture",
+    "altPicture",
+    "linkLabel",
+    "internalLink",
+    "externalLink"
+  )(
+    updateCurrentOperationRequest =>
+      (
+        updateCurrentOperationRequest.questionId,
+        updateCurrentOperationRequest.description,
+        updateCurrentOperationRequest.label,
+        updateCurrentOperationRequest.picture,
+        updateCurrentOperationRequest.altPicture,
+        updateCurrentOperationRequest.linkLabel,
+        updateCurrentOperationRequest.internalLink,
+        updateCurrentOperationRequest.externalLink
+    )
+  )
+}

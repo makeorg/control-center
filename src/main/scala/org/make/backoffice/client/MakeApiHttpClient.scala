@@ -22,15 +22,13 @@ package org.make.backoffice.client
 
 import io.circe.java8.time.TimeInstances
 import io.circe.parser.parse
-import io.circe.generic.auto._
 import io.circe.syntax._
 import io.circe.{Decoder, Printer}
 import io.github.shogowada.statictags.MediaTypes
+import org.make.backoffice.client.MakeApiClientHttp.RequestData
 import org.make.backoffice.facade.Configuration
 import org.make.backoffice.model.Token
-import org.make.backoffice.client.MakeApiClientHttp.RequestData
 import org.make.backoffice.util.uri._
-import org.scalajs.dom
 import org.scalajs.dom.XMLHttpRequest
 import org.scalajs.dom.ext.Ajax.InputData
 import org.scalajs.dom.ext.{Ajax, AjaxException}

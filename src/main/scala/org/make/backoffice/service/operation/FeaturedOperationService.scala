@@ -20,7 +20,7 @@
 
 package org.make.backoffice.service.operation
 
-import io.circe.generic.auto._
+import io.circe.Encoder
 import io.circe.syntax._
 import org.make.backoffice.client.BadRequestHttpException
 import org.make.backoffice.model.{FeaturedOperation, FeaturedOperationIdResult}
@@ -88,6 +88,37 @@ case class CreateFeaturedOperationRequest(questionId: Option[String],
                                           externalLink: Option[String],
                                           slot: Int)
 
+object CreateFeaturedOperationRequest {
+  implicit lazy val encoder: Encoder[CreateFeaturedOperationRequest] = Encoder.forProduct11(
+    "questionId",
+    "title",
+    "description",
+    "landscapePicture",
+    "portraitPicture",
+    "altPicture",
+    "label",
+    "buttonLabel",
+    "internalLink",
+    "externalLink",
+    "slot"
+  )(
+    createFeaturedOperationRequest =>
+      (
+        createFeaturedOperationRequest.questionId,
+        createFeaturedOperationRequest.title,
+        createFeaturedOperationRequest.description,
+        createFeaturedOperationRequest.landscapePicture,
+        createFeaturedOperationRequest.portraitPicture,
+        createFeaturedOperationRequest.altPicture,
+        createFeaturedOperationRequest.label,
+        createFeaturedOperationRequest.buttonLabel,
+        createFeaturedOperationRequest.internalLink,
+        createFeaturedOperationRequest.externalLink,
+        createFeaturedOperationRequest.slot
+    )
+  )
+}
+
 case class UpdateFeaturedOperationRequest(questionId: Option[String],
                                           title: String,
                                           description: Option[String],
@@ -99,3 +130,34 @@ case class UpdateFeaturedOperationRequest(questionId: Option[String],
                                           internalLink: Option[String],
                                           externalLink: Option[String],
                                           slot: Int)
+
+object UpdateFeaturedOperationRequest {
+  implicit lazy val encoder: Encoder[UpdateFeaturedOperationRequest] = Encoder.forProduct11(
+    "questionId",
+    "title",
+    "description",
+    "landscapePicture",
+    "portraitPicture",
+    "altPicture",
+    "label",
+    "buttonLabel",
+    "internalLink",
+    "externalLink",
+    "slot"
+  )(
+    updateFeaturedOperationRequest =>
+      (
+        updateFeaturedOperationRequest.questionId,
+        updateFeaturedOperationRequest.title,
+        updateFeaturedOperationRequest.description,
+        updateFeaturedOperationRequest.landscapePicture,
+        updateFeaturedOperationRequest.portraitPicture,
+        updateFeaturedOperationRequest.altPicture,
+        updateFeaturedOperationRequest.label,
+        updateFeaturedOperationRequest.buttonLabel,
+        updateFeaturedOperationRequest.internalLink,
+        updateFeaturedOperationRequest.externalLink,
+        updateFeaturedOperationRequest.slot
+    )
+  )
+}

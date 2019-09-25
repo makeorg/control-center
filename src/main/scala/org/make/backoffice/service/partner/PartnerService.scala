@@ -20,8 +20,8 @@
 
 package org.make.backoffice.service.partner
 
-import io.circe.generic.auto._
 import io.circe.syntax._
+import io.circe.{Decoder, Encoder}
 import org.make.backoffice.model.{Partner, PartnerId}
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
@@ -75,10 +75,44 @@ final case class CreatePartnerRequest(name: String,
                                       questionId: String,
                                       weight: Double)
 
+object CreatePartnerRequest {
+  implicit lazy val encoder: Encoder[CreatePartnerRequest] =
+    Encoder.forProduct7("name", "logo", "link", "organisationId", "partnerKind", "questionId", "weight")(
+      createPartnerRequest =>
+        (
+          createPartnerRequest.name,
+          createPartnerRequest.logo,
+          createPartnerRequest.link,
+          createPartnerRequest.organisationId,
+          createPartnerRequest.partnerKind,
+          createPartnerRequest.questionId,
+          createPartnerRequest.weight
+      )
+    )
+}
+
 final case class UpdatePartnerRequest(name: String,
                                       logo: Option[String],
                                       link: Option[String],
                                       partnerKind: String,
                                       weight: Double)
 
+object UpdatePartnerRequest {
+  implicit lazy val encoder: Encoder[UpdatePartnerRequest] =
+    Encoder.forProduct5("name", "logo", "link", "partnerKind", "weight")(
+      updatePartnerRequest =>
+        (
+          updatePartnerRequest.name,
+          updatePartnerRequest.logo,
+          updatePartnerRequest.link,
+          updatePartnerRequest.partnerKind,
+          updatePartnerRequest.weight
+      )
+    )
+}
+
 final case class PartnerIdResponse(partnerId: PartnerId)
+
+object PartnerIdResponse {
+  implicit lazy val decoder: Decoder[PartnerIdResponse] = Decoder.forProduct1("partnerId")(PartnerIdResponse.apply)
+}

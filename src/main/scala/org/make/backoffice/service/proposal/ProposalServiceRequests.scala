@@ -105,7 +105,39 @@ final case class UpdateProposalRequest(newContent: Option[String],
                                        predictedTags: Option[Seq[TagId]],
                                        predictedTagsModelName: Option[String])
 
+object UpdateProposalRequest {
+  implicit lazy val encoder: Encoder[UpdateProposalRequest] = Encoder.forProduct8(
+    "newContent",
+    "labels",
+    "tags",
+    "similarProposals",
+    "idea",
+    "questionId",
+    "predictedTags",
+    "predictedTagsModelName"
+  )(
+    updateProposalRequest =>
+      (
+        updateProposalRequest.newContent,
+        updateProposalRequest.labels,
+        updateProposalRequest.tags,
+        updateProposalRequest.similarProposals,
+        updateProposalRequest.idea,
+        updateProposalRequest.questionId,
+        updateProposalRequest.predictedTags,
+        updateProposalRequest.predictedTagsModelName
+    )
+  )
+}
+
 final case class RefuseProposalRequest(sendNotificationEmail: Boolean, refusalReason: Option[String])
+
+object RefuseProposalRequest {
+  implicit lazy val encoder: Encoder[RefuseProposalRequest] =
+    Encoder.forProduct2("sendNotificationEmail", "refusalReason")(
+      refuseProposalRequest => (refuseProposalRequest.sendNotificationEmail, refuseProposalRequest.refusalReason)
+    )
+}
 
 final case class ValidateProposalRequest(newContent: Option[String],
                                          sendNotificationEmail: Boolean,
@@ -117,9 +149,55 @@ final case class ValidateProposalRequest(newContent: Option[String],
                                          predictedTags: Option[Seq[TagId]],
                                          predictedTagsModelName: Option[String])
 
+object ValidateProposalRequest {
+  implicit lazy val encoder: Encoder[ValidateProposalRequest] = Encoder.forProduct9(
+    "newContent",
+    "sendNotificationEmail",
+    "labels",
+    "tags",
+    "similarProposals",
+    "idea",
+    "questionId",
+    "predictedTags",
+    "predictedTagsModelName"
+  )(
+    validateProposalRequest =>
+      (
+        validateProposalRequest.newContent,
+        validateProposalRequest.sendNotificationEmail,
+        validateProposalRequest.labels,
+        validateProposalRequest.tags,
+        validateProposalRequest.similarProposals,
+        validateProposalRequest.idea,
+        validateProposalRequest.questionId,
+        validateProposalRequest.predictedTags,
+        validateProposalRequest.predictedTagsModelName
+    )
+  )
+}
+
 final case class PatchProposalsIdeaRequest(proposalIds: Seq[ProposalId], ideaId: IdeaId)
+
+object PatchProposalsIdeaRequest {
+  implicit lazy val encoder: Encoder[PatchProposalsIdeaRequest] = Encoder.forProduct2("proposalIds", "ideaId")(
+    patchProposalsIdeaRequest => (patchProposalsIdeaRequest.proposalIds, patchProposalsIdeaRequest.ideaId)
+  )
+}
 
 final case class NextProposalToModerateRequest(questionId: Option[QuestionId],
                                                toEnrich: Boolean,
                                                minVotesCount: Option[String],
                                                minScore: Option[String])
+
+object NextProposalToModerateRequest {
+  implicit lazy val encoder: Encoder[NextProposalToModerateRequest] =
+    Encoder.forProduct4("questionId", "toEnrich", "minVotesCount", "minScore")(
+      nextProposalToModerateRequest =>
+        (
+          nextProposalToModerateRequest.questionId,
+          nextProposalToModerateRequest.toEnrich,
+          nextProposalToModerateRequest.minVotesCount,
+          nextProposalToModerateRequest.minScore
+      )
+    )
+}

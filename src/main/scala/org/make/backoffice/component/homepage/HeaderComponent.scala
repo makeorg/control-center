@@ -26,16 +26,23 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, MouseSyntheticEvent, SyntheticEvent}
 import org.make.backoffice.client.request.Filter
 import org.make.backoffice.facade.MaterialUi._
+import org.make.backoffice.facade.ReactDropzone._
 import org.make.backoffice.model.{FeaturedOperation, Question}
+import org.make.backoffice.service.homepage.{HomepageService, UploadResponse}
 import org.make.backoffice.service.operation.{
   CreateFeaturedOperationRequest,
   FeaturedOperationService,
   UpdateFeaturedOperationRequest
 }
 import org.make.backoffice.service.question.QuestionService
+import org.scalajs.dom.FormData
 import org.scalajs.dom.raw.HTMLInputElement
+import scalacss.DevDefaults._
+import scalacss.internal.StyleA
+import scalacss.internal.mutable.StyleSheet
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
@@ -66,11 +73,12 @@ object HeaderComponent {
                                   snackbarMessage: String,
                                   titleError: String,
                                   descriptionError: String,
-                                  landscapePictureError: String,
-                                  portraitPictureError: String,
                                   altPictureError: String,
                                   labelError: String,
-                                  buttonLabelError: String)
+                                  buttonLabelError: String,
+                                  landscapePictureFile: Option[ImageFile],
+                                  portraitPictureFile: Option[ImageFile])
+  case class ImageUrlValidateProps(uploadFile: String => MouseSyntheticEvent => Unit)
 
   lazy val reactClass: ReactClass =
     React
@@ -99,11 +107,11 @@ object HeaderComponent {
             snackbarMessage = "",
             titleError = "",
             descriptionError = "",
-            landscapePictureError = "",
-            portraitPictureError = "",
             altPictureError = "",
             labelError = "",
-            buttonLabelError = ""
+            buttonLabelError = "",
+            landscapePictureFile = None,
+            portraitPictureFile = None
           )
         },
         componentWillReceiveProps = (self, props) => {
@@ -127,7 +135,9 @@ object HeaderComponent {
                   externalLinkChecked = featuredOperation.externalLink.isDefined,
                   cardExpended = true,
                   toCreate = false,
-                  questionsList = props.wrapped.questionsList
+                  questionsList = props.wrapped.questionsList,
+                  landscapePictureFile = None,
+                  portraitPictureFile = None
                 )
               )
           }
@@ -151,16 +161,6 @@ object HeaderComponent {
             } else {
               self.setState(_.copy(altPicture = value, altPictureError = ""))
             }
-          }
-
-          def onChangeLandscapePicture: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-            val value = event.target.value
-            self.setState(_.copy(landscapePicture = value, landscapePictureError = ""))
-          }
-
-          def onChangePortraitPicture: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-            val value = event.target.value
-            self.setState(_.copy(portraitPicture = value, portraitPictureError = ""))
           }
 
           def onChangeLabel: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
@@ -236,14 +236,6 @@ object HeaderComponent {
               self.setState(_.copy(labelError = "label must not be empty"))
               error = true
             }
-            if (self.state.landscapePicture.isEmpty) {
-              self.setState(_.copy(landscapePictureError = "picture must not be empty"))
-              error = true
-            }
-            if (self.state.portraitPicture.isEmpty) {
-              self.setState(_.copy(portraitPictureError = "picture must not be empty"))
-              error = true
-            }
             if (self.state.altPicture.isEmpty) {
               self.setState(_.copy(altPictureError = "alternative text must not be empty"))
               error = true
@@ -259,64 +251,127 @@ object HeaderComponent {
             error
           }
 
+          def uploadImage(file: ImageFile): Future[UploadResponse] = {
+            val formDataLandscape: FormData = new FormData()
+            formDataLandscape.append("data", file)
+            HomepageService.uploadImage(formDataLandscape)
+          }
+
           def handleCreation: SyntheticEvent => Unit = {
             _ =>
               if (!checkError) {
-                val request = CreateFeaturedOperationRequest(
-                  questionId = self.state.questionId,
-                  title = self.state.title,
-                  description = self.state.description,
-                  landscapePicture = self.state.landscapePicture,
-                  portraitPicture = self.state.portraitPicture,
-                  altPicture = self.state.altPicture,
-                  label = self.state.label,
-                  buttonLabel = self.state.buttonLabel,
-                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
-                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
-                  slot = self.state.slot
+                self.state.landscapePictureFile.map {
+                  landscapePictureFile =>
+                    self.state.portraitPictureFile.map {
+                      portraitPictureFile =>
+                        uploadImage(landscapePictureFile).map {
+                          landscapePictureUploadResponse =>
+                            uploadImage(portraitPictureFile).map {
+                              portraitPictureUploadResponse =>
+                                val request = CreateFeaturedOperationRequest(
+                                  questionId = self.state.questionId,
+                                  title = self.state.title,
+                                  description = self.state.description,
+                                  landscapePicture = landscapePictureUploadResponse.path,
+                                  portraitPicture = portraitPictureUploadResponse.path,
+                                  altPicture = self.state.altPicture,
+                                  label = self.state.label,
+                                  buttonLabel = self.state.buttonLabel,
+                                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
+                                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
+                                  slot = self.state.slot
+                                )
+                                FeaturedOperationService.postFeaturedOperation(request).onComplete {
+                                  case Success(_) =>
+                                    self
+                                      .setState(
+                                        _.copy(
+                                          snackbarOpen = true,
+                                          snackbarMessage = "Featured operation created successfully",
+                                          landscapePictureFile = None,
+                                          portraitPictureFile = None
+                                        )
+                                      )
+                                  case Failure(_) =>
+                                    self
+                                      .setState(
+                                        _.copy(
+                                          snackbarOpen = true,
+                                          snackbarMessage = "featured operation failed to be created"
+                                        )
+                                      )
+                                }
+                            }
+                        }
+                    }.getOrElse(
+                      self
+                        .setState(_.copy(snackbarOpen = true, snackbarMessage = "mobile picture must not be empty"))
+                    )
+                }.getOrElse(
+                  self
+                    .setState(_.copy(snackbarOpen = true, snackbarMessage = "desktop picture must not be empty"))
                 )
-                FeaturedOperationService.postFeaturedOperation(request).onComplete {
-                  case Success(_) =>
-                    self
-                      .setState(
-                        _.copy(snackbarOpen = true, snackbarMessage = "Featured operation created successfully")
-                      )
-                  case Failure(_) =>
-                    self
-                      .setState(
-                        _.copy(snackbarOpen = true, snackbarMessage = "featured operation failed to be created")
-                      )
-                }
               }
+          }
+
+          def maybeFutureImages: Future[(Option[String], Option[String])] = {
+            val maybeFutureLandscapePicture: Option[Future[UploadResponse]] = self.state.landscapePictureFile.map {
+              landscapePictureFile =>
+                uploadImage(landscapePictureFile)
+            }
+
+            val maybeFuturePortraitPicture: Option[Future[UploadResponse]] = self.state.portraitPictureFile.map {
+              portraitPictureFile =>
+                uploadImage(portraitPictureFile)
+            }
+
+            (maybeFutureLandscapePicture, maybeFuturePortraitPicture) match {
+              case (None, None)                       => Future.successful((None, None))
+              case (Some(landscapePicturePath), None) => landscapePicturePath.map(path => (Some(path.path), None))
+              case (None, Some(portraitPicturePath))  => portraitPicturePath.map(path => (None, Some(path.path)))
+              case (Some(landscapePicturePath), Some(portraitPicturePath)) =>
+                landscapePicturePath.flatMap(
+                  landscapePath =>
+                    portraitPicturePath.map(portraitPath => (Some(landscapePath.path), Some(portraitPath.path)))
+                )
+            }
           }
 
           def handleUpdate: SyntheticEvent => Unit = {
             _ =>
               if (!checkError) {
-                val request = UpdateFeaturedOperationRequest(
-                  questionId = self.state.questionId,
-                  title = self.state.title,
-                  description = self.state.description,
-                  landscapePicture = self.state.landscapePicture,
-                  portraitPicture = self.state.portraitPicture,
-                  altPicture = self.state.altPicture,
-                  label = self.state.label,
-                  buttonLabel = self.state.buttonLabel,
-                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
-                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
-                  slot = self.state.slot
-                )
-                FeaturedOperationService.putFeaturedOperation(self.state.id, request).onComplete {
-                  case Success(_) =>
-                    self
-                      .setState(
-                        _.copy(snackbarOpen = true, snackbarMessage = "Featured operation updated successfully")
-                      )
-                  case Failure(_) =>
-                    self
-                      .setState(
-                        _.copy(snackbarOpen = true, snackbarMessage = "featured operation failed to be updated")
-                      )
+                maybeFutureImages.map {
+                  case (maybeLandscapePicturePath, maybePortraitPicturePath) =>
+                    val request = UpdateFeaturedOperationRequest(
+                      questionId = self.state.questionId,
+                      title = self.state.title,
+                      description = self.state.description,
+                      landscapePicture = maybeLandscapePicturePath.getOrElse(self.state.landscapePicture),
+                      portraitPicture = maybePortraitPicturePath.getOrElse(self.state.portraitPicture),
+                      altPicture = self.state.altPicture,
+                      label = self.state.label,
+                      buttonLabel = self.state.buttonLabel,
+                      internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
+                      externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
+                      slot = self.state.slot
+                    )
+                    FeaturedOperationService.putFeaturedOperation(self.state.id, request).onComplete {
+                      case Success(_) =>
+                        self
+                          .setState(
+                            _.copy(
+                              snackbarOpen = true,
+                              snackbarMessage = "Featured operation updated successfully",
+                              landscapePictureFile = None,
+                              portraitPictureFile = None
+                            )
+                          )
+                      case Failure(_) =>
+                        self
+                          .setState(
+                            _.copy(snackbarOpen = true, snackbarMessage = "featured operation failed to be updated")
+                          )
+                    }
                 }
               }
           }
@@ -344,7 +399,9 @@ object HeaderComponent {
                       cardExpended = false,
                       toCreate = true,
                       snackbarOpen = true,
-                      snackbarMessage = "Featured operation deleted successfully"
+                      snackbarMessage = "Featured operation deleted successfully",
+                      landscapePictureFile = None,
+                      portraitPictureFile = None
                     )
                   )
                   self.props.wrapped.reloadComponent()
@@ -356,6 +413,14 @@ object HeaderComponent {
 
           def onSnackbarClose: String => Unit = _ => {
             self.setState(_.copy(snackbarOpen = false, snackbarMessage = ""))
+          }
+
+          def setLandscapePicture: js.Array[ImageFile] => Unit = { imgFile =>
+            self.setState(_.copy(landscapePicture = imgFile(0).preview, landscapePictureFile = Some(imgFile(0))))
+          }
+
+          def setPortraitPicture: js.Array[ImageFile] => Unit = { imgFile =>
+            self.setState(_.copy(portraitPictureFile = Some(imgFile(0))))
           }
 
           <.div()(
@@ -382,24 +447,16 @@ object HeaderComponent {
                       ^.errorText := self.state.altPictureError,
                       ^.style := Map("width" -> "90%")
                     )(),
-                    <.TextFieldMaterialUi(
-                      ^.name := "link desktop",
-                      ^.floatingLabelText := "Link desktop",
-                      ^.floatingLabelFixed := true,
-                      ^.value := self.state.landscapePicture,
-                      ^.onChange := onChangeLandscapePicture,
-                      ^.errorText := self.state.landscapePictureError,
-                      ^.style := Map("width" -> "90%")
-                    )(),
-                    <.TextFieldMaterialUi(
-                      ^.name := "link mobile",
-                      ^.floatingLabelText := "Link mobile",
-                      ^.floatingLabelFixed := true,
-                      ^.value := self.state.portraitPicture,
-                      ^.onChange := onChangePortraitPicture,
-                      ^.errorText := self.state.portraitPictureError,
-                      ^.style := Map("width" -> "90%")
-                    )()
+                    <.Dropzone(
+                      ^.multiple := false,
+                      ^.className := HeaderComponentStyles.dropzone.htmlClass,
+                      ^.onDropDropzone := setLandscapePicture
+                    )("Desktop picture"),
+                    <.Dropzone(
+                      ^.multiple := false,
+                      ^.className := HeaderComponentStyles.dropzone.htmlClass,
+                      ^.onDropDropzone := setPortraitPicture
+                    )("Mobile picture")
                   ),
                   <.div(^.style := Map("width" -> "30%"))(
                     <.img(
@@ -515,9 +572,33 @@ object HeaderComponent {
               ^.message := self.state.snackbarMessage,
               ^.autoHideDuration := 3000,
               ^.onRequestClose := onSnackbarClose
-            )()
+            )(),
+            <.style()(HeaderComponentStyles.render[String])
           )
         }
       )
 
+}
+
+object HeaderComponentStyles extends StyleSheet.Inline {
+
+  import dsl._
+
+  val dropzone: StyleA =
+    style(
+      background := "#efefef",
+      cursor.pointer,
+      padding(1.rem),
+      marginTop(1.rem),
+      textAlign.center,
+      color(rgb(9, 9, 9)),
+      width(90.%%)
+    )
+
+}
+
+@js.native
+trait ImageFile extends js.Object {
+  val name: String
+  val preview: String
 }

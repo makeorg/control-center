@@ -20,6 +20,19 @@
 
 package org.make.backoffice.service.idea
 
+import io.circe.Encoder
+
 final case class CreateIdeaRequest(name: String, questionId: Option[String])
 
+object CreateIdeaRequest {
+  implicit lazy val encoder: Encoder[CreateIdeaRequest] = Encoder.forProduct2("name", "questionId")(
+    createIdeaRequest => (createIdeaRequest.name, createIdeaRequest.questionId)
+  )
+}
+
 final case class UpdateIdeaRequest(name: String)
+
+object UpdateIdeaRequest {
+  implicit lazy val encoder: Encoder[UpdateIdeaRequest] =
+    Encoder.forProduct1("name")(createIdeaRequest => createIdeaRequest.name)
+}

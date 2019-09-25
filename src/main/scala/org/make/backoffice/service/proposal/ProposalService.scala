@@ -20,14 +20,13 @@
 
 package org.make.backoffice.service.proposal
 
-import io.circe.generic.auto._
 import io.circe.syntax._
-import org.make.backoffice.model._
 import org.make.backoffice.client.request.{Filter, Pagination, Sort}
 import org.make.backoffice.client.{BadRequestHttpException, ListTotalResponse, SingleResponse}
+import org.make.backoffice.model._
+import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
-import org.make.backoffice.service.ApiService
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
