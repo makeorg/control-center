@@ -156,8 +156,10 @@ object EditQuestion {
                   <.TextField(^.source := "slug")()
                 ),
                 <.FormTab(^.label := "Configuration")(
-                  <.h2(^.style := Map("color" -> "red"))("Cards"),
+                  <.h2(^.style := Map("color" -> "red"))("Global"),
                   <.BooleanInput(^.label := "Can propose", ^.source := "canPropose")(),
+                  <.BooleanInput(^.label := "Display results", ^.source := "displayResults")(),
+                  <.h2(^.style := Map("color" -> "red"))("Cards"),
                   <.DependentInput(^.dependsOn := "canPropose", ^.dependsValue := true)(
                     <.BooleanInput(
                       ^.label := "Push proposal card",
