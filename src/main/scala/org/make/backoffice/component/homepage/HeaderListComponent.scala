@@ -51,7 +51,7 @@ object HeaderListComponent {
         case Failure(_)                  =>
       }
       QuestionService
-        .questions(filters = Some(Seq(Filter("openAt", ZonedDateTime.now()))))
+        .questions()
         .onComplete {
           case Success(questionsResponse) =>
             self.setState(

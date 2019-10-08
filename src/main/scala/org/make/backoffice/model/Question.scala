@@ -22,7 +22,6 @@ package org.make.backoffice.model
 import java.time.ZonedDateTime
 
 import io.circe.{Decoder, Encoder, Json}
-import org.make.backoffice.component.question.ImageFile
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
