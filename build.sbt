@@ -26,7 +26,7 @@ import sbt.enablePlugins
 
 organization := "org.make.backoffice"
 name := "make-backoffice"
-scalaVersion := "2.12.5"
+scalaVersion := "2.12.10"
 
 /* scala libraries version */
 val scalaJsReactVersion = "0.14.0"
