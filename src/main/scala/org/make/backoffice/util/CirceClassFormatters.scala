@@ -307,4 +307,7 @@ trait CirceClassFormatters extends TimeInstances {
 
   implicit lazy val featuredOperationIdResultDecoder: Decoder[FeaturedOperationIdResult] =
     Decoder.forProduct1("featuredOperationId")(FeaturedOperationIdResult.apply)
+
+  implicit lazy val activeFeatureDecoder: Decoder[ActiveFeature] =
+    Decoder.forProduct3("id", "featureId", "maybeQuestionId")(ActiveFeature.apply)
 }

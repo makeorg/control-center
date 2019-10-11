@@ -26,6 +26,7 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.question.ActiveFeatureComponent.ActiveFeatureProps
 import org.make.backoffice.component.question.CreatePartnerComponent.CreatePartnerComponentProps
 import org.make.backoffice.component.question.DeletePartnerComponent.DeletePartnerComponentProps
 import org.make.backoffice.component.question.EditPartnerComponent.EditPartnerComponentProps
@@ -38,14 +39,18 @@ import org.make.backoffice.facade.AdminOnRest.FormTab._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.MaterialUi._
+import org.make.backoffice.model.ActiveFeature
+import org.make.backoffice.service.feature.ActiveFeatureService
 import org.make.backoffice.service.proposal.{Accepted, Refused}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
+import scala.util.{Failure, Success}
 
 object EditQuestionConfiguration {
 
   case class EditQuestionConfigurationProps() extends RouterProps
-  case class EditQuestionConfigurationState(reload: Boolean)
+  case class EditQuestionConfigurationState(reload: Boolean, activeFeaturesList: Seq[ActiveFeature])
 
   def apply(): ReactClass = reactClass
 
@@ -53,11 +58,25 @@ object EditQuestionConfiguration {
     React
       .createClass[EditQuestionConfigurationProps, EditQuestionConfigurationState](
         displayName = "EditQuestionConfiguration",
-        getInitialState = _ => EditQuestionConfigurationState(reload = false),
+        getInitialState = _ => EditQuestionConfigurationState(reload = false, activeFeaturesList = Seq.empty),
+        componentDidMount = { self =>
+          ActiveFeatureService.listActiveFeatures.onComplete {
+            case Success(activeFeatures) => self.setState(_.copy(activeFeaturesList = activeFeatures))
+            case Failure(_)              =>
+          }
+        },
+        componentDidUpdate = { (self, _, state) =>
+          if (state.reload) {
+            ActiveFeatureService.listActiveFeatures.onComplete {
+              case Success(activeFeatures) => self.setState(_.copy(activeFeaturesList = activeFeatures))
+              case Failure(_)              =>
+            }
+          }
+        },
         render = self => {
 
-          def reloadComponent = { () =>
-            self.setState(state => state.copy(reload = true))
+          def reloadComponent: () => Unit = { () =>
+            self.setState(_.copy(reload = true))
           }
 
           <.Edit(
@@ -126,7 +145,28 @@ object EditQuestionConfiguration {
                   .toSeq
               } else {
                 self.setState(_.copy(reload = false))
-              })
+              }),
+              <.FormTab(^.label := "Active Features")(
+                <.ReferenceManyField(
+                  ^.reference := Resource.features,
+                  ^.target := "",
+                  ^.addLabel := false,
+                  ^.perPage := 50
+                )(
+                  <.Datagrid()(
+                    <.ActiveFeature(
+                      ^.label := "Activated",
+                      ^.wrapped := ActiveFeatureProps(
+                        activeFeaturesList = self.state.activeFeaturesList,
+                        questionId = self.props.`match`.params.getOrElse("id", "").toString,
+                        reloadComponent = reloadComponent
+                      )
+                    )(),
+                    <.TextField(^.source := "name", ^.sortable := true)(),
+                    <.TextField(^.source := "slug", ^.sortable := true)()
+                  )
+                )
+              )
             )
           )
         }

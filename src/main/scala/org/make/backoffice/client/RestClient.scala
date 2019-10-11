@@ -62,6 +62,7 @@ object RestClient extends CirceClassFormatters {
       case Resource.partners               => adminJsonClient(restVerb, resource, parameters)
       case Resource.homepage               => adminJsonClient(restVerb, "views/home/current-operations", parameters)
       case Resource.questionsConfiguration => jsonClient(restVerb, "operations-of-questions", parameters)
+      case Resource.features               => adminJsonClient(restVerb, resource, parameters)
       case res if Resource.amongst(res)    => Request.fetch(restVerb, resource, parameters).toJSPromise
       case unknownResource =>
         Future.failed(new ClassNotFoundException(s"Unknown resource: $unknownResource")).toJSPromise

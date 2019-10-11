@@ -137,7 +137,7 @@ object EditPartnerComponent {
         }
 
         def onEditPartner: SyntheticEvent => Unit = {
-          event =>
+          _ =>
             var error = false
             var errorName = ""
             var errorLogo = ""

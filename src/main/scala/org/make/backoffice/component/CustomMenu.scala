@@ -117,6 +117,13 @@ object CustomMenu {
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
             )(),
             <.Divider.empty,
+            <.MenuItemLink(
+              ^.to := s"/${Resource.features}",
+              ^.primaryText := "Features",
+              ^.leftIcon := featuresIcon,
+              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
+            )(),
+            <.Divider.empty,
             self.props.native.logout
           )
         }

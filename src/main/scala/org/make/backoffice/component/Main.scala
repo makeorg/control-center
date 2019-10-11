@@ -24,6 +24,7 @@ import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.router.Router._
 import org.make.backoffice.client.{AuthClient, Resource, RestClient}
+import org.make.backoffice.component.feature.{CreateFeature, EditFeature, FeatureList}
 import org.make.backoffice.component.homepage.{CreateCurrentOperation, EditCurrentOperation, EditHomepage}
 import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
 import org.make.backoffice.component.ideaMappings.{EditIdeaMapping, IdeaMappingsList}
@@ -119,7 +120,14 @@ object Main {
           ^.edit := EditCurrentOperation(),
           ^.remove := NativeDelete
         )(),
-        <.Resource(^.name := Resource.moderators)()
+        <.Resource(^.name := Resource.moderators)(),
+        <.Resource(
+          ^.name := Resource.features,
+          ^.listing := FeatureList(),
+          ^.create := CreateFeature(),
+          ^.edit := EditFeature(),
+          ^.remove := NativeDelete
+        )()
       ),
       dom.document.getElementById("make-backoffice")
     )
