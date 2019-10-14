@@ -58,6 +58,7 @@ object HeaderComponent {
                                   description: Option[String],
                                   landscapePicture: String,
                                   portraitPicture: String,
+                                  picturePreview: String,
                                   altPicture: String,
                                   label: String,
                                   buttonLabel: String,
@@ -92,6 +93,7 @@ object HeaderComponent {
             description = None,
             landscapePicture = "",
             portraitPicture = "",
+            picturePreview = "",
             altPicture = "",
             label = "",
             buttonLabel = "",
@@ -125,6 +127,7 @@ object HeaderComponent {
                   description = featuredOperation.description.toOption,
                   landscapePicture = featuredOperation.landscapePicture,
                   portraitPicture = featuredOperation.portraitPicture,
+                  picturePreview = featuredOperation.landscapePicture,
                   altPicture = featuredOperation.altPicture,
                   label = featuredOperation.label,
                   buttonLabel = featuredOperation.buttonLabel,
@@ -388,6 +391,7 @@ object HeaderComponent {
                       description = None,
                       landscapePicture = "",
                       portraitPicture = "",
+                      picturePreview = "",
                       altPicture = "",
                       label = "",
                       buttonLabel = "",
@@ -416,7 +420,7 @@ object HeaderComponent {
           }
 
           def setLandscapePicture: js.Array[ImageFile] => Unit = { imgFile =>
-            self.setState(_.copy(landscapePicture = imgFile(0).preview, landscapePictureFile = Some(imgFile(0))))
+            self.setState(_.copy(picturePreview = imgFile(0).preview, landscapePictureFile = Some(imgFile(0))))
           }
 
           def setPortraitPicture: js.Array[ImageFile] => Unit = { imgFile =>
