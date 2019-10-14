@@ -29,7 +29,6 @@ import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.Promise
-import org.scalajs.dom
 import org.scalajs.dom.experimental.Headers
 
 object RestClient extends CirceClassFormatters {
@@ -63,6 +62,7 @@ object RestClient extends CirceClassFormatters {
       case Resource.homepage               => adminJsonClient(restVerb, "views/home/current-operations", parameters)
       case Resource.questionsConfiguration => jsonClient(restVerb, "operations-of-questions", parameters)
       case Resource.features               => adminJsonClient(restVerb, resource, parameters)
+      case Resource.crmTemplates           => adminJsonClient(restVerb, "crm/templates", parameters)
       case res if Resource.amongst(res)    => Request.fetch(restVerb, resource, parameters).toJSPromise
       case unknownResource =>
         Future.failed(new ClassNotFoundException(s"Unknown resource: $unknownResource")).toJSPromise
