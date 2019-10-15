@@ -124,6 +124,13 @@ object CustomMenu {
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
             )(),
             <.Divider.empty,
+            <.MenuItemLink(
+              ^.to := s"/${Resource.crmTemplates}",
+              ^.primaryText := "CRM Templates",
+              ^.leftIcon := crmTemplatesIcon,
+              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
+            )(),
+            <.Divider.empty,
             self.props.native.logout
           )
         }

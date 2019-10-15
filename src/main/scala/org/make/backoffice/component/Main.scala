@@ -24,6 +24,7 @@ import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.router.Router._
 import org.make.backoffice.client.{AuthClient, Resource, RestClient}
+import org.make.backoffice.component.crmTemplates.{CreateCrmTemplates, CrmTemplatesList, EditCrmTemplates}
 import org.make.backoffice.component.feature.{CreateFeature, EditFeature, FeatureList}
 import org.make.backoffice.component.homepage.{CreateCurrentOperation, EditCurrentOperation, EditHomepage}
 import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
@@ -38,8 +39,8 @@ import org.make.backoffice.component.proposal.validated.ValidatedProposalList
 import org.make.backoffice.component.question._
 import org.make.backoffice.component.tag.{CreateTag, EditTag, TagList}
 import org.make.backoffice.facade.AdminOnRest.Admin._
-import org.make.backoffice.facade.AdminOnRest.Resource._
 import org.make.backoffice.facade.AdminOnRest.NativeDelete
+import org.make.backoffice.facade.AdminOnRest.Resource._
 import org.scalajs.dom
 
 import scala.scalajs.js
@@ -127,6 +128,12 @@ object Main {
           ^.create := CreateFeature(),
           ^.edit := EditFeature(),
           ^.remove := NativeDelete
+        )(),
+        <.Resource(
+          ^.name := Resource.crmTemplates,
+          ^.listing := CrmTemplatesList(),
+          ^.edit := EditCrmTemplates(),
+          ^.create := CreateCrmTemplates()
         )()
       ),
       dom.document.getElementById("make-backoffice")

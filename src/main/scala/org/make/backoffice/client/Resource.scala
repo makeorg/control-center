@@ -38,6 +38,7 @@ object Resource {
   val homepage = "homepage"
   val questionsConfiguration = "question-configuration"
   val features = "features"
+  val crmTemplates = "crm-templates"
 
   private val resources: Set[String] =
     Set(

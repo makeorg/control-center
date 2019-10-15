@@ -52,6 +52,8 @@ object MaterialUiIcons {
     "M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"
   val featuresSvgPath =
     "M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"
+  val crmTemplatesPath =
+    "M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
 
   val proposalIcon: ReactElement =
     <.SvgIcon()(reactjs.React.createElement("path", js.Dictionary("d" -> proposalSvgPath)))
@@ -83,5 +85,7 @@ object MaterialUiIcons {
 
   val featuresIcon: ReactElement =
     <.SvgIcon()(reactjs.React.createElement("path", js.Dictionary("d" -> featuresSvgPath)))
+  val crmTemplatesIcon: ReactElement =
+    <.SvgIcon()(reactjs.React.createElement("path", js.Dictionary("d" -> crmTemplatesPath)))
 
 }
