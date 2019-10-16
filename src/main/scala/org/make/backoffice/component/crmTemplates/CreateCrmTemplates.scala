@@ -48,7 +48,8 @@ object CreateCrmTemplates {
                 ^.translateLabel := ((label: String) => label),
                 ^.reference := Resource.questions,
                 ^.allowEmpty := true,
-                ^.sort := Map("field" -> "slug", "order" -> "ASC")
+                ^.sort := Map("field" -> "slug", "order" -> "ASC"),
+                ^.perPage := 100
               )(<.SelectInput(^.optionText := "slug", ^.options := Map("fullWidth" -> true))()),
               <.SelectInput(
                 ^.source := "country",
