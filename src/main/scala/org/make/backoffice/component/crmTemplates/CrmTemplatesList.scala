@@ -66,22 +66,7 @@ object CrmTemplatesList {
               <.TextField(^.source := "welcome", ^.sortable := false, ^.label := "Welcome")(),
               <.TextField(^.source := "proposalAccepted", ^.sortable := false, ^.label := "Proposal Accepted")(),
               <.TextField(^.source := "proposalRefused", ^.sortable := false, ^.label := "Proposal Refused")(),
-              <.TextField(^.source := "forgottenPassword", ^.sortable := false, ^.label := "Forgotten Password")(),
-              <.TextField(
-                ^.source := "proposalAcceptedOrganisation",
-                ^.sortable := false,
-                ^.label := "Proposal Accepted Orga"
-              )(),
-              <.TextField(
-                ^.source := "proposalRefusedOrganisation",
-                ^.sortable := false,
-                ^.label := "Proposal Refused Orga"
-              )(),
-              <.TextField(
-                ^.source := "forgottenPasswordOrganisation",
-                ^.sortable := false,
-                ^.label := "Forgotten Password Orga"
-              )()
+              <.TextField(^.source := "forgottenPassword", ^.sortable := false, ^.label := "Forgotten Password")()
             )
           )
         }
