@@ -155,7 +155,7 @@ object EditQuestionConfiguration {
                 )(
                   <.Datagrid()(
                     <.ActiveFeature(
-                      ^.label := "Activated",
+                      ^.label := "State",
                       ^.wrapped := ActiveFeatureProps(
                         activeFeaturesList = self.state.activeFeaturesList,
                         questionId = self.props.`match`.params.getOrElse("id", "").toString,

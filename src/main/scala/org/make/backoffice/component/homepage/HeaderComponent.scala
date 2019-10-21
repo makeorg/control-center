@@ -464,7 +464,7 @@ object HeaderComponent {
                   ),
                   <.div(^.style := Map("width" -> "30%"))(
                     <.img(
-                      ^.src := self.state.landscapePicture,
+                      ^.src := self.state.picturePreview,
                       ^.style := Map("maxWidth" -> "100%", "height" -> "auto")
                     )()
                   )
