@@ -25,7 +25,7 @@ import java.time.ZonedDateTime
 import org.make.backoffice.util.JSConverters._
 
 import scala.scalajs.js
-import scala.scalajs.js.Date
+import scala.scalajs.js.{Date, UndefOr}
 import scala.scalajs.js.JSConverters._
 
 @js.native
@@ -94,7 +94,7 @@ trait SingleProposal extends js.Object {
   val id: String
   val slug: String
   val content: String
-  val author: User
+  val author: SingleProposalAuthor
   val status: String
   val refusalReason: js.UndefOr[String]
   val tagIds: js.Array[String]
@@ -116,7 +116,7 @@ object SingleProposal {
   def apply(proposalId: ProposalId,
             slug: String,
             content: String,
-            author: User,
+            author: SingleProposalAuthor,
             status: String,
             refusalReason: Option[String],
             tags: Seq[String],
@@ -155,4 +155,39 @@ object SingleProposal {
         questionId = questionId.map(_.value).orUndefined
       )
       .asInstanceOf[SingleProposal]
+}
+
+@js.native
+trait SingleProposalAuthor extends js.Object {
+  def userId: String
+  def firstName: js.UndefOr[String]
+  def lastName: js.UndefOr[String]
+  def postalCode: js.UndefOr[String]
+  def age: js.UndefOr[Int]
+  def avatarUrl: js.UndefOr[String]
+  def organisationName: js.UndefOr[String]
+  def organisationSlug: js.UndefOr[String]
+}
+
+object SingleProposalAuthor {
+  def apply(_userId: UserId,
+            _firstName: Option[String],
+            _lastName: Option[String],
+            _postalCode: Option[String],
+            _age: Option[Int],
+            _avatarUrl: Option[String],
+            _organisationName: Option[String],
+            _organisationSlug: Option[String]): SingleProposalAuthor = {
+
+    new js.Object {
+      val userId: String = _userId.value
+      val firstName: UndefOr[String] = _firstName.orUndefined
+      val lastName: UndefOr[String] = _lastName.orUndefined
+      val postalCode: UndefOr[String] = _postalCode.orUndefined
+      val age: UndefOr[Int] = _age.orUndefined
+      val avatarUrl: UndefOr[String] = _avatarUrl.orUndefined
+      val organisationName: UndefOr[String] = _organisationName.orUndefined
+      val organisationSlug: UndefOr[String] = _organisationSlug.orUndefined
+    }.asInstanceOf[SingleProposalAuthor]
+  }
 }
