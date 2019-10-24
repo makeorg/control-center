@@ -49,10 +49,11 @@ object CreateCrmTemplates {
                 ^.reference := Resource.questions,
                 ^.allowEmpty := true,
                 ^.sort := Map("field" -> "slug", "order" -> "ASC"),
-                ^.perPage := 100
+                ^.perPage := 200
               )(<.SelectInput(^.optionText := "slug", ^.options := Map("fullWidth" -> true))()),
               <.SelectInput(
                 ^.source := "country",
+                ^.label := "Country (must stay empty if a question is selected)",
                 ^.choices := Configuration.choicesCountry,
                 ^.allowEmpty := true,
                 ^.options := Map("fullWidth" -> true)
@@ -68,34 +69,34 @@ object CreateCrmTemplates {
                     )()
                   )
               },
-              <.TextInput(^.source := "registration", ^.options := Map("fullWidth" -> true))(),
-              <.TextInput(^.source := "welcome", ^.options := Map("fullWidth" -> true), ^.label := "Welcome")(),
-              <.TextInput(
+              <.NumberInput(^.source := "registration", ^.options := Map("fullWidth" -> true))(),
+              <.NumberInput(^.source := "welcome", ^.options := Map("fullWidth" -> true), ^.label := "Welcome")(),
+              <.NumberInput(
                 ^.source := "proposalAccepted",
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Proposal Accepted"
               )(),
-              <.TextInput(
+              <.NumberInput(
                 ^.source := "proposalRefused",
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Proposal Refused"
               )(),
-              <.TextInput(
+              <.NumberInput(
                 ^.source := "forgottenPassword",
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Forgotten Password"
               )(),
-              <.TextInput(
+              <.NumberInput(
                 ^.source := "proposalAcceptedOrganisation",
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Proposal Accepted Organisation"
               )(),
-              <.TextInput(
+              <.NumberInput(
                 ^.source := "proposalRefusedOrganisation",
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Proposal Refused Organisation"
               )(),
-              <.TextInput(
+              <.NumberInput(
                 ^.source := "forgottenPasswordOrganisation",
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Forgotten Password Organisation"
