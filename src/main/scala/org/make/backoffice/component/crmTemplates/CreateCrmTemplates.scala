@@ -87,6 +87,11 @@ object CreateCrmTemplates {
                 ^.label := "Forgotten Password"
               )(),
               <.NumberInput(
+                ^.source := "resendRegistration",
+                ^.options := Map("fullWidth" -> true),
+                ^.label := "Resend Validation Email"
+              )(),
+              <.NumberInput(
                 ^.source := "proposalAcceptedOrganisation",
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Proposal Accepted Organisation"
