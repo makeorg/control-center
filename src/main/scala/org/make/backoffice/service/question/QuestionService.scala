@@ -107,11 +107,26 @@ object QuestionService extends ApiService with CirceClassFormatters {
       }
   }
 
-  def uploadImage(questionId: String, formData: FormData): Future[ImagePath] = {
+  def uploadConsultationImage(questionId: String, formData: FormData): Future[ImagePath] = {
     val data: InputData = InputData.formdata2ajax(formData)
     client
       .post[ImagePath](
-        apiEndpoint = s"moderation/questions/$questionId/images",
+        apiEndpoint = s"moderation/questions/$questionId/consultation-image",
+        data = data,
+        includeContentType = false
+      )
+      .recover {
+        case e =>
+          js.Dynamic.global.console.log(s"instead of converting to ImagePath: failed cursor $e")
+          throw e
+      }
+  }
+
+  def uploadDescriptionImage(questionId: String, formData: FormData): Future[ImagePath] = {
+    val data: InputData = InputData.formdata2ajax(formData)
+    client
+      .post[ImagePath](
+        apiEndpoint = s"moderation/questions/$questionId/description-image",
         data = data,
         includeContentType = false
       )
