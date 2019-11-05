@@ -70,6 +70,11 @@ object CreateCrmTemplates {
                   )
               },
               <.NumberInput(^.source := "registration", ^.options := Map("fullWidth" -> true))(),
+              <.NumberInput(
+                ^.source := "resendRegistration",
+                ^.options := Map("fullWidth" -> true),
+                ^.label := "Resend Validation Email"
+              )(),
               <.NumberInput(^.source := "welcome", ^.options := Map("fullWidth" -> true), ^.label := "Welcome")(),
               <.NumberInput(
                 ^.source := "proposalAccepted",
@@ -85,11 +90,6 @@ object CreateCrmTemplates {
                 ^.source := "forgottenPassword",
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Forgotten Password"
-              )(),
-              <.NumberInput(
-                ^.source := "resendRegistration",
-                ^.options := Map("fullWidth" -> true),
-                ^.label := "Resend Validation Email"
               )(),
               <.NumberInput(
                 ^.source := "proposalAcceptedOrganisation",

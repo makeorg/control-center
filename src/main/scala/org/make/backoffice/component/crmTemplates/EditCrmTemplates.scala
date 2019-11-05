@@ -47,6 +47,11 @@ object EditCrmTemplates {
           )(
             <.SimpleForm()(
               <.NumberInput(^.source := "registration", ^.options := Map("fullWidth" -> true))(),
+              <.NumberInput(
+                ^.source := "resendRegistration",
+                ^.options := Map("fullWidth" -> true),
+                ^.label := "Resend Validation Email"
+              )(),
               <.NumberInput(^.source := "welcome", ^.options := Map("fullWidth" -> true))(),
               <.NumberInput(
                 ^.source := "proposalAccepted",
@@ -62,11 +67,6 @@ object EditCrmTemplates {
                 ^.source := "forgottenPassword",
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Forgotten Password"
-              )(),
-              <.NumberInput(
-                ^.source := "resendRegistration",
-                ^.options := Map("fullWidth" -> true),
-                ^.label := "Resend Validation Email"
               )(),
               <.NumberInput(
                 ^.source := "proposalAcceptedOrganisation",
