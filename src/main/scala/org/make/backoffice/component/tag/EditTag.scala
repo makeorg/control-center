@@ -34,7 +34,7 @@ import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
 import org.make.backoffice.facade.AdminOnRest.required
-import org.make.backoffice.facade.DataSourceConfig
+import org.make.backoffice.facade.{Choice, DataSourceConfig}
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model._
 import org.make.backoffice.service.proposal.{Accepted, ProposalService}
@@ -428,6 +428,11 @@ object EditTag {
           }
         },
         render = self => {
+
+          def tagDisplayChoice: js.Array[Choice] = {
+            js.Array(Choice("INHERIT", "Inherit"), Choice("HIDDEN", "Hidden"), Choice("DISPLAYED", "Displayed"))
+          }
+
           <.div()(
             <.Edit(
               ^.resource := Resource.tags,
@@ -459,6 +464,12 @@ object EditTag {
                   ^.sort := Map("field" -> "slug", "order" -> "ASC"),
                   ^.allowEmpty := true
                 )(<.SelectInput(^.optionText := "slug")()),
+                <.SelectInput(
+                  ^.label := "Display",
+                  ^.source := "display",
+                  ^.allowEmpty := true,
+                  ^.choices := tagDisplayChoice
+                )(),
                 <.NumberInput(^.source := "weight", ^.validate := required, ^.allowEmpty := false)()
               )
             ),
