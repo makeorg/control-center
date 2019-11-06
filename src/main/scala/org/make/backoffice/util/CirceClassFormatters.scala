@@ -199,7 +199,7 @@ trait CirceClassFormatters extends TimeInstances {
     Decoder.forProduct6("operationId", "status", "slug", "defaultLanguage", "createdAt", "updatedAt")(Operation.apply)
 
   implicit lazy val questionDecoder: Decoder[Question] =
-    Decoder.forProduct11(
+    Decoder.forProduct12(
       "id",
       "question",
       "slug",
@@ -210,7 +210,8 @@ trait CirceClassFormatters extends TimeInstances {
       "operationTitle",
       "country",
       "language",
-      "imageUrl"
+      "consultationImage",
+      "descriptionImage"
     )(Question.apply)
 
   implicit lazy val dataConfigurationDecoder: Decoder[DataConfiguration] =
