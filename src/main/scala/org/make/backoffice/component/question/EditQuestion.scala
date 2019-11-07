@@ -202,6 +202,11 @@ object EditQuestion {
                   <.h2(^.style := Map("color" -> "red"))("Global"),
                   <.BooleanInput(^.label := "Can propose", ^.source := "canPropose")(),
                   <.BooleanInput(^.label := "Display results", ^.source := "displayResults")(),
+                  <.LongTextInput(
+                    ^.label := "Description (multiline)",
+                    ^.source := "description",
+                    ^.options := Map("fullWidth" -> true, "floatingLabelFixed" -> true)
+                  )(),
                   <.h2(^.style := Map("color" -> "red"))("Cards"),
                   <.DependentInput(^.dependsOn := "canPropose", ^.dependsValue := true)(
                     <.BooleanInput(
@@ -359,7 +364,7 @@ object EditQuestion {
                 <.FormTab(^.label := "Theme")(
                   <.ColorInput(^.source := "theme.gradientStart", ^.label := "Gradient start")(),
                   <.ColorInput(^.source := "theme.gradientEnd", ^.label := "Gradient End")(),
-                  <.ColorInput(^.source := "theme.color", ^.label := "Color", ^.options := Map("fullWidth" -> true))(),
+                  <.ColorInput(^.source := "theme.color", ^.label := "Color")(),
                   <.ColorInput(^.source := "theme.footerFontColor", ^.label := "Footer font color")(),
                   <.br.empty,
                   <.ConsultationImagePreview.empty,
