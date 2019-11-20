@@ -46,6 +46,7 @@ object DataConfigurationComponent {
                                     checkTestedProposalsControversyThreshold: Boolean,
                                     testedProposalsMaxVotesThreshold: Option[Int],
                                     checkTestedProposalsMaxVotesThreshold: Boolean,
+                                    nonSequenceVotesWeight: Double,
                                     intraIdeaEnabled: Boolean,
                                     intraIdeaMinCount: Int,
                                     intraIdeaProposalsRatio: Double,
@@ -73,6 +74,7 @@ object DataConfigurationComponent {
           dataConfiguration.testedProposalsControversyThreshold.toOption.nonEmpty,
         testedProposalsMaxVotesThreshold = dataConfiguration.testedProposalsMaxVotesThreshold.toOption,
         checkTestedProposalsMaxVotesThreshold = dataConfiguration.testedProposalsMaxVotesThreshold.toOption.nonEmpty,
+        nonSequenceVotesWeight = dataConfiguration.nonSequenceVotesWeight,
         intraIdeaEnabled = dataConfiguration.intraIdeaEnabled,
         intraIdeaMinCount = dataConfiguration.intraIdeaMinCount,
         intraIdeaProposalsRatio = dataConfiguration.intraIdeaProposalsRatio,
@@ -105,6 +107,7 @@ object DataConfigurationComponent {
             checkTestedProposalsControversyThreshold = true,
             testedProposalsMaxVotesThreshold = None,
             checkTestedProposalsMaxVotesThreshold = true,
+            nonSequenceVotesWeight = 0,
             intraIdeaEnabled = false,
             intraIdeaMinCount = 0,
             intraIdeaProposalsRatio = 0,
@@ -172,6 +175,11 @@ object DataConfigurationComponent {
             event =>
               val value = event.target.value.toDouble
               self.setState(_.copy(testedProposalsControversyThreshold = Some(value)))
+          }
+
+          def handleNonSequenceVotesWeightEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
+            val value = event.target.value.toDouble
+            self.setState(_.copy(nonSequenceVotesWeight = value))
           }
 
           def handleIntraIdeaEnabledEdition: MouseSyntheticEvent => Unit = { _ =>
@@ -266,6 +274,7 @@ object DataConfigurationComponent {
                   testedProposalsScoreThreshold = testedProposalsScoreThreshold,
                   testedProposalsControversyThreshold = testedProposalsControversyThreshold,
                   testedProposalsMaxVotesThreshold = testedProposalsMaxVotesThreshold,
+                  nonSequenceVotesWeight = self.state.nonSequenceVotesWeight,
                   intraIdeaEnabled = self.state.intraIdeaEnabled,
                   intraIdeaMinCount = self.state.intraIdeaMinCount,
                   intraIdeaProposalsRatio = self.state.intraIdeaProposalsRatio,
@@ -398,6 +407,13 @@ object DataConfigurationComponent {
                 ^.disabled := !self.state.checkTestedProposalsControversyThreshold
               )()
             ),
+            <.TextFieldMaterialUi(
+              ^.`type` := "number",
+              ^.floatingLabelText := "Non sequence votes weight",
+              ^.value := self.state.nonSequenceVotesWeight,
+              ^.fullWidth := true,
+              ^.onChange := handleNonSequenceVotesWeightEdition
+            )(),
             <.span(^.onClick := handleIntraIdeaEnabledEdition)(
               <.Toggle(
                 ^.label := "Intra idea enabled",

@@ -92,6 +92,7 @@ object Question {
     val testedProposalsScoreThreshold: js.UndefOr[Double]
     val testedProposalsControversyThreshold: js.UndefOr[Double]
     val testedProposalsMaxVotesThreshold: js.UndefOr[Int]
+    val nonSequenceVotesWeight: Double
     val intraIdeaEnabled: Boolean
     val intraIdeaMinCount: Int
     val intraIdeaProposalsRatio: Double
@@ -111,6 +112,7 @@ object Question {
               testedProposalsScoreThreshold: Option[Double],
               testedProposalsControversyThreshold: Option[Double],
               testedProposalsMaxVotesThreshold: Option[Int],
+              nonSequenceVotesWeight: Double,
               intraIdeaEnabled: Boolean,
               intraIdeaMinCount: Int,
               intraIdeaProposalsRatio: Double,
@@ -129,6 +131,7 @@ object Question {
           testedProposalsScoreThreshold = testedProposalsScoreThreshold.orUndefined,
           testedProposalsControversyThreshold = testedProposalsControversyThreshold.orUndefined,
           testedProposalsMaxVotesThreshold = testedProposalsMaxVotesThreshold.orUndefined,
+          nonSequenceVotesWeight = nonSequenceVotesWeight,
           intraIdeaEnabled = intraIdeaEnabled,
           intraIdeaMinCount = intraIdeaMinCount,
           intraIdeaProposalsRatio = intraIdeaProposalsRatio,
