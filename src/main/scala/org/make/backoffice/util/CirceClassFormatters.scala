@@ -215,13 +215,14 @@ trait CirceClassFormatters extends TimeInstances {
     )(Question.apply)
 
   implicit lazy val dataConfigurationDecoder: Decoder[DataConfiguration] =
-    Decoder.forProduct16(
+    Decoder.forProduct17(
       "newProposalsRatio",
       "newProposalsVoteThreshold",
       "testedProposalsEngagementThreshold",
       "testedProposalsScoreThreshold",
       "testedProposalsControversyThreshold",
       "testedProposalsMaxVotesThreshold",
+      "nonSequenceVotesWeight",
       "intraIdeaEnabled",
       "intraIdeaMinCount",
       "intraIdeaProposalsRatio",
@@ -235,13 +236,14 @@ trait CirceClassFormatters extends TimeInstances {
     )(DataConfiguration.apply)
 
   implicit lazy val dataConfigurationEncoder: Encoder[DataConfiguration] =
-    Encoder.forProduct16(
+    Encoder.forProduct17(
       "newProposalsRatio",
       "newProposalsVoteThreshold",
       "testedProposalsEngagementThreshold",
       "testedProposalsScoreThreshold",
       "testedProposalsControversyThreshold",
       "testedProposalsMaxVotesThreshold",
+      "nonSequenceVotesWeight",
       "intraIdeaEnabled",
       "intraIdeaMinCount",
       "intraIdeaProposalsRatio",
@@ -261,6 +263,7 @@ trait CirceClassFormatters extends TimeInstances {
           dataConfiguration.testedProposalsScoreThreshold.toOption,
           dataConfiguration.testedProposalsControversyThreshold.toOption,
           dataConfiguration.testedProposalsMaxVotesThreshold.toOption,
+          dataConfiguration.nonSequenceVotesWeight,
           dataConfiguration.intraIdeaEnabled,
           dataConfiguration.intraIdeaMinCount,
           dataConfiguration.intraIdeaProposalsRatio,
