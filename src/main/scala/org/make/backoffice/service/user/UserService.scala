@@ -20,13 +20,14 @@
 
 package org.make.backoffice.service.user
 
-import org.make.backoffice.model.User
+import org.make.backoffice.model.{Role, SimpleUser, User}
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.scalajs.js
 
 case class NoTokenException(message: String = "No token provided") extends Exception(message)
 
@@ -39,6 +40,14 @@ object UserService extends ApiService with CirceClassFormatters {
 
   def getUserById(id: String): Future[Option[User]] =
     client.get[User](resourceName / id).map(Option.apply).recover { case _: Exception => None }
+
+  def getUsers: Future[Seq[SimpleUser]] = {
+    client.get[Seq[SimpleUser]]("admin" / "users" ? ("role", Role.roleCitizen.shortName)).recover {
+      case e =>
+        js.Dynamic.global.console.log(s"instead of getting users: failed cursor $e")
+        throw e
+    }
+  }
 
   def loginGoogle(token: String): Future[User] = {
     client.authenticateSocial("google", token).flatMap {

@@ -37,11 +37,11 @@ sealed trait Role extends js.Object {
 object Role {
   def apply(shortName: String): Role = js.Dynamic.literal(shortName = shortName).asInstanceOf[Role]
 
-  val roleAdmin = Role("ROLE_ADMIN")
-  val roleModerator = Role("ROLE_MODERATOR")
-  val rolePolitical = Role("ROLE_POLITICAL")
-  val roleCitizen = Role("ROLE_CITIZEN")
-  val roleActor = Role("ROLE_ACTOR")
+  val roleAdmin: Role = Role("ROLE_ADMIN")
+  val roleModerator: Role = Role("ROLE_MODERATOR")
+  val rolePolitical: Role = Role("ROLE_POLITICAL")
+  val roleCitizen: Role = Role("ROLE_CITIZEN")
+  val roleActor: Role = Role("ROLE_ACTOR")
 
   val roles: Map[String, Role] = Map(
     roleAdmin.shortName -> roleAdmin,
@@ -99,6 +99,39 @@ object User {
         profile = profile.orUndefined
       )
       .asInstanceOf[User]
+}
+
+@js.native
+trait SimpleUser extends js.Object {
+  val id: String
+  val email: String
+  val firstName: js.UndefOr[String]
+  val lastName: js.UndefOr[String]
+  val fullName: js.UndefOr[String]
+}
+
+object SimpleUser {
+  def apply(id: UserId, email: String, firstName: Option[String], lastName: Option[String]): SimpleUser = {
+    js.Dynamic
+      .literal(
+        id = id.value,
+        email = email,
+        firstName = firstName.orUndefined,
+        lastName = lastName.orUndefined,
+        fullName = getFullName(firstName, lastName).orUndefined
+      )
+      .asInstanceOf[SimpleUser]
+  }
+
+  def getFullName(firstName: Option[String], lastName: Option[String]): Option[String] = {
+    (firstName, lastName) match {
+      case (None, None)                      => None
+      case (firstName, None)                 => firstName
+      case (None, lastName)                  => lastName
+      case (Some(firstName), Some(lastName)) => Some(s"$firstName $lastName")
+    }
+  }
+
 }
 
 @js.native
