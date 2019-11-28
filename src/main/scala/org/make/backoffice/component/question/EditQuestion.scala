@@ -130,7 +130,6 @@ object EditQuestion {
                 .onComplete {
                   case Success(_) =>
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "Image uploaded successfully"))
-                    self.props.history.go(0)
                   case Failure(BadRequestHttpException(_)) =>
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "Bad request"))
                   case Failure(_) =>
@@ -147,7 +146,6 @@ object EditQuestion {
                 .onComplete {
                   case Success(_) =>
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "Image uploaded successfully"))
-                    self.props.history.go(0)
                   case Failure(BadRequestHttpException(_)) =>
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "Bad request"))
                   case Failure(_) =>
