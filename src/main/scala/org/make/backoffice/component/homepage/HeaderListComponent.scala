@@ -20,12 +20,9 @@
 
 package org.make.backoffice.component.homepage
 
-import java.time.ZonedDateTime
-
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import org.make.backoffice.client.request.Filter
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.homepage.HeaderComponent.HeaderComponentProps
 import org.make.backoffice.model.{FeaturedOperation, Question}
@@ -70,7 +67,7 @@ object HeaderListComponent {
     },
     render = self => {
 
-      def reloadComponent = { () =>
+      def reloadComponent: () => Unit = { () =>
         self.setState(state => state.copy(reload = true))
       }
 
