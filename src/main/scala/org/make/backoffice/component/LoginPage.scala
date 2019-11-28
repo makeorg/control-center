@@ -25,13 +25,11 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
-import org.make.backoffice.client.MakeApiClientHttp
 import org.make.backoffice.facade.Configuration
 import org.make.backoffice.facade.Login._
 import org.make.backoffice.facade.ReactGoogleLogin._
 import org.make.backoffice.model.{Role, User}
 import org.make.backoffice.service.user.UserService
-import org.scalajs.dom
 import org.scalajs.dom.experimental.Response
 import scalacss.DevDefaults._
 import scalacss.internal.StyleA
@@ -47,7 +45,7 @@ object LoginPage {
 
   type Self = React.Self[Unit, LoginPageState]
 
-  case class LoginPageState(isSignIn: Boolean, user: Option[User], error: Option[String] = None)
+  case class LoginPageState(isSignIn: Boolean, error: Option[String] = None)
 
   def apply(baseUrl: String): ReactClass = reactClass(baseUrl)
 
@@ -56,7 +54,7 @@ object LoginPage {
   def reactClass(baseUrl: String) = WithRouter(
     React.createClass[Unit, LoginPageState](
       displayName = "LoginPage",
-      getInitialState = _ => LoginPageState(isSignIn = false, user = None, error = None),
+      getInitialState = _ => LoginPageState(isSignIn = false, error = None),
       render = self => {
         def signInGoogle(response: Response): Unit = {
           handleFutureApiResponse(UserService.loginGoogle(response.asInstanceOf[GoogleAuthResponse].tokenId))
@@ -66,7 +64,6 @@ object LoginPage {
           futureUser.onComplete {
             case Success(user) =>
               if (user.roles.contains(Role.roleAdmin) || user.roles.contains(Role.roleModerator)) {
-                Future.successful("auth_login")
                 val resolvedHash = {
                   if (baseUrl.contains("/login")) {
                     "/"
@@ -79,18 +76,12 @@ object LoginPage {
                 self.props.history.push(resolvedHash)
               } else {
                 self.setState(
-                  self.state.copy(
-                    isSignIn = false,
-                    user = None,
-                    error = Some("failed to connect: You don't have the right role")
-                  )
+                  self.state.copy(isSignIn = false, error = Some("failed to connect: You don't have the right role"))
                 )
               }
 
             case Failure(e) =>
-              self.setState(
-                self.state.copy(isSignIn = false, user = None, error = Some(s"failed to connect: ${e.getMessage}"))
-              )
+              self.setState(self.state.copy(isSignIn = false, error = Some(s"failed to connect: ${e.getMessage}")))
           }
         }
 

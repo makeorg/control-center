@@ -74,12 +74,13 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
                 case Left(error)     => Future.failed(error)
                 case Right(messages) => Future.failed(BadRequestHttpException(messages))
               }
-            case 401 => Future.failed(UnauthorizedHttpException)
-            case 403 => Future.failed(ForbiddenHttpException)
-            case 404 => Future.failed(NotFoundHttpException)
-            case 500 => Future.failed(InternalServerHttpException)
-            case 502 => Future.failed(BadGatewayHttpException)
-            case _   => Future.failed(NotImplementedHttpException)
+            case 401 if retries > 0 => retryOnFailure(fn, retries - 1)
+            case 401                => Future.failed(UnauthorizedHttpException)
+            case 403                => Future.failed(ForbiddenHttpException)
+            case 404                => Future.failed(NotFoundHttpException)
+            case 500                => Future.failed(InternalServerHttpException)
+            case 502                => Future.failed(BadGatewayHttpException)
+            case _                  => Future.failed(NotImplementedHttpException)
           }
         case other => Future.failed(other)
       }

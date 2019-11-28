@@ -295,6 +295,7 @@ object HeaderComponent {
                                           portraitPictureFile = None
                                         )
                                       )
+                                    self.props.wrapped.reloadComponent()
                                   case Failure(_) =>
                                     self
                                       .setState(
@@ -369,6 +370,7 @@ object HeaderComponent {
                               portraitPictureFile = None
                             )
                           )
+                        self.props.wrapped.reloadComponent()
                       case Failure(_) =>
                         self
                           .setState(

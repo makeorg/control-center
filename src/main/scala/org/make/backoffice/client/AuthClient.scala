@@ -23,7 +23,6 @@ package org.make.backoffice.client
 import org.make.backoffice.model.Role
 import org.make.backoffice.service.user.UserService
 import org.make.backoffice.util.CirceClassFormatters
-import org.scalajs.dom
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
