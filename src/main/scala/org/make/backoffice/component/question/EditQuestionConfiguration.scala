@@ -39,8 +39,9 @@ import org.make.backoffice.facade.AdminOnRest.FormTab._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.model.ActiveFeature
+import org.make.backoffice.model.{ActiveFeature, Organisation}
 import org.make.backoffice.service.feature.ActiveFeatureService
+import org.make.backoffice.service.organisation.OrganisationService
 import org.make.backoffice.service.proposal.{Accepted, Refused}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -50,7 +51,9 @@ import scala.util.{Failure, Success}
 object EditQuestionConfiguration {
 
   case class EditQuestionConfigurationProps() extends RouterProps
-  case class EditQuestionConfigurationState(reload: Boolean, activeFeaturesList: Seq[ActiveFeature])
+  case class EditQuestionConfigurationState(reload: Boolean,
+                                            activeFeaturesList: Seq[ActiveFeature],
+                                            organisationSearchList: Seq[Organisation])
 
   def apply(): ReactClass = reactClass
 
@@ -58,11 +61,24 @@ object EditQuestionConfiguration {
     React
       .createClass[EditQuestionConfigurationProps, EditQuestionConfigurationState](
         displayName = "EditQuestionConfiguration",
-        getInitialState = _ => EditQuestionConfigurationState(reload = false, activeFeaturesList = Seq.empty),
+        getInitialState = _ =>
+          EditQuestionConfigurationState(
+            reload = false,
+            activeFeaturesList = Seq.empty,
+            organisationSearchList = Seq.empty
+        ),
         componentDidMount = { self =>
           ActiveFeatureService.listActiveFeatures.onComplete {
             case Success(activeFeatures) => self.setState(_.copy(activeFeaturesList = activeFeatures))
             case Failure(_)              =>
+          }
+
+          val nullOrganisation = Organisation(id = None, organisationName = "", profile = None)
+
+          OrganisationService.organisations(None, Some(500)).onComplete {
+            case Success(organisations) =>
+              self.setState(_.copy(organisationSearchList = organisations.+:(nullOrganisation)))
+            case Failure(_) =>
           }
         },
         componentDidUpdate = { (self, _, state) =>
@@ -114,7 +130,9 @@ object EditQuestionConfiguration {
               }),
               <.FormTab(^.label := "Partners")(if (!self.state.reload) {
                 js.Array(
-                    <.CreatePartnerComponent(^.wrapped := CreatePartnerComponentProps(reloadComponent))(),
+                    <.CreatePartnerComponent(
+                      ^.wrapped := CreatePartnerComponentProps(reloadComponent, self.state.organisationSearchList)
+                    )(),
                     <.ReferenceManyField(
                       ^.reference := Resource.partners,
                       ^.target := "questionId",
@@ -126,7 +144,7 @@ object EditQuestionConfiguration {
                         <.FlatButton(
                           ^.label := "edit partner",
                           ^.containerElement := <.EditPartnerComponent(
-                            ^.wrapped := EditPartnerComponentProps(reloadComponent)
+                            ^.wrapped := EditPartnerComponentProps(reloadComponent, self.state.organisationSearchList)
                           )()
                         )(),
                         <.TextField(^.source := "name")(),

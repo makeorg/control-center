@@ -27,7 +27,6 @@ import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, Synthetic
 import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.{Organisation, Partner, Question}
-import org.make.backoffice.service.organisation.OrganisationService
 import org.make.backoffice.service.partner.{CreatePartnerRequest, PartnerService}
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -37,7 +36,7 @@ import scala.scalajs.js
 
 object CreatePartnerComponent {
 
-  case class CreatePartnerComponentProps(reloadComponent: () => Unit)
+  case class CreatePartnerComponentProps(reloadComponent: () => Unit, organisationSearchList: Seq[Organisation])
   case class CreatePartnerComponentState(name: String,
                                          errorName: String,
                                          logo: Option[String],
@@ -49,7 +48,6 @@ object CreatePartnerComponent {
                                          weight: Double,
                                          errorWeight: String,
                                          organisationId: Option[String],
-                                         organisationSearchList: Seq[Organisation],
                                          searchOrganisationContent: String,
                                          partnersList: Seq[Partner],
                                          createPartnerModalOpen: Boolean,
@@ -72,7 +70,6 @@ object CreatePartnerComponent {
           weight = 0,
           errorWeight = "",
           organisationId = None,
-          organisationSearchList = Seq.empty,
           searchOrganisationContent = "",
           partnersList = Seq.empty,
           createPartnerModalOpen = false,
@@ -81,15 +78,7 @@ object CreatePartnerComponent {
         )
       },
       componentDidMount = { self =>
-        val nullOrganisation = Organisation(id = None, organisationName = "", profile = None)
-
         val questionId = self.props.native.record.asInstanceOf[Question].id
-
-        OrganisationService.organisations(None, Some(500)).onComplete {
-          case Success(organisations) =>
-            self.setState(_.copy(organisationSearchList = organisations.+:(nullOrganisation)))
-          case Failure(_) =>
-        }
 
         PartnerService.partners(questionId, 50).onComplete {
           case Success(partners) => self.setState(_.copy(partnersList = partners))
@@ -169,7 +158,7 @@ object CreatePartnerComponent {
         }
 
         def onCreatePartner: SyntheticEvent => Unit = {
-          event =>
+          _ =>
             var error = false
             var errorName = ""
             var errorLogo = ""
@@ -279,7 +268,7 @@ object CreatePartnerComponent {
             <.AutoComplete(
               ^.id := "search-organisation",
               ^.hintText := "Search organisation",
-              ^.dataSource := self.state.organisationSearchList,
+              ^.dataSource := self.props.wrapped.organisationSearchList,
               ^.dataSourceConfig := DataSourceConfig("organisationName", "id"),
               ^.searchText := self.state.searchOrganisationContent,
               ^.onUpdateInput := handleUpdateOrganisationInput,

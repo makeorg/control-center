@@ -94,17 +94,19 @@ object CreatePartnerRequest {
 final case class UpdatePartnerRequest(name: String,
                                       logo: Option[String],
                                       link: Option[String],
+                                      organisationId: Option[String],
                                       partnerKind: String,
                                       weight: Double)
 
 object UpdatePartnerRequest {
   implicit lazy val encoder: Encoder[UpdatePartnerRequest] =
-    Encoder.forProduct5("name", "logo", "link", "partnerKind", "weight")(
+    Encoder.forProduct6("name", "logo", "link", "organisationId", "partnerKind", "weight")(
       updatePartnerRequest =>
         (
           updatePartnerRequest.name,
           updatePartnerRequest.logo,
           updatePartnerRequest.link,
+          updatePartnerRequest.organisationId,
           updatePartnerRequest.partnerKind,
           updatePartnerRequest.weight
       )

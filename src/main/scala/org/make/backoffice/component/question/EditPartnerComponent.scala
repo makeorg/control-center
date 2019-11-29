@@ -25,8 +25,9 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
+import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.model.Partner
+import org.make.backoffice.model.{Organisation, Partner}
 import org.make.backoffice.service.partner.{PartnerService, UpdatePartnerRequest}
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -47,7 +48,7 @@ object EditPartnerComponent {
     val organisationId: String
   }
 
-  case class EditPartnerComponentProps(reloadComponent: () => Unit)
+  case class EditPartnerComponentProps(reloadComponent: () => Unit, organisationSearchList: Seq[Organisation])
   case class EditPartnerComponentState(partnerId: String,
                                        name: String,
                                        errorName: String,
@@ -60,6 +61,7 @@ object EditPartnerComponent {
                                        weight: Double,
                                        errorWeight: String,
                                        organisationId: Option[String],
+                                       searchOrganisationContent: String,
                                        editPartnerModalOpen: Boolean,
                                        snackbarOpen: Boolean,
                                        snackbarMessage: String)
@@ -82,6 +84,7 @@ object EditPartnerComponent {
           weight = partner.weight,
           errorWeight = "",
           organisationId = Option(partner.organisationId),
+          searchOrganisationContent = "",
           editPartnerModalOpen = false,
           snackbarOpen = false,
           snackbarMessage = ""
@@ -136,6 +139,25 @@ object EditPartnerComponent {
           self.setState(_.copy(partnerKind = value, errorPartnerKind = ""))
         }
 
+        def handleUpdateOrganisationInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
+          self.setState(_.copy(searchOrganisationContent = searchText))
+        }
+
+        def handleNewOrganisationRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
+          val organisation = chosenRequest.asInstanceOf[Organisation]
+          self.setState(
+            _.copy(
+              name = organisation.organisationName,
+              logo = organisation.profile.flatMap(_.avatarUrl).toOption,
+              organisationId = organisation.id.toOption
+            )
+          )
+        }
+
+        def filterAutoComplete: (String, String) => Boolean = (searchText, key) => {
+          key.indexOf(searchText) != -1
+        }
+
         def onEditPartner: SyntheticEvent => Unit = {
           _ =>
             var error = false
@@ -172,6 +194,7 @@ object EditPartnerComponent {
                 name = self.state.name,
                 logo = self.state.logo,
                 link = self.state.link,
+                organisationId = self.state.organisationId,
                 partnerKind = self.state.partnerKind,
                 weight = self.state.weight
               )
@@ -228,6 +251,20 @@ object EditPartnerComponent {
               <.FlatButton(^.label := "Edit partner", ^.primary := true, ^.onClick := onEditPartner)()
             )
           )(
+            <.AutoComplete(
+              ^.id := "search-organisation",
+              ^.hintText := "Search organisation",
+              ^.dataSource := self.props.wrapped.organisationSearchList,
+              ^.dataSourceConfig := DataSourceConfig("organisationName", "id"),
+              ^.searchText := self.state.searchOrganisationContent,
+              ^.onUpdateInput := handleUpdateOrganisationInput,
+              ^.onNewRequest := handleNewOrganisationRequest,
+              ^.fullWidth := true,
+              ^.popoverProps := Map("canAutoPosition" -> false),
+              ^.openOnFocus := true,
+              ^.filterAutoComplete := filterAutoComplete,
+              ^.menuProps := Map("maxHeight" -> 400)
+            )(),
             <.TextFieldMaterialUi(
               ^.floatingLabelText := "Name",
               ^.value := self.state.name,
