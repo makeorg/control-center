@@ -86,7 +86,8 @@ object CreateOrganisation {
                       ^.validate := required
                     )()
                   )
-              }
+              },
+              <.TextInput(^.source := "website", ^.options := Map("fullWidth" -> true))()
             )
           )
         }

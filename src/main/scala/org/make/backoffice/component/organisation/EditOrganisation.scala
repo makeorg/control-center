@@ -50,14 +50,14 @@ object EditOrganisation {
           )(
             <.SimpleForm()(
               <.TextInput(
-                ^.label := "organisation name",
+                ^.label := "Organisation Name",
                 ^.source := "organisationName",
                 ^.validate := required,
                 ^.allowEmpty := false,
                 ^.options := Map("fullWidth" -> true)
               )(),
               <.TextInput(
-                ^.label := "avatar url",
+                ^.label := "Avatar URL",
                 ^.source := "profile.avatarUrl",
                 ^.options := Map("fullWidth" -> true)
               )(),
@@ -65,7 +65,8 @@ object EditOrganisation {
                 ^.label := "Description",
                 ^.source := "profile.description",
                 ^.options := Map("fullWidth" -> true)
-              )()
+              )(),
+              <.TextInput(^.label := "Website", ^.source := "profile.website", ^.options := Map("fullWidth" -> true))()
             )
           )
         }
