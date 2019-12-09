@@ -130,7 +130,7 @@ object CreatePartnerComponent {
                 self.setState(_.copy(weight = newWeight.toDouble, errorWeight = ""))
               }
             } else {
-              self.setState(_.copy(weight = 0, errorWeight = "Weight must be greater than 0"))
+              self.setState(_.copy(weight = 0))
             }
         }
 
@@ -180,10 +180,6 @@ object CreatePartnerComponent {
             }
             if (self.state.partnerKind.isEmpty) {
               errorPartnerKind = "Partner kind is required"
-              error = true
-            }
-            if (self.state.weight <= 0) {
-              errorWeight = "Weight must be greater than 0"
               error = true
             }
 
