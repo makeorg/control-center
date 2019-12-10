@@ -28,8 +28,11 @@ import org.make.backoffice.client.Resource
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.question.ActiveFeatureComponent.ActiveFeatureProps
 import org.make.backoffice.component.question.CreatePartnerComponent.CreatePartnerComponentProps
+import org.make.backoffice.component.question.CreatePersonalityComponent.CreatePersonalityComponentProps
 import org.make.backoffice.component.question.DeletePartnerComponent.DeletePartnerComponentProps
+import org.make.backoffice.component.question.DeletePersonalityComponent.DeletePersonalityComponentProps
 import org.make.backoffice.component.question.EditPartnerComponent.EditPartnerComponentProps
+import org.make.backoffice.component.question.EditPersonalityComponent.EditPersonalityComponentProps
 import org.make.backoffice.component.question.InitialProposalComponent.InitialProposalComponentProps
 import org.make.backoffice.facade.AdminOnRest.Datagrid._
 import org.make.backoffice.facade.AdminOnRest.Edit._
@@ -155,6 +158,50 @@ object EditQuestionConfiguration {
                           ^.label := "delete partner",
                           ^.containerElement := <.DeletePartnerComponent(
                             ^.wrapped := DeletePartnerComponentProps(reloadComponent)
+                          )()
+                        )()
+                      )
+                    )
+                  )
+                  .toSeq
+              } else {
+                self.setState(_.copy(reload = false))
+              }),
+              <.FormTab(^.label := "Personalities")(if (!self.state.reload) {
+                js.Array(
+                    <.CreatePersonalityComponent(^.wrapped := CreatePersonalityComponentProps(reloadComponent))(),
+                    <.ReferenceManyField(
+                      ^.reference := Resource.questionPersonalities,
+                      ^.target := "questionId",
+                      ^.addLabel := false,
+                      ^.perPage := 50
+                    )(
+                      <.Datagrid()(
+                        <.FlatButton(
+                          ^.label := "edit personality",
+                          ^.containerElement := <.EditPersonalityComponent(
+                            ^.wrapped := EditPersonalityComponentProps(reloadComponent)
+                          )()
+                        )(),
+                        <.ReferenceField(
+                          ^.source := "userId",
+                          ^.label := "User firstname",
+                          ^.reference := Resource.users,
+                          ^.linkType := false,
+                          ^.sortable := false
+                        )(<.TextField(^.source := "firstName")()),
+                        <.ReferenceField(
+                          ^.source := "userId",
+                          ^.label := "User lastname",
+                          ^.reference := Resource.users,
+                          ^.linkType := false,
+                          ^.sortable := false
+                        )(<.TextField(^.source := "lastName")()),
+                        <.TextField(^.source := "personalityRole", ^.label := "role")(),
+                        <.FlatButton(
+                          ^.label := "delete personality",
+                          ^.containerElement := <.DeletePersonalityComponent(
+                            ^.wrapped := DeletePersonalityComponentProps(reloadComponent)
                           )()
                         )()
                       )

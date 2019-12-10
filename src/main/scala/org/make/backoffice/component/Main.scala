@@ -134,7 +134,8 @@ object Main {
           ^.listing := CrmTemplatesList(),
           ^.edit := EditCrmTemplates(),
           ^.create := CreateCrmTemplates()
-        )()
+        )(),
+        <.Resource(^.name := Resource.questionPersonalities)(),
       ),
       dom.document.getElementById("make-backoffice")
     )

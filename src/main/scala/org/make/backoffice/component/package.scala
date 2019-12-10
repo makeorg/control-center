@@ -62,6 +62,9 @@ package object component {
     def DescriptionImagePreview: ReactClassElementSpec = self(question.EditQuestion.descriptionImagePreview)
     def ImageUrlValidate: ReactClassElementSpec = self(question.EditQuestion.imageUrlValidate)
     def ActiveFeature: ReactClassElementSpec = self(question.ActiveFeatureComponent.reactClass)
+    def CreatePersonalityComponent: ReactClassElementSpec = self(question.CreatePersonalityComponent.reactClass)
+    def EditPersonalityComponent: ReactClassElementSpec = self(question.EditPersonalityComponent.reactClass)
+    def DeletePersonalityComponent: ReactClassElementSpec = self(question.DeletePersonalityComponent.reactClass)
   }
 
   implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {

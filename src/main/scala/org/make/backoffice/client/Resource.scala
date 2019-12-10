@@ -39,6 +39,7 @@ object Resource {
   val questionsConfiguration = "question-configuration"
   val features = "features"
   val crmTemplates = "crm-templates"
+  val questionPersonalities = "question-personalities"
 
   private val resources: Set[String] =
     Set(
@@ -54,7 +55,8 @@ object Resource {
       organisations,
       questions,
       moderators,
-      ideaMappings
+      ideaMappings,
+      questionPersonalities
     )
 
   def amongst: String => Boolean = { resources.contains }
