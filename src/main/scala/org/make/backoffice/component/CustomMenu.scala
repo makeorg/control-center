@@ -91,6 +91,12 @@ object CustomMenu {
               ^.leftIcon := organisationIcon,
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
             )(),
+            <.MenuItemLink(
+              ^.to := s"/${Resource.personalities}",
+              ^.primaryText := "Personalities",
+              ^.leftIcon := personalitiesIcon,
+              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
+            )(),
             <.Divider.empty,
             <.MenuItemLink(
               ^.to := s"/${Resource.homepage}",

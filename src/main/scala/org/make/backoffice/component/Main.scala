@@ -32,6 +32,7 @@ import org.make.backoffice.component.ideaMappings.{EditIdeaMapping, IdeaMappings
 import org.make.backoffice.component.moderator.{CreateModerator, EditUser, UsersList}
 import org.make.backoffice.component.operation.{CreateOperation, EditOperation, OperationsList}
 import org.make.backoffice.component.organisation.{CreateOrganisation, EditOrganisation, OrganisationList}
+import org.make.backoffice.component.personality.{CreatePersonality, EditPersonality, PersonalityList}
 import org.make.backoffice.component.proposal.common.ShowProposal
 import org.make.backoffice.component.proposal.moderation.{NextProposal, ProposalList}
 import org.make.backoffice.component.proposal.toEnrich.ToEnrichProposalList
@@ -136,6 +137,12 @@ object Main {
           ^.create := CreateCrmTemplates()
         )(),
         <.Resource(^.name := Resource.questionPersonalities)(),
+        <.Resource(
+          ^.name := Resource.personalities,
+          ^.listing := PersonalityList(),
+          ^.edit := EditPersonality(),
+          ^.create := CreatePersonality()
+        )()
       ),
       dom.document.getElementById("make-backoffice")
     )
