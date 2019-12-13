@@ -35,6 +35,7 @@ import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.List._
 import org.make.backoffice.facade.AdminOnRest.ShowButton._
+import org.make.backoffice.facade.Choice
 import org.make.backoffice.model.AppState
 import org.make.backoffice.service.proposal._
 import org.make.backoffice.util.uri._
@@ -77,15 +78,7 @@ object ToEnrichProposalList {
             <.ShowButton()(),
             <.TextField(^.source := "content", ^.sortable := false)(),
             <.TextField(^.source := "status", ^.sortable := false)(),
-            <.ReferenceField(
-              ^.source := "questionId",
-              ^.label := "question",
-              ^.reference := Resource.questions,
-              ^.linkType := false,
-              ^.allowEmpty := true,
-              ^.sortable := false
-            )(<.TextField(^.source := "slug")()),
-            <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
+            <.TextField(^.source := "author.userType", ^.sortable := false, ^.label := "Author type")(),
             <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)()
           )
         )
@@ -93,6 +86,9 @@ object ToEnrichProposalList {
   )
 
   def filterList(): ReactElement = {
+    val userTypeChoices =
+      Seq(Choice("USER", "User"), Choice("ORGANISATION", "Organisation"), Choice("PERSONALITY", "Personality"))
+
     <.Filter(^.resource := Resource.proposals)(
       Seq(
         <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
@@ -116,7 +112,14 @@ object ToEnrichProposalList {
           ^.reference := Resource.questions,
           ^.perPage := 100,
           ^.alwaysOn := true
-        )(<.SelectInput(^.optionText := "slug")())
+        )(<.SelectInput(^.optionText := "slug")()),
+        <.SelectInput(
+          ^.label := "User type",
+          ^.source := "userType",
+          ^.alwaysOn := true,
+          ^.allowEmpty := true,
+          ^.choices := userTypeChoices
+        )()
       )
     )
   }

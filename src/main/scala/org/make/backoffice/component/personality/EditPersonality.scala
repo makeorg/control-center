@@ -97,16 +97,8 @@ object EditPersonality {
                     )()
                   )
               },
-              <.TextInput(
-                ^.label := "Avatar URL",
-                ^.source := "profile.avatarUrl",
-                ^.options := Map("fullWidth" -> true)
-              )(),
-              <.TextInput(
-                ^.label := "Description",
-                ^.source := "profile.description",
-                ^.options := Map("fullWidth" -> true)
-              )(),
+              <.TextInput(^.label := "Avatar URL", ^.source := "avatarUrl", ^.options := Map("fullWidth" -> true))(),
+              <.TextInput(^.label := "Description", ^.source := "description", ^.options := Map("fullWidth" -> true))(),
               <.SelectInput(^.source := "gender", ^.choices := genderChoice, ^.options := Map("fullWidth" -> true))(),
               <.DependentInput(^.dependsOn := "gender", ^.dependsValue := "Other")(
                 <.TextInput(^.label := "Gender name", ^.source := "genderName", ^.options := Map("fullWidth" -> true))()

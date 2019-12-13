@@ -50,7 +50,6 @@ object ProposalService extends ApiService with CirceClassFormatters {
       ("limit", pagination.map(_.perPage)) &
       ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
       ("proposalIds", ApiService.getFieldValueFromFilters("proposalIds", filters)) &
-      ("themesIds", ApiService.getFieldValueFromFilters("themeId", filters)) &
       ("tagsIds", ApiService.getFieldValueFromFilters("tagsIds", filters)) &
       ("operationId", ApiService.getFieldValueFromFilters("operationId", filters)) &
       ("source", ApiService.getFieldValueFromFilters("source", filters)) &
@@ -64,7 +63,8 @@ object ProposalService extends ApiService with CirceClassFormatters {
       ("toEnrich", ApiService.getFieldValueFromFilters("toEnrich", filters)) &
       ("minVotesCount", ApiService.getFieldValueFromFilters("minVotesCount", filters)) &
       ("minScore", ApiService.getFieldValueFromFilters("minScore", filters)) &
-      ("initialProposal", ApiService.getFieldValueFromFilters("initialProposal", filters))
+      ("initialProposal", ApiService.getFieldValueFromFilters("initialProposal", filters)) &
+      ("userType", ApiService.getFieldValueFromFilters("userType", filters))
 
     // search with keywords (=content) should not use order param to get results by relevance
     ApiService.getFieldValueFromFilters("content", filters) match {

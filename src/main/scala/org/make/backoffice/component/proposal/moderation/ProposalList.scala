@@ -60,15 +60,7 @@ object ProposalList {
             <.ShowButton()(),
             <.TextField(^.source := "content", ^.sortable := false)(),
             <.TextField(^.source := "status", ^.sortable := false)(),
-            <.ReferenceField(
-              ^.source := "questionId",
-              ^.label := "question",
-              ^.reference := Resource.questions,
-              ^.linkType := false,
-              ^.allowEmpty := true,
-              ^.sortable := false
-            )(<.TextField(^.source := "slug")()),
-            <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
+            <.TextField(^.source := "author.userType", ^.sortable := false, ^.label := "Author type")(),
             <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)()
           )
         )
@@ -93,6 +85,9 @@ object ProposalList {
       Choice(Archived.shortName, "Archived")
     )
 
+    val userTypeChoices =
+      Seq(Choice("USER", "User"), Choice("ORGANISATION", "Organisation"), Choice("PERSONALITY", "Personality"))
+
     <.Filter(^.resource := Resource.proposals)(
       Seq(
         //TODO: add the possibility to search by userId or proposalId
@@ -107,8 +102,13 @@ object ProposalList {
           ^.perPage := 100,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")()),
-        <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
-        //TODO: add filter on: "reason for refusal" and "moderator"
+        <.SelectInput(
+          ^.label := "User type",
+          ^.source := "userType",
+          ^.alwaysOn := true,
+          ^.allowEmpty := true,
+          ^.choices := userTypeChoices
+        )()
       )
     )
   }

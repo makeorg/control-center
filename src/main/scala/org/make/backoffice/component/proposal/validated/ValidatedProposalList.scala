@@ -147,14 +147,6 @@ object ValidatedProposalList {
             <.Datagrid()(
               <.ShowButton()(),
               <.TextField(^.source := "content")(),
-              <.ReferenceField(
-                ^.source := "questionId",
-                ^.label := "question",
-                ^.reference := Resource.questions,
-                ^.linkType := false,
-                ^.allowEmpty := true
-              )(<.TextField(^.source := "slug")()),
-              <.TextField(^.source := "context.source", ^.label := "source", ^.sortable := false)(),
               <.DateField(^.source := "createdAt", ^.label := "Date", ^.showTime := true)(),
               <.FunctionField(^.label := "status", ^.sortable := false, ^.render := { record =>
                 val proposal = record.asInstanceOf[Proposal]
@@ -164,6 +156,7 @@ object ValidatedProposalList {
                   "Enriched"
                 }
               })(),
+              <.TextField(^.source := "author.userType", ^.sortable := false, ^.label := "Author type")(),
               <.ReferenceArrayField(^.label := "Tags", ^.reference := Resource.tags, ^.source := "tagIds")(
                 <.SingleFieldList()(<.ChipField(^.source := "label")())
               ),
@@ -182,9 +175,11 @@ object ValidatedProposalList {
       )
 
   def filterList(tagChoices: Seq[Choice], isQuestionSelected: Boolean): ReactElement = {
+    val userTypeChoices =
+      Seq(Choice("USER", "User"), Choice("ORGANISATION", "Organisation"), Choice("PERSONALITY", "Personality"))
+
     <.Filter(^.resource := Resource.proposals)(
       <.TextInput(^.label := "Search", ^.source := "content", ^.alwaysOn := true)(),
-      <.TextInput(^.label := "Source", ^.source := "source", ^.alwaysOn := false)(),
       if (isQuestionSelected) {
         <.SelectInput(
           ^.label := "Tags",
@@ -204,7 +199,14 @@ object ValidatedProposalList {
         ^.perPage := 100,
         ^.allowEmpty := true
       )(<.SelectInput(^.optionText := "slug")()),
-      <.NullableBooleanInput(^.label := "Initital Proposal", ^.source := "initialProposal", ^.alwaysOn := true)()
+      <.NullableBooleanInput(^.label := "Initital Proposal", ^.source := "initialProposal", ^.alwaysOn := true)(),
+      <.SelectInput(
+        ^.label := "User type",
+        ^.source := "userType",
+        ^.alwaysOn := true,
+        ^.allowEmpty := true,
+        ^.choices := userTypeChoices
+      )()
     )
   }
 }
