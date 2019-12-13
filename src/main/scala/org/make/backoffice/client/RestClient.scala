@@ -77,6 +77,8 @@ object RestClient extends CirceClassFormatters {
         retryOnFailure(adminJsonClient(restVerb, "crm/templates", parameters), 5).toJSPromise
       case Resource.questionPersonalities =>
         retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise
+      case Resource.personalities =>
+        retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise
       case res if Resource.amongst(res) =>
         retryOnFailure(Request.fetch(restVerb, resource, parameters).toJSPromise, 5).toJSPromise
       case unknownResource =>
