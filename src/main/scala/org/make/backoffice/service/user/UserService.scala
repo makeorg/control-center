@@ -22,8 +22,11 @@ package org.make.backoffice.service.user
 
 import org.make.backoffice.model.{Role, SimpleUser, User}
 import org.make.backoffice.service.ApiService
+import org.make.backoffice.service.homepage.UploadResponse
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
+import org.scalajs.dom.ext.Ajax.InputData
+import org.scalajs.dom.raw.FormData
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -45,6 +48,15 @@ object UserService extends ApiService with CirceClassFormatters {
     client.get[Seq[SimpleUser]]("admin" / "users" ? ("role", Role.roleCitizen.shortName)).recover {
       case e =>
         js.Dynamic.global.console.log(s"instead of getting users: failed cursor $e")
+        throw e
+    }
+  }
+
+  def uploadAvatar(id: String, formData: FormData): Future[UploadResponse] = {
+    val data: InputData = InputData.formdata2ajax(formData)
+    client.post[UploadResponse](resourceName / id / "upload-avatar", data = data, includeContentType = false).recover {
+      case e =>
+        js.Dynamic.global.console.log(s"instead of converting to UploadResponse: failed cursor $e")
         throw e
     }
   }
