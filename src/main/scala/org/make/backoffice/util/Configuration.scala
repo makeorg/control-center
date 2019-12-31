@@ -74,6 +74,8 @@ object Configuration extends CirceClassFormatters {
       "MultipleIdeas",
       "InvalidLanguage",
       "Rudeness",
+      "Out-of-political-scope",
+      "Already-exists",
       "Test",
       "Other"
     )
