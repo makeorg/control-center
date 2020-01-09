@@ -102,7 +102,13 @@ object EditPersonality {
               <.SelectInput(^.source := "gender", ^.choices := genderChoice, ^.options := Map("fullWidth" -> true))(),
               <.DependentInput(^.dependsOn := "gender", ^.dependsValue := "Other")(
                 <.TextInput(^.label := "Gender name", ^.source := "genderName", ^.options := Map("fullWidth" -> true))()
-              )
+              ),
+              <.TextInput(
+                ^.label := "Political party",
+                ^.source := "politicalParty",
+                ^.options := Map("fullWidth" -> true)
+              )(),
+              <.TextInput(^.label := "Website", ^.source := "website", ^.options := Map("fullWidth" -> true))()
             )
           )
         }

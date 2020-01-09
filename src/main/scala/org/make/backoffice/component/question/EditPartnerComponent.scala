@@ -59,7 +59,6 @@ object EditPartnerComponent {
                                        partnerKind: String,
                                        errorPartnerKind: String,
                                        weight: Double,
-                                       errorWeight: String,
                                        organisationId: Option[String],
                                        searchOrganisationContent: String,
                                        editPartnerModalOpen: Boolean,
@@ -82,7 +81,6 @@ object EditPartnerComponent {
           partnerKind = partner.partnerKind,
           errorPartnerKind = "",
           weight = partner.weight,
-          errorWeight = "",
           organisationId = Option(partner.organisationId),
           searchOrganisationContent = "",
           editPartnerModalOpen = false,
@@ -129,9 +127,9 @@ object EditPartnerComponent {
         def handleWeightEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
           val newWeight: String = event.target.value
           if (newWeight.nonEmpty) {
-            self.setState(_.copy(weight = newWeight.toDouble, errorWeight = ""))
+            self.setState(_.copy(weight = newWeight.toDouble))
           } else {
-            self.setState(_.copy(weight = 0, errorWeight = "Weight must be greater than 0"))
+            self.setState(_.copy(weight = 0))
           }
         }
 
@@ -165,7 +163,6 @@ object EditPartnerComponent {
             var errorLogo = ""
             var errorLink = ""
             var errorPartnerKind = ""
-            var errorWeight = ""
 
             if (self.state.name.isEmpty) {
               errorName = "Name is required"
@@ -181,10 +178,6 @@ object EditPartnerComponent {
             }
             if (self.state.partnerKind.isEmpty) {
               errorPartnerKind = "Partner kind is required"
-              error = true
-            }
-            if (self.state.weight <= 0) {
-              errorWeight = "Weight must be greater than 0"
               error = true
             }
 
@@ -223,8 +216,7 @@ object EditPartnerComponent {
                   errorName = errorName,
                   errorLogo = errorLogo,
                   errorLink = errorLink,
-                  errorPartnerKind = errorPartnerKind,
-                  errorWeight = errorWeight
+                  errorPartnerKind = errorPartnerKind
                 )
               )
             }
@@ -300,8 +292,7 @@ object EditPartnerComponent {
               ^.value := self.state.weight,
               ^.`type` := "number",
               ^.onChange := handleWeightEdition,
-              ^.fullWidth := true,
-              ^.errorText := self.state.errorWeight
+              ^.fullWidth := true
             )()
           ),
           <.Snackbar(
