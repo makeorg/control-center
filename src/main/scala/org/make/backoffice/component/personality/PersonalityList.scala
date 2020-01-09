@@ -56,7 +56,9 @@ object PersonalityList {
             <.Datagrid()(
               <.EditButton()(),
               <.TextField(^.source := "firstName", ^.label := "first name")(),
-              <.TextField(^.source := "lastName", ^.label := "last name")()
+              <.TextField(^.source := "lastName", ^.label := "last name")(),
+              <.TextField(^.label := "Political party", ^.source := "politicalParty")(),
+              <.TextField(^.label := "Website", ^.source := "website")()
             )
           )
         }
