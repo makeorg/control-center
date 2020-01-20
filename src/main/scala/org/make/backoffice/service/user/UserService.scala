@@ -20,7 +20,7 @@
 
 package org.make.backoffice.service.user
 
-import org.make.backoffice.model.{Role, SimpleUser, User}
+import org.make.backoffice.model.{CurrentUser, Role, SimpleUser, User}
 import org.make.backoffice.service.ApiService
 import org.make.backoffice.service.homepage.UploadResponse
 import org.make.backoffice.util.CirceClassFormatters
@@ -38,8 +38,8 @@ object UserService extends ApiService with CirceClassFormatters {
 
   override val resourceName: String = "user"
 
-  def me: Future[Option[User]] =
-    client.get[User](resourceName / "me").map(Option.apply).recoverWith { case e => Future.failed(e) }
+  def currentUser: Future[CurrentUser] =
+    client.get[CurrentUser](resourceName / "current").recoverWith { case e => Future.failed(e) }
 
   def getUserById(id: String): Future[Option[User]] =
     client.get[User](resourceName / id).map(Option.apply).recover { case _: Exception => None }
@@ -61,16 +61,16 @@ object UserService extends ApiService with CirceClassFormatters {
     }
   }
 
-  def loginGoogle(token: String): Future[User] = {
+  def loginGoogle(token: String): Future[CurrentUser] = {
     client.authenticateSocial("google", token).flatMap {
-      case true  => client.get[User](resourceName / "me")
+      case true  => client.get[CurrentUser](resourceName / "current")
       case false => throw NoTokenException()
     }
   }
 
-  def login(username: String, password: String): Future[User] = {
+  def login(username: String, password: String): Future[CurrentUser] = {
     client.authenticate(username, password).flatMap {
-      case true  => client.get[User](resourceName / "me")
+      case true  => client.get[CurrentUser](resourceName / "current")
       case false => throw NoTokenException()
     }
   }

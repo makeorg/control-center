@@ -44,6 +44,9 @@ trait CirceClassFormatters extends TimeInstances {
   implicit lazy val simpleUserDecoder: Decoder[SimpleUser] =
     Decoder.forProduct4("id", "email", "firstName", "lastName")(SimpleUser.apply)
 
+  implicit lazy val currentUserDecoder: Decoder[CurrentUser] =
+    Decoder.forProduct1("roles")(CurrentUser.apply)
+
   implicit lazy val roleEncoder: Encoder[Role] = role => Json.fromString(role.shortName)
   implicit lazy val roleDecoder: Decoder[Role] =
     Decoder.decodeString.map(role => Role.roles.getOrElse(role, Role(role)))
