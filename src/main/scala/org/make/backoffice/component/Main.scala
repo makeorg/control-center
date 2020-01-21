@@ -39,6 +39,7 @@ import org.make.backoffice.component.proposal.toEnrich.ToEnrichProposalList
 import org.make.backoffice.component.proposal.validated.ValidatedProposalList
 import org.make.backoffice.component.question._
 import org.make.backoffice.component.tag.{CreateTag, EditTag, TagList}
+import org.make.backoffice.component.topIdea.{CreateTopIdea, EditTopIdea, TopIdeaList}
 import org.make.backoffice.facade.AdminOnRest.Admin._
 import org.make.backoffice.facade.AdminOnRest.NativeDelete
 import org.make.backoffice.facade.AdminOnRest.Resource._
@@ -142,6 +143,13 @@ object Main {
           ^.listing := PersonalityList(),
           ^.edit := EditPersonality(),
           ^.create := CreatePersonality()
+        )(),
+        <.Resource(
+          ^.name := Resource.topIdeas,
+          ^.listing := TopIdeaList(),
+          ^.edit := EditTopIdea(),
+          ^.create := CreateTopIdea(),
+          ^.remove := NativeDelete
         )()
       ),
       dom.document.getElementById("make-backoffice")

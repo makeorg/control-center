@@ -77,6 +77,12 @@ object CustomMenu {
               ^.leftIcon := ideaIcon,
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
             )(),
+            <.MenuItemLink(
+              ^.to := s"/${Resource.topIdeas}",
+              ^.primaryText := "Top Ideas",
+              ^.leftIcon := topIdeasIcon,
+              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
+            )(),
             <.Divider.empty,
             <.MenuItemLink(
               ^.to := s"/${Resource.users}",

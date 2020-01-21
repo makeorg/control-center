@@ -40,14 +40,14 @@ object IdeaService extends ApiService with CirceClassFormatters {
                 filters: Option[Seq[Filter]] = None): Future[Seq[Idea]] = {
 
     var getIdeaUri: String = resourceName ?
-      ("limit", pagination.map(_.perPage)) &
-      ("skip", pagination.map(page => page.page * page.perPage - page.perPage)) &
+      ("_end", pagination.map(_.perPage)) &
+      ("_start", pagination.map(page => page.page * page.perPage - page.perPage)) &
       ("questionId", ApiService.getFieldValueFromFilters("questionId", filters))
 
     // search with keywords (=name) should not use order param to get results by relevance
     ApiService.getFieldValueFromFilters("name", filters) match {
       case Some(content) if content.nonEmpty => getIdeaUri = getIdeaUri & ("name", Some(content))
-      case _                                 => getIdeaUri = getIdeaUri & ("sort", sort.map(_.field)) & ("order", sort.map(_.order))
+      case _                                 => getIdeaUri = getIdeaUri & ("_sort", sort.map(_.field)) & ("_order", sort.map(_.order))
     }
 
     client

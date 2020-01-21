@@ -75,7 +75,7 @@ final case class UpdatePersonalityRequest(userId: String, personalityRole: Strin
 
 object UpdatePersonalityRequest {
   implicit lazy val encoder: Encoder[UpdatePersonalityRequest] =
-    Encoder.forProduct2("userId", "personalityKind")(
+    Encoder.forProduct2("userId", "personalityRole")(
       updatePersonalityRequest => (updatePersonalityRequest.userId, updatePersonalityRequest.personalityRole)
     )
 }

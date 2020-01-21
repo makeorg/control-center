@@ -48,11 +48,27 @@ trait Resources extends js.Object {
 }
 
 @js.native
+trait Values extends js.Object {
+  val questionId: js.UndefOr[String]
+}
+
+@js.native
+trait RecordForm extends js.Object {
+  val values: Values
+}
+
+@js.native
 trait Admin extends js.Object {
   val resources: Resources
 }
 
 @js.native
+trait Form extends js.Object {
+  val `record-form`: js.UndefOr[RecordForm]
+}
+
+@js.native
 trait AppState extends js.Object {
   val admin: Admin
+  val form: Form
 }
