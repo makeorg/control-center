@@ -58,6 +58,16 @@ object Role {
 }
 
 @js.native
+trait CurrentUser extends js.Object {
+  val roles: js.Array[Role]
+}
+
+object CurrentUser {
+  def apply(roles: Seq[Role]): CurrentUser =
+    js.Dynamic.literal(roles = roles.toJSArray).asInstanceOf[CurrentUser]
+}
+
+@js.native
 trait User extends js.Object {
   val userId: UserId
   val email: String

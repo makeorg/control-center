@@ -28,7 +28,7 @@ import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import org.make.backoffice.facade.Configuration
 import org.make.backoffice.facade.Login._
 import org.make.backoffice.facade.ReactGoogleLogin._
-import org.make.backoffice.model.{Role, User}
+import org.make.backoffice.model.{CurrentUser, Role}
 import org.make.backoffice.service.user.UserService
 import org.scalajs.dom.experimental.Response
 import scalacss.DevDefaults._
@@ -51,7 +51,7 @@ object LoginPage {
 
   def onFailureResponse: Response => Unit = _ => {}
 
-  def reactClass(baseUrl: String) = WithRouter(
+  def reactClass(baseUrl: String): ReactClass = WithRouter(
     React.createClass[Unit, LoginPageState](
       displayName = "LoginPage",
       getInitialState = _ => LoginPageState(isSignIn = false, error = None),
@@ -60,7 +60,7 @@ object LoginPage {
           handleFutureApiResponse(UserService.loginGoogle(response.asInstanceOf[GoogleAuthResponse].tokenId))
         }
 
-        def handleFutureApiResponse(futureUser: Future[User]): Unit = {
+        def handleFutureApiResponse(futureUser: Future[CurrentUser]): Unit = {
           futureUser.onComplete {
             case Success(user) =>
               if (user.roles.contains(Role.roleAdmin) || user.roles.contains(Role.roleModerator)) {

@@ -53,7 +53,7 @@ object Dashboard {
         DashboardState(Seq.empty)
       },
       componentDidMount = self => {
-        UserService.me.onComplete {
+        UserService.currentUser.onComplete {
           case Success(_) =>
           case Failure(_) => self.props.history.push("/login")
         }
