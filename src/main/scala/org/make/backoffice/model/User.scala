@@ -171,7 +171,8 @@ trait Organisation extends js.Object {
 }
 
 object Organisation {
-  def apply(id: Option[UserId], organisationName: String, profile: Option[Profile]): Organisation = {
+  def apply(id: Option[UserId], maybeOrganisationName: Option[String], profile: Option[Profile]): Organisation = {
+    val organisationName = maybeOrganisationName.getOrElse("")
     js.Dynamic
       .literal(id = id.map(_.value).orUndefined, organisationName = organisationName, profile = profile.orUndefined)
       .asInstanceOf[Organisation]

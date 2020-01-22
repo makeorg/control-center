@@ -48,7 +48,7 @@ object CreateTopIdea {
   def selectorFactory: Dispatch => (AppState, Props[Unit]) => CreateProps =
     (_: Dispatch) =>
       (state: AppState, _: Props[Unit]) => {
-        val questionId = state.form.`record-form`.flatMap(_.values.questionId)
+        val questionId = state.form.`record-form`.flatMap(_.values.flatMap(_.questionId))
         CreateProps(questionId.getOrElse(""))
     }
 
@@ -84,7 +84,7 @@ object CreateTopIdea {
           <.Create(^.resource := Resource.topIdeas, ^.location := self.props.location, ^.hasList := true)(
             <.SimpleForm()(
               <.TextInput(^.source := "name", ^.options := Map("fullWidth" -> true), ^.validate := required)(),
-              <.TextInput(^.source := "label", ^.options := Map("fullWidth" -> true))(),
+              <.TextInput(^.source := "label", ^.options := Map("fullWidth" -> true), ^.validate := required)(),
               <.ReferenceInput(
                 ^.source := "questionId",
                 ^.label := "question",

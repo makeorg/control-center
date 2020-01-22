@@ -54,7 +54,7 @@ trait Values extends js.Object {
 
 @js.native
 trait RecordForm extends js.Object {
-  val values: Values
+  val values: js.UndefOr[Values]
 }
 
 @js.native
