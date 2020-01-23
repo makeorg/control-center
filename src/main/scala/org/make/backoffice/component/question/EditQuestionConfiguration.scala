@@ -76,11 +76,15 @@ object EditQuestionConfiguration {
             case Failure(_)              =>
           }
 
-          val nullOrganisation = Organisation(id = None, organisationName = "", profile = None)
+          val nullOrganisation = Organisation(id = None, maybeOrganisationName = None, profile = None)
 
           OrganisationService.organisations(None, Some(500)).onComplete {
             case Success(organisations) =>
-              self.setState(_.copy(organisationSearchList = organisations.+:(nullOrganisation)))
+              self.setState(
+                _.copy(
+                  organisationSearchList = organisations.filterNot(_.organisationName.isEmpty).+:(nullOrganisation)
+                )
+              )
             case Failure(_) =>
           }
         },
