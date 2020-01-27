@@ -25,14 +25,22 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
+import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.images.ImageUploadField.ImageUploadFieldProps
+import org.make.backoffice.component.images.ImageUploadFieldStyle
 import org.make.backoffice.facade.AdminOnRest.Edit._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
 import org.make.backoffice.facade.AdminOnRest.required
 import org.make.backoffice.facade.Choice
+import org.make.backoffice.service.user.UserService
 import org.make.backoffice.util.Configuration
+import org.scalajs.dom.raw.FormData
+import scalacss.DevDefaults._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
 
 object EditPersonality {
@@ -40,6 +48,10 @@ object EditPersonality {
   case class EditPersonalityProps() extends RouterProps
 
   def apply(): ReactClass = reactClass
+
+  private def uploadAvatar: FormData => Future[String] = { data =>
+    UserService.adminUploadAvatar(data, "PERSONALITY").map(_.path)
+  }
 
   private lazy val reactClass =
     React
@@ -97,7 +109,15 @@ object EditPersonality {
                     )()
                   )
               },
-              <.TextInput(^.label := "Avatar URL", ^.source := "avatarUrl", ^.options := Map("fullWidth" -> true))(),
+              <.UploadImageComponent(
+                ^.wrapped := ImageUploadFieldProps(
+                  "avatarUrl",
+                  "Avatar URL",
+                  ImageUploadFieldStyle.dropzone.htmlClass,
+                  ImageUploadFieldStyle.preview.htmlClass,
+                  uploadAvatar
+                )
+              )(),
               <.TextInput(^.label := "Description", ^.source := "description", ^.options := Map("fullWidth" -> true))(),
               <.SelectInput(^.source := "gender", ^.choices := genderChoice, ^.options := Map("fullWidth" -> true))(),
               <.DependentInput(^.dependsOn := "gender", ^.dependsValue := "Other")(
@@ -108,7 +128,8 @@ object EditPersonality {
                 ^.source := "politicalParty",
                 ^.options := Map("fullWidth" -> true)
               )(),
-              <.TextInput(^.label := "Website", ^.source := "website", ^.options := Map("fullWidth" -> true))()
+              <.TextInput(^.label := "Website", ^.source := "website", ^.options := Map("fullWidth" -> true))(),
+              <.style()(ImageUploadFieldStyle.render[String])
             )
           )
         }

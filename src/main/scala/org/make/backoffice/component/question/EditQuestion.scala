@@ -23,11 +23,12 @@ package org.make.backoffice.component.question
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
-import io.github.shogowada.scalajs.reactjs.events.MouseSyntheticEvent
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
-import org.make.backoffice.client.{BadRequestHttpException, Resource}
+import org.make.backoffice.client.Resource
 import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.images.ImageUploadField.ImageUploadFieldProps
+import org.make.backoffice.component.images.ImageUploadFieldStyle
 import org.make.backoffice.facade.AdminOnRest.Edit._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.FormTab._
@@ -35,122 +36,31 @@ import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.AdminOnRest.required
-import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.model.Question
 import org.make.backoffice.service.question.QuestionService
 import org.make.backoffice.util.DateParser
 import org.scalajs.dom._
 import scalacss.DevDefaults._
-import scalacss.internal.StyleA
-import scalacss.internal.mutable.StyleSheet
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
-import scala.util.{Failure, Success}
 
 object EditQuestion {
 
   case class EditQuestionProps() extends RouterProps
-  case class EditQuestionState(fileConsultationImage: Option[File],
-                               fileDescriptionImage: Option[File],
-                               snackbarOpen: Boolean,
-                               errorMessage: String)
-  case class ImageUrlValidateProps(uploadFile: String => MouseSyntheticEvent => Unit)
 
   def apply(): ReactClass = reactClass
 
-  lazy val consultationImagePreview: ReactClass = React.createClass[Unit, Unit](render = self => {
-    val question: Question = self.props.native.record.asInstanceOf[Question]
-
-    question.consultationImage.toOption match {
-      case Some(imgUrl) if imgUrl != null =>
-        <.div(^.className := EditQuestionStyles.imgPreview.htmlClass)(
-          <.label()("Consultation Image"),
-          <.br.empty,
-          <.img(^.src := imgUrl, ^.title := "question consultationImage", ^.width := 150)()
-        )
-      case _ =>
-        <.div(^.className := EditQuestionStyles.imgPreview.htmlClass)(<.label()("Consultation Image"))
-    }
-  })
-
-  lazy val descriptionImagePreview: ReactClass = React.createClass[Unit, Unit](render = self => {
-    val question: Question = self.props.native.record.asInstanceOf[Question]
-
-    question.descriptionImage.toOption match {
-      case Some(imgUrl) if imgUrl != null =>
-        <.div(^.className := EditQuestionStyles.imgPreview.htmlClass)(
-          <.label()("Description Image"),
-          <.br.empty,
-          <.img(^.src := imgUrl, ^.title := "question descriptionImage", ^.width := 150)()
-        )
-      case _ =>
-        <.div(^.className := EditQuestionStyles.imgPreview.htmlClass)(<.label()("Description Image"))
-    }
-  })
-
-  lazy val imageUrlValidate: ReactClass = React.createClass[ImageUrlValidateProps, Unit](render = self => {
-    val question: Question = self.props.native.record.asInstanceOf[Question]
-
-    <.RaisedButton(
-      ^.className := EditQuestionStyles.validateImage.htmlClass,
-      ^.onClick := self.props.wrapped.uploadFile(question.id),
-      ^.label := "Upload Image",
-      ^.secondary := true
-    )()
-
-  })
-
   private lazy val reactClass =
     React
-      .createClass[EditQuestionProps, EditQuestionState](
+      .createClass[EditQuestionProps, Unit](
         displayName = "EditQuestion",
-        getInitialState = _ =>
-          EditQuestionState(
-            fileConsultationImage = None,
-            fileDescriptionImage = None,
-            snackbarOpen = false,
-            errorMessage = ""
-        ),
         render = self => {
-          def getFileConsultationImage: ImageFileWrapper => Unit = { imgFile =>
-            self.setState(_.copy(fileConsultationImage = Some(imgFile.`0`.rawFile)))
-          }
 
-          def getFileDescriptionImage: ImageFileWrapper => Unit = { imgFile =>
-            self.setState(_.copy(fileDescriptionImage = Some(imgFile.`0`.rawFile)))
-          }
-
-          def handleConsultationImage(imgFile: File): String => MouseSyntheticEvent => Unit = {
-            questionId => _ =>
-              val formData = new FormData()
-              formData.append("data", imgFile)
-              QuestionService
-                .uploadConsultationImage(questionId, formData = formData)
-                .onComplete {
-                  case Success(_) =>
-                    self.setState(_.copy(snackbarOpen = true, errorMessage = "Image uploaded successfully"))
-                  case Failure(BadRequestHttpException(_)) =>
-                    self.setState(_.copy(snackbarOpen = true, errorMessage = "Bad request"))
-                  case Failure(_) =>
-                    self.setState(_.copy(snackbarOpen = true, errorMessage = "Internal Error"))
-                }
-          }
-
-          def handleDescriptionImage(imgFile: File): String => MouseSyntheticEvent => Unit = {
-            questionId => _ =>
-              val formData = new FormData()
-              formData.append("data", imgFile)
-              QuestionService
-                .uploadDescriptionImage(questionId, formData = formData)
-                .onComplete {
-                  case Success(_) =>
-                    self.setState(_.copy(snackbarOpen = true, errorMessage = "Image uploaded successfully"))
-                  case Failure(BadRequestHttpException(_)) =>
-                    self.setState(_.copy(snackbarOpen = true, errorMessage = "Bad request"))
-                  case Failure(_) =>
-                    self.setState(_.copy(snackbarOpen = true, errorMessage = "Internal Error"))
-                }
+          def uploadQuestionImage(questionId: String): FormData => Future[String] = { data =>
+            QuestionService
+              .uploadImage(questionId, formData = data)
+              .map(_.path)
           }
 
           <.div()(
@@ -354,90 +264,44 @@ object EditQuestion {
                       "hintText" -> "Participez à la consultation initiée par [Nom partenaires fondateurs] avec Make.org"
                     )
                   )(),
-                  <.TextInput(
-                    ^.label := "Picture",
-                    ^.source := "metas.picture",
-                    ^.`type` := "url",
-                    ^.options := Map("fullWidth" -> true)
-                  )()
+                  <.UploadImageComponent(
+                    ^.wrapped := ImageUploadFieldProps(
+                      "metas.picture",
+                      "Picture",
+                      ImageUploadFieldStyle.dropzone.htmlClass,
+                      ImageUploadFieldStyle.preview.htmlClass,
+                      uploadQuestionImage(self.props.native.`match`.params.id.toString)
+                    )
+                  )(),
                 ),
                 <.FormTab(^.label := "Theme")(
                   <.ColorInput(^.source := "theme.gradientStart", ^.label := "Gradient start")(),
                   <.ColorInput(^.source := "theme.gradientEnd", ^.label := "Gradient End")(),
                   <.ColorInput(^.source := "theme.color", ^.label := "Color")(),
                   <.ColorInput(^.source := "theme.fontColor", ^.label := "Font color")(),
-                  <.br.empty,
-                  <.ConsultationImagePreview.empty,
-                  <.ImageInput(
-                    ^.name := "consultationImagePreviewInput",
-                    ^.source := "consultationImagePreviewInput",
-                    ^.label := "Upload new image",
-                    ^.accept := "image/*",
-                    ^.onChange := getFileConsultationImage,
-                    ^.style := Map("width" -> "50%")
-                  )(<.ImageField(^.source := "src", ^.title := "title", ^.style := Map("width" -> "50%"))()),
-                  self.state.fileConsultationImage.map { file =>
-                    <.ImageUrlValidate(^.wrapped := ImageUrlValidateProps(uploadFile = handleConsultationImage(file)))()
-                  }.getOrElse(<.div()()),
-                  <.br.empty,
-                  <.DescriptionImagePreview.empty,
-                  <.ImageInput(
-                    ^.name := "descriptionImagePreviewInput",
-                    ^.source := "descriptionImagePreviewInput",
-                    ^.label := "Upload new image",
-                    ^.accept := "image/*",
-                    ^.onChange := getFileDescriptionImage,
-                    ^.style := Map("width" -> "50%")
-                  )(<.ImageField(^.source := "src", ^.title := "title", ^.style := Map("width" -> "50%"))()),
-                  self.state.fileDescriptionImage.map { file =>
-                    <.ImageUrlValidate(^.wrapped := ImageUrlValidateProps(uploadFile = handleDescriptionImage(file)))()
-                  }.getOrElse(<.div()())
+                  <.UploadImageComponent(
+                    ^.wrapped := ImageUploadFieldProps(
+                      "consultationImage",
+                      "Consultation Image",
+                      ImageUploadFieldStyle.dropzone.htmlClass,
+                      ImageUploadFieldStyle.preview.htmlClass,
+                      uploadQuestionImage(self.props.native.`match`.params.id.toString)
+                    )
+                  )(),
+                  <.UploadImageComponent(
+                    ^.wrapped := ImageUploadFieldProps(
+                      "descriptionImage",
+                      "Description Image",
+                      ImageUploadFieldStyle.dropzone.htmlClass,
+                      ImageUploadFieldStyle.preview.htmlClass,
+                      uploadQuestionImage(self.props.native.`match`.params.id.toString)
+                    )
+                  )()
                 )
               )
             ),
-            <.Snackbar(
-              ^.open := self.state.snackbarOpen,
-              ^.message := self.state.errorMessage,
-              ^.autoHideDuration := 5000,
-              ^.onRequestClose := (_ => self.setState(_.copy(snackbarOpen = false)))
-            )(),
-            <.style()(EditQuestionStyles.render[String])
+            <.style()(ImageUploadFieldStyle.render[String])
           )
         }
       )
-}
-
-object EditQuestionStyles extends StyleSheet.Inline {
-
-  import dsl._
-
-  val imgPreview: StyleA =
-    style(
-      display.inlineBlock,
-      maxWidth(50.%%),
-      unsafeChild("label")(color(rgba(0, 0, 0, 0.3)), fontSize(12.px), fontWeight._700)
-    )
-
-  val validateImage: StyleA =
-    style(width(50.%%))
-
-}
-
-@js.native
-trait ImageFileWrapper extends js.Object {
-  val `0`: ImageFile
-}
-
-@js.native
-trait ImageFile extends js.Object {
-  val rawFile: File
-  val src: String
-  val title: String
-}
-
-object ImageFile {
-  def apply(rawFile: File, src: String, title: String): ImageFile =
-    js.Dynamic
-      .literal(rawFile = rawFile, src = src, title = title)
-      .asInstanceOf[ImageFile]
 }

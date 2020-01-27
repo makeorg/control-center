@@ -21,12 +21,13 @@
 package org.make.backoffice.service.question
 
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder}
+import io.circe.Encoder
 import org.make.backoffice.client.ListTotalResponse
 import org.make.backoffice.client.request.{Filter, Pagination, Sort}
 import org.make.backoffice.model.Question.DataConfiguration
 import org.make.backoffice.model.{ProposalIdResult, Question}
 import org.make.backoffice.service.ApiService
+import org.make.backoffice.service.homepage.UploadResponse
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
 import org.scalajs.dom.FormData
@@ -107,32 +108,17 @@ object QuestionService extends ApiService with CirceClassFormatters {
       }
   }
 
-  def uploadConsultationImage(questionId: String, formData: FormData): Future[ImagePath] = {
+  def uploadImage(questionId: String, formData: FormData): Future[UploadResponse] = {
     val data: InputData = InputData.formdata2ajax(formData)
     client
-      .post[ImagePath](
-        apiEndpoint = s"moderation/questions/$questionId/consultation-image",
+      .post[UploadResponse](
+        apiEndpoint = s"moderation/questions/$questionId/image",
         data = data,
         includeContentType = false
       )
       .recover {
         case e =>
-          js.Dynamic.global.console.log(s"instead of converting to ImagePath: failed cursor $e")
-          throw e
-      }
-  }
-
-  def uploadDescriptionImage(questionId: String, formData: FormData): Future[ImagePath] = {
-    val data: InputData = InputData.formdata2ajax(formData)
-    client
-      .post[ImagePath](
-        apiEndpoint = s"moderation/questions/$questionId/description-image",
-        data = data,
-        includeContentType = false
-      )
-      .recover {
-        case e =>
-          js.Dynamic.global.console.log(s"instead of converting to ImagePath: failed cursor $e")
+          js.Dynamic.global.console.log(s"instead of converting to UploadResponse: failed cursor $e")
           throw e
       }
   }
@@ -152,16 +138,5 @@ object QuestionService extends ApiService with CirceClassFormatters {
     implicit lazy val encoder: Encoder[AuthorRequest] = Encoder.forProduct3("age", "firstName", "lastName")(
       authorRequest => (authorRequest.age, authorRequest.firstName, authorRequest.lastName)
     )
-  }
-
-  @js.native
-  trait ImagePath extends js.Object {
-    val path: String
-  }
-
-  object ImagePath {
-    def apply(path: String): ImagePath = js.Dynamic.literal(path = path).asInstanceOf[ImagePath]
-
-    implicit lazy val decoder: Decoder[ImagePath] = Decoder.forProduct1("path")(ImagePath.apply)
   }
 }
