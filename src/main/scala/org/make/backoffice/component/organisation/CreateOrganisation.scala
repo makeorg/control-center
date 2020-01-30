@@ -26,6 +26,9 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
+import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.images.ImageUploadField.ImageUploadFieldProps
+import org.make.backoffice.component.images.ImageUploadFieldStyle
 import org.make.backoffice.facade.AdminOnRest.Create._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
@@ -33,12 +36,22 @@ import org.make.backoffice.facade.AdminOnRest.SaveButton._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
 import org.make.backoffice.facade.AdminOnRest.Toolbar._
 import org.make.backoffice.facade.AdminOnRest.required
+import org.make.backoffice.service.user.UserService
 import org.make.backoffice.util.Configuration
+import org.scalajs.dom.raw.FormData
+import scalacss.DevDefaults._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object CreateOrganisation {
   case class CreateOrganisationProps() extends RouterProps
 
   def apply(): ReactClass = reactClass
+
+  private def uploadAvatar: FormData => Future[String] = { data =>
+    UserService.adminUploadAvatar(data, "ORGANISATION").map(_.path)
+  }
 
   private lazy val toolbar: ReactElement =
     <.Toolbar()(
@@ -68,13 +81,22 @@ object CreateOrganisation {
                 ^.options := Map("fullWidth" -> true)
               )(),
               <.TextInput(^.source := "password", ^.options := Map("fullWidth" -> true))(),
-              <.TextInput(^.label := "avatar url", ^.source := "avatarUrl", ^.options := Map("fullWidth" -> true))(),
+              <.UploadImageComponent(
+                ^.wrapped := ImageUploadFieldProps(
+                  "avatarUrl",
+                  "Avatar URL",
+                  ImageUploadFieldStyle.dropzone.htmlClass,
+                  ImageUploadFieldStyle.preview.htmlClass,
+                  uploadAvatar
+                )
+              )(),
               <.TextInput(^.label := "Description", ^.source := "description", ^.options := Map("fullWidth" -> true))(),
               <.SelectInput(
                 ^.source := "country",
                 ^.choices := Configuration.choicesCountry,
                 ^.allowEmpty := false,
-                ^.validate := required
+                ^.validate := required,
+                ^.options := Map("fullWidth" -> true)
               )(),
               Configuration.choiceLanguage.map {
                 case (country, languages) =>
@@ -83,11 +105,13 @@ object CreateOrganisation {
                       ^.source := "language",
                       ^.choices := languages,
                       ^.allowEmpty := false,
-                      ^.validate := required
+                      ^.validate := required,
+                      ^.options := Map("fullWidth" -> true)
                     )()
                   )
               },
-              <.TextInput(^.source := "website", ^.options := Map("fullWidth" -> true))()
+              <.TextInput(^.source := "website", ^.options := Map("fullWidth" -> true))(),
+              <.style()(ImageUploadFieldStyle.render[String])
             )
           )
         }

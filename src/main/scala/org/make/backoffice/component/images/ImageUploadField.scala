@@ -36,6 +36,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.util.{Failure, Success}
+import scalacss.DevDefaults._
+import scalacss.internal.StyleA
+import scalacss.internal.mutable.StyleSheet
 
 object ImageUploadField {
 
@@ -138,6 +141,24 @@ object ImageUploadField {
         }
       )
 
+}
+
+object ImageUploadFieldStyle extends StyleSheet.Inline {
+
+  import dsl._
+
+  val dropzone: StyleA =
+    style(
+      background := "#efefef",
+      cursor.pointer,
+      padding(1.rem),
+      marginTop(1.rem),
+      textAlign.center,
+      color(rgb(9, 9, 9))
+    )
+
+  val preview: StyleA =
+    style(maxWidth(500.px), maxHeight(500.px), height.auto, marginLeft.auto, marginRight.auto, marginTop(1.rem))
 }
 
 @js.native
