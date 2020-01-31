@@ -86,7 +86,7 @@ object EditTag {
             val filter = Filter(field = "questionId", value = self.props.wrapped.questionId.getOrElse(""))
             ProposalService
               .proposals(
-                Some(Pagination(page = 1, perPage = 5000)), //todo asynchronous search
+                Some(Pagination(page = 1, perPage = 10000)), //todo asynchronous search
                 None,
                 Some(Seq(filter, Filter(field = "status", value = js.Array(Accepted.shortName))))
               )
