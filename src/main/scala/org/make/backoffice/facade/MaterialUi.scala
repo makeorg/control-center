@@ -181,7 +181,7 @@ object MaterialUi {
   type BaseFunction0 = js.Function0[Unit]
   type OnNewRequest = js.Function2[js.Object, Int, Unit]
   type OnRequestClose = js.Function1[String, Unit]
-  type OnUpdateInput = js.Function3[String, js.Array[js.Object], js.Object, Unit]
+  type OnUpdateInput = js.Function3[String, js.Array[js.Object], OnUpdateInputParams, Unit]
   type OnCheck = js.Function2[FormSyntheticEvent[HTMLInputElement], Boolean, Unit]
 
   case class OnRowColumnAttributeSpec(name: String) extends AttributeSpec {
@@ -398,5 +398,10 @@ object MaterialUi {
     lazy val underlineShow = BooleanAttributeSpec("underlineShow")
     lazy val valueSelect = ValueSelectAttributeSpec("value")
     lazy val wrapperStyle = MapStringAttributeSpec("wrapperStyle")
+  }
+
+  @js.native
+  trait OnUpdateInputParams extends js.Object {
+    val source: String
   }
 }

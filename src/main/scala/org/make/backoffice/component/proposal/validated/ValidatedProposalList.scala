@@ -80,7 +80,7 @@ object ValidatedProposalList {
           val questionIdFilter: Option[String] = self.props.wrapped.filters.get("questionId")
           if (questionIdFilter.nonEmpty) {
             TagService
-              .tags(questionIdFilter)
+              .tags(questionIdFilter, label = None)
               .onComplete {
                 case Success(tags) =>
                   self.setState(_.copy(tags = tags))
@@ -100,7 +100,7 @@ object ValidatedProposalList {
             val questionIdFilter: Option[String] = props.wrapped.filters.get("questionId")
             if (questionIdFilter.nonEmpty) {
               TagService
-                .tags(questionIdFilter)
+                .tags(questionIdFilter, label = None)
                 .onComplete {
                   case Success(tags) => self.setState(_.copy(tags = tags))
                   case Failure(_)    => self.setState(_.copy(Seq.empty))

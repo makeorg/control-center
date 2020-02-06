@@ -27,12 +27,13 @@ import org.make.backoffice.util.CirceClassFormatters
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.scalajs.js
+import org.make.backoffice.util.uri._
 
 object PersonalityService extends ApiService with CirceClassFormatters {
   override val resourceName: String = "admin/personalities"
 
-  def personalities: Future[Seq[SimpleUser]] = {
-    client.get[Seq[SimpleUser]](resourceName).recover {
+  def personalities(firstName: Option[String]): Future[Seq[SimpleUser]] = {
+    client.get[Seq[SimpleUser]](resourceName ? ("firstName", firstName)).recover {
       case e =>
         js.Dynamic.global.console.log(s"instead of getting personalities: failed cursor $e")
         throw e

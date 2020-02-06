@@ -170,7 +170,7 @@ object FeaturedOperation {
       .asInstanceOf[FeaturedOperation]
 
   val internalLinkMap: Map[String, String] = {
-    Map("CONSULTATION" -> "Consultation", "SELECTION" -> "Selection", "ACTIONS" -> "Actions")
+    Map("CONSULTATION" -> "Consultation", "SELECTION" -> "Selection", "ACTIONS" -> "Actions", "RESULTS" -> "Results")
   }
 }
 

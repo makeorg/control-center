@@ -28,6 +28,7 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.client.request.{Filter, Pagination}
 import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.autoComplete.AutoComplete.AutoCompleteProps
 import org.make.backoffice.facade.AdminOnRest.Edit._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
@@ -40,6 +41,7 @@ import org.make.backoffice.service.idea.IdeaService
 import org.make.backoffice.service.proposal.{Accepted, ProposalService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.|
 import scala.util.{Failure, Success}
@@ -59,11 +61,7 @@ object EditIdea {
   })
 
   case class DataGridProps(ideaId: Option[String], questionId: Option[String])
-  case class DataGridState(ideas: Seq[Idea] = Seq.empty,
-                           proposalsIdeaList: Seq[Proposal] = Seq.empty,
-                           proposalsSearchList: Seq[Proposal] = Seq.empty,
-                           searchIdeaContent: String = "",
-                           searchProposalContent: String = "",
+  case class DataGridState(proposalsIdeaList: Seq[Proposal] = Seq.empty,
                            selectedIdeaId: Option[IdeaId] = None,
                            selectedProposalToAdd: Option[Proposal] = None,
                            selectedIds: Seq[ProposalId] = Seq.empty,
@@ -82,30 +80,23 @@ object EditIdea {
             self.setState(_.copy(shouldUpdate = false))
           }
           if (self.state.shouldUpdate && self.props.wrapped.questionId.isDefined) {
-            var filters: Seq[Filter] = Seq(Filter(field = "questionId", value = self.props.wrapped.questionId.get))
             ProposalService
               .proposals(
-                Some(Pagination(page = 1, perPage = 10000)), //todo asynchronous search
+                Some(Pagination(page = 1, perPage = 500)), //todo: paginate the custom datagrid
                 None,
-                Some(filters :+ Filter(field = "status", value = js.Array(Accepted.shortName)))
+                Some(
+                  Seq(
+                    Filter(field = "questionId", value = self.props.wrapped.questionId.getOrElse("")),
+                    Filter(field = "status", value = js.Array(Accepted.shortName)),
+                    Filter(field = "ideaId", value = self.props.wrapped.ideaId.getOrElse(""))
+                  )
+                )
               )
               .onComplete {
                 case Success(proposals) =>
-                  self.setState(
-                    _.copy(
-                      proposalsIdeaList = proposals.data.toSeq
-                        .filter(proposal => proposal.ideaId.contains(self.props.wrapped.ideaId.getOrElse(""))),
-                      proposalsSearchList = proposals.data.toSeq
-                        .filterNot(proposal => proposal.ideaId.contains(self.props.wrapped.ideaId.getOrElse("")))
-                    )
-                  )
+                  self.setState(_.copy(proposalsIdeaList = proposals.data.toSeq))
                 case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
               }
-            IdeaService.listIdeas(Some(Pagination(page = 1, perPage = 1000)), None, Some(filters)).onComplete {
-              case Success(ideaResponse) =>
-                self.setState(_.copy(ideas = ideaResponse.filterNot(_.id == self.props.wrapped.ideaId.getOrElse(""))))
-              case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
-            }
           }
         },
         render = self => {
@@ -119,14 +110,6 @@ object EditIdea {
             self.setState(_.copy(selectedIds = selectedIds.map(ProposalId(_))))
           }
 
-          def handleUpdateIdeaInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
-            self.setState(_.copy(searchIdeaContent = searchText))
-          }
-
-          def handleUpdateProposalInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
-            self.setState(_.copy(searchProposalContent = searchText))
-          }
-
           def handleNewIdeaRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
             val idea = chosenRequest.asInstanceOf[Idea]
             self.setState(_.copy(selectedIdeaId = Some(IdeaId(idea.id))))
@@ -135,10 +118,6 @@ object EditIdea {
           def handleNewProposalRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
             val proposal = chosenRequest.asInstanceOf[Proposal]
             self.setState(_.copy(selectedProposalToAdd = Some(proposal)))
-          }
-
-          def filterAutoComplete: (String, String) => Boolean = (searchText, key) => {
-            key.indexOf(searchText) != -1
           }
 
           def onSnackbarClose: String => Unit = _ => {
@@ -159,7 +138,6 @@ object EditIdea {
                           _.copy(
                             proposalsIdeaList = newProposalsList,
                             selectedIds = Seq.empty,
-                            searchIdeaContent = "",
                             snackbarUpdateOkOpen = true
                           )
                         )
@@ -173,46 +151,64 @@ object EditIdea {
           def onClickAddProposal: SyntheticEvent => Unit = event => {
             event.preventDefault()
             self.state.selectedProposalToAdd match {
-              case Some(proposal) =>
-                self.props.wrapped.ideaId.foreach {
-                  ideaId =>
-                    ProposalService
-                      .changeProposalsIdea(IdeaId(ideaId), Seq(ProposalId(proposal.id)))
-                      .onComplete {
-                        case Success(_) =>
-                          val newProposalsList = self.state.proposalsIdeaList :+ proposal
-                          val newSearchList = self.state.proposalsSearchList.filterNot(_.id == proposal.id)
-                          self.setState(
-                            _.copy(
-                              proposalsIdeaList = newProposalsList,
-                              proposalsSearchList = newSearchList,
-                              searchProposalContent = "",
-                              selectedProposalToAdd = None,
-                              snackbarAddOkOpen = true
-                            )
+              case Some(proposal) if !self.state.proposalsIdeaList.contains(proposal) =>
+                self.props.wrapped.ideaId.foreach { ideaId =>
+                  ProposalService
+                    .changeProposalsIdea(IdeaId(ideaId), Seq(ProposalId(proposal.id)))
+                    .onComplete {
+                      case Success(_) =>
+                        val newProposalsList = self.state.proposalsIdeaList :+ proposal
+                        self.setState(
+                          _.copy(
+                            proposalsIdeaList = newProposalsList,
+                            selectedProposalToAdd = None,
+                            snackbarAddOkOpen = true
                           )
-                        case Failure(_) => self.setState(_.copy(snackbarKoOpen = true))
-                      }
+                        )
+                      case Failure(_) => self.setState(_.copy(snackbarKoOpen = true))
+                    }
                 }
-              case None =>
+              case _ =>
             }
+          }
+
+          def proposalsSearchRequest: Option[String] => Future[Seq[Proposal]] = { content =>
+            ProposalService
+              .proposals(
+                None,
+                None,
+                Some(
+                  Seq(
+                    Filter(field = "questionId", value = self.props.wrapped.questionId.getOrElse("")),
+                    Filter(field = "content", value = content.getOrElse("")),
+                    Filter(field = "status", value = js.Array(Accepted.shortName))
+                  )
+                )
+              )
+              .map(_.data)
+          }
+
+          def ideaSearchRequest: Option[String] => Future[Seq[Idea]] = { name =>
+            IdeaService
+              .listIdeas(
+                pagination = None,
+                filters = Some(
+                  Seq(
+                    Filter(field = "questionId", value = self.props.wrapped.questionId.getOrElse("")),
+                    Filter(field = "name", value = name.getOrElse(""))
+                  )
+                )
+              )
           }
 
           <.Card(^.style := Map("marginTop" -> "3em", "padding" -> "0px 1em 3em"))(
             <.CardHeader(^.title := "Add proposals")(),
-            <.AutoComplete(
-              ^.id := "search-proposal",
-              ^.hintText := "Search proposals to add",
-              ^.dataSource := self.state.proposalsSearchList,
-              ^.dataSourceConfig := DataSourceConfig("content", "id"),
-              ^.searchText := self.state.searchProposalContent,
-              ^.onUpdateInput := handleUpdateProposalInput,
-              ^.onNewRequest := handleNewProposalRequest,
-              ^.fullWidth := true,
-              ^.popoverProps := Map("canAutoPosition" -> false),
-              ^.openOnFocus := true,
-              ^.filterAutoComplete := filterAutoComplete,
-              ^.menuProps := Map("maxHeight" -> 400)
+            <.AutoCompleteComponent(
+              ^.wrapped := AutoCompleteProps(
+                searchRequest = proposalsSearchRequest,
+                handleNewRequest = handleNewProposalRequest,
+                dataSourceConfig = DataSourceConfig("content", "id")
+              )
             )(),
             <.FlatButton(
               ^.fullWidth := true,
@@ -251,19 +247,13 @@ object EditIdea {
                   })
                 ),
                 <.br()(),
-                <.AutoComplete(
-                  ^.id := "search-proposal-idea",
-                  ^.hintText := "Search idea",
-                  ^.dataSource := self.state.ideas,
-                  ^.dataSourceConfig := DataSourceConfig("name", "id"),
-                  ^.searchText := self.state.searchIdeaContent,
-                  ^.onUpdateInput := handleUpdateIdeaInput,
-                  ^.onNewRequest := handleNewIdeaRequest,
-                  ^.fullWidth := true,
-                  ^.popoverProps := Map("canAutoPosition" -> true),
-                  ^.openOnFocus := true,
-                  ^.filterAutoComplete := filterAutoComplete,
-                  ^.menuProps := Map("maxHeight" -> 400)
+                <.AutoCompleteComponent(
+                  ^.wrapped :=
+                    AutoCompleteProps(
+                      searchRequest = ideaSearchRequest,
+                      handleNewRequest = handleNewIdeaRequest,
+                      dataSourceConfig = DataSourceConfig("name", "id")
+                    )
                 )(),
                 <.FlatButton(
                   ^.fullWidth := true,

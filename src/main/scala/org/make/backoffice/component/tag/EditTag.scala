@@ -28,6 +28,7 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
 import org.make.backoffice.client.request.{Filter, Pagination}
 import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.autoComplete.AutoComplete.AutoCompleteProps
 import org.make.backoffice.facade.AdminOnRest.Edit._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
@@ -41,6 +42,7 @@ import org.make.backoffice.service.proposal.{Accepted, ProposalService}
 import org.make.backoffice.service.tag.TagService
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.|
 import scala.util.{Failure, Success}
@@ -60,11 +62,7 @@ object EditTag {
   })
 
   case class DataGridProps(tagId: Option[String], questionId: Option[String])
-  case class DataGridState(tags: Seq[Tag] = Seq.empty,
-                           proposalsTagList: Seq[Proposal] = Seq.empty,
-                           proposalsSearchList: Seq[Proposal] = Seq.empty,
-                           searchTagContent: String = "",
-                           searchProposalContent: String = "",
+  case class DataGridState(proposalsTagList: Seq[Proposal] = Seq.empty,
                            selectedTagId: Option[TagId] = None,
                            selectedProposalToAdd: Option[Proposal] = None,
                            selectedIds: Seq[ProposalId] = Seq.empty,
@@ -83,30 +81,21 @@ object EditTag {
             self.setState(_.copy(shouldUpdate = false))
           }
           if (self.state.shouldUpdate && self.props.wrapped.questionId.isDefined) {
-            val filter = Filter(field = "questionId", value = self.props.wrapped.questionId.getOrElse(""))
             ProposalService
               .proposals(
-                Some(Pagination(page = 1, perPage = 10000)), //todo asynchronous search
+                Some(Pagination(page = 1, perPage = 500)), //todo: paginate the custom datagrid
                 None,
-                Some(Seq(filter, Filter(field = "status", value = js.Array(Accepted.shortName))))
+                Some(
+                  Seq(
+                    Filter(field = "questionId", value = self.props.wrapped.questionId.getOrElse("")),
+                    Filter(field = "tagsIds", value = js.Array(self.props.wrapped.tagId.getOrElse(""))),
+                    Filter(field = "status", value = js.Array(Accepted.shortName))
+                  )
+                )
               )
               .onComplete {
                 case Success(proposals) =>
-                  self.setState(
-                    _.copy(
-                      proposalsTagList = proposals.data.toSeq
-                        .filter(proposal => proposal.tagIds.contains(self.props.wrapped.tagId.getOrElse(""))),
-                      proposalsSearchList = proposals.data.toSeq
-                        .filterNot(proposal => proposal.tagIds.contains(self.props.wrapped.tagId.getOrElse("")))
-                    )
-                  )
-                case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
-              }
-            TagService
-              .tags(self.props.wrapped.questionId)
-              .onComplete {
-                case Success(tagsList) =>
-                  self.setState(_.copy(tags = tagsList.filterNot(_.id == self.props.wrapped.tagId.getOrElse(""))))
+                  self.setState(_.copy(proposalsTagList = proposals.data.toSeq))
                 case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
               }
           }
@@ -122,14 +111,6 @@ object EditTag {
             self.setState(_.copy(selectedIds = selectedIds.map(ProposalId(_))))
           }
 
-          def handleUpdateTagInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
-            self.setState(_.copy(searchTagContent = searchText))
-          }
-
-          def handleUpdateProposalInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
-            self.setState(_.copy(searchProposalContent = searchText))
-          }
-
           def handleNewTagRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
             val tag = chosenRequest.asInstanceOf[Tag]
             self.setState(_.copy(selectedTagId = Some(TagId(tag.id))))
@@ -138,10 +119,6 @@ object EditTag {
           def handleNewProposalRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
             val proposal = chosenRequest.asInstanceOf[Proposal]
             self.setState(_.copy(selectedProposalToAdd = Some(proposal)))
-          }
-
-          def filterAutoComplete: (String, String) => Boolean = (searchText, key) => {
-            key.indexOf(searchText) != -1
           }
 
           def onSnackbarClose: String => Unit = _ => {
@@ -195,7 +172,6 @@ object EditTag {
                         _.copy(
                           proposalsTagList = newProposalsList,
                           selectedIds = Seq.empty,
-                          searchTagContent = "",
                           snackbarUpdateOkOpen = true
                         )
                       )
@@ -232,7 +208,6 @@ object EditTag {
                         _.copy(
                           proposalsTagList = newProposalsList,
                           selectedIds = Seq.empty,
-                          searchTagContent = "",
                           snackbarUpdateOkOpen = true
                         )
                       )
@@ -256,7 +231,7 @@ object EditTag {
           def onClickAddProposal: SyntheticEvent => Unit = event => {
             event.preventDefault()
             self.state.selectedProposalToAdd match {
-              case Some(proposal) =>
+              case Some(proposal) if !self.state.proposalsTagList.contains(proposal) =>
                 self.props.wrapped.tagId.foreach {
                   tagId =>
                     ProposalService
@@ -272,12 +247,9 @@ object EditTag {
                       .onComplete {
                         case Success(_) =>
                           val newProposalsList = self.state.proposalsTagList :+ proposal
-                          val newSearchList = self.state.proposalsSearchList.filterNot(_.id == proposal.id)
                           self.setState(
                             _.copy(
                               proposalsTagList = newProposalsList,
-                              proposalsSearchList = newSearchList,
-                              searchProposalContent = "",
                               selectedProposalToAdd = None,
                               snackbarAddOkOpen = true
                             )
@@ -285,25 +257,38 @@ object EditTag {
                         case Failure(_) => self.setState(_.copy(snackbarKoOpen = true))
                       }
                 }
-              case None =>
+              case _ =>
             }
+          }
+
+          def proposalsSearchRequest: Option[String] => Future[Seq[Proposal]] = { content =>
+            ProposalService
+              .proposals(
+                None,
+                None,
+                Some(
+                  Seq(
+                    Filter(field = "questionId", value = self.props.wrapped.questionId.getOrElse("")),
+                    Filter(field = "content", value = content.getOrElse("")),
+                    Filter(field = "status", value = js.Array(Accepted.shortName))
+                  )
+                )
+              )
+              .map(_.data)
+          }
+
+          def tagsSearchRequest: Option[String] => Future[Seq[Tag]] = { label =>
+            TagService.tags(self.props.wrapped.questionId, label)
           }
 
           <.Card(^.style := Map("marginTop" -> "3em", "padding" -> "0px 1em 3em"))(
             <.CardHeader(^.title := "Add proposals")(),
-            <.AutoComplete(
-              ^.id := "search-proposal",
-              ^.hintText := "Search proposals to add",
-              ^.dataSource := self.state.proposalsSearchList,
-              ^.dataSourceConfig := DataSourceConfig("content", "id"),
-              ^.searchText := self.state.searchProposalContent,
-              ^.onUpdateInput := handleUpdateProposalInput,
-              ^.onNewRequest := handleNewProposalRequest,
-              ^.fullWidth := true,
-              ^.popoverProps := Map("canAutoPosition" -> false),
-              ^.openOnFocus := true,
-              ^.filterAutoComplete := filterAutoComplete,
-              ^.menuProps := Map("maxHeight" -> 400)
+            <.AutoCompleteComponent(
+              ^.wrapped := AutoCompleteProps(
+                searchRequest = proposalsSearchRequest,
+                handleNewRequest = handleNewProposalRequest,
+                dataSourceConfig = DataSourceConfig("content", "id")
+              )
             )(),
             <.FlatButton(
               ^.fullWidth := true,
@@ -348,19 +333,12 @@ object EditTag {
                   ^.onClick := onClickUpdateTag(RemoveTag)
                 )(),
                 <.br()(),
-                <.AutoComplete(
-                  ^.id := "search-proposal-tag",
-                  ^.hintText := "Search tag",
-                  ^.dataSource := self.state.tags,
-                  ^.dataSourceConfig := DataSourceConfig("label", "id"),
-                  ^.searchText := self.state.searchTagContent,
-                  ^.onUpdateInput := handleUpdateTagInput,
-                  ^.onNewRequest := handleNewTagRequest,
-                  ^.fullWidth := true,
-                  ^.popoverProps := Map("canAutoPosition" -> true),
-                  ^.openOnFocus := true,
-                  ^.filterAutoComplete := filterAutoComplete,
-                  ^.menuProps := Map("maxHeight" -> 400)
+                <.AutoCompleteComponent(
+                  ^.wrapped := AutoCompleteProps(
+                    searchRequest = tagsSearchRequest,
+                    handleNewRequest = handleNewTagRequest,
+                    dataSourceConfig = DataSourceConfig("label", "id")
+                  )
                 )(),
                 <.div(
                   ^.style := Map(

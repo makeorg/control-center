@@ -24,9 +24,12 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
+import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.autoComplete.AutoComplete.AutoCompleteProps
 import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.{Organisation, Partner, Question}
+import org.make.backoffice.service.organisation.OrganisationService
 import org.make.backoffice.service.partner.{CreatePartnerRequest, PartnerService}
 import org.scalajs.dom.raw.HTMLInputElement
 
@@ -36,7 +39,7 @@ import scala.scalajs.js
 
 object CreatePartnerComponent {
 
-  case class CreatePartnerComponentProps(reloadComponent: () => Unit, organisationSearchList: Seq[Organisation])
+  case class CreatePartnerComponentProps(reloadComponent: () => Unit)
   case class CreatePartnerComponentState(name: String,
                                          errorName: String,
                                          logo: Option[String],
@@ -138,10 +141,6 @@ object CreatePartnerComponent {
           self.setState(_.copy(partnerKind = value, errorPartnerKind = ""))
         }
 
-        def handleUpdateOrganisationInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
-          self.setState(_.copy(searchOrganisationContent = searchText))
-        }
-
         def handleNewOrganisationRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
           val organisation = chosenRequest.asInstanceOf[Organisation]
           self.setState(
@@ -151,10 +150,6 @@ object CreatePartnerComponent {
               organisationId = organisation.id.toOption
             )
           )
-        }
-
-        def filterAutoComplete: (String, String) => Boolean = (searchText, key) => {
-          key.indexOf(searchText) != -1
         }
 
         def onCreatePartner: SyntheticEvent => Unit = {
@@ -261,19 +256,12 @@ object CreatePartnerComponent {
               <.FlatButton(^.label := "Create partner", ^.primary := true, ^.onClick := onCreatePartner)()
             )
           )(
-            <.AutoComplete(
-              ^.id := "search-organisation",
-              ^.hintText := "Search organisation",
-              ^.dataSource := self.props.wrapped.organisationSearchList,
-              ^.dataSourceConfig := DataSourceConfig("organisationName", "id"),
-              ^.searchText := self.state.searchOrganisationContent,
-              ^.onUpdateInput := handleUpdateOrganisationInput,
-              ^.onNewRequest := handleNewOrganisationRequest,
-              ^.fullWidth := true,
-              ^.popoverProps := Map("canAutoPosition" -> false),
-              ^.openOnFocus := true,
-              ^.filterAutoComplete := filterAutoComplete,
-              ^.menuProps := Map("maxHeight" -> 400)
+            <.AutoCompleteComponent(
+              ^.wrapped := AutoCompleteProps(
+                searchRequest = OrganisationService.organisations,
+                handleNewRequest = handleNewOrganisationRequest,
+                dataSourceConfig = DataSourceConfig("organisationName", "id")
+              )
             )(),
             <.TextFieldMaterialUi(
               ^.floatingLabelText := "Name *",

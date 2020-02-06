@@ -24,6 +24,8 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.SyntheticEvent
+import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.autoComplete.AutoComplete.AutoCompleteProps
 import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.{Personality, Question, SimpleUser}
@@ -43,8 +45,6 @@ object CreatePersonalityComponent {
   case class CreatePersonalityComponentState(personalityRole: String,
                                              errorPersonalityRole: String,
                                              userId: Option[String],
-                                             userSearchList: Seq[SimpleUser],
-                                             searchUserContent: String,
                                              createPersonalityModalOpen: Boolean,
                                              snackbarOpen: Boolean,
                                              snackbarMessage: String)
@@ -57,36 +57,19 @@ object CreatePersonalityComponent {
           personalityRole = "",
           errorPersonalityRole = "",
           userId = None,
-          userSearchList = Seq.empty,
-          searchUserContent = "",
           createPersonalityModalOpen = false,
           snackbarOpen = false,
           snackbarMessage = ""
         )
-      },
-      componentDidMount = { self =>
-        PersonalityService.personalities.onComplete {
-          case Success(users) =>
-            self.setState(_.copy(userSearchList = users))
-          case Failure(_) =>
-        }
       },
       render = { self =>
         def onChangePersonalityRole: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
           self.setState(_.copy(personalityRole = value, errorPersonalityRole = ""))
         }
 
-        def handleUpdateUserInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
-          self.setState(_.copy(searchUserContent = searchText))
-        }
-
         def handleNewUserRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
           val user = chosenRequest.asInstanceOf[SimpleUser]
           self.setState(_.copy(userId = Some(user.id)))
-        }
-
-        def filterAutoComplete: (String, String) => Boolean = (searchText, key) => {
-          key.indexOf(searchText) != -1
         }
 
         def onCreatePersonality: SyntheticEvent => Unit = {
@@ -150,19 +133,12 @@ object CreatePersonalityComponent {
               <.FlatButton(^.label := "Create personality", ^.primary := true, ^.onClick := onCreatePersonality)()
             )
           )(
-            <.AutoComplete(
-              ^.id := "search-user",
-              ^.hintText := "User name",
-              ^.dataSource := self.state.userSearchList,
-              ^.dataSourceConfig := DataSourceConfig("fullName", "id"),
-              ^.searchText := self.state.searchUserContent,
-              ^.onUpdateInput := handleUpdateUserInput,
-              ^.onNewRequest := handleNewUserRequest,
-              ^.fullWidth := true,
-              ^.popoverProps := Map("canAutoPosition" -> false),
-              ^.openOnFocus := true,
-              ^.filterAutoComplete := filterAutoComplete,
-              ^.menuProps := Map("maxHeight" -> 400)
+            <.AutoCompleteComponent(
+              ^.wrapped := AutoCompleteProps(
+                searchRequest = PersonalityService.personalities,
+                handleNewRequest = handleNewUserRequest,
+                dataSourceConfig = DataSourceConfig("fullName", "id")
+              )
             )(),
             <.SelectField(
               ^.floatingLabelText := "Role *",
