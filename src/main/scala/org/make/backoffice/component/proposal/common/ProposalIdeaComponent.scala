@@ -21,13 +21,13 @@
 package org.make.backoffice.component.proposal.common
 
 import io.github.shogowada.scalajs.reactjs.React
-import io.github.shogowada.scalajs.reactjs.React.Self
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
-import org.make.backoffice.client.request.{Filter, Pagination}
+import org.make.backoffice.client.request.Filter
 import org.make.backoffice.component.RichVirtualDOMElements
+import org.make.backoffice.component.autoComplete.AutoComplete.AutoCompleteProps
 import org.make.backoffice.component.proposal.common.NewIdeaComponent.NewIdeaProps
 import org.make.backoffice.facade.AdminOnRest.EditButton._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
@@ -114,34 +114,15 @@ object ProposalIdeaComponent {
                                ideaName: String,
                                handleCheckIdeaAuto: (js.Object, Boolean) => Unit,
                                ideaAuto: Boolean)
-  case class ProposalIdeaState(ideas: Seq[Idea],
-                               selectedIdeaId: Option[IdeaId],
-                               searchIdeaContent: String,
-                               foundProposalIdeas: Seq[Idea],
-                               ideaName: Option[String],
-                               isLoading: Boolean = true)
-
-  def loadIdeas(self: Self[ProposalIdeaProps, ProposalIdeaState], props: ProposalIdeaProps): Future[Seq[Idea]] = {
-
-    IdeaService
-      .listIdeas(
-        pagination = Some(Pagination(page = 1, perPage = 1000)),
-        filters = Some(Seq(Filter(field = "questionId", value = props.proposal.questionId)))
-      )
-  }
+  case class ProposalIdeaState(selectedIdeaId: Option[IdeaId], ideaName: Option[String], isLoading: Boolean = true)
 
   lazy val reactClass: ReactClass =
     React.createClass[ProposalIdeaProps, ProposalIdeaState](
       displayName = "ProposalIdea",
       getInitialState = { _ =>
-        ProposalIdeaState(Seq.empty, None, "", Seq.empty, None)
+        ProposalIdeaState(selectedIdeaId = None, ideaName = None)
       },
       componentDidMount = { self =>
-        loadIdeas(self, self.props.wrapped).onComplete {
-          case Success(listIdeas) =>
-            self.setState(_.copy(ideas = listIdeas, foundProposalIdeas = listIdeas))
-          case Failure(e) => scalajs.js.Dynamic.global.console.log(s"get ideas failed with error $e")
-        }
         self.setState(_.copy(selectedIdeaId = self.props.wrapped.proposal.ideaId.map(IdeaId(_)).toOption))
         if (self.props.wrapped.ideaName.isEmpty) {
           self.props.wrapped.proposal.ideaId.foreach { ideaId =>
@@ -154,14 +135,10 @@ object ProposalIdeaComponent {
       },
       componentWillReceiveProps = { (self, props) =>
         if (self.props.wrapped.proposal.id != props.wrapped.proposal.id) {
-          self.setState(_.copy(selectedIdeaId = None, searchIdeaContent = "", ideaName = None, isLoading = true))
+          self.setState(_.copy(selectedIdeaId = None, ideaName = None, isLoading = true))
         }
       },
       render = { self =>
-        def handleUpdateInput: (String, js.Array[js.Object], js.Object) => Unit = (searchText, _, _) => {
-          self.setState(_.copy(searchIdeaContent = searchText))
-        }
-
         def handleNewRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
           val idea = chosenRequest.asInstanceOf[Idea]
           val selectedIdea = Some(IdeaId(idea.id))
@@ -170,36 +147,30 @@ object ProposalIdeaComponent {
         }
 
         def setIdeas(newIdea: Idea): Unit = {
-          self.setState(
-            _.copy(
-              foundProposalIdeas = self.state.ideas ++ Seq(newIdea),
-              ideas = self.state.ideas ++ Seq(newIdea),
-              selectedIdeaId = Some(IdeaId(newIdea.id)),
-              searchIdeaContent = newIdea.name
-            )
-          )
+          self.setState(_.copy(selectedIdeaId = Some(IdeaId(newIdea.id))))
         }
 
-        def filterAutoComplete: (String, String) => Boolean = (searchText, key) => {
-          key.indexOf(searchText) != -1
+        def ideaSearchRequest: Option[String] => Future[Seq[Idea]] = { name =>
+          IdeaService
+            .listIdeas(
+              pagination = None,
+              filters = Some(
+                Seq(
+                  Filter(field = "questionId", value = self.props.wrapped.proposal.questionId),
+                  Filter(field = "name", value = name.getOrElse(""))
+                )
+              )
+            )
         }
 
         val searchNew: ReactElement =
-          <.AutoComplete(
-            ^.floatingLabelText := "search",
-            ^.id := "search-proposal-idea",
-            ^.hintText := "Search idea",
-            ^.dataSource := self.state.foundProposalIdeas,
-            ^.dataSourceConfig := DataSourceConfig("name", "id"),
-            ^.searchText := self.state.searchIdeaContent,
-            ^.hintText := "Search idea",
-            ^.onUpdateInput := handleUpdateInput,
-            ^.onNewRequest := handleNewRequest,
-            ^.fullWidth := true,
-            ^.popoverProps := Map("canAutoPosition" -> true),
-            ^.openOnFocus := true,
-            ^.filterAutoComplete := filterAutoComplete,
-            ^.menuProps := Map("maxHeight" -> 400)
+          <.AutoCompleteComponent(
+            ^.wrapped :=
+              AutoCompleteProps(
+                searchRequest = ideaSearchRequest,
+                handleNewRequest = handleNewRequest,
+                dataSourceConfig = DataSourceConfig("name", "id")
+              )
           )()
 
         <.Card(^.style := Map("marginTop" -> "1em"))(

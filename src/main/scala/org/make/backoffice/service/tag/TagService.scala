@@ -32,9 +32,9 @@ import scala.scalajs.js
 object TagService extends ApiService with CirceClassFormatters {
   override val resourceName: String = "moderation/tags"
 
-  def tags(questionId: Option[String] = None): Future[Seq[Tag]] =
+  def tags(questionId: Option[String] = None, label: Option[String]): Future[Seq[Tag]] =
     client
-      .get[Seq[Tag]](resourceName ? ("questionId", questionId))
+      .get[Seq[Tag]](resourceName ? ("questionId", questionId) & ("label", label))
       .recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of converting to Tag: failed cursor $e")

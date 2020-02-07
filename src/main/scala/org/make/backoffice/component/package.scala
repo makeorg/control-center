@@ -23,6 +23,7 @@ package org.make.backoffice
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements
 import io.github.shogowada.scalajs.reactjs.VirtualDOM.VirtualDOMElements.ReactClassElementSpec
 import io.github.shogowada.statictags.{Attribute, SpaceSeparatedStringAttributeSpec}
+import org.make.backoffice.component.autoComplete.AutoComplete
 import org.make.backoffice.component.images.ImageUploadField
 import scalacss.DevDefaults._
 
@@ -64,6 +65,7 @@ package object component {
     def EditPersonalityComponent: ReactClassElementSpec = self(question.EditPersonalityComponent.reactClass)
     def DeletePersonalityComponent: ReactClassElementSpec = self(question.DeletePersonalityComponent.reactClass)
     def UploadImageComponent: ReactClassElementSpec = self(ImageUploadField.reactClass)
+    def AutoCompleteComponent: ReactClassElementSpec = self(AutoComplete.reactClass)
   }
 
   implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {
