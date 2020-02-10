@@ -28,6 +28,7 @@ import io.github.shogowada.statictags._
 import org.make.backoffice.facade.MaterialUi.IntAttributeSpec
 import org.make.backoffice.facade.{
   ElementAttributeSpec,
+  FunctionAttributeSpec,
   LocationAttributeSpec,
   MapArrayAttributeSpec,
   MapStringAttributeSpec
@@ -46,7 +47,7 @@ object Filter {
   }
 
   implicit class FilterVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
-    lazy val context = StringAttributeSpec("context")
+    lazy val context: StringAttributeSpec = StringAttributeSpec("context")
   }
 }
 
@@ -61,15 +62,19 @@ object Filters {
   }
 
   implicit class FiltersVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
-    lazy val label = StringAttributeSpec("label")
-    lazy val source = StringAttributeSpec("source")
-    lazy val alwaysOn = TrueOrFalseAttributeSpec("alwaysOn")
+    lazy val label: StringAttributeSpec = StringAttributeSpec("label")
+    lazy val source: StringAttributeSpec = StringAttributeSpec("source")
+    lazy val alwaysOn: TrueOrFalseAttributeSpec = TrueOrFalseAttributeSpec("alwaysOn")
   }
 }
 
 @js.native
 @JSImport("admin-on-rest", "List")
 object NativeList extends ReactClass
+
+@js.native
+@JSImport("admin-on-rest", "Pagination")
+object NativePagination extends ReactClass
 
 object List {
 
@@ -78,16 +83,16 @@ object List {
   }
 
   implicit class ListVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
-    lazy val title = StringAttributeSpec("title")
-    lazy val actions = ElementAttributeSpec("actions")
-    lazy val filters = ElementAttributeSpec("filters")
-    lazy val perPage = IntAttributeSpec("perPage")
-    lazy val sortList = MapStringAttributeSpec("sort")
-    lazy val filter = MapArrayAttributeSpec("filter")
-    lazy val location = LocationAttributeSpec("location")
-    lazy val resource = StringAttributeSpec("resource")
-    lazy val hasCreate = BooleanAttributeSpec("hasCreate")
-    lazy val pagination = ElementAttributeSpec("pagination")
+    lazy val title: StringAttributeSpec = StringAttributeSpec("title")
+    lazy val actions: ElementAttributeSpec = ElementAttributeSpec("actions")
+    lazy val filters: ElementAttributeSpec = ElementAttributeSpec("filters")
+    lazy val perPage: IntAttributeSpec = IntAttributeSpec("perPage")
+    lazy val sortList: MapStringAttributeSpec = MapStringAttributeSpec("sort")
+    lazy val filter: MapArrayAttributeSpec = MapArrayAttributeSpec("filter")
+    lazy val location: LocationAttributeSpec = LocationAttributeSpec("location")
+    lazy val resource: StringAttributeSpec = StringAttributeSpec("resource")
+    lazy val hasCreate: BooleanAttributeSpec = BooleanAttributeSpec("hasCreate")
+    lazy val pagination: ElementAttributeSpec = ElementAttributeSpec("pagination")
   }
 }
 
@@ -109,10 +114,24 @@ object Datagrid {
   }
 
   implicit class DatagridVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
-    lazy val styles = CssAttributeSpec("styles")
-    lazy val rowStyle = RowStyleAttributeSpec("rowStyle")
-    lazy val headerOptions = MapStringAttributeSpec("headerOptions")
-    lazy val bodyOptions = MapStringAttributeSpec("bodyOptions")
-    lazy val rowOptions = MapStringAttributeSpec("rowOptions")
+    lazy val styles: CssAttributeSpec = CssAttributeSpec("styles")
+    lazy val rowStyle: RowStyleAttributeSpec = RowStyleAttributeSpec("rowStyle")
+    lazy val headerOptions: MapStringAttributeSpec = MapStringAttributeSpec("headerOptions")
+    lazy val bodyOptions: MapStringAttributeSpec = MapStringAttributeSpec("bodyOptions")
+    lazy val rowOptions: MapStringAttributeSpec = MapStringAttributeSpec("rowOptions")
   }
+}
+
+object Pagination {
+
+  implicit class PaginationVirtualDOMElements(elements: VirtualDOMElements) {
+    lazy val Pagination: ReactClassElementSpec = elements(NativePagination)
+  }
+
+  implicit class DatagridVirtualDOMAttributes(attributes: VirtualDOMAttributes) {
+    lazy val page: IntAttributeSpec = IntAttributeSpec("page")
+    lazy val total: IntAttributeSpec = IntAttributeSpec("total")
+    lazy val setPage: FunctionAttributeSpec = FunctionAttributeSpec("setPage")
+  }
+
 }
