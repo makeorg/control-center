@@ -32,6 +32,7 @@ import org.make.backoffice.component.autoComplete.AutoComplete.AutoCompleteProps
 import org.make.backoffice.facade.AdminOnRest.Edit._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
+import org.make.backoffice.facade.AdminOnRest.Pagination._
 import org.make.backoffice.facade.AdminOnRest.ShowButton._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
 import org.make.backoffice.facade.{Choice, DataSourceConfig}
@@ -68,21 +69,29 @@ object EditIdea {
                            snackbarUpdateOkOpen: Boolean = false,
                            snackbarAddOkOpen: Boolean = false,
                            snackbarKoOpen: Boolean = false,
-                           shouldUpdate: Boolean = true)
+                           shouldUpdate: Boolean = true,
+                           page: Int,
+                           perPage: Int,
+                           totalProposals: Int,
+                           isLoading: Boolean)
 
   lazy val dataGrid: ReactClass =
     React
       .createClass[DataGridProps, DataGridState](
         displayName = "dataGrid",
-        getInitialState = _ => DataGridState(),
-        componentDidUpdate = (self, _, _) => {
+        getInitialState = _ => DataGridState(page = 1, perPage = 100, totalProposals = 0, isLoading = true),
+        componentDidUpdate = (self, _, newState) => {
           if (self.props.wrapped.questionId.nonEmpty) {
             self.setState(_.copy(shouldUpdate = false))
           }
+          if (self.state.page != newState.page) {
+            self.setState(_.copy(shouldUpdate = true))
+          }
           if (self.state.shouldUpdate && self.props.wrapped.questionId.isDefined) {
+            self.setState(_.copy(isLoading = true))
             ProposalService
               .proposals(
-                Some(Pagination(page = 1, perPage = 500)), //todo: paginate the custom datagrid
+                Some(Pagination(page = self.state.page, perPage = self.state.perPage)),
                 None,
                 Some(
                   Seq(
@@ -94,12 +103,25 @@ object EditIdea {
               )
               .onComplete {
                 case Success(proposals) =>
-                  self.setState(_.copy(proposalsIdeaList = proposals.data.toSeq))
-                case Failure(e) => js.Dynamic.global.console.log(s"Failed with error $e")
+                  self.setState(
+                    _.copy(
+                      proposalsIdeaList = proposals.data.toSeq,
+                      totalProposals = proposals.total,
+                      isLoading = false
+                    )
+                  )
+                case Failure(e) =>
+                  self.setState(_.copy(isLoading = false))
+                  js.Dynamic.global.console.log(s"Failed with error $e")
               }
           }
         },
         render = self => {
+
+          def setPage: String => Unit = { page =>
+            self.setState(_.copy(page = page.toInt))
+          }
+
           def onRowSelection(ids: Seq[String]): js.Function1[js.Array[Int] | String, Unit] = rowNumber => {
             var selectedIds: Seq[String] = Seq.empty
             (rowNumber: Any) match {
@@ -216,12 +238,11 @@ object EditIdea {
               ^.secondary := true,
               ^.onClick := onClickAddProposal
             )(),
-            if (self.state.proposalsIdeaList.nonEmpty) {
+            if (self.state.isLoading) {
+              <.CircularProgress.empty
+            } else if (self.state.proposalsIdeaList.nonEmpty) {
               <.div()(
-                <.CardTitle(
-                  ^.title := "Proposals list",
-                  ^.subtitle := s"${self.state.proposalsIdeaList.length} proposals"
-                )(),
+                <.CardTitle(^.title := "Proposals list", ^.subtitle := s"${self.state.totalProposals} proposals")(),
                 <.Table(
                   ^.multiSelectable := true,
                   ^.onRowSelection := onRowSelection(self.state.proposalsIdeaList.map(_.id)),
@@ -246,6 +267,12 @@ object EditIdea {
                     )
                   })
                 ),
+                <.Pagination(
+                  ^.page := self.state.page,
+                  ^.perPage := self.state.perPage,
+                  ^.total := self.state.totalProposals,
+                  ^.setPage := setPage
+                )(),
                 <.br()(),
                 <.AutoCompleteComponent(
                   ^.wrapped :=
