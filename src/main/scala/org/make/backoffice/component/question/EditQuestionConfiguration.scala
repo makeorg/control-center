@@ -129,7 +129,10 @@ object EditQuestionConfiguration {
                         <.FlatButton(
                           ^.label := "edit partner",
                           ^.containerElement := <.EditPartnerComponent(
-                            ^.wrapped := EditPartnerComponentProps(reloadComponent)
+                            ^.wrapped := EditPartnerComponentProps(
+                              questionId = self.props.`match`.params.getOrElse("id", ""),
+                              reloadComponent
+                            )
                           )()
                         )(),
                         <.TextField(^.source := "name")(),

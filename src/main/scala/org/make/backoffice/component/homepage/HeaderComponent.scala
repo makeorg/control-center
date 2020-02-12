@@ -25,10 +25,11 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, MouseSyntheticEvent, SyntheticEvent}
 import org.make.backoffice.client.request.Filter
+import org.make.backoffice.component.images.{ImageFile, ImageUploadFieldStyle}
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.facade.ReactDropzone._
+import org.make.backoffice.component.images.ImageUploadField.{imageDropzone, ImageUploadProps}
 import org.make.backoffice.model.{FeaturedOperation, Question}
-import org.make.backoffice.service.homepage.{HomepageService, UploadResponse}
+import org.make.backoffice.service.homepage.HomepageService
 import org.make.backoffice.service.operation.{
   CreateFeaturedOperationRequest,
   FeaturedOperationService,
@@ -38,11 +39,8 @@ import org.make.backoffice.service.question.QuestionService
 import org.scalajs.dom.FormData
 import org.scalajs.dom.raw.HTMLInputElement
 import scalacss.DevDefaults._
-import scalacss.internal.StyleA
-import scalacss.internal.mutable.StyleSheet
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
@@ -58,7 +56,6 @@ object HeaderComponent {
                                   description: Option[String],
                                   landscapePicture: String,
                                   portraitPicture: String,
-                                  picturePreview: String,
                                   altPicture: String,
                                   label: String,
                                   buttonLabel: String,
@@ -76,10 +73,7 @@ object HeaderComponent {
                                   descriptionError: String,
                                   altPictureError: String,
                                   labelError: String,
-                                  buttonLabelError: String,
-                                  landscapePictureFile: Option[ImageFile],
-                                  portraitPictureFile: Option[ImageFile])
-  case class ImageUrlValidateProps(uploadFile: String => MouseSyntheticEvent => Unit)
+                                  buttonLabelError: String)
 
   lazy val reactClass: ReactClass =
     React
@@ -93,7 +87,6 @@ object HeaderComponent {
             description = None,
             landscapePicture = "",
             portraitPicture = "",
-            picturePreview = "",
             altPicture = "",
             label = "",
             buttonLabel = "",
@@ -111,9 +104,7 @@ object HeaderComponent {
             descriptionError = "",
             altPictureError = "",
             labelError = "",
-            buttonLabelError = "",
-            landscapePictureFile = None,
-            portraitPictureFile = None
+            buttonLabelError = ""
           )
         },
         componentWillReceiveProps = (self, props) => {
@@ -127,7 +118,6 @@ object HeaderComponent {
                   description = featuredOperation.description.toOption,
                   landscapePicture = featuredOperation.landscapePicture,
                   portraitPicture = featuredOperation.portraitPicture,
-                  picturePreview = featuredOperation.landscapePicture,
                   altPicture = featuredOperation.altPicture,
                   label = featuredOperation.label,
                   buttonLabel = featuredOperation.buttonLabel,
@@ -138,9 +128,7 @@ object HeaderComponent {
                   externalLinkChecked = featuredOperation.externalLink.isDefined,
                   cardExpended = true,
                   toCreate = false,
-                  questionsList = props.wrapped.questionsList,
-                  landscapePictureFile = None,
-                  portraitPictureFile = None
+                  questionsList = props.wrapped.questionsList
                 )
               )
           }
@@ -232,6 +220,46 @@ object HeaderComponent {
             self.setState(_.copy(questionId = Some(value)))
           }
 
+          def uploadLandscapePicture: js.Array[ImageFile] => Unit = { files =>
+            val file = files.head
+            val formData: FormData = new FormData()
+            formData.append("data", file)
+            HomepageService.uploadImage(formData).onComplete {
+              case Success(url) => self.setState(_.copy(landscapePicture = url.path))
+              case Failure(e) =>
+                self
+                  .setState(
+                    _.copy(snackbarOpen = true, snackbarMessage = s"Error while uploading image: ${e.getMessage}")
+                  )
+            }
+          }
+
+          def uploadPortraitPicture: js.Array[ImageFile] => Unit = { files =>
+            val file = files.head
+            val formData: FormData = new FormData()
+            formData.append("data", file)
+            HomepageService.uploadImage(formData).onComplete {
+              case Success(url) => self.setState(_.copy(portraitPicture = url.path))
+              case Failure(e) =>
+                self
+                  .setState(
+                    _.copy(snackbarOpen = true, snackbarMessage = s"Error while uploading image: ${e.getMessage}")
+                  )
+            }
+          }
+
+          val updateLandscapePictureUrl: FormSyntheticEvent[HTMLInputElement] => Unit = {
+            event: FormSyntheticEvent[HTMLInputElement] =>
+              val value = event.target.value
+              self.setState(_.copy(landscapePicture = value))
+          }
+
+          val updatePortraitPictureUrl: FormSyntheticEvent[HTMLInputElement] => Unit = {
+            event: FormSyntheticEvent[HTMLInputElement] =>
+              val value = event.target.value
+              self.setState(_.copy(portraitPicture = value))
+          }
+
           def checkError: Boolean = {
             var error: Boolean = false
 
@@ -254,129 +282,66 @@ object HeaderComponent {
             error
           }
 
-          def uploadImage(file: ImageFile): Future[UploadResponse] = {
-            val formDataLandscape: FormData = new FormData()
-            formDataLandscape.append("data", file)
-            HomepageService.uploadImage(formDataLandscape)
-          }
-
           def handleCreation: SyntheticEvent => Unit = {
             _ =>
               if (!checkError) {
-                self.state.landscapePictureFile.map {
-                  landscapePictureFile =>
-                    self.state.portraitPictureFile.map {
-                      portraitPictureFile =>
-                        uploadImage(landscapePictureFile).map {
-                          landscapePictureUploadResponse =>
-                            uploadImage(portraitPictureFile).map {
-                              portraitPictureUploadResponse =>
-                                val request = CreateFeaturedOperationRequest(
-                                  questionId = self.state.questionId,
-                                  title = self.state.title,
-                                  description = self.state.description,
-                                  landscapePicture = landscapePictureUploadResponse.path,
-                                  portraitPicture = portraitPictureUploadResponse.path,
-                                  altPicture = self.state.altPicture,
-                                  label = self.state.label,
-                                  buttonLabel = self.state.buttonLabel,
-                                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
-                                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
-                                  slot = self.state.slot
-                                )
-                                FeaturedOperationService.postFeaturedOperation(request).onComplete {
-                                  case Success(_) =>
-                                    self
-                                      .setState(
-                                        _.copy(
-                                          snackbarOpen = true,
-                                          snackbarMessage = "Featured operation created successfully",
-                                          landscapePictureFile = None,
-                                          portraitPictureFile = None
-                                        )
-                                      )
-                                    self.props.wrapped.reloadComponent()
-                                  case Failure(_) =>
-                                    self
-                                      .setState(
-                                        _.copy(
-                                          snackbarOpen = true,
-                                          snackbarMessage = "featured operation failed to be created"
-                                        )
-                                      )
-                                }
-                            }
-                        }
-                    }.getOrElse(
-                      self
-                        .setState(_.copy(snackbarOpen = true, snackbarMessage = "mobile picture must not be empty"))
-                    )
-                }.getOrElse(
-                  self
-                    .setState(_.copy(snackbarOpen = true, snackbarMessage = "desktop picture must not be empty"))
+                val request = CreateFeaturedOperationRequest(
+                  questionId = self.state.questionId,
+                  title = self.state.title,
+                  description = self.state.description,
+                  landscapePicture = self.state.landscapePicture,
+                  portraitPicture = self.state.portraitPicture,
+                  altPicture = self.state.altPicture,
+                  label = self.state.label,
+                  buttonLabel = self.state.buttonLabel,
+                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
+                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
+                  slot = self.state.slot
                 )
+                FeaturedOperationService.postFeaturedOperation(request).onComplete {
+                  case Success(_) =>
+                    self
+                      .setState(
+                        _.copy(snackbarOpen = true, snackbarMessage = "Featured operation created successfully")
+                      )
+                    self.props.wrapped.reloadComponent()
+                  case Failure(_) =>
+                    self
+                      .setState(
+                        _.copy(snackbarOpen = true, snackbarMessage = "featured operation failed to be created")
+                      )
+                }
               }
-          }
-
-          def maybeFutureImages: Future[(Option[String], Option[String])] = {
-            val maybeFutureLandscapePicture: Option[Future[UploadResponse]] = self.state.landscapePictureFile.map {
-              landscapePictureFile =>
-                uploadImage(landscapePictureFile)
-            }
-
-            val maybeFuturePortraitPicture: Option[Future[UploadResponse]] = self.state.portraitPictureFile.map {
-              portraitPictureFile =>
-                uploadImage(portraitPictureFile)
-            }
-
-            (maybeFutureLandscapePicture, maybeFuturePortraitPicture) match {
-              case (None, None)                       => Future.successful((None, None))
-              case (Some(landscapePicturePath), None) => landscapePicturePath.map(path => (Some(path.path), None))
-              case (None, Some(portraitPicturePath))  => portraitPicturePath.map(path => (None, Some(path.path)))
-              case (Some(landscapePicturePath), Some(portraitPicturePath)) =>
-                landscapePicturePath.flatMap(
-                  landscapePath =>
-                    portraitPicturePath.map(portraitPath => (Some(landscapePath.path), Some(portraitPath.path)))
-                )
-            }
           }
 
           def handleUpdate: SyntheticEvent => Unit = {
             _ =>
               if (!checkError) {
-                maybeFutureImages.map {
-                  case (maybeLandscapePicturePath, maybePortraitPicturePath) =>
-                    val request = UpdateFeaturedOperationRequest(
-                      questionId = self.state.questionId,
-                      title = self.state.title,
-                      description = self.state.description,
-                      landscapePicture = maybeLandscapePicturePath.getOrElse(self.state.landscapePicture),
-                      portraitPicture = maybePortraitPicturePath.getOrElse(self.state.portraitPicture),
-                      altPicture = self.state.altPicture,
-                      label = self.state.label,
-                      buttonLabel = self.state.buttonLabel,
-                      internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
-                      externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
-                      slot = self.state.slot
-                    )
-                    FeaturedOperationService.putFeaturedOperation(self.state.id, request).onComplete {
-                      case Success(_) =>
-                        self
-                          .setState(
-                            _.copy(
-                              snackbarOpen = true,
-                              snackbarMessage = "Featured operation updated successfully",
-                              landscapePictureFile = None,
-                              portraitPictureFile = None
-                            )
-                          )
-                        self.props.wrapped.reloadComponent()
-                      case Failure(_) =>
-                        self
-                          .setState(
-                            _.copy(snackbarOpen = true, snackbarMessage = "featured operation failed to be updated")
-                          )
-                    }
+                val request: UpdateFeaturedOperationRequest = UpdateFeaturedOperationRequest(
+                  questionId = self.state.questionId,
+                  title = self.state.title,
+                  description = self.state.description,
+                  landscapePicture = self.state.landscapePicture,
+                  portraitPicture = self.state.portraitPicture,
+                  altPicture = self.state.altPicture,
+                  label = self.state.label,
+                  buttonLabel = self.state.buttonLabel,
+                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
+                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink,
+                  slot = self.state.slot
+                )
+                FeaturedOperationService.putFeaturedOperation(self.state.id, request).onComplete {
+                  case Success(_) =>
+                    self
+                      .setState(
+                        _.copy(snackbarOpen = true, snackbarMessage = "Featured operation updated successfully")
+                      )
+                    self.props.wrapped.reloadComponent()
+                  case Failure(_) =>
+                    self
+                      .setState(
+                        _.copy(snackbarOpen = true, snackbarMessage = "featured operation failed to be updated")
+                      )
                 }
               }
           }
@@ -393,7 +358,6 @@ object HeaderComponent {
                       description = None,
                       landscapePicture = "",
                       portraitPicture = "",
-                      picturePreview = "",
                       altPicture = "",
                       label = "",
                       buttonLabel = "",
@@ -405,9 +369,7 @@ object HeaderComponent {
                       cardExpended = false,
                       toCreate = true,
                       snackbarOpen = true,
-                      snackbarMessage = "Featured operation deleted successfully",
-                      landscapePictureFile = None,
-                      portraitPictureFile = None
+                      snackbarMessage = "Featured operation deleted successfully"
                     )
                   )
                   self.props.wrapped.reloadComponent()
@@ -419,14 +381,6 @@ object HeaderComponent {
 
           def onSnackbarClose: String => Unit = _ => {
             self.setState(_.copy(snackbarOpen = false, snackbarMessage = ""))
-          }
-
-          def setLandscapePicture: js.Array[ImageFile] => Unit = { imgFile =>
-            self.setState(_.copy(picturePreview = imgFile(0).preview, landscapePictureFile = Some(imgFile(0))))
-          }
-
-          def setPortraitPicture: js.Array[ImageFile] => Unit = { imgFile =>
-            self.setState(_.copy(portraitPictureFile = Some(imgFile(0))))
           }
 
           <.div()(
@@ -442,35 +396,31 @@ object HeaderComponent {
               )(),
               <.CardText(^.style := Map("display" -> "grid"), ^.expandable := true)(
                 <.h3(^.style := Map("color" -> "blue"))("Image"),
-                <.div(^.style := Map("display" -> "flex"))(
-                  <.div(^.style := Map("width" -> "70%"))(
-                    <.TextFieldMaterialUi(
-                      ^.name := "Alternative text",
-                      ^.floatingLabelText := "Alternative text",
-                      ^.floatingLabelFixed := true,
-                      ^.value := self.state.altPicture,
-                      ^.onChange := onChangeAltPicture,
-                      ^.errorText := self.state.altPictureError,
-                      ^.style := Map("width" -> "90%")
-                    )(),
-                    <.Dropzone(
-                      ^.multiple := false,
-                      ^.className := HeaderComponentStyles.dropzone.htmlClass,
-                      ^.onDropDropzone := setLandscapePicture
-                    )("Desktop picture"),
-                    <.Dropzone(
-                      ^.multiple := false,
-                      ^.className := HeaderComponentStyles.dropzone.htmlClass,
-                      ^.onDropDropzone := setPortraitPicture
-                    )("Mobile picture")
-                  ),
-                  <.div(^.style := Map("width" -> "30%"))(
-                    <.img(
-                      ^.src := self.state.picturePreview,
-                      ^.style := Map("maxWidth" -> "100%", "height" -> "auto")
-                    )()
+                <.TextFieldMaterialUi(
+                  ^.name := "Alternative text",
+                  ^.floatingLabelText := "Alternative text",
+                  ^.floatingLabelFixed := true,
+                  ^.value := self.state.altPicture,
+                  ^.onChange := onChangeAltPicture,
+                  ^.errorText := self.state.altPictureError,
+                  ^.fullWidth := true
+                )(),
+                <(imageDropzone)(
+                  ^.wrapped := ImageUploadProps(
+                    label = "Desktop Picture",
+                    imageUrl = self.state.landscapePicture,
+                    uploadImage = uploadLandscapePicture,
+                    onChangeImageUrl = updateLandscapePictureUrl
                   )
-                ),
+                )(),
+                <(imageDropzone)(
+                  ^.wrapped := ImageUploadProps(
+                    label = "Mobile Picture",
+                    imageUrl = self.state.portraitPicture,
+                    uploadImage = uploadPortraitPicture,
+                    onChangeImageUrl = updatePortraitPictureUrl
+                  )
+                )(),
                 <.h3(^.style := Map("color" -> "blue"))("Label"),
                 <.TextFieldMaterialUi(
                   ^.name := "label",
@@ -579,32 +529,9 @@ object HeaderComponent {
               ^.autoHideDuration := 3000,
               ^.onRequestClose := onSnackbarClose
             )(),
-            <.style()(HeaderComponentStyles.render[String])
+            <.style()(ImageUploadFieldStyle.render[String])
           )
         }
       )
 
-}
-
-object HeaderComponentStyles extends StyleSheet.Inline {
-
-  import dsl._
-
-  val dropzone: StyleA =
-    style(
-      background := "#efefef",
-      cursor.pointer,
-      padding(1.rem),
-      marginTop(1.rem),
-      textAlign.center,
-      color(rgb(9, 9, 9)),
-      width(90.%%)
-    )
-
-}
-
-@js.native
-trait ImageFile extends js.Object {
-  val name: String
-  val preview: String
 }

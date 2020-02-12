@@ -115,8 +115,11 @@ object EditTag {
         },
         render = self => {
 
-          def setPage: String => Unit = { page =>
-            self.setState(_.copy(page = page.toInt))
+          def setPage: String | Int => Unit = { page =>
+            (page: Any) match {
+              case page: String => self.setState(_.copy(page = page.toInt))
+              case page: Int    => self.setState(_.copy(page = page))
+            }
           }
 
           def onRowSelection(ids: Seq[String]): js.Function1[js.Array[Int] | String, Unit] = rowNumber => {
