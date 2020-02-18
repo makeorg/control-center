@@ -27,12 +27,17 @@ import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.autoComplete.AutoComplete.AutoCompleteProps
+import org.make.backoffice.component.images.ImageUploadField.{imageDropzone, ImageUploadProps}
+import org.make.backoffice.component.images.{ImageFile, ImageUploadFieldStyle}
 import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.{Organisation, Partner}
 import org.make.backoffice.service.organisation.OrganisationService
 import org.make.backoffice.service.partner.{PartnerService, UpdatePartnerRequest}
+import org.make.backoffice.service.question.QuestionService
+import org.scalajs.dom.FormData
 import org.scalajs.dom.raw.HTMLInputElement
+import scalacss.DevDefaults._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -51,7 +56,7 @@ object EditPartnerComponent {
     val organisationId: String
   }
 
-  case class EditPartnerComponentProps(reloadComponent: () => Unit)
+  case class EditPartnerComponentProps(questionId: String, reloadComponent: () => Unit)
   case class EditPartnerComponentState(partnerId: String,
                                        name: String,
                                        errorName: String,
@@ -105,16 +110,6 @@ object EditPartnerComponent {
           self.setState(_.copy(name = newName, errorName = errorName))
         }
 
-        def handleLogoEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-          val value: String = event.target.value
-          val newLogo = if (value.isEmpty) None else Some(value)
-          var errorLogo = ""
-          if (newLogo.isEmpty && self.state.organisationId.isEmpty) {
-            errorLogo = "Logo is required"
-          }
-          self.setState(_.copy(logo = newLogo, errorLogo = errorLogo))
-        }
-
         def handleLinkEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
           val value: String = event.target.value
           val newLink = if (value.isEmpty) None else Some(value)
@@ -147,6 +142,25 @@ object EditPartnerComponent {
               organisationId = organisation.id.toOption
             )
           )
+        }
+
+        def uploadImage: js.Array[ImageFile] => Unit = { files =>
+          val file = files.head
+          val formData: FormData = new FormData()
+          formData.append("data", file)
+          QuestionService.uploadImage(self.props.wrapped.questionId, formData).onComplete {
+            case Success(url) => self.setState(_.copy(logo = Some(url.path)))
+            case Failure(e) =>
+              self
+                .setState(
+                  _.copy(snackbarOpen = true, snackbarMessage = s"Error while uploading image: ${e.getMessage}")
+                )
+          }
+        }
+
+        val updatePictureUrl = { event: FormSyntheticEvent[HTMLInputElement] =>
+          val value = event.target.value
+          self.setState(_.copy(logo = Some(value)))
         }
 
         def onEditPartner: SyntheticEvent => Unit = {
@@ -223,6 +237,13 @@ object EditPartnerComponent {
           self.setState(_.copy(editPartnerModalOpen = false))
         }
 
+        val logoLabelText = {
+          self.state.organisationId match {
+            case Some(_) => "Logo"
+            case _       => "Logo *"
+          }
+        }
+
         <.div()(
           <.CardActions()(
             <.FlatButton(^.label := "Edit", ^.buttonIcon := editIcon, ^.primary := true, ^.onClick := handleOpenModal)()
@@ -254,17 +275,19 @@ object EditPartnerComponent {
               ^.floatingLabelText := "Kind",
               ^.value := self.state.partnerKind,
               ^.onChangeSelect := onChangePartnerKind,
-              ^.errorText := self.state.errorPartnerKind
+              ^.errorText := self.state.errorPartnerKind,
+              ^.fullWidth := true
             )(Partner.partnerKindMap.map {
               case (key, value) =>
                 <.MenuItem(^.key := key, ^.value := key, ^.primaryText := value)()
             }),
-            <.TextFieldMaterialUi(
-              ^.floatingLabelText := "Logo",
-              ^.value := self.state.logo.getOrElse(""),
-              ^.onChange := handleLogoEdition,
-              ^.fullWidth := true,
-              ^.errorText := self.state.errorLogo
+            <(imageDropzone)(
+              ^.wrapped := ImageUploadProps(
+                label = logoLabelText,
+                imageUrl = self.state.logo.getOrElse(""),
+                uploadImage = uploadImage,
+                onChangeImageUrl = updatePictureUrl
+              )
             )(),
             <.TextFieldMaterialUi(
               ^.floatingLabelText := "Link",
@@ -279,7 +302,8 @@ object EditPartnerComponent {
               ^.`type` := "number",
               ^.onChange := handleWeightEdition,
               ^.fullWidth := true
-            )()
+            )(),
+            <.style()(ImageUploadFieldStyle.render[String])
           ),
           <.Snackbar(
             ^.open := self.state.snackbarOpen,

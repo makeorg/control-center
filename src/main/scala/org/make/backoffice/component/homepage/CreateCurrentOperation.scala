@@ -26,20 +26,18 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, MouseSyntheticEvent, SyntheticEvent}
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.request.Filter
+import org.make.backoffice.component.images.{ImageFile, ImageUploadFieldStyle}
+import org.make.backoffice.component.images.ImageUploadField.{imageDropzone, ImageUploadProps}
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.facade.ReactDropzone._
 import org.make.backoffice.model.{FeaturedOperation, Question}
-import org.make.backoffice.service.homepage.{HomepageService, UploadResponse}
+import org.make.backoffice.service.homepage.HomepageService
 import org.make.backoffice.service.operation.{CreateCurrentOperationRequest, CurrentOperationService}
 import org.make.backoffice.service.question.QuestionService
 import org.scalajs.dom.FormData
 import org.scalajs.dom.raw.HTMLInputElement
 import scalacss.DevDefaults._
-import scalacss.internal.StyleA
-import scalacss.internal.mutable.StyleSheet
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
@@ -50,7 +48,6 @@ object CreateCurrentOperation {
                                          description: String,
                                          label: String,
                                          picture: String,
-                                         pictureFile: Option[ImageFile],
                                          altPicture: String,
                                          linkLabel: String,
                                          internalLink: Option[String],
@@ -69,7 +66,7 @@ object CreateCurrentOperation {
 
   def apply(): ReactClass = reactClass
 
-  private lazy val reactClass =
+  private lazy val reactClass: ReactClass =
     React
       .createClass[CreateCurrentOperationProps, CreateCurrentOperationState](
         displayName = "CreateCurrentOperation",
@@ -79,7 +76,6 @@ object CreateCurrentOperation {
             description = "",
             label = "",
             picture = "",
-            pictureFile = None,
             altPicture = "",
             linkLabel = "",
             internalLink = None,
@@ -178,6 +174,26 @@ object CreateCurrentOperation {
             )
           }
 
+          def uploadImage: js.Array[ImageFile] => Unit = { files =>
+            val file = files.head
+            val formData: FormData = new FormData()
+            formData.append("data", file)
+            HomepageService.uploadImage(formData).onComplete {
+              case Success(url) => self.setState(_.copy(picture = url.path))
+              case Failure(e) =>
+                self
+                  .setState(
+                    _.copy(snackbarOpen = true, snackbarMessage = s"Error while uploading image: ${e.getMessage}")
+                  )
+            }
+          }
+
+          val updatePictureUrl: FormSyntheticEvent[HTMLInputElement] => Unit = {
+            event: FormSyntheticEvent[HTMLInputElement] =>
+              val value = event.target.value
+              self.setState(_.copy(picture = value))
+          }
+
           def checkError: Boolean = {
             var error: Boolean = false
 
@@ -204,52 +220,29 @@ object CreateCurrentOperation {
             error
           }
 
-          def uploadImage(file: ImageFile): Future[UploadResponse] = {
-            val formDataLandscape: FormData = new FormData()
-            formDataLandscape.append("data", file)
-            HomepageService.uploadImage(formDataLandscape)
-          }
-
           def handleCreate: SyntheticEvent => Unit = {
             _ =>
               if (!checkError) {
-                self.state.pictureFile.map {
-                  file =>
-                    uploadImage(file).map {
-                      response =>
-                        val request = CreateCurrentOperationRequest(
-                          questionId = self.state.questionId,
-                          description = self.state.description,
-                          label = self.state.label,
-                          picture = response.path,
-                          altPicture = self.state.altPicture,
-                          linkLabel = self.state.linkLabel,
-                          internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
-                          externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink
-                        )
-                        CurrentOperationService.postCurrentOperation(request).onComplete {
-                          case Success(_) =>
-                            self
-                              .setState(
-                                _.copy(snackbarOpen = true, snackbarMessage = "Current operation created successfully")
-                              )
-                            self.props.history.push("/homepage")
-                          case Failure(_) =>
-                            self
-                              .setState(
-                                _.copy(snackbarOpen = true, snackbarMessage = "Current operation failed to be created")
-                              )
-                        }
-                    }
-                }.getOrElse(
-                  self
-                    .setState(_.copy(snackbarOpen = true, snackbarMessage = "mobile picture must not be empty"))
+                val request: CreateCurrentOperationRequest = CreateCurrentOperationRequest(
+                  questionId = self.state.questionId,
+                  description = self.state.description,
+                  label = self.state.label,
+                  picture = self.state.picture,
+                  altPicture = self.state.altPicture,
+                  linkLabel = self.state.linkLabel,
+                  internalLink = if (!self.state.internalLinkChecked) None else self.state.internalLink,
+                  externalLink = if (!self.state.externalLinkChecked) None else self.state.externalLink
                 )
+                CurrentOperationService.postCurrentOperation(request).onComplete {
+                  case Success(_) =>
+                    self
+                      .setState(_.copy(snackbarOpen = true, snackbarMessage = "Current operation created successfully"))
+                    self.props.history.push("/homepage")
+                  case Failure(_) =>
+                    self
+                      .setState(_.copy(snackbarOpen = true, snackbarMessage = "Current operation failed to be created"))
+                }
               }
-          }
-
-          def setPicture: js.Array[ImageFile] => Unit = { imgFile =>
-            self.setState(_.copy(picture = imgFile(0).preview, pictureFile = Some(imgFile(0))))
           }
 
           def onSnackbarClose: String => Unit = _ => {
@@ -292,12 +285,14 @@ object CreateCurrentOperation {
                   ^.errorText := self.state.labelError,
                   ^.onChange := onChangeLabel
                 )(),
-                <.Dropzone(
-                  ^.multiple := false,
-                  ^.className := CurrentOperationStyles.dropzone.htmlClass,
-                  ^.onDropDropzone := setPicture
-                )("Picture"),
-                <.img(^.src := self.state.picture, ^.className := CurrentOperationStyles.preview.htmlClass)(),
+                <(imageDropzone)(
+                  ^.wrapped := ImageUploadProps(
+                    label = "Picture url",
+                    imageUrl = self.state.picture,
+                    uploadImage = uploadImage,
+                    onChangeImageUrl = updatePictureUrl
+                  )
+                )(),
                 <.TextFieldMaterialUi(
                   ^.name := "alternativeText",
                   ^.floatingLabelText := "Alternative text",
@@ -364,27 +359,9 @@ object CreateCurrentOperation {
                 ^.onRequestClose := onSnackbarClose
               )()
             ),
-            <.style()(CurrentOperationStyles.render[String])
+            <.style()(ImageUploadFieldStyle.render[String])
           )
         }
       )
 
-}
-
-object CurrentOperationStyles extends StyleSheet.Inline {
-
-  import dsl._
-
-  val dropzone: StyleA =
-    style(
-      background := "#efefef",
-      cursor.pointer,
-      padding(1.rem),
-      marginTop(1.rem),
-      textAlign.center,
-      color(rgb(9, 9, 9))
-    )
-
-  val preview: StyleA =
-    style(maxWidth(100.%%), height.auto, marginLeft.auto, marginRight.auto, marginTop(1.rem))
 }

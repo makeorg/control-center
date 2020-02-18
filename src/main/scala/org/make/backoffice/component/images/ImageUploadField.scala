@@ -59,7 +59,7 @@ object ImageUploadField {
             ^.source := self.props.wrapped.source,
             ^.label := self.props.wrapped.label,
             ^.component := { holder: FieldHolder =>
-              <(innerReactClass)(
+              <(imageDropzoneReduxForm)(
                 ^.wrapped := ImageUploadInnerFieldProps(
                   holder.input,
                   self.props.wrapped.label,
@@ -81,19 +81,19 @@ object ImageUploadField {
                                         uploadImage: FormData => Future[String],
                                         onError: Throwable    => Unit)
 
-  case class ImageUploadFieldInnerState(value: String, previewUrl: String)
+  case class ImageUploadFieldInnerState(value: String)
 
-  lazy val innerReactClass: ReactClass =
+  lazy val imageDropzoneReduxForm: ReactClass =
     React
       .createClass[ImageUploadInnerFieldProps, ImageUploadFieldInnerState](
         displayName = "PictureUpload",
         getInitialState = { self =>
           val url = self.props.wrapped.input.value
-          ImageUploadFieldInnerState(value = url, previewUrl = url)
+          ImageUploadFieldInnerState(value = url)
         },
         componentWillReceiveProps = { (self, newProps) =>
           val url = newProps.wrapped.input.value
-          self.setState(_.copy(value = url, previewUrl = url))
+          self.setState(_.copy(value = url))
         },
         render = { self =>
           val updateState = { event: FormSyntheticEvent[HTMLInputElement] =>
@@ -112,31 +112,57 @@ object ImageUploadField {
 
           def uploadImage: js.Array[ImageFile] => Unit = { files =>
             val file = files.head
-            self.setState(_.copy(previewUrl = file.preview))
             val formData = new FormData()
             formData.append("data", file)
             self.props.wrapped.uploadImage(formData).onComplete {
               case Success(url) =>
-                self.setState(_.copy(value = url, previewUrl = url))
+                self.setState(_.copy(value = url))
                 self.props.wrapped.input.onChange(url)
               case Failure(e) => self.props.wrapped.onError(e)
             }
           }
 
           <.div()(
-            <.Dropzone(
-              ^.multiple := false,
-              ^.className := self.props.wrapped.dropZoneClassName,
-              ^.onDropDropzone := uploadImage
-            )("Picture"),
-            <.img(^.src := self.state.value, ^.className := self.props.wrapped.previewClassName)(),
             <.TextFieldMaterialUi(
               ^.floatingLabelText := self.props.wrapped.label,
               ^.value := self.state.value,
               ^.onChange := updateState,
               ^.onBlur := updateRecord,
               ^.fullWidth := true
-            )()
+            )(),
+            <.Dropzone(
+              ^.multiple := false,
+              ^.className := self.props.wrapped.dropZoneClassName,
+              ^.onDropDropzone := uploadImage
+            )("Upload Picture"),
+            <.img(^.src := self.state.value, ^.className := self.props.wrapped.previewClassName)()
+          )
+        }
+      )
+
+  case class ImageUploadProps(label: String,
+                              imageUrl: String,
+                              uploadImage: js.Array[ImageFile]                       => Unit,
+                              onChangeImageUrl: FormSyntheticEvent[HTMLInputElement] => Unit)
+
+  lazy val imageDropzone: ReactClass =
+    React
+      .createClass[ImageUploadProps, Unit](
+        displayName = "PictureUpload",
+        render = { self =>
+          <.div()(
+            <.TextFieldMaterialUi(
+              ^.floatingLabelText := self.props.wrapped.label,
+              ^.value := self.props.wrapped.imageUrl,
+              ^.onChange := self.props.wrapped.onChangeImageUrl,
+              ^.fullWidth := true
+            )(),
+            <.Dropzone(
+              ^.multiple := false,
+              ^.className := ImageUploadFieldStyle.dropzone.htmlClass,
+              ^.onDropDropzone := self.props.wrapped.uploadImage
+            )("Upload Picture"),
+            <.img(^.src := self.props.wrapped.imageUrl, ^.className := ImageUploadFieldStyle.preview.htmlClass)()
           )
         }
       )
