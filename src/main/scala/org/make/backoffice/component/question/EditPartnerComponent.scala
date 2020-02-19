@@ -94,6 +94,27 @@ object EditPartnerComponent {
           snackbarMessage = ""
         )
       },
+      componentWillReceiveProps = { (self, props) =>
+        val partner = props.native.record.asInstanceOf[PartnerRecord]
+        self.setState(
+          _.copy(
+            partnerId = partner.id,
+            name = partner.name,
+            errorName = "",
+            logo = Option(partner.logo),
+            errorLogo = "",
+            link = Option(partner.link),
+            errorLink = "",
+            partnerKind = partner.partnerKind,
+            errorPartnerKind = "",
+            weight = partner.weight,
+            organisationId = Option(partner.organisationId),
+            editPartnerModalOpen = false,
+            snackbarOpen = false,
+            snackbarMessage = ""
+          )
+        )
+      },
       render = { self =>
         val editSvgPath =
           "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
