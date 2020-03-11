@@ -276,9 +276,11 @@ object EditQuestion {
                 ),
                 <.FormTab(^.label := "Theme")(
                   <.ColorInput(^.source := "theme.gradientStart", ^.label := "Gradient start")(),
-                  <.ColorInput(^.source := "theme.gradientEnd", ^.label := "Gradient End")(),
+                  <.ColorInput(^.source := "theme.gradientEnd", ^.label := "Gradient end")(),
                   <.ColorInput(^.source := "theme.color", ^.label := "Color")(),
                   <.ColorInput(^.source := "theme.fontColor", ^.label := "Font color")(),
+                  <.ColorInput(^.source := "theme.secondaryColor", ^.label := "Secondary color")(),
+                  <.ColorInput(^.source := "theme.secondaryFontColor", ^.label := "Secondary font color")(),
                   <.UploadImageComponent(
                     ^.wrapped := ImageUploadFieldProps(
                       "consultationImage",
