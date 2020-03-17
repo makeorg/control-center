@@ -82,6 +82,11 @@ object EditCrmTemplates {
                 ^.source := "forgottenPasswordOrganisation",
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Forgotten Password Organisation"
+              )(),
+              <.NumberInput(
+                ^.source := "organisationEmailChangeConfirmation",
+                ^.options := Map("fullWidth" -> true),
+                ^.label := "Organisation Email Change Confirmation"
               )()
             )
           )
