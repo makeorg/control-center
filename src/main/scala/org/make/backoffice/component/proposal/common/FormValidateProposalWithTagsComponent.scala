@@ -231,13 +231,22 @@ object FormValidateProposalWithTagsComponent {
                         <.h4()(maybeTagType.map(_.label).getOrElse("None"))
                       ),
                       tags.map { tag =>
+                        def color: String =
+                          if (tag.predicted) {
+                            "orange"
+                          } else if (tag.checked) {
+                            "#00BCD4"
+                          } else {
+                            "black"
+                          }
                         <.Checkbox(
                           ^.className := FormValidateProposalWithTagsStyles.label.htmlClass,
                           ^.key := tag.id,
                           ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
                           ^.value := tag.id,
                           ^.label := tag.label,
-                          ^.onCheck := handleTagChange
+                          ^.onCheck := handleTagChange,
+                          ^.labelStyle := Map("color" -> color)
                         )()
                       }
                     )
