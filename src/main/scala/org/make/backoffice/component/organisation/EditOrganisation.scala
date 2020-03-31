@@ -69,6 +69,12 @@ object EditOrganisation {
                 ^.allowEmpty := false,
                 ^.options := Map("fullWidth" -> true)
               )(),
+              <.TextInput(
+                ^.source := "email",
+                ^.validate := required,
+                ^.allowEmpty := false,
+                ^.options := Map("fullWidth" -> true)
+              )(),
               <.UploadImageComponent(
                 ^.wrapped := ImageUploadFieldProps(
                   "profile.avatarUrl",
