@@ -150,7 +150,8 @@ object Main {
           ^.edit := EditTopIdea(),
           ^.create := CreateTopIdea(),
           ^.remove := NativeDelete
-        )()
+        )(),
+        <.Resource(^.name := Resource.personalityRoles)(),
       ),
       dom.document.getElementById("make-backoffice")
     )

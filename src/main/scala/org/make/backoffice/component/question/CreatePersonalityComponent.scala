@@ -28,9 +28,10 @@ import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.autoComplete.AutoComplete.AutoCompleteProps
 import org.make.backoffice.facade.DataSourceConfig
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.model.{Personality, Question, SimpleUser}
+import org.make.backoffice.model.{PersonalityRole, Question, SimpleUser}
 import org.make.backoffice.service.personality.{
   CreatePersonalityRequest,
+  PersonalityRoleService,
   PersonalityService,
   QuestionPersonalityService
 }
@@ -42,7 +43,8 @@ import scala.util.{Failure, Success}
 object CreatePersonalityComponent {
 
   case class CreatePersonalityComponentProps(reloadComponent: () => Unit)
-  case class CreatePersonalityComponentState(personalityRole: String,
+  case class CreatePersonalityComponentState(selectedPersonalityRole: String,
+                                             personalityRoles: Seq[PersonalityRole],
                                              errorPersonalityRole: String,
                                              userId: Option[String],
                                              createPersonalityModalOpen: Boolean,
@@ -54,7 +56,8 @@ object CreatePersonalityComponent {
       displayName = "CreatePersonalityComponent",
       getInitialState = { _ =>
         CreatePersonalityComponentState(
-          personalityRole = "",
+          selectedPersonalityRole = "",
+          personalityRoles = Seq.empty,
           errorPersonalityRole = "",
           userId = None,
           createPersonalityModalOpen = false,
@@ -62,9 +65,21 @@ object CreatePersonalityComponent {
           snackbarMessage = ""
         )
       },
+      componentWillReceiveProps = { (self, _) =>
+        if (self.state.personalityRoles.isEmpty) {
+          PersonalityRoleService.personalitieRoles.onComplete {
+            case Success(personalityRoles) =>
+              self.setState(_.copy(personalityRoles = personalityRoles, snackbarOpen = false))
+            case Failure(e) =>
+              self.setState(
+                _.copy(snackbarMessage = s"fail to retrieve personality roles: ${e.getMessage}", snackbarOpen = true)
+              )
+          }
+        }
+      },
       render = { self =>
         def onChangePersonalityRole: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
-          self.setState(_.copy(personalityRole = value, errorPersonalityRole = ""))
+          self.setState(_.copy(selectedPersonalityRole = value, errorPersonalityRole = ""))
         }
 
         def handleNewUserRequest: (js.Object, Int) => Unit = (chosenRequest, _) => {
@@ -77,7 +92,7 @@ object CreatePersonalityComponent {
             var error = false
             var errorPersonalityRole = ""
 
-            if (self.state.personalityRole.isEmpty) {
+            if (self.state.selectedPersonalityRole.isEmpty) {
               errorPersonalityRole = "Personality role is required"
               error = true
             }
@@ -89,7 +104,7 @@ object CreatePersonalityComponent {
               val request = CreatePersonalityRequest(
                 userId = self.state.userId,
                 questionId = questionId,
-                personalityRole = self.state.personalityRole
+                personalityRoleId = self.state.selectedPersonalityRole
               )
 
               QuestionPersonalityService.createPersonality(request = request).onComplete {
@@ -97,7 +112,7 @@ object CreatePersonalityComponent {
                   self.setState(
                     _.copy(
                       userId = Some(""),
-                      personalityRole = "",
+                      selectedPersonalityRole = "",
                       snackbarOpen = true,
                       snackbarMessage = "Personality successfully created",
                       createPersonalityModalOpen = false
@@ -142,12 +157,15 @@ object CreatePersonalityComponent {
             )(),
             <.SelectField(
               ^.floatingLabelText := "Role *",
-              ^.value := self.state.personalityRole,
+              ^.value := self.state.selectedPersonalityRole,
               ^.onChangeSelect := onChangePersonalityRole,
               ^.errorText := self.state.errorPersonalityRole
-            )(Personality.personalityRoleMap.map {
-              case (key, value) =>
-                <.MenuItem(^.key := key, ^.value := key, ^.primaryText := value)()
+            )(self.state.personalityRoles.map { personalityRole =>
+              <.MenuItem(
+                ^.key := personalityRole.id,
+                ^.value := personalityRole.id,
+                ^.primaryText := personalityRole.name
+              )()
             })
           ),
           <.Snackbar(

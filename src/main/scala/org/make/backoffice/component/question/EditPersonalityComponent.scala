@@ -26,8 +26,12 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.elements.ReactElement
 import io.github.shogowada.scalajs.reactjs.events.SyntheticEvent
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.model.Personality
-import org.make.backoffice.service.personality.{QuestionPersonalityService, UpdatePersonalityRequest}
+import org.make.backoffice.model.PersonalityRole
+import org.make.backoffice.service.personality.{
+  PersonalityRoleService,
+  QuestionPersonalityService,
+  UpdatePersonalityRequest
+}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -39,13 +43,14 @@ object EditPersonalityComponent {
   trait PersonalityRecord extends js.Object {
     val id: String
     val userId: String
-    val personalityRole: String
+    val personalityRoleId: String
   }
 
   case class EditPersonalityComponentProps(reloadComponent: () => Unit)
   case class EditPersonalityComponentState(personalityId: String,
                                            userId: String,
-                                           personalityRole: String,
+                                           selectedPersonalityRole: String,
+                                           personalityRoles: Seq[PersonalityRole],
                                            errorPersonalityRole: String,
                                            editPersonalityModalOpen: Boolean,
                                            snackbarOpen: Boolean,
@@ -59,12 +64,25 @@ object EditPersonalityComponent {
         EditPersonalityComponentState(
           personalityId = personality.id,
           userId = personality.userId,
-          personalityRole = personality.personalityRole,
+          selectedPersonalityRole = personality.personalityRoleId,
+          personalityRoles = Seq.empty,
           errorPersonalityRole = "",
           editPersonalityModalOpen = false,
           snackbarOpen = false,
           snackbarMessage = ""
         )
+      },
+      componentWillReceiveProps = { (self, _) =>
+        if (self.state.personalityRoles.isEmpty) {
+          PersonalityRoleService.personalitieRoles.onComplete {
+            case Success(personalityRoles) =>
+              self.setState(_.copy(personalityRoles = personalityRoles, snackbarOpen = false))
+            case Failure(e) =>
+              self.setState(
+                _.copy(snackbarMessage = s"fail to retrieve personality roles: ${e.getMessage}", snackbarOpen = true)
+              )
+          }
+        }
       },
       render = { self =>
         val editSvgPath =
@@ -74,7 +92,7 @@ object EditPersonalityComponent {
           <.SvgIcon()(React.createElement("path", js.Dictionary("d" -> editSvgPath)))
 
         def onChangePersonalityRole: (js.Object, js.UndefOr[Int], String) => Unit = { (_, _, value) =>
-          self.setState(_.copy(personalityRole = value, errorPersonalityRole = ""))
+          self.setState(_.copy(selectedPersonalityRole = value, errorPersonalityRole = ""))
         }
 
         def onEditPersonality: SyntheticEvent => Unit = {
@@ -82,7 +100,7 @@ object EditPersonalityComponent {
             var error = false
             var errorPersonalityRole = ""
 
-            if (self.state.personalityRole.isEmpty) {
+            if (self.state.selectedPersonalityRole.isEmpty) {
               errorPersonalityRole = "Personality role is required"
               error = true
             }
@@ -90,7 +108,10 @@ object EditPersonalityComponent {
             if (!error) {
 
               val request =
-                UpdatePersonalityRequest(userId = self.state.userId, personalityRole = self.state.personalityRole)
+                UpdatePersonalityRequest(
+                  userId = self.state.userId,
+                  personalityRoleId = self.state.selectedPersonalityRole
+                )
 
               QuestionPersonalityService
                 .editPersonality(request = request, personalityId = self.state.personalityId)
@@ -99,7 +120,7 @@ object EditPersonalityComponent {
                     self.setState(
                       _.copy(
                         userId = "",
-                        personalityRole = "",
+                        selectedPersonalityRole = "",
                         snackbarOpen = true,
                         snackbarMessage = "Personality successfully updated",
                         editPersonalityModalOpen = false
@@ -137,12 +158,15 @@ object EditPersonalityComponent {
           )(
             <.SelectField(
               ^.floatingLabelText := "Role",
-              ^.value := self.state.personalityRole,
+              ^.value := self.state.selectedPersonalityRole,
               ^.onChangeSelect := onChangePersonalityRole,
               ^.errorText := self.state.errorPersonalityRole
-            )(Personality.personalityRoleMap.map {
-              case (key, value) =>
-                <.MenuItem(^.key := key, ^.value := key, ^.primaryText := value)()
+            )(self.state.personalityRoles.map { personalityRole =>
+              <.MenuItem(
+                ^.key := personalityRole.id,
+                ^.value := personalityRole.id,
+                ^.primaryText := personalityRole.name
+              )()
             })
           ),
           <.Snackbar(
