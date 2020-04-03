@@ -42,6 +42,7 @@ object Resource {
   val questionPersonalities = "question-personalities"
   val personalities = "personalities"
   val topIdeas = "top-ideas"
+  val personalityRoles = "personality-roles"
 
   private val resources: Set[String] =
     Set(
@@ -60,7 +61,8 @@ object Resource {
       ideaMappings,
       questionPersonalities,
       personalities,
-      topIdeas
+      topIdeas,
+      personalityRoles
     )
 
   def amongst: String => Boolean = { resources.contains }

@@ -40,17 +40,45 @@ object PersonalityId {
 trait Personality extends js.Object {
   val id: String
   val userId: String
-  val personalityRole: String
+  val personalityRoleId: String
 }
 
 object Personality {
 
-  def apply(id: PersonalityId, userId: UserId, personalityRole: String): Personality = {
+  def apply(id: PersonalityId, userId: UserId, personalityRoleId: PersonalityRoleId): Personality = {
     js.Dynamic
-      .literal(id = id.value, userId = userId.value, personalityRole = personalityRole)
+      .literal(id = id.value, userId = userId.value, personalityRoleId = personalityRoleId.value)
       .asInstanceOf[Personality]
   }
+}
 
-  val personalityRoleMap: Map[String, String] =
-    Map("CANDIDATE" -> "Candidate")
+@js.native
+trait PersonalityRoleId extends js.Object with StringValue {
+  val value: String
+}
+
+object PersonalityRoleId {
+  def apply(value: String): PersonalityRoleId = js.Dynamic.literal(value = value).asInstanceOf[PersonalityRoleId]
+
+  implicit lazy val PersonalityRoleIdEncoder: Encoder[PersonalityRoleId] = (a: PersonalityRoleId) =>
+    Json.fromString(a.value)
+  implicit lazy val PersonalityRoleIdDecoder: Decoder[PersonalityRoleId] =
+    Decoder.decodeString.map(PersonalityRoleId(_))
+}
+
+@js.native
+trait PersonalityRole extends js.Object {
+  val id: String
+  val name: String
+}
+
+object PersonalityRole {
+  def apply(id: PersonalityRoleId, name: String): PersonalityRole = {
+    js.Dynamic
+      .literal(id = id.value, name = name)
+      .asInstanceOf[PersonalityRole]
+  }
+
+  implicit lazy val personalityRoleDecoder: Decoder[PersonalityRole] =
+    Decoder.forProduct2("id", "name")(PersonalityRole.apply)
 }

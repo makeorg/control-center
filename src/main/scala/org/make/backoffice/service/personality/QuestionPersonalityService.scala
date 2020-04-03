@@ -61,22 +61,26 @@ object QuestionPersonalityService extends ApiService with CirceClassFormatters {
   }
 }
 
-final case class CreatePersonalityRequest(userId: Option[String], questionId: String, personalityRole: String)
+final case class CreatePersonalityRequest(userId: Option[String], questionId: String, personalityRoleId: String)
 
 object CreatePersonalityRequest {
   implicit lazy val encoder: Encoder[CreatePersonalityRequest] =
-    Encoder.forProduct3("userId", "questionId", "personalityRole")(
+    Encoder.forProduct3("userId", "questionId", "personalityRoleId")(
       createPersonalityRequest =>
-        (createPersonalityRequest.userId, createPersonalityRequest.questionId, createPersonalityRequest.personalityRole)
+        (
+          createPersonalityRequest.userId,
+          createPersonalityRequest.questionId,
+          createPersonalityRequest.personalityRoleId
+      )
     )
 }
 
-final case class UpdatePersonalityRequest(userId: String, personalityRole: String)
+final case class UpdatePersonalityRequest(userId: String, personalityRoleId: String)
 
 object UpdatePersonalityRequest {
   implicit lazy val encoder: Encoder[UpdatePersonalityRequest] =
-    Encoder.forProduct2("userId", "personalityRole")(
-      updatePersonalityRequest => (updatePersonalityRequest.userId, updatePersonalityRequest.personalityRole)
+    Encoder.forProduct2("userId", "personalityRoleId")(
+      updatePersonalityRequest => (updatePersonalityRequest.userId, updatePersonalityRequest.personalityRoleId)
     )
 }
 

@@ -182,7 +182,13 @@ object EditQuestionConfiguration {
                           ^.linkType := false,
                           ^.sortable := false
                         )(<.TextField(^.source := "lastName")()),
-                        <.TextField(^.source := "personalityRole", ^.label := "role")(),
+                        <.ReferenceField(
+                          ^.source := "personalityRoleId",
+                          ^.label := "role",
+                          ^.reference := Resource.personalityRoles,
+                          ^.linkType := false,
+                          ^.sortable := false
+                        )(<.TextField(^.source := "name")()),
                         <.FlatButton(
                           ^.label := "delete personality",
                           ^.containerElement := <.DeletePersonalityComponent(
