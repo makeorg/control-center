@@ -162,6 +162,7 @@ trait SingleProposalAuthor extends js.Object {
   def userId: String
   def firstName: js.UndefOr[String]
   def lastName: js.UndefOr[String]
+  def displayName: js.UndefOr[String]
   def postalCode: js.UndefOr[String]
   def age: js.UndefOr[Int]
   def avatarUrl: js.UndefOr[String]
@@ -173,6 +174,7 @@ object SingleProposalAuthor {
   def apply(_userId: UserId,
             _firstName: Option[String],
             _lastName: Option[String],
+            _displayName: Option[String],
             _postalCode: Option[String],
             _age: Option[Int],
             _avatarUrl: Option[String],
@@ -183,6 +185,7 @@ object SingleProposalAuthor {
       val userId: String = _userId.value
       val firstName: UndefOr[String] = _firstName.orUndefined
       val lastName: UndefOr[String] = _lastName.orUndefined
+      val displayName: UndefOr[String] = _displayName.orUndefined
       val postalCode: UndefOr[String] = _postalCode.orUndefined
       val age: UndefOr[Int] = _age.orUndefined
       val avatarUrl: UndefOr[String] = _avatarUrl.orUndefined

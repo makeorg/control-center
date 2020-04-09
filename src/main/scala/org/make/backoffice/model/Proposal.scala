@@ -81,16 +81,22 @@ object Vote {
 @js.native
 trait Author extends js.Object {
   val firstName: js.UndefOr[String]
+  val displayName: js.UndefOr[String]
   val postalCode: js.UndefOr[String]
   val age: js.UndefOr[Int]
   val userType: String
 }
 
 object Author {
-  def apply(firstName: Option[String], postalCode: Option[String], age: Option[Int], userType: String): Author =
+  def apply(firstName: Option[String],
+            displayName: Option[String],
+            postalCode: Option[String],
+            age: Option[Int],
+            userType: String): Author =
     js.Dynamic
       .literal(
         firstName = firstName.orUndefined,
+        displayName = displayName.orUndefined,
         postalCode = postalCode.orUndefined,
         age = age.orUndefined,
         userType = userType
