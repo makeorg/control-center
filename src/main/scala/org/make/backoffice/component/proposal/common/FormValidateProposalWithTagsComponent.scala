@@ -29,8 +29,9 @@ import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.WithRouter
 import io.github.shogowada.statictags.Element
 import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
-import org.make.backoffice.component.Main
+import org.make.backoffice.component.{Main, TagColor}
 import org.make.backoffice.facade.MaterialUi._
+import org.make.backoffice.facade.MaterialUiIcons.checkBoxWithColorIcon
 import org.make.backoffice.model._
 import org.make.backoffice.service.proposal.ProposalService
 import org.make.backoffice.service.tag.TagTypeService
@@ -230,24 +231,26 @@ object FormValidateProposalWithTagsComponent {
                       <.div(^.className := FormValidateProposalWithTagsStyles.gridTitle.htmlClass)(
                         <.h4()(maybeTagType.map(_.label).getOrElse("None"))
                       ),
-                      tags.map { tag =>
-                        def color: String =
-                          if (tag.predicted) {
-                            "orange"
-                          } else if (tag.checked) {
-                            "#00BCD4"
-                          } else {
-                            "black"
-                          }
-                        <.Checkbox(
-                          ^.className := FormValidateProposalWithTagsStyles.label.htmlClass,
-                          ^.key := tag.id,
-                          ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
-                          ^.value := tag.id,
-                          ^.label := tag.label,
-                          ^.onCheck := handleTagChange,
-                          ^.labelStyle := Map("color" -> color)
-                        )()
+                      tags.map {
+                        tag =>
+                          def color: TagColor =
+                            if (tag.predicted) {
+                              TagColor("orange", "orange")
+                            } else if (tag.checked) {
+                              TagColor("#00BCD4", "#00BCD4")
+                            } else {
+                              TagColor("black", "#00BCD4")
+                            }
+                          <.Checkbox(
+                            ^.className := FormValidateProposalWithTagsStyles.label.htmlClass,
+                            ^.key := tag.id,
+                            ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
+                            ^.checkedIcon := checkBoxWithColorIcon(color.checkbox),
+                            ^.value := tag.id,
+                            ^.label := tag.label,
+                            ^.onCheck := handleTagChange,
+                            ^.labelStyle := Map("color" -> color.label)
+                          )()
                       }
                     )
                   ),

@@ -28,6 +28,9 @@ import org.make.backoffice.component.images.ImageUploadField
 import scalacss.DevDefaults._
 
 package object component {
+
+  case class TagColor(label: String, checkbox: String)
+
   implicit class RichVirtualDOMElements(val self: VirtualDOMElements) extends AnyVal {
     def ShowProposalTitle: ReactClassElementSpec = self(proposal.common.ShowProposalTitle.reactClass)
     def ShowProposalComponents: ReactClassElementSpec = self(proposal.common.ShowProposalComponents.reactClass)

@@ -58,6 +58,8 @@ object MaterialUiIcons {
     "M15.89,8.11C15.5,7.72,14.83,7,13.53,7c-0.21,0-1.42,0-2.54,0C8.24,6.99,6,4.75,6,2H4c0,3.16,2.11,5.84,5,6.71V22h2v-6h2 v6h2V10.05L18.95,14l1.41-1.41L15.89,8.11z"
   val topIdeasSvgPath =
     "M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"
+  val checkBoxSvgPath =
+    "M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
 
   val proposalIcon: ReactElement =
     <.SvgIcon()(reactjs.React.createElement("path", js.Dictionary("d" -> proposalSvgPath)))
@@ -101,5 +103,10 @@ object MaterialUiIcons {
 
   val topIdeasIcon: ReactElement =
     <.SvgIcon()(reactjs.React.createElement("path", js.Dictionary("d" -> topIdeasSvgPath)))
+
+  def checkBoxWithColorIcon(color: String): ReactElement =
+    <.SvgIcon(^.style := Map("fill" -> color))(
+      reactjs.React.createElement("path", js.Dictionary("d" -> checkBoxSvgPath))
+    )
 
 }
