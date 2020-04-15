@@ -44,12 +44,12 @@ object ShowProposalTitle {
         case _                   => Map.empty
       }
       val propContent: String = self.state.proposal.content
-      val propFirstName: Option[String] = self.state.proposal.author.firstName.toOption
+      val propDisplayName: Option[String] = self.state.proposal.author.displayName.toOption
       val propAge: Option[Int] = self.state.proposal.author.age.toOption
-      val title = (propContent, propFirstName, propAge) match {
-        case (content, Some(firstName), Some(age)) => s"$content, $firstName ($age)"
-        case (content, Some(firstName), _)         => s"$content, $firstName"
-        case (content, _, _)                       => content
+      val title = (propContent, propDisplayName, propAge) match {
+        case (content, Some(displayName), Some(age)) => s"$content, $displayName ($age)"
+        case (content, Some(displayName), _)         => s"$content, $displayName"
+        case (content, _, _)                         => content
       }
       <.h1(^.style := style)(title)
     })
