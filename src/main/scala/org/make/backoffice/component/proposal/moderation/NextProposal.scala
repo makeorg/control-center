@@ -88,13 +88,13 @@ object NextProposal {
       render = { self =>
         if (self.state.proposal.nonEmpty) {
           val propContent: Option[String] = self.state.proposal.map(_.content)
-          val propFirstName: Option[String] = self.state.proposal.flatMap(_.author.firstName.toOption)
+          val propDisplayName: Option[String] = self.state.proposal.flatMap(_.author.displayName.toOption)
           val propAge: Option[Int] = self.state.proposal.flatMap(_.author.age.toOption)
-          val title = (propContent, propFirstName, propAge) match {
-            case (Some(content), Some(firstName), Some(age)) => s"$content, $firstName ($age)"
-            case (Some(content), Some(firstName), _)         => s"$content, $firstName"
-            case (Some(content), _, _)                       => content
-            case (_, _, _)                                   => ""
+          val title = (propContent, propDisplayName, propAge) match {
+            case (Some(content), Some(displayName), Some(age)) => s"$content, $displayName ($age)"
+            case (Some(content), Some(displayName), _)         => s"$content, $displayName"
+            case (Some(content), _, _)                         => content
+            case (_, _, _)                                     => ""
           }
           <.div()(
             <.Card()(<.CardTitle(^.title := title)()),

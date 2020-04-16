@@ -65,7 +65,7 @@ object ShowProposal {
             <.TextField(^.source := "id")(),
             <.FunctionField(^.label := "User name", ^.render := { record =>
               val proposal = record.asInstanceOf[SingleProposal]
-              proposal.author.firstName.getOrElse(proposal.author.organisationName.getOrElse("")).toString
+              proposal.author.displayName.getOrElse("").toString
             })(),
             <.TextField(^.source := "author.profile.age", ^.label := "User age")(),
             <.TextField(^.source := "author.profile.postalCode", ^.label := "User location")(),
