@@ -106,6 +106,11 @@ object CreateQuestion {
                 ^.options := Map("fullWidth" -> true)
               )(),
               <.TextInput(
+                ^.label := "Short title (30 characters max)",
+                ^.source := "shortTitle",
+                ^.options := Map("fullWidth" -> true, "maxLength" -> 30)
+              )(),
+              <.TextInput(
                 ^.label := "Slug",
                 ^.translateLabel := ((label: String) => label),
                 ^.source := "questionSlug",

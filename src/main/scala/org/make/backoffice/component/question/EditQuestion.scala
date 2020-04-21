@@ -106,6 +106,11 @@ object EditQuestion {
                     ^.validate := required,
                     ^.options := Map("fullWidth" -> true)
                   )(),
+                  <.TextInput(
+                    ^.label := "Short title (30 characters max)",
+                    ^.source := "shortTitle",
+                    ^.options := Map("fullWidth" -> true, "maxLength" -> 30)
+                  )(),
                   <.TextField(^.source := "slug")()
                 ),
                 <.FormTab(^.label := "Configuration")(
