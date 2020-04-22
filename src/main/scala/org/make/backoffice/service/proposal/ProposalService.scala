@@ -209,7 +209,7 @@ object ProposalService extends ApiService with CirceClassFormatters {
 
   def getProposalTags(proposalId: String): Future[PredictedTagsWithModelResponse] = {
     client
-      .get[PredictedTagsWithModelResponse](resourceName / proposalId / "predicted-tags")
+      .get[PredictedTagsWithModelResponse](resourceName / proposalId / "tags")
       .recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of converting to PredictedTagsWithModelResponse: failed cursor $e")
