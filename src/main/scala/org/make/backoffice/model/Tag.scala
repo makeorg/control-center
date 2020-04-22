@@ -43,12 +43,19 @@ trait TagType extends js.Object {
   val label: String
   val display: String
   val weight: Float
+  val requiredForEnrichment: Boolean
 }
 
 object TagType {
-  def apply(id: TagTypeId, label: String, display: String, weight: Float): TagType =
+  def apply(id: TagTypeId, label: String, display: String, weight: Float, requiredForEnrichment: Boolean): TagType =
     js.Dynamic
-      .literal(id = id.value, label = label, display = display, weight = weight)
+      .literal(
+        id = id.value,
+        label = label,
+        display = display,
+        weight = weight,
+        requiredForEnrichment = requiredForEnrichment
+      )
       .asInstanceOf[TagType]
 }
 

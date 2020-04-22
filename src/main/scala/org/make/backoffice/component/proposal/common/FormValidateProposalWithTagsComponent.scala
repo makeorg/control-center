@@ -225,12 +225,16 @@ object FormValidateProposalWithTagsComponent {
 
             val checkboxTags: Seq[Element] = groupedTagsWithTagTypeOrdered.flatMap {
               case (maybeTagType, tags) =>
+                val tagTypeTitle = maybeTagType match {
+                  case Some(tagType) if tagType.requiredForEnrichment =>
+                    <.h4()(<.span(^.style := Map("color" -> "red"))("*"), tagType.label)
+                  case Some(tagType) => <.h4()(tagType.label)
+                  case _             => <.h4()("None")
+                }
                 Seq(
                   <.div(^.className := FormValidateProposalWithTagsStyles.gridWrapper.htmlClass)(
                     Seq(
-                      <.div(^.className := FormValidateProposalWithTagsStyles.gridTitle.htmlClass)(
-                        <.h4()(maybeTagType.map(_.label).getOrElse("None"))
-                      ),
+                      <.div(^.className := FormValidateProposalWithTagsStyles.gridTitle.htmlClass)(tagTypeTitle),
                       tags.map {
                         tag =>
                           def color: TagColor =
