@@ -87,18 +87,18 @@ object QuestionService extends ApiService with CirceClassFormatters {
       }
   }
 
-  def getDataConfiguration(sequenceId: String): Future[DataConfiguration] = {
-    client.get[DataConfiguration](apiEndpoint = s"moderation/sequences/$sequenceId/configuration").recover {
+  def getDataConfiguration(questionId: String): Future[DataConfiguration] = {
+    client.get[DataConfiguration](apiEndpoint = s"moderation/sequences/$questionId/configuration").recover {
       case e =>
         js.Dynamic.global.console.log(s"instead of converting to DataConfiguration: failed cursor $e")
         throw e
     }
   }
 
-  def putDataConfiguration(sequenceId: String, questionId: String, request: DataConfiguration): Future[Boolean] = {
+  def putDataConfiguration(questionId: String, request: DataConfiguration): Future[Boolean] = {
     client
       .put[Boolean](
-        apiEndpoint = s"moderation/sequences/$sequenceId/$questionId/configuration",
+        apiEndpoint = s"moderation/sequences/$questionId/configuration",
         data = request.asJson.pretty(ApiService.printer)
       )
       .recover {

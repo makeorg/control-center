@@ -46,7 +46,6 @@ trait Question extends js.Object {
   val operationId: js.UndefOr[String]
   val startDate: js.UndefOr[String]
   val endDate: js.UndefOr[String]
-  val landingSequenceId: js.UndefOr[String]
   val operationTitle: js.UndefOr[String]
   val country: js.UndefOr[String]
   val language: js.UndefOr[String]
@@ -61,7 +60,6 @@ object Question {
             operationId: Option[OperationId],
             startDate: Option[ZonedDateTime],
             endDate: Option[ZonedDateTime],
-            landingSequenceId: Option[String],
             operationTitle: Option[String],
             country: Option[String],
             language: Option[String],
@@ -75,7 +73,6 @@ object Question {
         operationId = operationId.map(_.value).orUndefined,
         startDate = startDate.map(_.toString).orUndefined,
         endDate = endDate.map(_.toString).orUndefined,
-        landingSequenceId = landingSequenceId.orUndefined,
         operationTitle = operationTitle.orUndefined,
         country = country.orUndefined,
         language = language.orUndefined,
