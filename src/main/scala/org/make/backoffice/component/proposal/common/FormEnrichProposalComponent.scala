@@ -246,34 +246,35 @@ object FormEnrichProposalComponent {
 
             val checkboxTags: Seq[Element] = groupedTagsWithTagTypeOrdered.flatMap {
               case (maybeTagType, tags) =>
+                val tagTypeTitle = maybeTagType match {
+                  case Some(tagType) if tagType.requiredForEnrichment =>
+                    <.h4()(<.span(^.style := Map("color" -> "red"))("*"), tagType.label)
+                  case Some(tagType) => <.h4()(tagType.label)
+                  case _             => <.h4()("None")
+                }
                 Seq(
                   <.div(^.className := FormEnrichProposalStyles.gridWrapper.htmlClass)(
-                    Seq(
-                      <.div(^.className := FormEnrichProposalStyles.gridTitle.htmlClass)(
-                        <.h4()(maybeTagType.map(_.label).getOrElse("None"))
-                      ),
-                      tags.map {
-                        tag =>
-                          def color: TagColor =
-                            if (tag.predicted) {
-                              TagColor("orange", "orange")
-                            } else if (tag.checked) {
-                              TagColor("#00BCD4", "#00BCD4")
-                            } else {
-                              TagColor("black", "#00BCD4")
-                            }
-                          <.Checkbox(
-                            ^.className := FormEnrichProposalStyles.label.htmlClass,
-                            ^.key := tag.id,
-                            ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
-                            ^.checkedIcon := checkBoxWithColorIcon(color.checkbox),
-                            ^.value := tag.id,
-                            ^.label := tag.label,
-                            ^.onCheck := handleTagChange,
-                            ^.labelStyle := Map("color" -> color.label)
-                          )()
-                      }
-                    )
+                    Seq(<.div(^.className := FormEnrichProposalStyles.gridTitle.htmlClass)(tagTypeTitle), tags.map {
+                      tag =>
+                        def color: TagColor =
+                          if (tag.predicted) {
+                            TagColor("orange", "orange")
+                          } else if (tag.checked) {
+                            TagColor("#00BCD4", "#00BCD4")
+                          } else {
+                            TagColor("black", "#00BCD4")
+                          }
+                        <.Checkbox(
+                          ^.className := FormEnrichProposalStyles.label.htmlClass,
+                          ^.key := tag.id,
+                          ^.checked := self.state.selectedTags.map(_.value).contains(tag.id),
+                          ^.checkedIcon := checkBoxWithColorIcon(color.checkbox),
+                          ^.value := tag.id,
+                          ^.label := tag.label,
+                          ^.onCheck := handleTagChange,
+                          ^.labelStyle := Map("color" -> color.label)
+                        )()
+                    })
                   ),
                   <.hr.empty
                 )
