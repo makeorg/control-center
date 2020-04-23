@@ -129,12 +129,10 @@ object DataConfigurationComponent {
           )
         },
         componentDidMount = { self =>
-          val sequenceId = self.props.native.record.asInstanceOf[Question].landingSequenceId
-          sequenceId.foreach { id =>
-            QuestionService.getDataConfiguration(id).onComplete {
-              case Success(config) => self.setState(DataConfigurationState(config))
-              case Failure(_)      =>
-            }
+          val questionId = self.props.native.record.asInstanceOf[Question].id
+          QuestionService.getDataConfiguration(questionId).onComplete {
+            case Success(config) => self.setState(DataConfigurationState(config))
+            case Failure(_)      =>
           }
         },
         render = { self =>
@@ -304,9 +302,8 @@ object DataConfigurationComponent {
                   sequenceSize = self.state.sequenceSize,
                   selectionAlgorithmName = self.state.selectionAlgorithmName
                 )
-                val sequenceId = self.props.native.record.asInstanceOf[Question].landingSequenceId.getOrElse("")
                 val questionId = self.props.native.record.asInstanceOf[Question].id
-                QuestionService.putDataConfiguration(sequenceId, questionId, request).onComplete {
+                QuestionService.putDataConfiguration(questionId, request).onComplete {
                   case Success(_) =>
                     self
                       .setState(_.copy(snackbarOpen = true, snackbarMessage = "Successfully update data configuration"))
