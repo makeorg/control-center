@@ -29,6 +29,7 @@ import org.make.backoffice.facade.AdminOnRest.Create._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
+import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.util.Configuration
 
 object CreateCrmTemplates {
@@ -69,6 +70,7 @@ object CreateCrmTemplates {
                     )()
                   )
               },
+              <.h3()("B2C Templates :"),
               <.NumberInput(^.source := "registration", ^.options := Map("fullWidth" -> true))(),
               <.NumberInput(
                 ^.source := "resendRegistration",
@@ -91,25 +93,31 @@ object CreateCrmTemplates {
                 ^.options := Map("fullWidth" -> true),
                 ^.label := "Forgotten Password"
               )(),
+              <.h3()("B2B Templates :"),
               <.NumberInput(
                 ^.source := "proposalAcceptedOrganisation",
                 ^.options := Map("fullWidth" -> true),
-                ^.label := "Proposal Accepted Organisation"
+                ^.label := "Proposal Accepted"
               )(),
               <.NumberInput(
                 ^.source := "proposalRefusedOrganisation",
                 ^.options := Map("fullWidth" -> true),
-                ^.label := "Proposal Refused Organisation"
+                ^.label := "Proposal Refused"
               )(),
               <.NumberInput(
                 ^.source := "forgottenPasswordOrganisation",
                 ^.options := Map("fullWidth" -> true),
-                ^.label := "Forgotten Password Organisation"
+                ^.label := "Forgotten Password"
               )(),
               <.NumberInput(
                 ^.source := "organisationEmailChangeConfirmation",
                 ^.options := Map("fullWidth" -> true),
-                ^.label := "Organisation Email Change Confirmation"
+                ^.label := "Email Change Confirmation"
+              )(),
+              <.NumberInput(
+                ^.source := "registrationB2B",
+                ^.options := Map("fullWidth" -> true),
+                ^.label := "Registration"
               )()
             )
           )
