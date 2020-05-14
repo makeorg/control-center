@@ -21,11 +21,12 @@
 package org.make.backoffice.component.question
 
 import io.github.shogowada.scalajs.reactjs.React
-import io.github.shogowada.scalajs.reactjs.VirtualDOM._
+import io.github.shogowada.scalajs.reactjs.VirtualDOM.{<, _}
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import org.make.backoffice.client.Resource
+import org.make.backoffice.component.CustomAORValueInput.CustomAORValueProps
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.images.ImageUploadField.ImageUploadFieldProps
 import org.make.backoffice.component.images.ImageUploadFieldStyle
@@ -36,9 +37,11 @@ import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.AdminOnRest.required
+import org.make.backoffice.facade.reduxForm.Field._
+import org.make.backoffice.facade.reduxForm.FieldHolder
 import org.make.backoffice.service.question.QuestionService
 import org.make.backoffice.util.DateParser
-import org.scalajs.dom._
+import org.scalajs.dom.FormData
 import scalacss.DevDefaults._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -48,12 +51,13 @@ import scala.scalajs.js
 object EditQuestion {
 
   case class EditQuestionProps() extends RouterProps
+  case class EditQuestionState(displayResults: Boolean, resultsLink: String)
 
   def apply(): ReactClass = reactClass
 
   private lazy val reactClass =
     React
-      .createClass[EditQuestionProps, Unit](
+      .createClass[EditQuestionProps, EditQuestionState](
         displayName = "EditQuestion",
         render = self => {
 
@@ -93,7 +97,7 @@ object EditQuestion {
                     ^.reference := Resource.operations,
                     ^.linkType := false
                   )(<.TextField(^.source := "slug")()),
-                  <.TextField(
+                  <.TextInput(
                     ^.label := "Operation Title",
                     ^.translateLabel := ((label: String) => label),
                     ^.source := "operationTitle"
@@ -116,7 +120,28 @@ object EditQuestion {
                 <.FormTab(^.label := "Configuration")(
                   <.h2(^.style := Map("color" -> "red"))("Global"),
                   <.BooleanInput(^.label := "Can propose", ^.source := "canPropose")(),
-                  <.BooleanInput(^.label := "Display results", ^.source := "displayResults")(),
+                  <.BooleanInput(^.label := "Display Results", ^.source := "displayResults")(),
+                  <.DependentInput(^.dependsOn := "displayResults", ^.dependsValue := true)(
+                    <.TextInput(
+                      ^.label := "Results link",
+                      ^.source := "resultsLink",
+                      ^.`type` := "url",
+                      ^.options := Map("fullWidth" -> true)
+                    )()
+                  ),
+                  <.DependentInput(^.dependsOn := "displayResults", ^.dependsValue := false)(
+                    <.Field(
+                      ^.name := "resultsLink",
+                      ^.source := "resultsLink",
+                      ^.label := "Hidden",
+                      ^.style := Map("display" -> "none"),
+                      ^.component := { holder: FieldHolder =>
+                        <.CustomAORValueInputComponent(
+                          ^.wrapped := CustomAORValueProps(initialValue = "", input = holder.input, label = "hidden")
+                        )()
+                      }
+                    )()
+                  ),
                   <.LongTextInput(
                     ^.label := "Description (multiline)",
                     ^.source := "description",

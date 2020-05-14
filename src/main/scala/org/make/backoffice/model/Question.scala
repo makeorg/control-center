@@ -51,6 +51,7 @@ trait Question extends js.Object {
   val language: js.UndefOr[String]
   val consultationImage: js.UndefOr[String]
   val descriptionImage: js.UndefOr[String]
+  val resultsLink: js.UndefOr[String]
 }
 
 object Question {
@@ -64,7 +65,8 @@ object Question {
             country: Option[String],
             language: Option[String],
             consultationImage: Option[String],
-            descriptionImage: Option[String]): Question =
+            descriptionImage: Option[String],
+            resultsLink: Option[String]): Question =
     js.Dynamic
       .literal(
         id = questionId.value,
@@ -77,7 +79,8 @@ object Question {
         country = country.orUndefined,
         language = language.orUndefined,
         consultationImage = consultationImage.orUndefined,
-        descriptionImage = descriptionImage.orUndefined
+        descriptionImage = descriptionImage.orUndefined,
+        resultsLink = resultsLink.orUndefined
       )
       .asInstanceOf[Question]
 

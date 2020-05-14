@@ -24,6 +24,7 @@ import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.FormSyntheticEvent
+import org.make.backoffice.component.CustomAORValueInput.CustomAORValueProps
 import org.make.backoffice.facade.AdminOnRest.Fields.FieldsVirtualDOMAttributes
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.facade.ReactDropzone.{DropzoneVirtualDOMAttributes, DropzoneVirtualDOMElements}
@@ -31,6 +32,7 @@ import org.make.backoffice.facade.reduxForm.Field._
 import org.make.backoffice.facade.reduxForm.{FieldHolder, FieldInput}
 import org.scalajs.dom.FormData
 import org.scalajs.dom.raw.HTMLInputElement
+import org.make.backoffice.component.RichVirtualDOMElements
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -96,20 +98,6 @@ object ImageUploadField {
           self.setState(_.copy(value = url))
         },
         render = { self =>
-          val updateState = { event: FormSyntheticEvent[HTMLInputElement] =>
-            val value = event.target.value
-            self.setState(_.copy(value = value))
-          }
-
-          val updateRecord = { () =>
-            val value = self.state.value
-            if (value == "") {
-              self.props.wrapped.input.onChange(null)
-            } else {
-              self.props.wrapped.input.onChange(value)
-            }
-          }
-
           def uploadImage: js.Array[ImageFile] => Unit = { files =>
             val file = files.head
             val formData = new FormData()
@@ -123,12 +111,12 @@ object ImageUploadField {
           }
 
           <.div()(
-            <.TextFieldMaterialUi(
-              ^.floatingLabelText := self.props.wrapped.label,
-              ^.value := self.state.value,
-              ^.onChange := updateState,
-              ^.onBlur := updateRecord,
-              ^.fullWidth := true
+            <.CustomAORValueInputComponent(
+              ^.wrapped := CustomAORValueProps(
+                initialValue = self.state.value,
+                input = self.props.wrapped.input,
+                label = self.props.wrapped.label
+              )
             )(),
             <.Dropzone(
               ^.multiple := false,

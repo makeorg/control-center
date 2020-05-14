@@ -69,6 +69,7 @@ package object component {
     def DeletePersonalityComponent: ReactClassElementSpec = self(question.DeletePersonalityComponent.reactClass)
     def UploadImageComponent: ReactClassElementSpec = self(ImageUploadField.reactClass)
     def AutoCompleteComponent: ReactClassElementSpec = self(AutoComplete.reactClass)
+    def CustomAORValueInputComponent: ReactClassElementSpec = self(CustomAORValueInput.reactClass)
   }
 
   implicit class RichSpaceSeparatedStringAttributeSpec(val spec: SpaceSeparatedStringAttributeSpec) extends AnyVal {
