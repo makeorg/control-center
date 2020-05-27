@@ -142,6 +142,7 @@ object EditQuestion {
                       }
                     )()
                   ),
+                  <.BooleanInput(^.label := "Featured", ^.source := "featured")(),
                   <.LongTextInput(
                     ^.label := "Description (multiline)",
                     ^.source := "description",
