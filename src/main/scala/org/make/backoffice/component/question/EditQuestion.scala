@@ -148,6 +148,7 @@ object EditQuestion {
                     ^.source := "description",
                     ^.options := Map("fullWidth" -> true, "floatingLabelFixed" -> true)
                   )(),
+                  <.TextInput(^.source := "actions", ^.options := Map("fullWidth" -> true, "maxLength" -> 30))(),
                   <.h2(^.style := Map("color" -> "red"))("Cards"),
                   <.DependentInput(^.dependsOn := "canPropose", ^.dependsValue := true)(
                     <.BooleanInput(
