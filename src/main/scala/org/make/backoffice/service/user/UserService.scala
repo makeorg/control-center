@@ -55,7 +55,7 @@ object UserService extends ApiService with CirceClassFormatters {
   def adminUploadAvatar(formData: FormData, userType: String): Future[UploadResponse] = {
     val data: InputData = InputData.formdata2ajax(formData)
     client
-      .post[UploadResponse]("admin" / "user" / "upload-avatar" / userType, data = data, includeContentType = false)
+      .post[UploadResponse]("admin" / "users" / "upload-avatar" / userType, data = data, includeContentType = false)
       .recover {
         case e =>
           js.Dynamic.global.console.log(s"instead of converting to UploadResponse: failed cursor $e")
