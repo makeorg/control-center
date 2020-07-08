@@ -61,6 +61,13 @@ object CreateModerator {
                 ^.options := Map("fullWidth" -> true)
               )(),
               <.TextInput(
+                ^.label := "password",
+                ^.source := "password",
+                ^.`type` := "password",
+                ^.allowEmpty := true,
+                ^.options := Map("fullWidth" -> true)
+              )(),
+              <.TextInput(
                 ^.label := "firtsname",
                 ^.source := "firstName",
                 ^.validate := required,
