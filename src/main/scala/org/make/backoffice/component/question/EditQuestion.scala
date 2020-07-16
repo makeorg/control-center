@@ -322,6 +322,11 @@ object EditQuestion {
                       uploadQuestionImage(self.props.native.`match`.params.id.toString)
                     )
                   )(),
+                  <.TextInput(
+                    ^.source := "consultationImageAlt",
+                    ^.label := "Consultation Image Alt",
+                    ^.options := Map("fullWidth" -> true, "maxLength" -> 130)
+                  )(),
                   <.UploadImageComponent(
                     ^.wrapped := ImageUploadFieldProps(
                       "descriptionImage",
@@ -330,6 +335,11 @@ object EditQuestion {
                       ImageUploadFieldStyle.preview.htmlClass,
                       uploadQuestionImage(self.props.native.`match`.params.id.toString)
                     )
+                  )(),
+                  <.TextInput(
+                    ^.source := "descriptionImageAlt",
+                    ^.label := "Description Image Alt",
+                    ^.options := Map("fullWidth" -> true, "maxLength" -> 130)
                   )()
                 )
               )
