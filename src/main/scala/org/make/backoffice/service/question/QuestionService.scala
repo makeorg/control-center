@@ -42,7 +42,6 @@ object QuestionService extends ApiService with CirceClassFormatters {
   override val resourceName: String = "moderation/operations-of-questions"
 
   def questions(pagination: Option[Pagination] = None,
-                sort: Option[Sort] = None,
                 filters: Option[Seq[Filter]] = None): Future[ListTotalResponse[Question]] = {
     client
       .get[js.Array[Question]](
