@@ -39,6 +39,19 @@ object QuestionId {
 }
 
 @js.native
+trait ResultsLink extends js.Object {
+  val kind: String
+  val value: String
+}
+
+object ResultsLink {
+  def apply(kind: String, value: String): ResultsLink =
+    js.Dynamic
+      .literal(kind = kind, value = value)
+      .asInstanceOf[ResultsLink]
+}
+
+@js.native
 trait Question extends js.Object {
   val id: String
   val question: String
@@ -51,7 +64,7 @@ trait Question extends js.Object {
   val language: js.UndefOr[String]
   val consultationImage: js.UndefOr[String]
   val descriptionImage: js.UndefOr[String]
-  val resultsLink: js.UndefOr[String]
+  val resultsLink: js.UndefOr[ResultsLink]
 }
 
 object Question {
@@ -66,7 +79,7 @@ object Question {
             language: Option[String],
             consultationImage: Option[String],
             descriptionImage: Option[String],
-            resultsLink: Option[String]): Question =
+            resultsLink: Option[ResultsLink]): Question =
     js.Dynamic
       .literal(
         id = questionId.value,

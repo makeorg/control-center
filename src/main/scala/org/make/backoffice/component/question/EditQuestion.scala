@@ -26,7 +26,6 @@ import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import org.make.backoffice.client.Resource
-import org.make.backoffice.component.CustomAORValueInput.CustomAORValueProps
 import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.component.images.ImageUploadField.ImageUploadFieldProps
 import org.make.backoffice.component.images.ImageUploadFieldStyle
@@ -37,8 +36,7 @@ import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SaveButton._
 import org.make.backoffice.facade.AdminOnRest.TabbedForm._
 import org.make.backoffice.facade.AdminOnRest.required
-import org.make.backoffice.facade.reduxForm.Field._
-import org.make.backoffice.facade.reduxForm.FieldHolder
+import org.make.backoffice.facade.Choice
 import org.make.backoffice.service.question.QuestionService
 import org.make.backoffice.util.DateParser
 import org.scalajs.dom.FormData
@@ -100,7 +98,8 @@ object EditQuestion {
                   <.TextInput(
                     ^.label := "Operation Title",
                     ^.translateLabel := ((label: String) => label),
-                    ^.source := "operationTitle"
+                    ^.source := "operationTitle",
+                    ^.options := Map("fullWidth" -> true)
                   )(),
                   <.TextField(^.source := "country")(),
                   <.TextField(^.source := "language")(),
@@ -122,25 +121,34 @@ object EditQuestion {
                   <.BooleanInput(^.label := "Can propose", ^.source := "canPropose")(),
                   <.BooleanInput(^.label := "Display Results", ^.source := "displayResults")(),
                   <.DependentInput(^.dependsOn := "displayResults", ^.dependsValue := true)(
-                    <.TextInput(
-                      ^.label := "Results link",
-                      ^.source := "resultsLink",
-                      ^.`type` := "url",
+                    <.SelectInput(
+                      ^.source := "resultsLink.kind",
+                      ^.label := "Kind",
+                      ^.choices := js
+                        .Array(Choice(id = "internal", name = "Internal"), Choice(id = "external", name = "External")),
                       ^.options := Map("fullWidth" -> true)
-                    )()
-                  ),
-                  <.DependentInput(^.dependsOn := "displayResults", ^.dependsValue := false)(
-                    <.Field(
-                      ^.name := "resultsLink",
-                      ^.source := "resultsLink",
-                      ^.label := "Hidden",
-                      ^.style := Map("display" -> "none"),
-                      ^.component := { holder: FieldHolder =>
-                        <.CustomAORValueInputComponent(
-                          ^.wrapped := CustomAORValueProps(initialValue = "", input = holder.input, label = "hidden")
-                        )()
-                      }
-                    )()
+                    )(),
+                    <.DependentInput(^.dependsOn := "resultsLink.kind", ^.dependsValue := "internal")(
+                      <.SelectInput(
+                        ^.source := "resultsLink.value",
+                        ^.label := "Value",
+                        ^.choices := js
+                          .Array(
+                            Choice(id = "results", name = "Results"),
+                            Choice(id = "top-ideas", name = "Top ideas")
+                          ),
+                        ^.options := Map("fullWidth" -> true)
+                      )()
+                    ),
+                    <.DependentInput(^.dependsOn := "resultsLink.kind", ^.dependsValue := "external")(
+                      <.TextInput(
+                        ^.label := "Results link",
+                        ^.label := "Value",
+                        ^.source := "resultsLink.value",
+                        ^.`type` := "url",
+                        ^.options := Map("fullWidth" -> true)
+                      )()
+                    )
                   ),
                   <.BooleanInput(^.label := "Featured", ^.source := "featured")(),
                   <.LongTextInput(

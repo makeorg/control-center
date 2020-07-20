@@ -221,6 +221,9 @@ trait CirceClassFormatters extends TimeInstances {
       "resultsLink"
     )(Question.apply)
 
+  implicit lazy val resultsLinkDecoder: Decoder[ResultsLink] =
+    Decoder.forProduct2("kind", "value")(ResultsLink.apply)
+
   implicit lazy val dataConfigurationDecoder: Decoder[DataConfiguration] =
     Decoder.forProduct19(
       "newProposalsRatio",

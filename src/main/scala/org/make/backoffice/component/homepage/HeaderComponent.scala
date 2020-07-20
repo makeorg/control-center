@@ -207,7 +207,7 @@ object HeaderComponent {
             (_, _, value) =>
               self.setState(_.copy(internalLink = Some(value), questionId = None))
               if (value == "ACTIONS") {
-                QuestionService.questions(None, None, Some(Seq(Filter("operationKind", "GREAT_CAUSE")))).onComplete {
+                QuestionService.questions(None, Some(Seq(Filter("operationKind", "GREAT_CAUSE")))).onComplete {
                   case Success(questions) => self.setState(_.copy(questionsList = questions.data))
                   case Failure(e)         => js.Dynamic.global.console.log(e.getMessage)
                 }
