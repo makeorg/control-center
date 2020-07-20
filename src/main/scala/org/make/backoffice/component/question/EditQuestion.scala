@@ -325,7 +325,7 @@ object EditQuestion {
                   <.TextInput(
                     ^.source := "consultationImageAlt",
                     ^.label := "Consultation Image Alt",
-                    ^.options := Map("fullWidth" -> true, "maxLength" -> 130)
+                    ^.options := Map("fullWidth" -> true, "maxLength" -> 100)
                   )(),
                   <.UploadImageComponent(
                     ^.wrapped := ImageUploadFieldProps(
@@ -339,7 +339,7 @@ object EditQuestion {
                   <.TextInput(
                     ^.source := "descriptionImageAlt",
                     ^.label := "Description Image Alt",
-                    ^.options := Map("fullWidth" -> true, "maxLength" -> 130)
+                    ^.options := Map("fullWidth" -> true, "maxLength" -> 100)
                   )()
                 )
               )
