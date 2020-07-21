@@ -37,7 +37,7 @@ object InitialProposalComponent {
 
   val contentTextError = "Proposal content is to small"
   val firstNameTextError = "User firstname must not be empty"
-  val ageTextError = "User age must be between 13 and 120"
+  val ageTextError = "User age must be between 8 and 120"
 
   case class InitialProposalComponentProps(reloadComponent: () => Unit)
   case class InitialProposalComponentState(content: String,
@@ -101,7 +101,7 @@ object InitialProposalComponent {
         if (firstName.forall(_.isEmpty)) {
           isValidFirstName = false
         }
-        if (age.exists(age => age.toInt < 13 || age.toInt > 120)) {
+        if (age.exists(age => age.toInt < 8 || age.toInt >= 120)) {
           isValidAge = false
         }
         self.setState(
