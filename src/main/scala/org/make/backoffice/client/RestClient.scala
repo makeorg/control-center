@@ -68,8 +68,6 @@ object RestClient extends CirceClassFormatters {
       case Resource.ideas        => retryOnFailure(jsonClient(restVerb, resource, parameters), 5).toJSPromise
       case Resource.ideaMappings => retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise
       case Resource.partners     => retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise
-      case Resource.homepage =>
-        retryOnFailure(adminJsonClient(restVerb, "views/home/current-operations", parameters), 5).toJSPromise
       case Resource.questionsConfiguration =>
         retryOnFailure(jsonClient(restVerb, "operations-of-questions", parameters), 5).toJSPromise
       case Resource.features => retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise

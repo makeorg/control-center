@@ -35,7 +35,6 @@ object Resource {
   val moderators = "moderators"
   val ideaMappings = "idea-mappings"
   val partners = "partners"
-  val homepage = "homepage"
   val questionsConfiguration = "question-configuration"
   val features = "features"
   val crmTemplates = "crm-templates"

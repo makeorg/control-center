@@ -26,7 +26,6 @@ import io.github.shogowada.scalajs.reactjs.router.Router._
 import org.make.backoffice.client.{AuthClient, Resource, RestClient}
 import org.make.backoffice.component.crmTemplates.{CreateCrmTemplates, CrmTemplatesList, EditCrmTemplates}
 import org.make.backoffice.component.feature.{CreateFeature, EditFeature, FeatureList}
-import org.make.backoffice.component.homepage.{CreateCurrentOperation, EditCurrentOperation, EditHomepage}
 import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
 import org.make.backoffice.component.ideaMappings.{EditIdeaMapping, IdeaMappingsList}
 import org.make.backoffice.component.moderator.{CreateModerator, EditUser, UsersList}
@@ -110,18 +109,10 @@ object Main {
         )(),
         <.Resource(^.name := Resource.questions)(),
         <.Resource(^.name := Resource.partners)(),
-        <.Resource(^.name := Resource.homepage, ^.listing := EditHomepage())(),
         <.Resource(
           ^.name := Resource.questionsConfiguration,
           ^.listing := QuestionConfiguration(),
           ^.edit := EditQuestionConfiguration()
-        )(),
-        <.Resource(
-          ^.name := Resource.homepage,
-          ^.listing := EditHomepage(),
-          ^.create := CreateCurrentOperation(),
-          ^.edit := EditCurrentOperation(),
-          ^.remove := NativeDelete
         )(),
         <.Resource(^.name := Resource.moderators)(),
         <.Resource(

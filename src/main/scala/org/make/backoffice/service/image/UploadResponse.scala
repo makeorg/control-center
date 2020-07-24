@@ -18,32 +18,11 @@
  *
  */
 
-package org.make.backoffice.service.homepage
+package org.make.backoffice.service.image
 
 import io.circe.Decoder
-import org.make.backoffice.service.ApiService
-import org.make.backoffice.util.uri._
-import org.scalajs.dom.FormData
-import org.scalajs.dom.ext.Ajax.InputData
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.scalajs.js
-
-object HomepageService extends ApiService {
-
-  override val resourceName = "admin/views/home"
-
-  def uploadImage(formData: FormData): Future[UploadResponse] = {
-    val data: InputData = InputData.formdata2ajax(formData)
-    client.post[UploadResponse](resourceName / "images", data = data, includeContentType = false).recover {
-      case e =>
-        js.Dynamic.global.console.log(s"instead of converting to UploadResponse: failed cursor $e")
-        throw e
-    }
-  }
-
-}
 
 @js.native
 trait UploadResponse extends js.Object {

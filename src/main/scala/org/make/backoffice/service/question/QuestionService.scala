@@ -27,7 +27,7 @@ import org.make.backoffice.client.request.{Filter, Pagination, Sort}
 import org.make.backoffice.model.Question.DataConfiguration
 import org.make.backoffice.model.{ProposalIdResult, Question}
 import org.make.backoffice.service.ApiService
-import org.make.backoffice.service.homepage.UploadResponse
+import org.make.backoffice.service.image.UploadResponse
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
 import org.scalajs.dom.FormData

@@ -22,7 +22,7 @@ package org.make.backoffice.service.user
 
 import org.make.backoffice.model.{CurrentUser, Role, SimpleUser, User}
 import org.make.backoffice.service.ApiService
-import org.make.backoffice.service.homepage.UploadResponse
+import org.make.backoffice.service.image.UploadResponse
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
 import org.scalajs.dom.ext.Ajax.InputData
