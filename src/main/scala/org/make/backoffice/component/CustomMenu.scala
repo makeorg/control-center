@@ -105,12 +105,6 @@ object CustomMenu {
             )(),
             <.Divider.empty,
             <.MenuItemLink(
-              ^.to := s"/${Resource.homepage}",
-              ^.primaryText := "Homepage",
-              ^.leftIcon := homepageIcon,
-              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
-            )(),
-            <.MenuItemLink(
               ^.to := s"/${Resource.operations}",
               ^.primaryText := "Operations",
               ^.leftIcon := operationIcon,
