@@ -29,7 +29,18 @@ import org.make.backoffice.facade.reduxForm.FieldInput
 import org.scalajs.dom.raw.HTMLInputElement
 
 object CustomAORValueInput {
-  final case class CustomAORValueProps(initialValue: String, input: FieldInput, label: String)
+
+  def trimValue(value: String): Option[String] =
+    value.trim match {
+      case "" => None
+      case v  => Some(v)
+    }
+
+  final case class CustomAORValueProps(initialValue: String,
+                                       input: FieldInput,
+                                       label: String,
+                                       sanitizeValue: String   => Option[String] = trimValue)
+
   final case class CustomAORValueState(value: String)
 
   lazy val reactClass: ReactClass =
@@ -37,11 +48,12 @@ object CustomAORValueInput {
       .createClass[CustomAORValueProps, CustomAORValueState](
         displayName = "CustomAORValueInput",
         componentDidMount = { self =>
-          if (self.props.wrapped.input.value != self.props.wrapped.initialValue) {
-            if (self.props.wrapped.initialValue == "") {
-              self.props.wrapped.input.onChange(null)
+          val props = self.props.wrapped
+          if (props.input.value != props.initialValue) {
+            if (props.initialValue == "") {
+              props.input.onChange(null)
             } else {
-              self.props.wrapped.input.onChange(self.props.wrapped.initialValue)
+              props.input.onChange(props.initialValue)
             }
           }
         },
@@ -49,26 +61,25 @@ object CustomAORValueInput {
           CustomAORValueState(self.props.wrapped.initialValue)
         },
         render = { self =>
-          val updateState = { event: FormSyntheticEvent[HTMLInputElement] =>
-            val value = event.target.value
-            self.setState(_.copy(value = value))
+          val handleChange: FormSyntheticEvent[HTMLInputElement] => Unit = {
+            event: FormSyntheticEvent[HTMLInputElement] =>
+              val value = event.target.value
+              self.setState(_.copy(value = value))
           }
 
-          val updateRecord = { () =>
-            val value = self.state.value
-            if (value == "") {
-              self.props.wrapped.input.onChange(null)
-            } else {
-              self.props.wrapped.input.onChange(value)
-            }
+          val handleBlur: () => Unit = { () =>
+            val props = self.props.wrapped
+            props.input.onChange(
+              props.sanitizeValue(self.state.value).orNull
+            )
           }
 
           <.TextFieldMaterialUi(
             ^.floatingLabelText := self.props.wrapped.label,
             ^.value := self.state.value,
             ^.fullWidth := true,
-            ^.onChange := updateState,
-            ^.onBlur := updateRecord,
+            ^.onChange := handleChange,
+            ^.onBlur := handleBlur
           )()
         }
       )
