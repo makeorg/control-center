@@ -25,11 +25,13 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.router.RouterProps
 import org.make.backoffice.client.Resource
+import org.make.backoffice.component.CustomAORValueInput.CustomAORValueProps
+import org.make.backoffice.component.RichVirtualDOMElements
 import org.make.backoffice.facade.AdminOnRest.Create._
 import org.make.backoffice.facade.AdminOnRest.Fields._
-import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
-import org.make.backoffice.facade.AdminOnRest.required
+import org.make.backoffice.facade.reduxForm.Field._
+import org.make.backoffice.facade.reduxForm.FieldHolder
 
 object CreateFeature {
 
@@ -41,22 +43,24 @@ object CreateFeature {
         displayName = "CreateFeature",
         render = { self =>
           <.Create(^.resource := Resource.features, ^.location := self.props.location, ^.hasList := true)(
-            <.SimpleForm()(
-              <.TextInput(
-                ^.source := "name",
-                ^.allowEmpty := false,
-                ^.validate := required,
-                ^.options := Map("fullWidth" -> true)
-              )(),
-              <.TextInput(
-                ^.source := "slug",
-                ^.allowEmpty := false,
-                ^.validate := required,
-                ^.options := Map("fullWidth" -> true)
+            <.SimpleForm()(<.Field(^.name := "name", ^.source := "name", ^.component := { holder: FieldHolder =>
+              <.CustomAORValueInputComponent(
+                ^.wrapped := CustomAORValueProps(
+                  initialValue = holder.input.value,
+                  input = holder.input,
+                  label = "name"
+                )
               )()
-            )
+            })(), <.Field(^.name := "slug", ^.source := "slug", ^.component := { holder: FieldHolder =>
+              <.CustomAORValueInputComponent(
+                ^.wrapped := CustomAORValueProps(
+                  initialValue = holder.input.value,
+                  input = holder.input,
+                  label = "slug"
+                )
+              )()
+            })())
           )
         }
       )
-
 }
