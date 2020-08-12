@@ -65,7 +65,7 @@ object UserService extends ApiService with CirceClassFormatters {
   }
 
   def loginGoogle(token: String): Future[CurrentUser] = {
-    client.authenticateSocial("google", token).flatMap {
+    client.authenticateSocial("google_people", token).flatMap {
       case true  => client.get[CurrentUser](resourceName / "current")
       case false => throw NoTokenException()
     }

@@ -57,7 +57,7 @@ object LoginPage {
       getInitialState = _ => LoginPageState(isSignIn = false, error = None),
       render = self => {
         def signInGoogle(response: Response): Unit = {
-          handleFutureApiResponse(UserService.loginGoogle(response.asInstanceOf[GoogleAuthResponse].tokenId))
+          handleFutureApiResponse(UserService.loginGoogle(response.asInstanceOf[GoogleAuthResponse].accessToken))
         }
 
         def handleFutureApiResponse(futureUser: Future[CurrentUser]): Unit = {
@@ -88,7 +88,7 @@ object LoginPage {
         <.div(^.className := LoginPageStyles.container.htmlClass)(
           <.ReactGoogleLogin(
             ^.clientID := googleAppId,
-            ^.scope := "profile email",
+            ^.scope := "profile email https://www.googleapis.com/auth/user.birthday.read",
             ^.onSuccess := signInGoogle,
             ^.onFailure := onFailureResponse,
             ^.isSignIn := self.state.isSignIn,
