@@ -23,7 +23,7 @@ import com.typesafe.sbt.packager.docker.{Cmd, ExecCmd}
 enablePlugins(DockerPlugin)
 
 dockerRepository := Some("nexus.prod.makeorg.tech")
-packageName in Docker := "make-backoffice"
+packageName in Docker := "make-bo"
 
 val nginxContentDirectory = "/usr/share/nginx/html/make"
 val nginxEnvParams = "/etc/nginx/env_params"

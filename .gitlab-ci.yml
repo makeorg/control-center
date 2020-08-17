@@ -19,7 +19,7 @@ image: makeorg/docker-sbt-coursier-nvm
 variables:
   CI_BUILD: "true"
   SBT_OPTS: "-Xms2G -Xmx2G -Dfile.encoding=UTF-8"
-  IMAGE: "/make-backoffice"
+  IMAGE: "/make-bo"
 
 stages:
   - build
