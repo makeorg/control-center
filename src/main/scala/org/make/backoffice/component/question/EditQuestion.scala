@@ -101,7 +101,7 @@ object EditQuestion {
                     ^.source := "operationTitle",
                     ^.options := Map("fullWidth" -> true)
                   )(),
-                  <.TextField(^.source := "country")(),
+                  DisplayCountries,
                   <.TextField(^.source := "language")(),
                   <.TextInput(
                     ^.source := "question",

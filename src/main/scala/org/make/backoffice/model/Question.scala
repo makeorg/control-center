@@ -60,7 +60,7 @@ trait Question extends js.Object {
   val startDate: js.UndefOr[String]
   val endDate: js.UndefOr[String]
   val operationTitle: js.UndefOr[String]
-  val country: js.UndefOr[String]
+  val countries: js.Array[String]
   val language: js.UndefOr[String]
   val consultationImage: js.UndefOr[String]
   val descriptionImage: js.UndefOr[String]
@@ -75,7 +75,7 @@ object Question {
             startDate: Option[ZonedDateTime],
             endDate: Option[ZonedDateTime],
             operationTitle: Option[String],
-            country: Option[String],
+            countries: Seq[String],
             language: Option[String],
             consultationImage: Option[String],
             descriptionImage: Option[String],
@@ -89,7 +89,7 @@ object Question {
         startDate = startDate.map(_.toString).orUndefined,
         endDate = endDate.map(_.toString).orUndefined,
         operationTitle = operationTitle.orUndefined,
-        country = country.orUndefined,
+        countries = countries.toJSArray,
         language = language.orUndefined,
         consultationImage = consultationImage.orUndefined,
         descriptionImage = descriptionImage.orUndefined,

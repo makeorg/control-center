@@ -40,6 +40,12 @@ object CreateQuestion {
 
   def apply(): ReactClass = reactClass
 
+  private type Countries = js.UndefOr[js.Array[String]]
+
+  private def displayLanguages(country: String): Countries => Boolean = {
+    _.exists(array => array.size == 1 && array.contains(country))
+  }
+
   private lazy val reactClass =
     React
       .createClass[CreateProps, Unit](
@@ -80,8 +86,8 @@ object CreateQuestion {
                 ^.validate := required,
                 ^.options := Map("fullWidth" -> true)
               )(),
-              <.SelectInput(
-                ^.source := "country",
+              <.SelectArrayInput(
+                ^.source := "countries",
                 ^.choices := Configuration.choicesCountry,
                 ^.allowEmpty := false,
                 ^.validate := required,
@@ -89,7 +95,7 @@ object CreateQuestion {
               )(),
               Configuration.choiceLanguage.map {
                 case (country, languages) =>
-                  <.DependentInput(^.dependsOn := "country", ^.dependsValue := country)(
+                  <.DependentInput(^.dependsOn := "countries", ^.resolve := displayLanguages(country))(
                     <.SelectInput(
                       ^.source := "language",
                       ^.choices := languages,
@@ -99,6 +105,17 @@ object CreateQuestion {
                     )()
                   )
               },
+              <.DependentInput(^.dependsOn := "countries", ^.resolve := { (c: Countries) =>
+                c.exists(_.size > 1)
+              })(
+                <.SelectInput(
+                  ^.source := "language",
+                  ^.choices := Configuration.choiceDefaultLanguage,
+                  ^.allowEmpty := false,
+                  ^.validate := required,
+                  ^.options := Map("fullWidth" -> true)
+                )()
+              ),
               <.TextInput(
                 ^.source := "question",
                 ^.allowEmpty := false,
