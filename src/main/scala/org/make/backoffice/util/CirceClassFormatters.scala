@@ -214,7 +214,7 @@ trait CirceClassFormatters extends TimeInstances {
       "startDate",
       "endDate",
       "operationTitle",
-      "country",
+      "countries",
       "language",
       "consultationImage",
       "descriptionImage",

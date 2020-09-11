@@ -130,7 +130,7 @@ object Inputs {
     lazy val dependsOn = StringAttributeSpec("dependsOn")
     lazy val dependsValue = DynamicAttributeSpec("value")
     lazy val defaultValue = DefaultValueAttributeSpec("defaultValue")
-    lazy val resolve = StringAttributeSpec("resolve")
+    lazy val resolve = FunctionAttributeSpec("resolve")
     lazy val optionText = StringAttributeSpec("optionText")
     lazy val optionValue = StringAttributeSpec("optionValue")
     lazy val filterToQuery = FilterToQueryAttributeSpec("filterToQuery")

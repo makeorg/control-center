@@ -65,7 +65,7 @@ object QuestionsList {
                 ^.sortable := true
               )(),
               <.TextField(^.source := "question", ^.sortable := true)(),
-              <.TextField(^.source := "country", ^.sortable := true)(),
+              DisplayCountries,
               <.TextField(^.source := "language", ^.sortable := true)()
             )
           )
