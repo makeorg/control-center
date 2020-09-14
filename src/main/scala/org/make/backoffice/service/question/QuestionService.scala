@@ -122,13 +122,22 @@ object QuestionService extends ApiService with CirceClassFormatters {
       }
   }
 
-  case class InitialProposalRequest(content: String, author: AuthorRequest, tags: Array[String] = Array())
+  case class InitialProposalRequest(content: String,
+                                    author: AuthorRequest,
+                                    country: Option[String],
+                                    tags: Array[String] = Array())
 
   object InitialProposalRequest {
-    implicit lazy val encoder: Encoder[InitialProposalRequest] = Encoder.forProduct3("content", "author", "tags")(
-      initialProposalRequest =>
-        (initialProposalRequest.content, initialProposalRequest.author, initialProposalRequest.tags)
-    )
+    implicit lazy val encoder: Encoder[InitialProposalRequest] =
+      Encoder.forProduct4("content", "author", "country", "tags")(
+        initialProposalRequest =>
+          (
+            initialProposalRequest.content,
+            initialProposalRequest.author,
+            initialProposalRequest.country,
+            initialProposalRequest.tags
+        )
+      )
   }
 
   case class AuthorRequest(age: Option[String], firstName: Option[String], lastName: Option[String])

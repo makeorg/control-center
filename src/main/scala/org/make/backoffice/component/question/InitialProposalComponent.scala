@@ -24,7 +24,7 @@ import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
 import io.github.shogowada.scalajs.reactjs.events.{FormSyntheticEvent, SyntheticEvent}
 import org.make.backoffice.facade.MaterialUi._
-import org.make.backoffice.model.Question
+import org.make.backoffice.model.{Country, Question}
 import org.make.backoffice.service.question.QuestionService
 import org.make.backoffice.service.question.QuestionService.{AuthorRequest, InitialProposalRequest}
 import org.make.backoffice.util.Configuration
@@ -47,7 +47,9 @@ object InitialProposalComponent {
                                            lastName: Option[String],
                                            age: Option[String],
                                            errorAge: Boolean,
-                                           questionId: String,
+                                           country: Option[String],
+                                           errorCountry: Boolean,
+                                           question: Question,
                                            snackbarOpen: Boolean,
                                            snackbarMessage: String,
                                            createProposalModalOpen: Boolean)
@@ -63,7 +65,9 @@ object InitialProposalComponent {
         lastName = None,
         age = None,
         errorAge = false,
-        questionId = self.props.native.record.asInstanceOf[Question].id,
+        country = None,
+        errorCountry = false,
+        question = self.props.native.record.asInstanceOf[Question],
         snackbarOpen = false,
         snackbarMessage = "",
         createProposalModalOpen = false
@@ -119,10 +123,11 @@ object InitialProposalComponent {
             val request = InitialProposalRequest(
               content = self.state.content,
               author =
-                AuthorRequest(age = self.state.age, firstName = self.state.firstName, lastName = self.state.lastName)
+                AuthorRequest(age = self.state.age, firstName = self.state.firstName, lastName = self.state.lastName),
+              country = self.state.country
             )
 
-            QuestionService.addInitialProposal(self.state.questionId, request).onComplete {
+            QuestionService.addInitialProposal(self.state.question.id, request).onComplete {
               case Success(_) =>
                 self.setState(
                   _.copy(
@@ -195,7 +200,23 @@ object InitialProposalComponent {
             ^.onChange := handleAgeEdition,
             ^.errorText := { if (self.state.errorAge) ageTextError else "" },
             ^.fullWidth := true
-          )()
+          )(),
+          <.SelectField(
+            ^.floatingLabelText := "Author country *",
+            ^.value := self.state.country.getOrElse(""),
+            ^.onChangeSelect := { (_, _, value) =>
+              self.setState(_.copy(country = Some(value)))
+            }
+          )(
+            self.state.question.countries.map(
+              country =>
+                <.MenuItem(
+                  ^.key := country,
+                  ^.value := country,
+                  ^.primaryText := Country.getCountryNameByCountryCode(country).getOrElse(country)
+                )()
+            )
+          ),
         ),
         <.Snackbar(
           ^.open := self.state.snackbarOpen,
