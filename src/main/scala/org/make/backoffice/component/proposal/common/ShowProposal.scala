@@ -83,8 +83,8 @@ object ShowProposal {
               ^.linkType := false,
               ^.allowEmpty := true
             )(<.TextField(^.source := "slug")()),
-            <.TextField(^.source := "language")(),
-            <.TextField(^.source := "country")(),
+            <.TextField(^.source := "context.language", ^.label := "Language")(),
+            <.TextField(^.source := "context.country", ^.label := "Country")(),
             <.TextField(^.source := "context.source", ^.label := "source")()
           ),
           <.Tab(^.label := "Stats", ^.disabled := false)(<.FunctionField(^.label := "Stats", ^.render := { record =>
