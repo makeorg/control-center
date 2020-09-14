@@ -161,7 +161,7 @@ trait CirceClassFormatters extends TimeInstances {
     )(SingleProposalAuthor.apply)
 
   implicit lazy val singleProposalDecoder: Decoder[SingleProposal] =
-    Decoder.forProduct19(
+    Decoder.forProduct17(
       "proposalId",
       "slug",
       "content",
@@ -171,8 +171,6 @@ trait CirceClassFormatters extends TimeInstances {
       "tags",
       "votes",
       "context",
-      "country",
-      "language",
       "createdAt",
       "updatedAt",
       "events",

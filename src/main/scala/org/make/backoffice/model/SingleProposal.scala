@@ -100,8 +100,6 @@ trait SingleProposal extends js.Object {
   val tagIds: js.Array[String]
   val votes: js.Array[Vote]
   val context: RequestContext
-  val country: String
-  val language: String
   val createdAt: js.UndefOr[Date]
   val updatedAt: js.UndefOr[Date]
   val events: js.UndefOr[js.Array[ProposalAction]]
@@ -122,8 +120,6 @@ object SingleProposal {
             tags: Seq[String],
             votes: Seq[Vote],
             context: RequestContext,
-            country: String,
-            language: String,
             createdAt: Option[ZonedDateTime],
             updatedAt: Option[ZonedDateTime],
             events: Option[Seq[ProposalAction]],
@@ -143,8 +139,6 @@ object SingleProposal {
         tagIds = tags.toJSArray,
         votes = votes.toJSArray,
         context = context,
-        country = country,
-        language = language,
         createdAt = createdAt.map(_.toJSDate).orUndefined,
         updatedAt = updatedAt.map(_.toJSDate).orUndefined,
         events = events.map(_.toJSArray).orUndefined,
