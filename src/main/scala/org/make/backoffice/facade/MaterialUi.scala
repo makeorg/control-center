@@ -176,6 +176,7 @@ object MaterialUi {
   type OnRowSelection = js.Function1[js.Array[Int] | String, Unit]
   type OnChangeMultipleSelect = js.Function3[js.Object, js.UndefOr[Int], js.Array[String], Unit]
   type OnChangeSelect = js.Function3[js.Object, js.UndefOr[Int], String, Unit]
+  type OnChangeReference = js.Function2[js.Object, js.UndefOr[String], Unit]
   type OnChangeTextField = js.Function2[js.Object, String, Unit]
   type FilterAutoComplete = js.Function2[String, String, Boolean]
   type BaseFunction0 = js.Function0[Unit]
@@ -206,6 +207,11 @@ object MaterialUi {
 
   case class OnChangeSelectAttributeSpec(name: String) extends AttributeSpec {
     def :=(element: OnChangeSelect): Attribute[OnChangeSelect] =
+      Attribute(name = name, value = element, AS_IS)
+  }
+
+  case class OnChangeReferenceAttributeSpec(name: String) extends AttributeSpec {
+    def :=(element: OnChangeReference): Attribute[OnChangeReference] =
       Attribute(name = name, value = element, AS_IS)
   }
 
@@ -369,6 +375,7 @@ object MaterialUi {
       "onChange"
     )
     lazy val onChangeSelect: OnChangeSelectAttributeSpec = OnChangeSelectAttributeSpec("onChange")
+    lazy val onChangeReference: OnChangeReferenceAttributeSpec = OnChangeReferenceAttributeSpec("onChange")
     lazy val onChangeTextField: OnChangeTextFieldAttributeSpec = OnChangeTextFieldAttributeSpec("onChange")
     lazy val onCheck: OnCheckAttributeSpec = OnCheckAttributeSpec("onCheck")
     lazy val onClose: BaseFunction0AttributeSpec = BaseFunction0AttributeSpec("onClose")

@@ -80,13 +80,15 @@ object Configuration extends CirceClassFormatters {
       "Other"
     )
 
-  def choicesCountry: js.Array[Choice] = {
-    supportedCountries.map { supportedCountry =>
+  val choicesCountry: js.Array[Choice] = choicesCountry(supportedCountries.map(_.countryCode))
+
+  def choicesCountry(countryCodes: Iterable[String]): js.Array[Choice] = {
+    countryCodes.map { countryCode =>
       Choice(
-        supportedCountry.countryCode,
+        countryCode,
         Country
-          .getCountryNameByCountryCode(supportedCountry.countryCode)
-          .getOrElse(supportedCountry.countryCode)
+          .getCountryNameByCountryCode(countryCode)
+          .getOrElse(countryCode)
       )
     }.toJSArray
   }

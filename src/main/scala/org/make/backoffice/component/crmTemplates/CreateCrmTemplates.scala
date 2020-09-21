@@ -29,18 +29,43 @@ import org.make.backoffice.facade.AdminOnRest.Create._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.SimpleForm._
+import org.make.backoffice.facade.AdminOnRest.required
+import org.make.backoffice.facade.Choice
 import org.make.backoffice.facade.MaterialUi._
+import org.make.backoffice.service.question.QuestionService
 import org.make.backoffice.util.Configuration
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.scalajs.js
+import scala.util.{Failure, Success}
 
 object CreateCrmTemplates {
 
   def apply(): ReactClass = reactClass
 
+  private final case class State(countries: Seq[Choice])
+
   private lazy val reactClass: ReactClass =
     React
-      .createClass[RouterProps, Unit](
+      .createClass[RouterProps, State](
         displayName = "CreateCrmTemplates",
+        getInitialState = _ => State(Configuration.choicesCountry),
         render = { self =>
+          val onQuestionChange: OnChangeReference = {
+            (_, value) =>
+              value
+                .fold(Future.successful(Configuration.choicesCountry))(
+                  id => QuestionService.getQuestionById(id).map(r => Configuration.choicesCountry(r.data.countries))
+                )
+                .onComplete {
+                  case Success(countries) => self.setState(_.copy(countries = countries))
+                  case Failure(e) =>
+                    js.Dynamic.global.console.error(s"Could not fetch question $value : $e")
+                    self.setState(_.copy(countries = Nil))
+                }
+          }
+
           <.Create(^.resource := Resource.crmTemplates, ^.location := self.props.location, ^.hasList := true)(
             <.SimpleForm()(
               <.ReferenceInput(
@@ -50,13 +75,14 @@ object CreateCrmTemplates {
                 ^.reference := Resource.questions,
                 ^.allowEmpty := true,
                 ^.sort := Map("field" -> "slug", "order" -> "ASC"),
-                ^.perPage := 200
+                ^.perPage := 200,
+                ^.onChangeReference := onQuestionChange
               )(<.SelectInput(^.optionText := "slug", ^.options := Map("fullWidth" -> true))()),
               <.SelectInput(
                 ^.source := "country",
-                ^.label := "Country (must stay empty if a question is selected)",
-                ^.choices := Configuration.choicesCountry,
-                ^.allowEmpty := true,
+                ^.choices := self.state.countries,
+                ^.allowEmpty := false,
+                ^.validate := required,
                 ^.options := Map("fullWidth" -> true)
               )(),
               Configuration.choiceLanguage.map {

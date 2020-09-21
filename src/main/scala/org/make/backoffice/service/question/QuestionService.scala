@@ -22,7 +22,7 @@ package org.make.backoffice.service.question
 
 import io.circe.syntax._
 import io.circe.Encoder
-import org.make.backoffice.client.ListTotalResponse
+import org.make.backoffice.client.{ListTotalResponse, SingleResponse}
 import org.make.backoffice.client.request.{Filter, Pagination, Sort}
 import org.make.backoffice.model.Question.DataConfiguration
 import org.make.backoffice.model.{ProposalIdResult, Question}
@@ -40,6 +40,13 @@ import scala.scalajs.js
 object QuestionService extends ApiService with CirceClassFormatters {
 
   override val resourceName: String = "moderation/operations-of-questions"
+
+  def getQuestionById(id: String): Future[SingleResponse[Question]] =
+    client.get[Question](resourceName / id).map(SingleResponse.apply).recover {
+      case e =>
+        js.Dynamic.global.console.log(s"instead of converting to SingleResponse: failed cursor $e")
+        throw e
+    }
 
   def questions(pagination: Option[Pagination] = None,
                 filters: Option[Seq[Filter]] = None): Future[ListTotalResponse[Question]] = {
