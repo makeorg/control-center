@@ -69,7 +69,6 @@ object Operation {
       .asInstanceOf[Operation]
 
   val kindMap: Map[String, String] = Map(
-    "PUBLIC_CONSULTATION" -> "Public consultation",
     "GREAT_CAUSE" -> "Great cause",
     "PRIVATE_CONSULTATION" -> "Private consultation",
     "BUSINESS_CONSULTATION" -> "Business consultation"
