@@ -54,15 +54,6 @@ object CreateOperation {
                 ^.options := Map("fullWidth" -> true)
               )(),
               <.SelectInput(
-                ^.label := "Default language",
-                ^.translateLabel := ((label: String) => label),
-                ^.source := "defaultLanguage",
-                ^.choices := Configuration.choiceDefaultLanguage,
-                ^.allowEmpty := false,
-                ^.validate := required,
-                ^.options := Map("fullWidth" -> true)
-              )(),
-              <.SelectInput(
                 ^.label := "Operation Kind",
                 ^.translateLabel := ((label: String) => label),
                 ^.source := "operationKind",
@@ -70,12 +61,6 @@ object CreateOperation {
                 ^.allowEmpty := false,
                 ^.validate := required,
                 ^.options := Map("fullWidth" -> true)
-              )(),
-              <.SelectArrayInput(
-                ^.label := "Allowed sources",
-                ^.translateLabel := ((label: String) => label),
-                ^.source := "allowedSources",
-                ^.choices := Operation.allowedSourcesChoices
               )()
             )
           )

@@ -51,11 +51,6 @@ object EditOperation {
           )(
             <.SimpleForm()(
               <.TextField(^.source := "slug")(),
-              <.TextField(
-                ^.label := "Default language",
-                ^.translateLabel := ((label: String) => label),
-                ^.source := "defaultLanguage"
-              )(),
               <.SelectInput(
                 ^.label := "Operation Kind",
                 ^.translateLabel := ((label: String) => label),
@@ -64,8 +59,7 @@ object EditOperation {
                 ^.allowEmpty := false,
                 ^.validate := required,
                 ^.options := Map("fullWidth" -> true)
-              )(),
-              <.TextField(^.source := "allowedSources")()
+              )()
             )
           )
         }

@@ -64,6 +64,8 @@ object Configuration extends CirceClassFormatters {
     CountryConfiguration(countryCode = "SK", defaultLanguage = "sk", supportedLanguages = Seq("sk")),
     CountryConfiguration(countryCode = "GB", defaultLanguage = "en", supportedLanguages = Seq("en"))
   )
+  val supportedLanguages
+    : js.Array[Choice] = Language.mapping.map { case (code, label) => Choice(code, label) }.toJSArray
   val reasonsForRefusal: Seq[String] =
     Seq(
       "Incomprehensible",
@@ -103,21 +105,5 @@ object Configuration extends CirceClassFormatters {
         )
       )
     }.toMap
-  }
-
-  def choiceDefaultLanguage: js.Array[Choice] = {
-    supportedCountries
-      .map(_.defaultLanguage)
-      .sorted
-      .distinct
-      .map { defaultLanguage =>
-        Choice(
-          defaultLanguage,
-          Language
-            .getLanguageNameFromLanguageCode(defaultLanguage)
-            .getOrElse(defaultLanguage)
-        )
-      }
-      .toJSArray
   }
 }

@@ -47,7 +47,6 @@ trait Operation extends js.Object {
   val id: String
   val status: String
   val slug: String
-  val defaultLanguage: String
   val operationKind: String
   val createdAt: js.UndefOr[Date]
   val updatedAt: js.UndefOr[Date]
@@ -57,7 +56,6 @@ object Operation {
   def apply(operationId: OperationId,
             status: String,
             slug: String,
-            defaultLanguage: String,
             createdAt: Option[ZonedDateTime],
             updatedAt: Option[ZonedDateTime]): Operation =
     js.Dynamic
@@ -65,13 +63,10 @@ object Operation {
         id = operationId.value,
         status = status,
         slug = slug,
-        defaultLanguage = defaultLanguage,
         createdAt = createdAt.orUndefined.map(_.toJSDate),
         updatedAt = updatedAt.orUndefined.map(_.toJSDate)
       )
       .asInstanceOf[Operation]
-
-  val allowedSourcesChoices: js.Array[Choice] = js.Array(Choice("core", "core"), Choice("huffpost", "Huffington Post"))
 
   val kindMap: Map[String, String] = Map(
     "PUBLIC_CONSULTATION" -> "Public consultation",

@@ -21,7 +21,7 @@
 package org.make.backoffice.model
 
 object Language {
-  private val mapping =
+  val mapping =
     Map(
       "fr" -> "French",
       "it" -> "Italian",
