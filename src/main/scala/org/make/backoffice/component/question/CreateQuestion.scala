@@ -110,7 +110,7 @@ object CreateQuestion {
               })(
                 <.SelectInput(
                   ^.source := "language",
-                  ^.choices := Configuration.choiceDefaultLanguage,
+                  ^.choices := Configuration.supportedLanguages,
                   ^.allowEmpty := false,
                   ^.validate := required,
                   ^.options := Map("fullWidth" -> true)
