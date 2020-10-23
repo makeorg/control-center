@@ -57,8 +57,8 @@ trait Question extends js.Object {
   val question: String
   val slug: String
   val operationId: js.UndefOr[String]
-  val startDate: js.UndefOr[String]
-  val endDate: js.UndefOr[String]
+  val startDate: String
+  val endDate: String
   val operationTitle: js.UndefOr[String]
   val countries: js.Array[String]
   val language: js.UndefOr[String]
@@ -72,8 +72,8 @@ object Question {
             question: String,
             slug: String,
             operationId: Option[OperationId],
-            startDate: Option[ZonedDateTime],
-            endDate: Option[ZonedDateTime],
+            startDate: ZonedDateTime,
+            endDate: ZonedDateTime,
             operationTitle: Option[String],
             countries: Seq[String],
             language: Option[String],
@@ -86,8 +86,8 @@ object Question {
         question = question,
         slug = slug,
         operationId = operationId.map(_.value).orUndefined,
-        startDate = startDate.map(_.toString).orUndefined,
-        endDate = endDate.map(_.toString).orUndefined,
+        startDate = startDate.toString,
+        endDate = endDate.toString,
         operationTitle = operationTitle.orUndefined,
         countries = countries.toJSArray,
         language = language.orUndefined,

@@ -79,14 +79,18 @@ object EditQuestion {
                     ^.labelTime := "Start Time",
                     ^.translateLabel := ((label: String) => label),
                     ^.source := "startDate",
-                    ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate))
+                    ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate)),
+                    ^.allowEmpty := false,
+                    ^.validate := required
                   )(),
                   <.DateTimeInput(
                     ^.label := "End Date",
                     ^.labelTime := "End Time",
                     ^.translateLabel := ((label: String) => label),
                     ^.source := "endDate",
-                    ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate))
+                    ^.parse := ((date: js.UndefOr[js.Date]) => date.map(DateParser.parseDate)),
+                    ^.allowEmpty := false,
+                    ^.validate := required
                   )(),
                   <.ReferenceField(
                     ^.label := "Operation",
