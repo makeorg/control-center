@@ -20,6 +20,7 @@
 
 package org.make.backoffice.component.proposal.moderation
 
+import io.circe.syntax._
 import io.github.shogowada.scalajs.reactjs.React
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.classes.ReactClass
@@ -27,10 +28,12 @@ import io.github.shogowada.scalajs.reactjs.events.SyntheticEvent
 import io.github.shogowada.scalajs.reactjs.router.RouterProps._
 import io.github.shogowada.scalajs.reactjs.router.{RouterProps, WithRouter}
 import org.make.backoffice.client.request.Filter
-import org.make.backoffice.client.{BadRequestHttpException, NotFoundHttpException}
+import org.make.backoffice.client.{BadRequestHttpException, DefaultMakeApiHttpClientComponent, NotFoundHttpException}
 import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.model.Question
+import org.make.backoffice.service.ApiService
 import org.make.backoffice.service.proposal.{Pending, ProposalService}
+import org.make.backoffice.util.uri._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
@@ -74,7 +77,17 @@ object StartModeration {
               ProposalService
                 .nextProposalToModerate(self.state.questionId, toEnrich = false, minVotesCount = None, minScore = None)
                 .onComplete {
-                  case Success(proposal) => self.props.history.push(s"/nextProposal/${proposal.data.id}")
+                  case Success(proposal) =>
+                    if (proposal.data.status != Pending.shortName) {
+                      DefaultMakeApiHttpClientComponent.client.post[Unit](
+                        "tracking" / "backoffice" / "logs",
+                        data = Map(
+                          "level" -> "error",
+                          "message" -> s"Proposal id=${proposal.data.id} received for moderation but status=${proposal.data.status}"
+                        ).asJson.pretty(ApiService.printer)
+                      )
+                    }
+                    self.props.history.push(s"/nextProposal/${proposal.data.id}")
                   case Failure(NotFoundHttpException) =>
                     self.setState(_.copy(snackbarOpen = true, errorMessage = "No proposal found"))
                   case Failure(BadRequestHttpException(_)) =>
