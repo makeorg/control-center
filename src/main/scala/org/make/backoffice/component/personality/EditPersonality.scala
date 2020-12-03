@@ -97,18 +97,6 @@ object EditPersonality {
                 ^.validate := required,
                 ^.options := Map("fullWidth" -> true)
               )(),
-              Configuration.choiceLanguage.map {
-                case (country, languages) =>
-                  <.DependentInput(^.dependsOn := "country", ^.dependsValue := country)(
-                    <.SelectInput(
-                      ^.source := "language",
-                      ^.choices := languages,
-                      ^.allowEmpty := false,
-                      ^.validate := required,
-                      ^.options := Map("fullWidth" -> true)
-                    )()
-                  )
-              },
               <.UploadImageComponent(
                 ^.wrapped := ImageUploadFieldProps(
                   "avatarUrl",

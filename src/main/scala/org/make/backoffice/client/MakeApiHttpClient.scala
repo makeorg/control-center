@@ -203,7 +203,7 @@ trait DefaultMakeApiHttpClientComponent extends MakeApiHttpClientComponent with 
                                         token: String)(implicit decoder: Decoder[Token]): Future[Boolean] = {
       post[Token](
         "user" / "login" / "social",
-        data = Map("provider" -> provider, "token" -> token, "country" -> "FR", "language" -> "fr").asJson
+        data = Map("provider" -> provider, "token" -> token, "country" -> "FR").asJson
           .pretty(MakeApiClientHttp.printer)
       ).map { newToken =>
         MakeApiClientHttp.setToken(Option(newToken))
