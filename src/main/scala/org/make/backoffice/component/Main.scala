@@ -24,7 +24,6 @@ import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.router.Router._
 import org.make.backoffice.client.{AuthClient, Resource, RestClient}
-import org.make.backoffice.component.crmTemplates.{CreateCrmTemplates, CrmTemplatesList, EditCrmTemplates}
 import org.make.backoffice.component.feature.{CreateFeature, EditFeature, FeatureList}
 import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
 import org.make.backoffice.component.ideaMappings.{EditIdeaMapping, IdeaMappingsList}
@@ -121,12 +120,6 @@ object Main {
           ^.create := CreateFeature(),
           ^.edit := EditFeature(),
           ^.remove := NativeDelete
-        )(),
-        <.Resource(
-          ^.name := Resource.crmTemplates,
-          ^.listing := CrmTemplatesList(),
-          ^.edit := EditCrmTemplates(),
-          ^.create := CreateCrmTemplates()
         )(),
         <.Resource(^.name := Resource.questionPersonalities)(),
         <.Resource(
