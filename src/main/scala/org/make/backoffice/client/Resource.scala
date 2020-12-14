@@ -37,7 +37,6 @@ object Resource {
   val partners = "partners"
   val questionsConfiguration = "question-configuration"
   val features = "features"
-  val crmTemplates = "crm-templates"
   val questionPersonalities = "question-personalities"
   val personalities = "personalities"
   val topIdeas = "top-ideas"
