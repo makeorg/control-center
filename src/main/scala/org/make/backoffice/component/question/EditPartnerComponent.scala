@@ -61,9 +61,7 @@ object EditPartnerComponent {
                                        name: String,
                                        errorName: String,
                                        logo: Option[String],
-                                       errorLogo: String,
                                        link: Option[String],
-                                       errorLink: String,
                                        partnerKind: String,
                                        errorPartnerKind: String,
                                        weight: Double,
@@ -82,9 +80,7 @@ object EditPartnerComponent {
           name = partner.name,
           errorName = "",
           logo = Option(partner.logo),
-          errorLogo = "",
           link = Option(partner.link),
-          errorLink = "",
           partnerKind = partner.partnerKind,
           errorPartnerKind = "",
           weight = partner.weight,
@@ -102,9 +98,7 @@ object EditPartnerComponent {
             name = partner.name,
             errorName = "",
             logo = Option(partner.logo),
-            errorLogo = "",
             link = Option(partner.link),
-            errorLink = "",
             partnerKind = partner.partnerKind,
             errorPartnerKind = "",
             weight = partner.weight,
@@ -134,11 +128,7 @@ object EditPartnerComponent {
         def handleLinkEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
           val value: String = event.target.value
           val newLink = if (value.isEmpty) None else Some(value)
-          var errorLink = ""
-          if (newLink.isEmpty && self.state.partnerKind == "FOUNDER") {
-            errorLink = "Link is required"
-          }
-          self.setState(_.copy(link = newLink, errorLink = errorLink))
+          self.setState(_.copy(link = newLink))
         }
 
         def handleWeightEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
@@ -188,20 +178,10 @@ object EditPartnerComponent {
           _ =>
             var error = false
             var errorName = ""
-            var errorLogo = ""
-            var errorLink = ""
             var errorPartnerKind = ""
 
             if (self.state.name.isEmpty) {
               errorName = "Name is required"
-              error = true
-            }
-            if (self.state.logo.isEmpty && self.state.organisationId.isEmpty) {
-              errorLogo = "Logo is required"
-              error = true
-            }
-            if (self.state.link.isEmpty && self.state.partnerKind == "FOUNDER") {
-              errorLink = "Link is required"
               error = true
             }
             if (self.state.partnerKind.isEmpty) {
@@ -242,8 +222,6 @@ object EditPartnerComponent {
               self.setState(
                 _.copy(
                   errorName = errorName,
-                  errorLogo = errorLogo,
-                  errorLink = errorLink,
                   errorPartnerKind = errorPartnerKind
                 )
               )
@@ -256,13 +234,6 @@ object EditPartnerComponent {
 
         def handleCloseModal: SyntheticEvent => Unit = { _ =>
           self.setState(_.copy(editPartnerModalOpen = false))
-        }
-
-        val logoLabelText = {
-          self.state.organisationId match {
-            case Some(_) => "Logo"
-            case _       => "Logo *"
-          }
         }
 
         <.div()(
@@ -304,7 +275,7 @@ object EditPartnerComponent {
             }),
             <(imageDropzone)(
               ^.wrapped := ImageUploadProps(
-                label = logoLabelText,
+                label = "Logo",
                 imageUrl = self.state.logo.getOrElse(""),
                 uploadImage = uploadImage,
                 onChangeImageUrl = updatePictureUrl
@@ -314,8 +285,7 @@ object EditPartnerComponent {
               ^.floatingLabelText := "Link",
               ^.value := self.state.link.getOrElse(""),
               ^.onChange := handleLinkEdition,
-              ^.fullWidth := true,
-              ^.errorText := self.state.errorLink
+              ^.fullWidth := true
             )(),
             <.TextFieldMaterialUi(
               ^.floatingLabelText := "Weight",
