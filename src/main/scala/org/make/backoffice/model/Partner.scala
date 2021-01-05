@@ -70,5 +70,5 @@ object Partner {
   }
 
   val partnerKindMap: Map[String, String] =
-    Map("MEDIA" -> "Media", "FOUNDER" -> "Founder", "ACTION_PARTNER" -> "Action partner", "ACTOR" -> "Actor")
+    Map("FOUNDER" -> "Founder", "ACTION_PARTNER" -> "Partner")
 }
