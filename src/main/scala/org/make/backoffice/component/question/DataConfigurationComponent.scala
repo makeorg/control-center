@@ -47,8 +47,6 @@ object DataConfigurationComponent {
                                     testedProposalsMaxVotesThreshold: Option[Int],
                                     checkTestedProposalsMaxVotesThreshold: Boolean,
                                     nonSequenceVotesWeight: Double,
-                                    scoreAdjustementVotesThreshold: Int,
-                                    scoreAdjustementFactor: Double,
                                     intraIdeaEnabled: Boolean,
                                     intraIdeaMinCount: Int,
                                     intraIdeaProposalsRatio: Double,
@@ -77,8 +75,6 @@ object DataConfigurationComponent {
         testedProposalsMaxVotesThreshold = dataConfiguration.testedProposalsMaxVotesThreshold.toOption,
         checkTestedProposalsMaxVotesThreshold = dataConfiguration.testedProposalsMaxVotesThreshold.toOption.nonEmpty,
         nonSequenceVotesWeight = dataConfiguration.nonSequenceVotesWeight,
-        scoreAdjustementVotesThreshold = dataConfiguration.scoreAdjustementVotesThreshold,
-        scoreAdjustementFactor = dataConfiguration.scoreAdjustementFactor,
         intraIdeaEnabled = dataConfiguration.intraIdeaEnabled,
         intraIdeaMinCount = dataConfiguration.intraIdeaMinCount,
         intraIdeaProposalsRatio = dataConfiguration.intraIdeaProposalsRatio,
@@ -112,8 +108,6 @@ object DataConfigurationComponent {
             testedProposalsMaxVotesThreshold = None,
             checkTestedProposalsMaxVotesThreshold = true,
             nonSequenceVotesWeight = 0,
-            scoreAdjustementVotesThreshold = 100,
-            scoreAdjustementFactor = 1000,
             intraIdeaEnabled = false,
             intraIdeaMinCount = 0,
             intraIdeaProposalsRatio = 0,
@@ -184,16 +178,6 @@ object DataConfigurationComponent {
           def handleNonSequenceVotesWeightEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
             val value = event.target.value.toDouble
             self.setState(_.copy(nonSequenceVotesWeight = value))
-          }
-
-          def handleScoreAdjustementVotesThresholdEdition: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-            val value = event.target.value.toInt
-            self.setState(_.copy(scoreAdjustementVotesThreshold = value))
-          }
-
-          def handleScoreAdjustementFactor: FormSyntheticEvent[HTMLInputElement] => Unit = { event =>
-            val value = event.target.value.toDouble
-            self.setState(_.copy(scoreAdjustementFactor = value))
           }
 
           def handleIntraIdeaEnabledEdition: MouseSyntheticEvent => Unit = { _ =>
@@ -289,8 +273,6 @@ object DataConfigurationComponent {
                   testedProposalsControversyThreshold = testedProposalsControversyThreshold,
                   testedProposalsMaxVotesThreshold = testedProposalsMaxVotesThreshold,
                   nonSequenceVotesWeight = self.state.nonSequenceVotesWeight,
-                  scoreAdjustementVotesThreshold = self.state.scoreAdjustementVotesThreshold,
-                  scoreAdjustementFactor = self.state.scoreAdjustementFactor,
                   intraIdeaEnabled = self.state.intraIdeaEnabled,
                   intraIdeaMinCount = self.state.intraIdeaMinCount,
                   intraIdeaProposalsRatio = self.state.intraIdeaProposalsRatio,
@@ -428,20 +410,6 @@ object DataConfigurationComponent {
               ^.value := self.state.nonSequenceVotesWeight,
               ^.fullWidth := true,
               ^.onChange := handleNonSequenceVotesWeightEdition
-            )(),
-            <.TextFieldMaterialUi(
-              ^.`type` := "number",
-              ^.floatingLabelText := "Scores adjustement votes threshold",
-              ^.value := self.state.scoreAdjustementVotesThreshold,
-              ^.fullWidth := true,
-              ^.onChange := handleScoreAdjustementVotesThresholdEdition
-            )(),
-            <.TextFieldMaterialUi(
-              ^.`type` := "number",
-              ^.floatingLabelText := "Scores adjustement factor",
-              ^.value := self.state.scoreAdjustementFactor,
-              ^.fullWidth := true,
-              ^.onChange := handleScoreAdjustementFactor
             )(),
             <.span(^.onClick := handleIntraIdeaEnabledEdition)(
               <.Toggle(
