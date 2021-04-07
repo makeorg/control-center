@@ -42,8 +42,6 @@ object CreateRequest {
         throw ResourceNotImplementedException(
           s"Resource ${Resource.proposals} not implemented for request CreateRequest"
         )
-      case Resource.users =>
-        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request CreateRequest")
       case Resource.ideas =>
         val request: CreateRequest[Idea] = params.asInstanceOf[CreateRequest[Idea]]
         IdeaService.createIdea(name = request.data.name, questionId = request.data.questionId.toOption)

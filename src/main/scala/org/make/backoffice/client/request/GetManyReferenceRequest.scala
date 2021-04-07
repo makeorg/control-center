@@ -67,10 +67,6 @@ object GetManyReferenceRequest {
             .map(_ :+ Filter(request.target, request.id))
             .orElse(Some(Seq(Filter(request.target, request.id))))
         )
-      case Resource.users =>
-        throw ResourceNotImplementedException(
-          s"Resource ${Resource.users} not implemented for request GetManyReferenceRequest"
-        )
       case unknownResource =>
         throw UnknownResourceException(s"Unknown resource: $unknownResource in GetManyReferenceRequest")
     }

@@ -27,7 +27,7 @@ import org.make.backoffice.client.{AuthClient, Resource, RestClient}
 import org.make.backoffice.component.feature.{CreateFeature, EditFeature, FeatureList}
 import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
 import org.make.backoffice.component.ideaMappings.{EditIdeaMapping, IdeaMappingsList}
-import org.make.backoffice.component.moderator.{CreateModerator, EditUser, UsersList}
+import org.make.backoffice.component.moderator.{CreateModerator, EditModerator, ModeratorList}
 import org.make.backoffice.component.operation.{CreateOperation, EditOperation, OperationsList}
 import org.make.backoffice.component.organisation.{CreateOrganisation, EditOrganisation, OrganisationList}
 import org.make.backoffice.component.personality.{CreatePersonality, EditPersonality, PersonalityList}
@@ -101,9 +101,9 @@ object Main {
           ^.create := CreateOrganisation()
         )(),
         <.Resource(
-          ^.name := Resource.users,
-          ^.listing := UsersList(),
-          ^.edit := EditUser(),
+          ^.name := Resource.moderators,
+          ^.listing := ModeratorList(),
+          ^.edit := EditModerator(),
           ^.create := CreateModerator()
         )(),
         <.Resource(^.name := Resource.questions)(),
@@ -113,7 +113,7 @@ object Main {
           ^.listing := QuestionConfiguration(),
           ^.edit := EditQuestionConfiguration()
         )(),
-        <.Resource(^.name := Resource.moderators)(),
+        <.Resource(^.name := Resource.users)(),
         <.Resource(
           ^.name := Resource.features,
           ^.listing := FeatureList(),

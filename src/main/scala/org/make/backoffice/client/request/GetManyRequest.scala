@@ -41,8 +41,6 @@ object GetManyRequest {
         throw ResourceNotImplementedException(
           s"Resource ${Resource.proposals} not implemented for request GetManyRequest"
         )
-      case Resource.users =>
-        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetManyRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in GetManyRequest")
     }
   }
