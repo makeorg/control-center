@@ -40,8 +40,6 @@ object DeleteRequest {
         throw ResourceNotImplementedException(
           s"Resource ${Resource.proposals} not implemented for request DeleteRequest"
         )
-      case Resource.users =>
-        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request DeleteRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in DeleteRequest")
     }
   }

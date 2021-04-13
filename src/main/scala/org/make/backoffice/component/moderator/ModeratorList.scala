@@ -32,11 +32,10 @@ import org.make.backoffice.facade.AdminOnRest.Fields._
 import org.make.backoffice.facade.AdminOnRest.Inputs._
 import org.make.backoffice.facade.AdminOnRest.Filter._
 import org.make.backoffice.facade.AdminOnRest.List._
-import org.make.backoffice.facade.MaterialUi._
 import org.make.backoffice.facade.Choice
-import org.make.backoffice.model.{Moderator, Role}
+import org.make.backoffice.model.Role
 
-object UsersList {
+object ModeratorList {
 
   case class UsersListProps() extends RouterProps
 
@@ -45,14 +44,14 @@ object UsersList {
   private lazy val reactClass: ReactClass =
     React
       .createClass[UsersListProps, Unit](
-        displayName = "UsersList",
+        displayName = "ModeratorList",
         render = self => {
           <.List(
             ^.perPage := 50,
-            ^.title := "Users",
+            ^.title := "Moderators",
             ^.location := self.props.location,
             ^.sortList := Map("field" -> "first_name", "order" -> "ASC"),
-            ^.resource := Resource.users,
+            ^.resource := Resource.moderators,
             ^.filters := usersFilters(),
             ^.hasCreate := true
           )(
@@ -61,10 +60,6 @@ object UsersList {
               <.TextField(^.source := "firstName", ^.label := "firstname")(),
               <.TextField(^.source := "lastName", ^.label := "lastname")(),
               <.TextField(^.source := "email")(),
-              <.FunctionField(^.label := "roles", ^.sortable := false, ^.render := { record =>
-                val moderator = record.asInstanceOf[Moderator]
-                moderator.roles.map(role => <.Chip(^.style := Map("marginTop" -> "5px"))(role))
-              })(),
               <.TextField(^.source := "country", ^.sortable := false)()
             )
           )

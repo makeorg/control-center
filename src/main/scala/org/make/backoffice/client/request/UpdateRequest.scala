@@ -46,8 +46,6 @@ object UpdateRequest {
       case Resource.ideas =>
         val request = params.asInstanceOf[UpdateRequest[Idea]]
         IdeaService.updateIdea(request.id, request.data)
-      case Resource.users =>
-        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request UpdateRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in UpdateRequest")
     }
   }

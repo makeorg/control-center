@@ -36,7 +36,7 @@ import org.make.backoffice.util.Configuration
 
 import scala.scalajs.js
 
-object EditUser {
+object EditModerator {
 
   case class EditUserProps() extends RouterProps
 
@@ -45,7 +45,7 @@ object EditUser {
   private lazy val reactClass =
     React
       .createClass[EditUserProps, Unit](
-        displayName = "EditUser",
+        displayName = "EditModerator",
         render = self => {
 
           val rolesChoice: Seq[Choice] =

@@ -85,8 +85,8 @@ object CustomMenu {
             )(),
             <.Divider.empty,
             <.MenuItemLink(
-              ^.to := s"/${Resource.users}",
-              ^.primaryText := "Users",
+              ^.to := s"/${Resource.moderators}",
+              ^.primaryText := "Moderators",
               ^.leftIcon := moderatorIcon,
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
             )(),

@@ -44,8 +44,6 @@ object GetOneRequest {
       case Resource.ideas =>
         val request = params.asInstanceOf[GetOneRequest]
         IdeaService.getIdea(request.id)
-      case Resource.users =>
-        throw ResourceNotImplementedException(s"Resource ${Resource.users} not implemented for request GetOneRequest")
       case unknownResource => throw UnknownResourceException(s"Unknown resource: $unknownResource in GetOneRequest")
     }
   }
