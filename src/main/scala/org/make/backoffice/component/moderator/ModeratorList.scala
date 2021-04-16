@@ -67,19 +67,10 @@ object ModeratorList {
       )
 
   def usersFilters(): ReactElement = {
-    val rolesChoice: Seq[Choice] =
-      Role.roles.values.map(role => Choice(id = role.shortName, name = role.shortName)).toSeq
-
     <.Filter(^.resource := Resource.users)(
       Seq(
         <.TextInput(^.label := "Email", ^.source := "email", ^.alwaysOn := true)(),
-        <.SelectInput(
-          ^.label := "roles",
-          ^.source := "role",
-          ^.choices := rolesChoice,
-          ^.alwaysOn := true,
-          ^.allowEmpty := true
-        )()
+        <.TextInput(^.label := "First name", ^.source := "firstName", ^.alwaysOn := true)()
       )
     )
   }
