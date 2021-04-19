@@ -184,6 +184,9 @@ trait CirceClassFormatters extends TimeInstances {
   implicit lazy val proposalActionDecoder: Decoder[ProposalAction] =
     Decoder.forProduct4("date", "user", "actionType", "arguments")(ProposalAction.apply)
 
+  implicit lazy val proposalActionAuthorDecoder: Decoder[ProposalActionAuthor] =
+    Decoder.forProduct2("id", "displayName")(ProposalActionAuthor.apply)
+
   implicit lazy val requestContextDecoder: Decoder[RequestContext] =
     Decoder.forProduct9(
       "requestId",
