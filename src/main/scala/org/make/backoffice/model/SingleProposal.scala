@@ -69,14 +69,14 @@ object RequestContext {
 @js.native
 trait ProposalAction extends js.Object {
   val date: Date
-  val user: js.UndefOr[User]
+  val user: js.UndefOr[ProposalActionAuthor]
   val actionType: String
   val arguments: js.Dictionary[String]
 }
 
 object ProposalAction {
   def apply(date: ZonedDateTime,
-            user: Option[User],
+            user: Option[ProposalActionAuthor],
             actionType: String,
             arguments: Map[String, String]): ProposalAction =
     js.Dynamic
@@ -87,6 +87,22 @@ object ProposalAction {
         arguments = arguments.toJSDictionary
       )
       .asInstanceOf[ProposalAction]
+}
+
+@js.native
+trait ProposalActionAuthor extends js.Object {
+  val id: UserId
+  val displayName: js.UndefOr[String]
+}
+
+object ProposalActionAuthor {
+  def apply(id: UserId, displayName: Option[String]): ProposalActionAuthor =
+    js.Dynamic
+      .literal(
+        id = id,
+        displayName = displayName.orUndefined
+      )
+      .asInstanceOf[ProposalActionAuthor]
 }
 
 @js.native
