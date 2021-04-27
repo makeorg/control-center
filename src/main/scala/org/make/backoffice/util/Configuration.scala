@@ -38,6 +38,9 @@ object Configuration extends CirceClassFormatters {
     CountryConfiguration(countryCode = "AT", defaultLanguage = "de", supportedLanguages = Seq("de")),
     CountryConfiguration(countryCode = "BE", defaultLanguage = "nl", supportedLanguages = Seq("fr", "nl")),
     CountryConfiguration(countryCode = "BG", defaultLanguage = "bg", supportedLanguages = Seq("bg")),
+    CountryConfiguration(countryCode = "BR", defaultLanguage = "pt", supportedLanguages = Seq("pt")),
+    CountryConfiguration(countryCode = "CA", defaultLanguage = "en", supportedLanguages = Seq("fr", "en")),
+    CountryConfiguration(countryCode = "CN", defaultLanguage = "en", supportedLanguages = Seq("en")),
     CountryConfiguration(countryCode = "HR", defaultLanguage = "hr", supportedLanguages = Seq("hr")),
     CountryConfiguration(countryCode = "CY", defaultLanguage = "el", supportedLanguages = Seq("el")),
     CountryConfiguration(countryCode = "CZ", defaultLanguage = "cs", supportedLanguages = Seq("cs")),
@@ -49,20 +52,26 @@ object Configuration extends CirceClassFormatters {
     CountryConfiguration(countryCode = "GR", defaultLanguage = "el", supportedLanguages = Seq("el")),
     CountryConfiguration(countryCode = "HU", defaultLanguage = "hu", supportedLanguages = Seq("hu")),
     CountryConfiguration(countryCode = "IE", defaultLanguage = "en", supportedLanguages = Seq("en")),
+    CountryConfiguration(countryCode = "IN", defaultLanguage = "en", supportedLanguages = Seq("en")),
     CountryConfiguration(countryCode = "IT", defaultLanguage = "it", supportedLanguages = Seq("it")),
+    CountryConfiguration(countryCode = "JP", defaultLanguage = "en", supportedLanguages = Seq("en")),
     CountryConfiguration(countryCode = "LV", defaultLanguage = "lv", supportedLanguages = Seq("lv")),
     CountryConfiguration(countryCode = "LT", defaultLanguage = "lt", supportedLanguages = Seq("lt")),
     CountryConfiguration(countryCode = "LU", defaultLanguage = "fr", supportedLanguages = Seq("fr")),
     CountryConfiguration(countryCode = "MT", defaultLanguage = "mt", supportedLanguages = Seq("mt")),
     CountryConfiguration(countryCode = "NL", defaultLanguage = "nl", supportedLanguages = Seq("nl")),
+    CountryConfiguration(countryCode = "NO", defaultLanguage = "en", supportedLanguages = Seq("en")),
     CountryConfiguration(countryCode = "PL", defaultLanguage = "pl", supportedLanguages = Seq("pl")),
     CountryConfiguration(countryCode = "PT", defaultLanguage = "pt", supportedLanguages = Seq("pt")),
     CountryConfiguration(countryCode = "RO", defaultLanguage = "ro", supportedLanguages = Seq("ro")),
+    CountryConfiguration(countryCode = "RU", defaultLanguage = "en", supportedLanguages = Seq("en")),
     CountryConfiguration(countryCode = "ES", defaultLanguage = "es", supportedLanguages = Seq("es")),
     CountryConfiguration(countryCode = "SE", defaultLanguage = "sv", supportedLanguages = Seq("sv")),
     CountryConfiguration(countryCode = "SI", defaultLanguage = "sl", supportedLanguages = Seq("sl")),
     CountryConfiguration(countryCode = "SK", defaultLanguage = "sk", supportedLanguages = Seq("sk")),
-    CountryConfiguration(countryCode = "GB", defaultLanguage = "en", supportedLanguages = Seq("en"))
+    CountryConfiguration(countryCode = "GB", defaultLanguage = "en", supportedLanguages = Seq("en")),
+    CountryConfiguration(countryCode = "CH", defaultLanguage = "de", supportedLanguages = Seq("de", "fr", "it")),
+    CountryConfiguration(countryCode = "US", defaultLanguage = "en", supportedLanguages = Seq("en"))
   )
   val supportedLanguages
     : js.Array[Choice] = Language.mapping.map { case (code, label) => Choice(code, label) }.toJSArray
