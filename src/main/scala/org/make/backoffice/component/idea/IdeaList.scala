@@ -79,7 +79,7 @@ object IdeaList {
           ^.source := "questionId",
           ^.reference := Resource.questions,
           ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
-          ^.perPage := 100,
+          ^.perPage := 500,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")()),
       )

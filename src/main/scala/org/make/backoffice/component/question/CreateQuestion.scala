@@ -78,7 +78,7 @@ object CreateQuestion {
                 ^.source := "operationId",
                 ^.reference := Resource.operations,
                 ^.sort := Map("field" -> "slug", "order" -> "ASC"),
-                ^.perPage := 100,
+                ^.perPage := 500,
                 ^.allowEmpty := false,
                 ^.validate := required
               )(<.SelectInput(^.optionText := "slug")()),

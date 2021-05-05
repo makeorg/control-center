@@ -57,7 +57,7 @@ object CreateIdea {
                 ^.source := "questionId",
                 ^.reference := Resource.questions,
                 ^.sort := Map("field" -> "slug", "order" -> "ASC"),
-                ^.perPage := 100,
+                ^.perPage := 500,
                 ^.allowEmpty := true
               )(<.SelectInput(^.optionText := "slug")())
             )

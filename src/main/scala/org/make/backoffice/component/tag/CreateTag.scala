@@ -78,7 +78,7 @@ object CreateTag {
                 ^.translateLabel := ((label: String) => label),
                 ^.source := "questionId",
                 ^.reference := Resource.questions,
-                ^.perPage := 100,
+                ^.perPage := 500,
                 ^.sort := Map("field" -> "slug", "order" -> "ASC"),
                 ^.allowEmpty := true
               )(<.SelectInput(^.optionText := "slug")()),

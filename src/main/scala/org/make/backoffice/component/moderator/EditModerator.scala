@@ -84,7 +84,7 @@ object EditModerator {
                 ^.translateLabel := ((label: String) => label),
                 ^.source := "availableQuestions",
                 ^.reference := Resource.questions,
-                ^.perPage := 100,
+                ^.perPage := 500,
                 ^.sort := Map("field" -> "slug", "order" -> "ASC"),
                 ^.allowEmpty := true
               )(

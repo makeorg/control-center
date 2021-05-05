@@ -196,7 +196,7 @@ object ValidatedProposalList {
         ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
         ^.reference := Resource.questions,
         ^.alwaysOn := true,
-        ^.perPage := 100,
+        ^.perPage := 500,
         ^.allowEmpty := true
       )(<.SelectInput(^.optionText := "slug")()),
       <.NullableBooleanInput(^.label := "Initital Proposal", ^.source := "initialProposal", ^.alwaysOn := true)(),
