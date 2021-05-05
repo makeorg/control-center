@@ -87,7 +87,7 @@ object QuestionConfiguration {
           ^.source := "questionId",
           ^.reference := Resource.questions,
           ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
-          ^.perPage := 100,
+          ^.perPage := 500,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")()),
         <.ReferenceInput(
@@ -96,7 +96,7 @@ object QuestionConfiguration {
           ^.source := "operationId",
           ^.reference := Resource.operations,
           ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
-          ^.perPage := 100,
+          ^.perPage := 500,
           ^.alwaysOn := true
         )(<.SelectInput(^.optionText := "slug")())
       )

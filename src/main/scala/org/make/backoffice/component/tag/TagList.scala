@@ -96,7 +96,7 @@ object TagList {
         ^.source := "questionId",
         ^.sortList := Map("field" -> "slug", "order" -> "ASC"),
         ^.reference := Resource.questions,
-        ^.perPage := 100,
+        ^.perPage := 500,
         ^.alwaysOn := true,
         ^.allowEmpty := true
       )(<.SelectInput(^.optionText := "slug")())

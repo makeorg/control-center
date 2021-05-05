@@ -90,7 +90,7 @@ object EditTopIdea {
                 ^.label := "question",
                 ^.translateLabel := ((label: String) => label),
                 ^.reference := Resource.questions,
-                ^.perPage := 100,
+                ^.perPage := 500,
                 ^.sort := Map("field" -> "slug", "order" -> "ASC"),
               )(<.SelectInput(^.optionText := "slug", ^.options := Map("fullWidth" -> true), ^.validate := required)()),
               <.SelectInput(
