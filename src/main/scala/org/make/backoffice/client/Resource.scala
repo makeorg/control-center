@@ -26,17 +26,12 @@ object Resource {
   val validatedProposals = "validated_proposals"
   val users = "users"
   val operations = "operations"
-  val operationsOfQuestions = "questions"
   val ideas = "ideas"
   val tags = "tags"
   val tagType = "tag-types"
-  val organisations = "organisations"
   val questions = "simple_questions"
-  val moderators = "moderators"
   val ideaMappings = "idea-mappings"
   val partners = "partners"
-  val questionsConfiguration = "question-configuration"
-  val features = "features"
   val questionPersonalities = "question-personalities"
   val personalities = "personalities"
   val topIdeas = "top-ideas"
@@ -49,13 +44,10 @@ object Resource {
       validatedProposals,
       users,
       operations,
-      operationsOfQuestions,
       ideas,
       tags,
       tagType,
-      organisations,
       questions,
-      moderators,
       ideaMappings,
       questionPersonalities,
       personalities,

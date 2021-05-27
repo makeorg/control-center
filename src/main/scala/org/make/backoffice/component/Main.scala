@@ -24,18 +24,13 @@ import io.github.shogowada.scalajs.reactjs.ReactDOM
 import io.github.shogowada.scalajs.reactjs.VirtualDOM._
 import io.github.shogowada.scalajs.reactjs.router.Router._
 import org.make.backoffice.client.{AuthClient, Resource, RestClient}
-import org.make.backoffice.component.feature.{CreateFeature, EditFeature, FeatureList}
 import org.make.backoffice.component.idea.{CreateIdea, EditIdea, IdeaList}
 import org.make.backoffice.component.ideaMappings.{EditIdeaMapping, IdeaMappingsList}
-import org.make.backoffice.component.moderator.{CreateModerator, EditModerator, ModeratorList}
-import org.make.backoffice.component.operation.{CreateOperation, EditOperation, OperationsList}
-import org.make.backoffice.component.organisation.{CreateOrganisation, EditOrganisation, OrganisationList}
 import org.make.backoffice.component.personality.{CreatePersonality, EditPersonality, PersonalityList}
 import org.make.backoffice.component.proposal.common.ShowProposal
 import org.make.backoffice.component.proposal.moderation.{NextProposal, ProposalList}
 import org.make.backoffice.component.proposal.toEnrich.ToEnrichProposalList
 import org.make.backoffice.component.proposal.validated.ValidatedProposalList
-import org.make.backoffice.component.question._
 import org.make.backoffice.component.tag.{CreateTag, EditTag, TagList}
 import org.make.backoffice.component.topIdea.{CreateTopIdea, EditTopIdea, TopIdeaList}
 import org.make.backoffice.facade.AdminOnRest.Admin._
@@ -78,49 +73,14 @@ object Main {
           ^.listing := ValidatedProposalList.ProposalListContainer,
           ^.show := ShowProposal()
         )(),
-        <.Resource(
-          ^.name := Resource.operations,
-          ^.listing := OperationsList(),
-          ^.create := CreateOperation(),
-          ^.edit := EditOperation()
-        )(),
-        <.Resource(
-          ^.name := Resource.operationsOfQuestions,
-          ^.listing := QuestionsList(),
-          ^.create := CreateQuestion(),
-          ^.edit := EditQuestion()
-        )(),
+        <.Resource(^.name := Resource.operations)(),
         <.Resource(^.name := Resource.ideas, ^.listing := IdeaList(), ^.create := CreateIdea(), ^.edit := EditIdea())(),
         <.Resource(^.name := Resource.ideaMappings, ^.listing := IdeaMappingsList(), ^.edit := EditIdeaMapping())(),
         <.Resource(^.name := Resource.tags, ^.listing := TagList(), ^.create := CreateTag(), ^.edit := EditTag())(),
         <.Resource(^.name := Resource.tagType)(),
-        <.Resource(
-          ^.name := Resource.organisations,
-          ^.listing := OrganisationList(),
-          ^.edit := EditOrganisation(),
-          ^.create := CreateOrganisation()
-        )(),
-        <.Resource(
-          ^.name := Resource.moderators,
-          ^.listing := ModeratorList(),
-          ^.edit := EditModerator(),
-          ^.create := CreateModerator()
-        )(),
         <.Resource(^.name := Resource.questions)(),
         <.Resource(^.name := Resource.partners)(),
-        <.Resource(
-          ^.name := Resource.questionsConfiguration,
-          ^.listing := QuestionConfiguration(),
-          ^.edit := EditQuestionConfiguration()
-        )(),
         <.Resource(^.name := Resource.users)(),
-        <.Resource(
-          ^.name := Resource.features,
-          ^.listing := FeatureList(),
-          ^.create := CreateFeature(),
-          ^.edit := EditFeature(),
-          ^.remove := NativeDelete
-        )(),
         <.Resource(^.name := Resource.questionPersonalities)(),
         <.Resource(
           ^.name := Resource.personalities,

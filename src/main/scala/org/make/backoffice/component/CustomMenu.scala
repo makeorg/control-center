@@ -85,48 +85,9 @@ object CustomMenu {
             )(),
             <.Divider.empty,
             <.MenuItemLink(
-              ^.to := s"/${Resource.moderators}",
-              ^.primaryText := "Moderators",
-              ^.leftIcon := moderatorIcon,
-              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
-            )(),
-            <.Divider.empty,
-            <.MenuItemLink(
-              ^.to := s"/${Resource.organisations}",
-              ^.primaryText := "Organisations",
-              ^.leftIcon := organisationIcon,
-              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
-            )(),
-            <.MenuItemLink(
               ^.to := s"/${Resource.personalities}",
               ^.primaryText := "Personalities",
               ^.leftIcon := personalitiesIcon,
-              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
-            )(),
-            <.Divider.empty,
-            <.MenuItemLink(
-              ^.to := s"/${Resource.operations}",
-              ^.primaryText := "Operations",
-              ^.leftIcon := operationIcon,
-              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
-            )(),
-            <.MenuItemLink(
-              ^.to := s"/${Resource.operationsOfQuestions}",
-              ^.primaryText := "Questions",
-              ^.leftIcon := questionIcon,
-              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
-            )(),
-            <.MenuItemLink(
-              ^.to := s"/${Resource.questionsConfiguration}",
-              ^.primaryText := "Questions Configuration",
-              ^.leftIcon := questionsConfigurationIcon,
-              ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
-            )(),
-            <.Divider.empty,
-            <.MenuItemLink(
-              ^.to := s"/${Resource.features}",
-              ^.primaryText := "Features",
-              ^.leftIcon := featuresIcon,
               ^.onClick := self.props.native.onMenuTap.asInstanceOf[js.Function0[Unit]]
             )(),
             <.Divider.empty,
