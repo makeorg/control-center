@@ -22,7 +22,6 @@ package org.make.backoffice.util
 
 import io.circe.java8.time.TimeInstances
 import io.circe.{Decoder, Encoder, Json}
-import org.make.backoffice.model.Question.DataConfiguration
 import org.make.backoffice.model._
 
 trait CirceClassFormatters extends TimeInstances {
@@ -121,9 +120,6 @@ trait CirceClassFormatters extends TimeInstances {
   implicit lazy val proposalsResultDecoder: Decoder[ProposalsResult] =
     Decoder.forProduct2("total", "results")(ProposalsResult.apply)
 
-  implicit lazy val operationsResultDecoder: Decoder[OperationsResult] =
-    Decoder.forProduct2("total", "results")(OperationsResult.apply)
-
   implicit lazy val voteDecoder: Decoder[Vote] =
     Decoder.forProduct3("key", "count", "qualifications")(Vote.apply)
 
@@ -203,9 +199,6 @@ trait CirceClassFormatters extends TimeInstances {
   implicit lazy val countryConfigDecoder: Decoder[CountryConfiguration] =
     Decoder.forProduct3("countryCode", "defaultLanguage", "supportedLanguages")(CountryConfiguration.apply)
 
-  implicit lazy val operationDecoder: Decoder[Operation] =
-    Decoder.forProduct5("operationId", "status", "slug", "createdAt", "updatedAt")(Operation.apply)
-
   implicit lazy val questionDecoder: Decoder[Question] =
     Decoder.forProduct12(
       "id",
@@ -224,76 +217,4 @@ trait CirceClassFormatters extends TimeInstances {
 
   implicit lazy val resultsLinkDecoder: Decoder[ResultsLink] =
     Decoder.forProduct2("kind", "value")(ResultsLink.apply)
-
-  implicit lazy val dataConfigurationDecoder: Decoder[DataConfiguration] =
-    Decoder.forProduct17(
-      "newProposalsRatio",
-      "newProposalsVoteThreshold",
-      "testedProposalsEngagementThreshold",
-      "testedProposalsScoreThreshold",
-      "testedProposalsControversyThreshold",
-      "testedProposalsMaxVotesThreshold",
-      "nonSequenceVotesWeight",
-      "intraIdeaEnabled",
-      "intraIdeaMinCount",
-      "intraIdeaProposalsRatio",
-      "interIdeaCompetitionEnabled",
-      "interIdeaCompetitionTargetCount",
-      "interIdeaCompetitionControversialRatio",
-      "interIdeaCompetitionControversialCount",
-      "maxTestedProposalCount",
-      "sequenceSize",
-      "selectionAlgorithmName"
-    )(DataConfiguration.apply)
-
-  implicit lazy val dataConfigurationEncoder: Encoder[DataConfiguration] =
-    Encoder.forProduct17(
-      "newProposalsRatio",
-      "newProposalsVoteThreshold",
-      "testedProposalsEngagementThreshold",
-      "testedProposalsScoreThreshold",
-      "testedProposalsControversyThreshold",
-      "testedProposalsMaxVotesThreshold",
-      "nonSequenceVotesWeight",
-      "intraIdeaEnabled",
-      "intraIdeaMinCount",
-      "intraIdeaProposalsRatio",
-      "interIdeaCompetitionEnabled",
-      "interIdeaCompetitionTargetCount",
-      "interIdeaCompetitionControversialRatio",
-      "interIdeaCompetitionControversialCount",
-      "maxTestedProposalCount",
-      "sequenceSize",
-      "selectionAlgorithmName"
-    )(
-      dataConfiguration =>
-        (
-          dataConfiguration.newProposalsRatio,
-          dataConfiguration.newProposalsVoteThreshold,
-          dataConfiguration.testedProposalsEngagementThreshold.toOption,
-          dataConfiguration.testedProposalsScoreThreshold.toOption,
-          dataConfiguration.testedProposalsControversyThreshold.toOption,
-          dataConfiguration.testedProposalsMaxVotesThreshold.toOption,
-          dataConfiguration.nonSequenceVotesWeight,
-          dataConfiguration.intraIdeaEnabled,
-          dataConfiguration.intraIdeaMinCount,
-          dataConfiguration.intraIdeaProposalsRatio,
-          dataConfiguration.interIdeaCompetitionEnabled,
-          dataConfiguration.interIdeaCompetitionTargetCount,
-          dataConfiguration.interIdeaCompetitionControversialRatio,
-          dataConfiguration.interIdeaCompetitionControversialCount,
-          dataConfiguration.maxTestedProposalCount,
-          dataConfiguration.sequenceSize,
-          dataConfiguration.selectionAlgorithmName
-      )
-    )
-
-  implicit lazy val organisationDecoder: Decoder[Organisation] =
-    Decoder.forProduct3("id", "organisationName", "profile")(Organisation.apply)
-
-  implicit lazy val partnerDecoder: Decoder[Partner] =
-    Decoder.forProduct7("id", "organisationId", "name", "logo", "link", "partnerKind", "weight")(Partner.apply)
-
-  implicit lazy val activeFeatureDecoder: Decoder[ActiveFeature] =
-    Decoder.forProduct3("id", "featureId", "maybeQuestionId")(ActiveFeature.apply)
 }

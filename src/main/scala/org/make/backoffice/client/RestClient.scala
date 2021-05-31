@@ -55,19 +55,12 @@ object RestClient extends CirceClassFormatters {
     resource match {
       case Resource.tags          => retryOnFailure(jsonClient(restVerb, resource, parameters), 5).toJSPromise
       case Resource.tagType       => retryOnFailure(jsonClient(restVerb, resource, parameters), 5).toJSPromise
-      case Resource.organisations => retryOnFailure(jsonClient(restVerb, resource, parameters), 5).toJSPromise
       case Resource.questions     => retryOnFailure(jsonClient(restVerb, "questions", parameters), 5).toJSPromise
       case Resource.operations    => retryOnFailure(jsonClient(restVerb, resource, parameters), 5).toJSPromise
-      case Resource.operationsOfQuestions =>
-        retryOnFailure(jsonClient(restVerb, "operations-of-questions", parameters), 5).toJSPromise
-      case Resource.moderators   => retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise
       case Resource.users        => retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise
       case Resource.ideas        => retryOnFailure(jsonClient(restVerb, resource, parameters), 5).toJSPromise
       case Resource.ideaMappings => retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise
       case Resource.partners     => retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise
-      case Resource.questionsConfiguration =>
-        retryOnFailure(jsonClient(restVerb, "operations-of-questions", parameters), 5).toJSPromise
-      case Resource.features => retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise
       case Resource.questionPersonalities =>
         retryOnFailure(adminJsonClient(restVerb, resource, parameters), 5).toJSPromise
       case Resource.personalities =>

@@ -20,18 +20,12 @@
 
 package org.make.backoffice.service.question
 
-import io.circe.syntax._
-import io.circe.Encoder
-import org.make.backoffice.client.{ListTotalResponse, SingleResponse}
-import org.make.backoffice.client.request.{Filter, Pagination, Sort}
-import org.make.backoffice.model.Question.DataConfiguration
-import org.make.backoffice.model.{ProposalIdResult, Question}
+import org.make.backoffice.client.ListTotalResponse
+import org.make.backoffice.client.request.{Filter, Pagination}
+import org.make.backoffice.model.Question
 import org.make.backoffice.service.ApiService
-import org.make.backoffice.service.image.UploadResponse
 import org.make.backoffice.util.CirceClassFormatters
 import org.make.backoffice.util.uri._
-import org.scalajs.dom.FormData
-import org.scalajs.dom.ext.Ajax.InputData
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -40,13 +34,6 @@ import scala.scalajs.js
 object QuestionService extends ApiService with CirceClassFormatters {
 
   override val resourceName: String = "moderation/operations-of-questions"
-
-  def getQuestionById(id: String): Future[SingleResponse[Question]] =
-    client.get[Question](resourceName / id).map(SingleResponse.apply).recover {
-      case e =>
-        js.Dynamic.global.console.log(s"instead of converting to SingleResponse: failed cursor $e")
-        throw e
-    }
 
   def questions(pagination: Option[Pagination] = None,
                 filters: Option[Seq[Filter]] = None): Future[ListTotalResponse[Question]] = {
@@ -66,92 +53,5 @@ object QuestionService extends ApiService with CirceClassFormatters {
           js.Dynamic.global.console.log(s"instead of converting to Question: failed cursor $e")
           throw e
       }
-  }
-
-  def addInitialProposal(questionId: String, request: InitialProposalRequest): Future[Unit] = {
-    client
-      .post[ProposalIdResult](
-        apiEndpoint = s"moderation/questions/$questionId/initial-proposals",
-        data = request.asJson.pretty(ApiService.printer)
-      )
-      .map(_ => ())
-      .recover {
-        case e =>
-          js.Dynamic.global.console.log(s"instead of converting to Question: failed cursor $e")
-          throw e
-      }
-  }
-
-  def refuseInitialProposals(questionId: String): Future[Unit] = {
-    client
-      .post[ProposalIdResult](apiEndpoint = s"moderation/questions/$questionId/initial-proposals/refuse")
-      .map(_ => ())
-      .recover {
-        case e =>
-          js.Dynamic.global.console.log(s"instead of converting to Question: failed cursor $e")
-          throw e
-      }
-  }
-
-  def getDataConfiguration(questionId: String): Future[DataConfiguration] = {
-    client.get[DataConfiguration](apiEndpoint = s"moderation/sequences/$questionId/configuration").recover {
-      case e =>
-        js.Dynamic.global.console.log(s"instead of converting to DataConfiguration: failed cursor $e")
-        throw e
-    }
-  }
-
-  def putDataConfiguration(questionId: String, request: DataConfiguration): Future[Boolean] = {
-    client
-      .put[Boolean](
-        apiEndpoint = s"moderation/sequences/$questionId/configuration",
-        data = request.asJson.pretty(ApiService.printer)
-      )
-      .recover {
-        case e =>
-          js.Dynamic.global.console.log(s"instead of converting to DataConfiguration: failed cursor $e")
-          throw e
-      }
-  }
-
-  def uploadImage(questionId: String, formData: FormData): Future[UploadResponse] = {
-    val data: InputData = InputData.formdata2ajax(formData)
-    client
-      .post[UploadResponse](
-        apiEndpoint = s"moderation/questions/$questionId/image",
-        data = data,
-        includeContentType = false
-      )
-      .recover {
-        case e =>
-          js.Dynamic.global.console.log(s"instead of converting to UploadResponse: failed cursor $e")
-          throw e
-      }
-  }
-
-  case class InitialProposalRequest(content: String,
-                                    author: AuthorRequest,
-                                    country: Option[String],
-                                    tags: Array[String] = Array())
-
-  object InitialProposalRequest {
-    implicit lazy val encoder: Encoder[InitialProposalRequest] =
-      Encoder.forProduct4("content", "author", "country", "tags")(
-        initialProposalRequest =>
-          (
-            initialProposalRequest.content,
-            initialProposalRequest.author,
-            initialProposalRequest.country,
-            initialProposalRequest.tags
-        )
-      )
-  }
-
-  case class AuthorRequest(age: Option[String], firstName: Option[String], lastName: Option[String])
-
-  object AuthorRequest {
-    implicit lazy val encoder: Encoder[AuthorRequest] = Encoder.forProduct3("age", "firstName", "lastName")(
-      authorRequest => (authorRequest.age, authorRequest.firstName, authorRequest.lastName)
-    )
   }
 }
